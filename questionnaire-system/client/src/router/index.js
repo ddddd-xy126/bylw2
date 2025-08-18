@@ -2,11 +2,13 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
 import Login from '@/views/Login.vue'
 import Dashboard from '@/views/admin/Dashboard.vue'
+import QuestionnaireDetail from '@/views/QuestionnaireDetail.vue'
 
 const routes = [
   { path: '/', name: 'home', component: Home },
   { path: '/login', name: 'login', component: Login },
-  { path: '/admin', name: 'admin', component: Dashboard }
+  { path: '/admin', name: 'admin', component: Dashboard },
+  { path: '/q/:id', name: 'questionnaire-detail', component: QuestionnaireDetail }
 ]
 
 const router = createRouter({
