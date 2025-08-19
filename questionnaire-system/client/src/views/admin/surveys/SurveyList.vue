@@ -1,12 +1,23 @@
 <template>
-  <div class="admin-qm">
-    <el-page-header content="后台 - 问卷管理" @back="$router.push('/admin')" />
+  <div class="admin-survey-list">
+    <el-page-header content="后台 - 问卷列表" @back="$router.push('/admin')" />
     <el-card style="margin-top: 16px">
+      <div style="margin-bottom: 12px; display: flex; gap: 8px">
+        <el-button type="primary" @click="$router.push('/admin/surveys/create')"
+          >新建问卷</el-button
+        >
+        <el-button @click="fetch">刷新</el-button>
+      </div>
       <el-table :data="items">
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="title" label="标题" />
-        <el-table-column label="操作" width="160">
+        <el-table-column label="操作" width="220">
           <template #default="{ row }">
+            <el-button
+              size="small"
+              @click="$router.push(`/admin/surveys/edit/${row.id}`)"
+              >编辑</el-button
+            >
             <el-popconfirm title="确认删除?" @confirm="remove(row.id)">
               <template #reference>
                 <el-button size="small" type="danger">删除</el-button>
@@ -35,7 +46,7 @@ onMounted(fetch);
 </script>
 
 <style scoped>
-.admin-qm {
+.admin-survey-list {
   padding: 16px;
 }
 </style>
