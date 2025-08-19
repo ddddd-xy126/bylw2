@@ -1,87 +1,180 @@
 # 智能问卷分析系统（Vue3 + Node.js）
 
-基于 Vue3 与 Node.js 的智能问卷分析系统，融合扣子平台 AI 的个性化反馈机制。系统包含用户端与后台管理端两部分，前后端通过 API 交互完成问卷创建、填写、审核、发布、数据分析与个性化报告生成。
+基于 Vue3 + Express + MySQL 的前后端分离问卷系统，支持用户端测评、个人中心与排行榜，及后台的问卷/用户/管理员管理与数据统计。已对接后端 API，前端通过 Vite 代理访问 `/api` 前缀，即可直连后端。
 
 ## 技术选型
 
-- 前端：Vue3、Vite、Pinia、Vue Router、Element Plus、ECharts、GSAP、Lottie、CSS3、SVG、html2canvas、jsPDF、Axios
-- 后端：Node.js、Express、JWT、Sequelize ORM、MySQL、Axios（调用扣子平台 API）
+- 前端：Vue3、Vite、Pinia、Vue Router、Element Plus、Axios
+- 后端：Node.js、Express、JWT、Sequelize ORM、MySQL
 
-## 目录结构
+## 目录结构（规整后）
 
 ```text
 questionnaire-system/
-├── client/                  # 前端（Vite + Vue3）
+├── client/                         # 前端（Vite + Vue3）
 │   ├── public/
 │   ├── src/
 │   │   ├── assets/
 │   │   ├── components/
 │   │   │   ├── common/
 │   │   │   └── questionnaire/
+│   │   ├── layouts/
+│   │   │   ├── AdminLayout.vue
+│   │   │   └── UserLayout.vue      # 全站头部：智能问卷分析系统 | 问卷广场 | 登录/注册 或 昵称/退出
 │   │   ├── views/
 │   │   │   ├── admin/
-│   │   │   └── user/
+│   │   │   │   ├── AdminLogin.vue              # /admin/login
+│   │   │   │   ├── Dashboard.vue               # /admin/dashboard
+│   │   │   │   ├── AdminManagement.vue         # /admin/admins
+│   │   │   │   ├── UserManage.vue              # /admin/users
+│   │   │   │   ├── surveys/
+│   │   │   │   │   ├── SurveyList.vue          # /admin/surveys
+│   │   │   │   │   ├── SurveyEditor.vue        # /admin/surveys/create | /admin/surveys/edit/:id
+│   │   │   │   │   └── SurveyReview.vue        # /admin/surveys/review
+│   │   │   │   └── statistics/
+│   │   │   │       ├── Completion.vue          # /admin/statistics/completion
+│   │   │   │       └── Distribution.vue        # /admin/statistics/distribution
+│   │   │   ├── user/
+│   │   │   │   ├── Login.vue                   # /login
+│   │   │   │   ├── Register.vue                # /register
+│   │   │   │   ├── ResetPassword.vue           # /reset-password
+│   │   │   │   ├── Home.vue                    # /home（问卷广场）
+│   │   │   │   ├── SurveyDetail.vue            # /surveys/:id（详情）
+│   │   │   │   ├── SurveyAnswer.vue            # /surveys/answer/:id（作答）
+│   │   │   │   ├── SurveyResult.vue            # /surveys/result/:recordId（报告）
+│   │   │   │   ├── rankings/
+│   │   │   │   │   ├── RankingsLayout.vue      # /rankings（父级）
+│   │   │   │   │   ├── Participation.vue       # /rankings/participation
+│   │   │   │   │   ├── Rating.vue              # /rankings/rating
+│   │   │   │   │   └── UserPoints.vue          # /rankings/user-points
+│   │   │   │   └── profile/
+│   │   │   │       ├── ProfileLayout.vue       # /profile（父级带侧边菜单）
+│   │   │   │       ├── Info.vue                # /profile/info
+│   │   │   │       ├── Creations.vue           # /profile/creations
+│   │   │   │       ├── CreationEditor.vue      # /profile/creations/editor
+│   │   │   │       ├── History.vue             # /profile/history
+│   │   │   │       ├── Collections.vue         # /profile/collections
+│   │   │   │       ├── Achievements.vue        # /profile/achievements
+│   │   │   │       └── Reports.vue             # /profile/reports
+│   │   │   └── error/
+│   │   │       ├── 403.vue
+│   │   │       └── 404.vue
 │   │   ├── router/
+│   │   │   ├── index.js                        # 合并路由与全局守卫（requiresAuth / requiresAdmin）
+│   │   │   ├── adminRoutes.js
+│   │   │   └── userRoutes.js
 │   │   ├── store/
-│   │   ├── api/
+│   │   │   ├── index.js
+│   │   │   └── user.js                         # token/profile 本地持久化
+│   │   ├── api/                                # 统一 Axios 实例（自动注入 Authorization）
 │   │   ├── utils/
 │   │   ├── animations/
 │   │   ├── App.vue
 │   │   └── main.js
 │   ├── index.html
 │   ├── package.json
-│   └── vite.config.js
+│   └── vite.config.js                          # devServer 代理 /api → http://localhost:3000
 │
-├── server/                  # 后端（Express + Sequelize + MySQL）
+├── server/                         # 后端（Express + Sequelize + MySQL）
 │   ├── config/
 │   │   └── config.default.js
 │   ├── controllers/
+│   │   ├── adminController.js
+│   │   ├── questionnaireController.js
+│   │   └── userController.js
 │   ├── middleware/
+│   │   ├── authMiddleware.js                  # verifyToken / isAdmin
+│   │   └── errorHandler.js
 │   ├── models/
+│   │   ├── index.js（可选）
+│   │   ├── user.js（含 role: ENUM('user','admin')）
+│   │   ├── questionnaire.js
+│   │   ├── question.js
+│   │   └── answer.js
 │   ├── routes/
+│   │   ├── index.js                           # 聚合 /user /questionnaire /admin /auth
+│   │   ├── userRoutes.js                      # /api/user/*
+│   │   ├── questionnaireRoutes.js             # /api/questionnaire/*
+│   │   ├── admin.js                           # /api/admin/*（受保护）
+│   │   └── auth.js                            # /api/auth/login（与 /api/user/login 等价）
 │   ├── services/
 │   ├── app.js
 │   └── package.json
 │
-├── .gitignore
 └── README.md
 ```
 
+## 前后端连通性说明
+
+- 前端 Axios 实例 `client/src/api/index.js` 统一设置 `baseURL: '/api'`，并在请求拦截器中自动注入 `Authorization: Bearer <token>`。
+- 前端开发代理见 `client/vite.config.js`：将 `/api` 代理到 `http://localhost:3000`（后端）。
+- 后端在 `server/app.js` 中挂载 `app.use('/api', apiRoutes)`，与前端 `/api/*` 路径直接对接。
+
+## 主要路由与权限
+
+前端（示例）：
+
+- 用户端：
+  - `/home`（问卷广场）
+  - `/surveys/:id`（详情）→ `/surveys/answer/:id`（作答）→ `/surveys/result/:recordId`（报告）
+  - `/rankings/*`（参与度/评分/积分）
+  - `/profile/*`（资料/创作/历史/收藏/成就/报告），父路由 `meta: { requiresAuth: true }`
+  - `/login`、`/register`、`/reset-password`
+- 管理端（均需管理员）：
+  - `/admin/login`（管理员登录）
+  - `/admin/dashboard`
+  - `/admin/admins`、`/admin/users`
+  - `/admin/surveys`、`/admin/surveys/create`、`/admin/surveys/edit/:id`、`/admin/surveys/review`
+  - `/admin/statistics/completion`、`/admin/statistics/distribution`
+
+权限策略：
+
+- 全局路由守卫位于 `client/src/router/index.js`，按 `to.meta.requiresAuth` 和 `to.meta.requiresAdmin` 判定：
+  - 未登录访问需登录路由 → 重定向至 `/login`（或管理员页重定向 `/admin/login`）
+  - 非管理员访问管理员路由 → 重定向 `/403`
+- 用户状态存储于 Pinia：`store/user.js`，并持久化到 `localStorage`。
+
+后端 API（节选）：
+
+- 认证与用户
+  - `POST /api/user/register` 注册
+  - `POST /api/user/login` 登录（也可 `POST /api/auth/login`）
+  - `GET  /api/user/profile`（需登录）
+- 问卷
+  - `GET  /api/questionnaire` 列表
+  - `GET  /api/questionnaire/:id` 详情（含题目示例数据）
+  - `POST /api/questionnaire` 创建（需登录）
+- 管理员（需 `verifyToken + isAdmin`）
+  - `GET    /api/admin/users` 用户列表
+  - `DELETE /api/admin/surveys/:id` 删除问卷
+
 ## 快速开始
 
-### 环境准备
+1. 后端
 
-- Node.js 18+
-- 本地 MySQL（建议创建数据库 `questionnaire_db`）
+```bash
+cd server
+npm i
+# 配置数据库：编辑 config/config.default.js（或用环境变量覆盖）
+npm run dev
+# 运行在 http://localhost:3000，启动时会 sequelize.sync()
+```
 
-### 后端启动
+2. 前端
 
-1. 进入 `server/`：
-2. 安装依赖：`npm i`
-3. 配置数据库：编辑 `config/config.default.js`（或使用环境变量覆盖）
-4. 启动：`npm run dev`
+```bash
+cd client
+npm i
+npm run dev
+# 运行在 http://localhost:5173，经 vite 代理访问后端 /api
+```
 
-服务默认运行于 `http://localhost:3000`，启动时会自动 `sequelize.sync()` 同步模型。
+## 备注
 
-### 前端启动
-
-1. 进入 `client/`
-2. 安装依赖：`npm i`
-3. 开发模式：`npm run dev`
-
-开发服务器默认 `http://localhost:5173`，已通过 Vite 代理将 `/api` 转发到 `http://localhost:3000`。
-
-## 主要功能概览
-
-- 用户端：注册登录、个人中心（资料、收藏、历史、成就）、问卷管理（分类/搜索/推荐/排行榜/动态答题/评分评论）、个性化反馈报告（AI 分析 + 图表 + 下载）、游戏化交互（动画、积分、徽章）
-- 管理端：问卷与题目管理（创建/编辑/审核/发布/下架/删除/跳转逻辑/权限）、人员信息管理、数据可视化统计
-
-## 扣子平台 AI 接入
-
-在 `server/services/aiService.js` 中预置 `generateAnalysis` 服务。可通过环境变量或 `config.default.js` 配置扣子平台 API 地址与密钥，然后在 `questionnaireController` 的相应处理函数中调用生成个性化报告。
+- 用户端头部统一在 `UserLayout.vue`，未登录显示“登录/注册”，已登录显示“昵称/退出”。
+- `QuestionnaireDetail.vue` 负责动态作答逻辑的核心已抽离为专用作答页 `views/user/SurveyAnswer.vue` 并通过 `/surveys/answer/:id` 路由访问。
+- 如需接入 AI 个性化报告，可在 `server/services/` 中扩展服务，并在相应 Controller 中调用。
 
 ## 许可证
 
 MIT
-
-
