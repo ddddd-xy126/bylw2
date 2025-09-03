@@ -10,6 +10,20 @@
         <el-table-column prop="email" label="邮箱" />
         <el-table-column prop="nickname" label="昵称" />
         <el-table-column prop="role" label="角色" width="120" />
+        <el-table-column label="操作" width="160">
+          <template #default="{ row }">
+            <el-button
+              size="small"
+              type="warning"
+              v-if="!row.banned"
+              @click="ban(row.id)"
+              >封禁</el-button
+            >
+            <el-button size="small" type="primary" v-else @click="unban(row.id)"
+              >解封</el-button
+            >
+          </template>
+        </el-table-column>
       </el-table>
     </el-card>
   </div>
@@ -22,6 +36,14 @@ const items = ref([]);
 const fetch = async () => {
   const { items: list } = await request.get("/admin/users");
   items.value = list;
+};
+const ban = async (id) => {
+  await request.post(`/admin/users/${id}/ban`);
+  await fetch();
+};
+const unban = async (id) => {
+  await request.post(`/admin/users/${id}/unban`);
+  await fetch();
 };
 onMounted(fetch);
 </script>

@@ -36,7 +36,12 @@ const submit = async () => {
   const { token, user } = await loginAuth(form);
   userStore.setToken(token);
   userStore.setProfile(user);
-  router.push("/home");
+  // redirect admin to admin dashboard, others to home
+  if (user?.role === "admin") {
+    router.push("/admin/dashboard");
+  } else {
+    router.push("/home");
+  }
 };
 
 const goHome = () => router.push("/home");

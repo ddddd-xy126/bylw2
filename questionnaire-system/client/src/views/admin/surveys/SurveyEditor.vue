@@ -32,7 +32,12 @@ async function save() {
   if (isEdit.value) {
     // 占位：保存编辑
   } else {
-    await request.post("/questionnaire", form);
+    // use admin endpoint when inside admin routes
+    if (router.currentRoute.value.path.startsWith("/admin")) {
+      await request.post("/admin/surveys", form);
+    } else {
+      await request.post("/questionnaire", form);
+    }
   }
   router.push("/admin/surveys");
 }

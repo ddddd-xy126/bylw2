@@ -7,6 +7,7 @@ import SurveyDetail from "@/views/user/SurveyDetail.vue";
 import QuestionnaireDetail from "@/views/user/SurveyAnswer.vue";
 import SurveyResult from "@/views/user/SurveyResult.vue";
 import RankingsLayout from "@/views/user/rankings/RankingsLayout.vue";
+import Category from "@/views/Category.vue";
 import Participation from "@/views/user/rankings/Participation.vue";
 import Rating from "@/views/user/rankings/Rating.vue";
 import UserPoints from "@/views/user/rankings/UserPoints.vue";
@@ -29,6 +30,7 @@ export default [
     children: [
       { path: "", redirect: "/home" },
       { path: "home", component: Home },
+      { path: "category", component: Category },
       { path: "surveys/:id", component: SurveyDetail },
       { path: "surveys/answer/:id", component: QuestionnaireDetail },
       { path: "surveys/result/:recordId", component: SurveyResult },
@@ -36,6 +38,7 @@ export default [
         path: "rankings",
         component: RankingsLayout,
         children: [
+          { path: "", redirect: "/rankings/participation" },
           { path: "participation", component: Participation },
           { path: "rating", component: Rating },
           { path: "user-points", component: UserPoints },

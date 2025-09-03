@@ -2,6 +2,12 @@
   <div class="admin-qm">
     <el-page-header content="后台 - 问卷管理" @back="$router.push('/admin')" />
     <el-card style="margin-top: 16px">
+      <div style="margin-bottom: 12px; display: flex; gap: 8px">
+        <el-button type="primary" @click="$router.push('/admin/surveys/create')"
+          >新建问卷</el-button
+        >
+        <el-button @click="fetch">刷新</el-button>
+      </div>
       <el-table :data="items">
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="title" label="标题" />
