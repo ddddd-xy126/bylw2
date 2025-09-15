@@ -4,7 +4,16 @@ export const useUserStore = defineStore("user", {
   state: () => ({
     token: localStorage.getItem("token") || "",
     profile: JSON.parse(localStorage.getItem("profile") || "null"),
+    favorites: [],
+    answers: [],
+    achievements: null,
+    reports: [],
   }),
+  getters: {
+    isLoggedIn: (state) => !!state.token,
+    isAdmin: (state) => state.profile?.role === "admin",
+    userName: (state) => state.profile?.nickname || "用户",
+  },
   actions: {
     setToken(token) {
       this.token = token;
@@ -14,9 +23,19 @@ export const useUserStore = defineStore("user", {
       this.profile = profile;
       localStorage.setItem("profile", JSON.stringify(profile));
     },
+    setUserData(data) {
+      this.favorites = Array.isArray(data.favorites) ? data.favorites : [];
+      this.answers = Array.isArray(data.answers) ? data.answers : [];
+      this.achievements = data.achievements;
+      this.reports = Array.isArray(data.reports) ? data.reports : [];
+    },
     logout() {
       this.token = "";
       this.profile = null;
+      this.favorites = [];
+      this.answers = [];
+      this.achievements = null;
+      this.reports = [];
       localStorage.removeItem("token");
       localStorage.removeItem("profile");
     },
