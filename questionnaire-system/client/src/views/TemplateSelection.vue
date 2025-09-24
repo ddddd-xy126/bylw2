@@ -177,7 +177,7 @@
             </el-button>
             <el-button 
               size="small"
-              @click.stop="previewTemplate(template)"
+              @click.stop="showPreview(template)"
             >
               预览
             </el-button>
@@ -691,7 +691,7 @@ const useTemplate = (template) => {
   router.push(`/create/template/${template.id}`)
 }
 
-const previewTemplate = (template) => {
+const showPreview = (template) => {
   previewTemplate.value = template
   previewVisible.value = true
 }
