@@ -33,14 +33,23 @@ const userStore = useUserStore();
 const form = reactive({ email: "", password: "" });
 
 const submit = async () => {
-  const { token, user } = await loginAuth(form);
-  userStore.setToken(token);
-  userStore.setProfile(user);
-  // redirect admin to admin dashboard, others to home
-  if (user?.role === "admin") {
-    router.push("/admin/dashboard");
-  } else {
-    router.push("/home");
+  try {
+    const response = await loginAuth(form);
+    // 处理不同的响应格式
+    const { token, user } = response.data || response;
+    
+    userStore.setToken(token);
+    userStore.setProfile(user);
+    
+    // redirect admin to admin dashboard, others to home
+    if (user?.role === "admin") {
+      router.push("/admin/dashboard");
+    } else {
+      router.push("/home");
+    }
+  } catch (error) {
+    console.error('登录失败:', error);
+    // 这里可以添加错误提示
   }
 };
 

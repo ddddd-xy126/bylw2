@@ -3,7 +3,17 @@ import { defineStore } from "pinia";
 export const useUserStore = defineStore("user", {
   state: () => ({
     token: localStorage.getItem("token") || "",
-    profile: JSON.parse(localStorage.getItem("profile") || "null"),
+    profile: (() => {
+      const profileData = localStorage.getItem("profile");
+      if (!profileData || profileData === "undefined") {
+        return null;
+      }
+      try {
+        return JSON.parse(profileData);
+      } catch {
+        return null;
+      }
+    })(),
     favorites: [],
     answers: [],
     achievements: null,

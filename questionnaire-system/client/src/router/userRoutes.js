@@ -8,6 +8,7 @@ import QuestionnaireDetail from "@/views/user/SurveyAnswer.vue";
 import SurveyResult from "@/views/user/SurveyResult.vue";
 import RankingsLayout from "@/views/user/rankings/RankingsLayout.vue";
 import Category from "@/views/Category.vue";
+import Forum from "@/views/Forum.vue";
 import Participation from "@/views/user/rankings/Participation.vue";
 import Rating from "@/views/user/rankings/Rating.vue";
 import UserPoints from "@/views/user/rankings/UserPoints.vue";
@@ -19,6 +20,9 @@ import History from "@/views/user/History.vue";
 import Collections from "@/views/user/profile/Collections.vue";
 import Achievements from "@/views/user/profile/Achievements.vue";
 import Reports from "@/views/user/profile/Reports.vue";
+import CreateQuestionnaire from "@/views/CreateQuestionnaire.vue";
+import TemplateSelection from "@/views/TemplateSelection.vue";
+import CustomCreate from "@/views/CustomCreate.vue";
 
 export default [
   { path: "/login", component: Login },
@@ -30,7 +34,7 @@ export default [
     children: [
       { path: "", redirect: "/home" },
       { path: "home", component: Home },
-      { path: "category", component: Category },
+      { path: "forum", component: Forum },
       { path: "surveys/:id", component: SurveyDetail },
       { path: "surveys/answer/:id", component: QuestionnaireDetail },
       { path: "surveys/result/:recordId", component: SurveyResult },
@@ -59,6 +63,9 @@ export default [
           { path: "reports", component: Reports },
         ],
       },
+      { path: "create", component: CreateQuestionnaire, meta: { requiresAuth: true } },
+      { path: "create/templates", component: TemplateSelection, meta: { requiresAuth: true } },
+      { path: "create/custom", component: CustomCreate, meta: { requiresAuth: true } },
     ],
   },
 ];

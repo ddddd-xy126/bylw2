@@ -7,24 +7,26 @@
       <div class="header-center">
         <nav class="nav-center">
           <router-link to="/home">首页</router-link>
-          <router-link to="/category">问卷分类</router-link>
+          <router-link to="/forum">问卷论坛</router-link>
+          <router-link v-if="isAuthed" to="/create">创建问卷</router-link>
           <router-link to="/rankings/participation">问卷排行榜</router-link>
+          <router-link v-if="isAuthed" to="/profile">个人中心</router-link>
         </nav>
       </div>
       <div class="header-right">
         <router-link v-if="!isAuthed" to="/login">登录</router-link>
         <router-link v-if="!isAuthed" to="/register">注册</router-link>
 
-  <el-dropdown v-if="isAuthed" @command="handleCommand">
-          <span class="el-dropdown-link">{{ nickname || "个人中心" }}</span>
+        <el-dropdown v-if="isAuthed" @command="handleCommand">
+          <span class="el-dropdown-link">{{ nickname || "用户" }}</span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item command="profile">个人中心</el-dropdown-item>
-              <el-dropdown-item command="logout">退出</el-dropdown-item>
+              <el-dropdown-item command="logout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
-  <router-link v-if="isAuthed && profile?.role === 'admin'" to="/admin/dashboard">后台管理</router-link>
+        
+        <router-link v-if="isAuthed && profile?.role === 'admin'" to="/admin/dashboard">后台管理</router-link>
       </div>
     </header>
     <main class="main">
@@ -50,13 +52,21 @@ const nickname = computed(() => profile.value?.nickname);
 const router = useRouter();
 
 function logout() {
+  // 判断当前用户是否是管理员
+  const isAdmin = profile.value?.role === 'admin';
+  
   userStore.logout();
+  
+  // 根据用户角色重定向到不同的登录页面
+  if (isAdmin) {
+    router.replace("/admin/login");
+  } else {
+    router.replace("/login");
+  }
 }
 
 function handleCommand(command) {
-  if (command === "profile") {
-    router.push("/profile");
-  } else if (command === "logout") {
+  if (command === "logout") {
     logout();
   }
 }

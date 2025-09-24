@@ -9,9 +9,12 @@
         <el-form-item label="密码">
           <el-input v-model="form.password" type="password" />
         </el-form-item>
-        <el-button type="primary" :loading="loading" @click="onSubmit"
-          >登录</el-button
-        >
+        <el-form-item>
+          <el-button type="primary" :loading="loading" @click="onSubmit"
+            >登录</el-button
+          >
+          <el-button type="text" @click="goToHome">返回首页</el-button>
+        </el-form-item>
       </el-form>
     </el-card>
   </div>
@@ -31,16 +34,27 @@ const form = ref({ email: "", password: "" });
 async function onSubmit() {
   loading.value = true;
   try {
-    const { token, user } = await loginApi(form.value);
+    const response = await loginApi(form.value);
+    // 处理不同的响应格式
+    const { token, user } = response.data || response;
+    
     store.setToken(token);
     store.setProfile(user);
+    
     if (user.role !== "admin") {
       return router.replace("/403");
     }
     router.replace("/admin/dashboard");
+  } catch (error) {
+    console.error('登录失败:', error);
+    // 这里可以添加错误提示
   } finally {
     loading.value = false;
   }
+}
+
+function goToHome() {
+  router.push("/home");
 }
 </script>
 
