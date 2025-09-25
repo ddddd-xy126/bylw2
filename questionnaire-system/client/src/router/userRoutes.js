@@ -7,7 +7,7 @@ import SurveyDetailPage from "@/views/frontend/survey/DetailPage.vue";
 import SurveyAnswerPage from "@/views/frontend/survey/AnswerPage.vue";
 import SurveyResultPage from "@/views/frontend/survey/ResultPage.vue";
 import RankingsLayout from "@/views/frontend/rankings/RankingsLayout.vue";
-import ForumPage from "@/views/common/ForumPage.vue";
+import ForumPage from "@/views/frontend/forum/ForumPage.vue";
 import ParticipationPage from "@/views/frontend/rankings/ParticipationPage.vue";
 import RatingPage from "@/views/frontend/rankings/RatingPage.vue";
 import UserPointsPage from "@/views/frontend/rankings/UserPointsPage.vue";
