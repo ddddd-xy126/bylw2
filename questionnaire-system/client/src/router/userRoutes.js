@@ -1,51 +1,51 @@
 import UserLayout from "@/layouts/UserLayout.vue";
-import Home from "@/views/Home.vue";
-import Login from "@/views/Login.vue";
-import Register from "@/views/user/Register.vue";
-import ResetPassword from "@/views/user/ResetPassword.vue";
-import SurveyDetail from "@/views/user/SurveyDetail.vue";
-import QuestionnaireDetail from "@/views/user/SurveyAnswer.vue";
-import SurveyResult from "@/views/user/SurveyResult.vue";
-import RankingsLayout from "@/views/user/rankings/RankingsLayout.vue";
-import Category from "@/views/Category.vue";
-import Forum from "@/views/Forum.vue";
-import Participation from "@/views/user/rankings/Participation.vue";
-import Rating from "@/views/user/rankings/Rating.vue";
-import UserPoints from "@/views/user/rankings/UserPoints.vue";
-import ProfileLayout from "@/views/user/profile/ProfileLayout.vue";
-import Info from "@/views/user/profile/Info.vue";
-import Creations from "@/views/user/profile/Creations.vue";
-import CreationEditor from "@/views/user/profile/CreationEditor.vue";
-import History from "@/views/user/History.vue";
-import Collections from "@/views/user/profile/Collections.vue";
-import Achievements from "@/views/user/profile/Achievements.vue";
-import Reports from "@/views/user/profile/Reports.vue";
-import CreateQuestionnaire from "@/views/CreateQuestionnaire.vue";
-import TemplateSelection from "@/views/TemplateSelection.vue";
-import CustomCreate from "@/views/CustomCreate.vue";
+import HomePage from "@/views/home/HomePage.vue";
+import LoginPage from "@/views/auth/LoginPage.vue";
+import RegisterPage from "@/views/auth/RegisterPage.vue";
+import ResetPasswordPage from "@/views/auth/ResetPasswordPage.vue";
+import SurveyDetailPage from "@/views/survey/DetailPage.vue";
+import SurveyAnswerPage from "@/views/survey/AnswerPage.vue";
+import SurveyResultPage from "@/views/survey/ResultPage.vue";
+import RankingsLayout from "@/views/user/RankingsLayout.vue";
+import CategoryPage from "@/views/common/CategoryPage.vue";
+import ForumPage from "@/views/common/ForumPage.vue";
+import ParticipationPage from "@/views/user/components/rankings/ParticipationPage.vue";
+import RatingPage from "@/views/user/components/rankings/RatingPage.vue";
+import UserPointsPage from "@/views/user/components/rankings/UserPointsPage.vue";
+import ProfileLayout from "@/views/user/ProfileLayout.vue";
+import InfoPage from "@/views/user/components/profile/InfoPage.vue";
+import CreationsPage from "@/views/user/components/profile/CreationsPage.vue";
+import CreationEditor from "@/views/user/components/profile/CreationEditor.vue";
+import HistoryPage from "@/views/user/HistoryPage.vue";
+import CollectionsPage from "@/views/user/components/profile/CollectionsPage.vue";
+import AchievementsPage from "@/views/user/components/profile/AchievementsPage.vue";
+import ReportsPage from "@/views/user/components/profile/ReportsPage.vue";
+import CreateQuestionnairePage from "@/views/questionnaire/CreatePage.vue";
+import TemplateSelectionPage from "@/views/questionnaire/TemplateSelectionPage.vue";
+import CustomCreatePage from "@/views/questionnaire/CustomCreatePage.vue";
 
 export default [
-  { path: "/login", component: Login },
-  { path: "/register", component: Register },
-  { path: "/reset-password", component: ResetPassword },
+  { path: "/login", component: LoginPage },
+  { path: "/register", component: RegisterPage },
+  { path: "/reset-password", component: ResetPasswordPage },
   {
     path: "/",
     component: UserLayout,
     children: [
       { path: "", redirect: "/home" },
-      { path: "home", component: Home },
-      { path: "forum", component: Forum },
-      { path: "surveys/:id", component: SurveyDetail },
-      { path: "surveys/answer/:id", component: QuestionnaireDetail },
-      { path: "surveys/result/:recordId", component: SurveyResult },
+      { path: "home", component: HomePage },
+      { path: "forum", component: ForumPage },
+      { path: "surveys/:id", component: SurveyDetailPage },
+      { path: "surveys/answer/:id", component: SurveyAnswerPage },
+      { path: "surveys/result/:recordId", component: SurveyResultPage },
       {
         path: "rankings",
         component: RankingsLayout,
         children: [
           { path: "", redirect: "/rankings/participation" },
-          { path: "participation", component: Participation },
-          { path: "rating", component: Rating },
-          { path: "user-points", component: UserPoints },
+          { path: "participation", component: ParticipationPage },
+          { path: "rating", component: RatingPage },
+          { path: "user-points", component: UserPointsPage },
         ],
       },
       {
@@ -54,18 +54,18 @@ export default [
         meta: { requiresAuth: true },
         children: [
           { path: "", redirect: "/profile/info" },
-          { path: "info", component: Info },
-          { path: "creations", component: Creations },
+          { path: "info", component: InfoPage },
+          { path: "creations", component: CreationsPage },
           { path: "creations/editor", component: CreationEditor },
-          { path: "history", component: History },
-          { path: "collections", component: Collections },
-          { path: "achievements", component: Achievements },
-          { path: "reports", component: Reports },
+          { path: "history", component: HistoryPage },
+          { path: "collections", component: CollectionsPage },
+          { path: "achievements", component: AchievementsPage },
+          { path: "reports", component: ReportsPage },
         ],
       },
-      { path: "create", component: CreateQuestionnaire, meta: { requiresAuth: true } },
-      { path: "create/templates", component: TemplateSelection, meta: { requiresAuth: true } },
-      { path: "create/custom", component: CustomCreate, meta: { requiresAuth: true } },
+      { path: "create", component: CreateQuestionnairePage, meta: { requiresAuth: true } },
+      { path: "create/templates", component: TemplateSelectionPage, meta: { requiresAuth: true } },
+      { path: "create/custom", component: CustomCreatePage, meta: { requiresAuth: true } },
     ],
   },
 ];

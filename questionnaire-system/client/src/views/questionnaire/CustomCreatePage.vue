@@ -381,7 +381,7 @@ import {
   Promotion
 } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
-import QuestionEditor from '@/components/create/QuestionEditor.vue'
+import QuestionEditor from './components/QuestionEditor.vue'
 
 const router = useRouter()
 

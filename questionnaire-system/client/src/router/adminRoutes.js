@@ -1,35 +1,35 @@
 import AdminLayout from "@/layouts/AdminLayout.vue";
-import AdminLogin from "@/views/admin/AdminLogin.vue";
-import Dashboard from "@/views/admin/Dashboard.vue";
-import UserManagement from "@/views/admin/UserManage.vue";
-import AdminManagement from "@/views/admin/AdminManagement.vue";
-import CreateUser from "@/views/admin/CreateUser.vue";
-import SurveyList from "@/views/admin/surveys/SurveyList.vue";
-import SurveyEditor from "@/views/admin/surveys/SurveyEditor.vue";
-import SurveyReview from "@/views/admin/surveys/SurveyReview.vue";
-import Completion from "@/views/admin/statistics/Completion.vue";
-import Distribution from "@/views/admin/statistics/Distribution.vue";
-import QuestionManage from "@/views/admin/QuestionManage.vue";
+import AdminLoginPage from "@/views/admin/LoginPage.vue";
+import DashboardPage from "@/views/admin/DashboardPage.vue";
+import UserManagePage from "@/views/admin/components/users/UserManagePage.vue";
+import AdminManagePage from "@/views/admin/components/users/AdminManagePage.vue";
+import CreateUserPage from "@/views/admin/components/users/CreateUserPage.vue";
+import SurveyListPage from "@/views/admin/components/surveys/SurveyListPage.vue";
+import SurveyEditorPage from "@/views/admin/components/surveys/SurveyEditorPage.vue";
+import SurveyReviewPage from "@/views/admin/components/surveys/SurveyReviewPage.vue";
+import CompletionPage from "@/views/admin/components/statistics/CompletionPage.vue";
+import DistributionPage from "@/views/admin/components/statistics/DistributionPage.vue";
+import QuestionManagePage from "@/views/admin/components/questions/QuestionManagePage.vue";
 
 export default [
-  { path: "/admin/login", component: AdminLogin },
+  { path: "/admin/login", component: AdminLoginPage },
   {
     path: "/admin",
     component: AdminLayout,
     meta: { requiresAuth: true, requiresAdmin: true },
     children: [
       { path: "", redirect: "/admin/dashboard" },
-      { path: "dashboard", component: Dashboard },
-      { path: "admins", component: AdminManagement },
-      { path: "admins/create", component: CreateUser },
-      { path: "users", component: UserManagement },
-      { path: "surveys", component: SurveyList },
-      { path: "surveys/create", component: SurveyEditor },
-      { path: "surveys/edit/:id", component: SurveyEditor },
-      { path: "surveys/review", component: SurveyReview },
-      { path: "questions", component: QuestionManage },
-      { path: "statistics/completion", component: Completion },
-      { path: "statistics/distribution", component: Distribution },
+      { path: "dashboard", component: DashboardPage },
+      { path: "admins", component: AdminManagePage },
+      { path: "admins/create", component: CreateUserPage },
+      { path: "users", component: UserManagePage },
+      { path: "surveys", component: SurveyListPage },
+      { path: "surveys/create", component: SurveyEditorPage },
+      { path: "surveys/edit/:id", component: SurveyEditorPage },
+      { path: "surveys/review", component: SurveyReviewPage },
+      { path: "questions", component: QuestionManagePage },
+      { path: "statistics/completion", component: CompletionPage },
+      { path: "statistics/distribution", component: DistributionPage },
     ],
   },
 ];

@@ -100,10 +100,10 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useHomeLogic } from "@/composables/useHomeLogic";
-import SearchFilter from "@/components/home/SearchFilter.vue";
-import StatsCards from "@/components/home/StatsCards.vue";
-import SurveyList from "@/components/home/SurveyList.vue";
-import FeaturedSurveys from "@/components/home/FeaturedSurveys.vue";
+import SearchFilter from "./components/SearchFilter.vue";
+import StatsCards from "./components/StatsCards.vue";
+import SurveyList from "./components/SurveyList.vue";
+import FeaturedSurveys from "./components/FeaturedSurveys.vue";
 
 const router = useRouter();
 const surveysSection = ref(null);
