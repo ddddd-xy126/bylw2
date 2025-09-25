@@ -22,31 +22,36 @@ questionnaire-system/
 │   │   │   ├── AdminLayout.vue
 │   │   │   └── UserLayout.vue      # 全站头部：智能问卷分析系统 | 问卷广场 | 登录/注册 或 昵称/退出
 │   │   ├── views/
-│   │   │   ├── admin/
-│   │   │   │   ├── AdminLogin.vue              # /admin/login
-│   │   │   │   ├── Dashboard.vue               # /admin/dashboard
-│   │   │   │   ├── AdminManagement.vue         # /admin/admins
-│   │   │   │   ├── UserManage.vue              # /admin/users
-│   │   │   │   ├── surveys/
-│   │   │   │   │   ├── SurveyList.vue          # /admin/surveys
-│   │   │   │   │   ├── SurveyEditor.vue        # /admin/surveys/create | /admin/surveys/edit/:id
-│   │   │   │   │   └── SurveyReview.vue        # /admin/surveys/review
-│   │   │   │   └── statistics/
-│   │   │   │       ├── Completion.vue          # /admin/statistics/completion
-│   │   │   │       └── Distribution.vue        # /admin/statistics/distribution
-│   │   │   ├── user/
-│   │   │   │   ├── Login.vue                   # /login
-│   │   │   │   ├── Register.vue                # /register
-│   │   │   │   ├── ResetPassword.vue           # /reset-password
-│   │   │   │   ├── Home.vue                    # /home（问卷广场）
-│   │   │   │   ├── SurveyDetail.vue            # /surveys/:id（详情）
-│   │   │   │   ├── SurveyAnswer.vue            # /surveys/answer/:id（作答）
-│   │   │   │   ├── SurveyResult.vue            # /surveys/result/:recordId（报告）
+│   │   │   ├── frontend/                       # 前台页面
+│   │   │   │   ├── auth/
+│   │   │   │   │   ├── LoginPage.vue           # /login
+│   │   │   │   │   ├── RegisterPage.vue        # /register
+│   │   │   │   │   └── ResetPasswordPage.vue   # /reset-password
+│   │   │   │   ├── home/
+│   │   │   │   │   └── HomePage.vue            # /home（问卷广场）
+│   │   │   │   ├── survey/
+│   │   │   │   │   ├── DetailPage.vue          # /surveys/:id（详情）
+│   │   │   │   │   ├── AnswerPage.vue          # /surveys/answer/:id（作答）
+│   │   │   │   │   └── ResultPage.vue          # /surveys/result/:recordId（报告）
 │   │   │   │   ├── rankings/
 │   │   │   │   │   ├── RankingsLayout.vue      # /rankings（父级）
-│   │   │   │   │   ├── Participation.vue       # /rankings/participation
-│   │   │   │   │   ├── Rating.vue              # /rankings/rating
-│   │   │   │   │   └── UserPoints.vue          # /rankings/user-points
+│   │   │   │   │   ├── ParticipationPage.vue   # /rankings/participation
+│   │   │   │   │   ├── RatingPage.vue          # /rankings/rating
+│   │   │   │   │   ├── UserPointsPage.vue      # /rankings/user-points
+│   │   │   │   │   └── components/             # 排行榜相关组件
+│   │   │   │   ├── user/
+│   │   │   │   │   ├── ProfileLayout.vue       # /profile（父级带侧边菜单）
+│   │   │   │   │   ├── HistoryPage.vue         # /profile/history
+│   │   │   │   │   └── components/profile/     # 用户相关组件
+│   │   │   │   └── questionnaire/
+│   │   │   │       ├── CreatePage.vue          # /create
+│   │   │   │       ├── TemplateSelectionPage.vue # /create/templates
+│   │   │   │       └── CustomCreatePage.vue    # /create/custom
+│   │   │   ├── backend/                        # 后台管理页面
+│   │   │   │   └── admin/
+│   │   │   │       ├── LoginPage.vue           # /admin/login
+│   │   │   │       ├── DashboardPage.vue       # /admin/dashboard
+│   │   │   │       └── components/             # 后台管理组件
 │   │   │   │   └── profile/
 │   │   │   │       ├── ProfileLayout.vue       # /profile（父级带侧边菜单）
 │   │   │   │       ├── Info.vue                # /profile/info
@@ -172,7 +177,7 @@ npm run dev
 ## 备注
 
 - 用户端头部统一在 `UserLayout.vue`，未登录显示“登录/注册”，已登录显示“昵称/退出”。
-- `QuestionnaireDetail.vue` 负责动态作答逻辑的核心已抽离为专用作答页 `views/user/SurveyAnswer.vue` 并通过 `/surveys/answer/:id` 路由访问。
+- `QuestionnaireDetail.vue` 负责动态作答逻辑的核心已抽离为专用作答页 `views/frontend/survey/AnswerPage.vue` 并通过 `/surveys/answer/:id` 路由访问。
 - 如需接入 AI 个性化报告，可在 `server/services/` 中扩展服务，并在相应 Controller 中调用。
 
 ## 许可证

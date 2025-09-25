@@ -1,28 +1,32 @@
 import UserLayout from "@/layouts/UserLayout.vue";
-import HomePage from "@/views/home/HomePage.vue";
-import LoginPage from "@/views/auth/LoginPage.vue";
-import RegisterPage from "@/views/auth/RegisterPage.vue";
-import ResetPasswordPage from "@/views/auth/ResetPasswordPage.vue";
-import SurveyDetailPage from "@/views/survey/DetailPage.vue";
-import SurveyAnswerPage from "@/views/survey/AnswerPage.vue";
-import SurveyResultPage from "@/views/survey/ResultPage.vue";
-import RankingsLayout from "@/views/user/RankingsLayout.vue";
-import CategoryPage from "@/views/common/CategoryPage.vue";
+import HomePage from "@/views/frontend/home/HomePage.vue";
+import LoginPage from "@/views/frontend/auth/LoginPage.vue";
+import RegisterPage from "@/views/frontend/auth/RegisterPage.vue";
+import ResetPasswordPage from "@/views/frontend/auth/ResetPasswordPage.vue";
+import SurveyDetailPage from "@/views/frontend/survey/DetailPage.vue";
+import SurveyAnswerPage from "@/views/frontend/survey/AnswerPage.vue";
+import SurveyResultPage from "@/views/frontend/survey/ResultPage.vue";
+import RankingsLayout from "@/views/frontend/rankings/RankingsLayout.vue";
 import ForumPage from "@/views/common/ForumPage.vue";
-import ParticipationPage from "@/views/user/components/rankings/ParticipationPage.vue";
-import RatingPage from "@/views/user/components/rankings/RatingPage.vue";
-import UserPointsPage from "@/views/user/components/rankings/UserPointsPage.vue";
-import ProfileLayout from "@/views/user/ProfileLayout.vue";
-import InfoPage from "@/views/user/components/profile/InfoPage.vue";
-import CreationsPage from "@/views/user/components/profile/CreationsPage.vue";
-import CreationEditor from "@/views/user/components/profile/CreationEditor.vue";
-import HistoryPage from "@/views/user/HistoryPage.vue";
-import CollectionsPage from "@/views/user/components/profile/CollectionsPage.vue";
-import AchievementsPage from "@/views/user/components/profile/AchievementsPage.vue";
-import ReportsPage from "@/views/user/components/profile/ReportsPage.vue";
-import CreateQuestionnairePage from "@/views/questionnaire/CreatePage.vue";
-import TemplateSelectionPage from "@/views/questionnaire/TemplateSelectionPage.vue";
-import CustomCreatePage from "@/views/questionnaire/CustomCreatePage.vue";
+import ParticipationPage from "@/views/frontend/rankings/ParticipationPage.vue";
+import RatingPage from "@/views/frontend/rankings/RatingPage.vue";
+import UserPointsPage from "@/views/frontend/rankings/UserPointsPage.vue";
+import ProfileLayout from "@/views/frontend/user/ProfileLayout.vue";
+import InfoPage from "@/views/frontend/user/components/profile/InfoPage.vue";
+import CreationsPage from "@/views/frontend/user/components/profile/CreationsPage.vue";
+import CreationEditor from "@/views/frontend/user/components/profile/CreationEditor.vue";
+import HistoryPage from "@/views/frontend/user/HistoryPage.vue";
+import CollectionsPage from "@/views/frontend/user/components/profile/CollectionsPage.vue";
+import AchievementsPage from "@/views/frontend/user/components/profile/AchievementsPage.vue";
+import ReportsPage from "@/views/frontend/user/components/profile/ReportsPage.vue";
+import CreateQuestionnairePage from "@/views/frontend/questionnaire/CreatePage.vue";
+import TemplateSelectionPage from "@/views/frontend/questionnaire/TemplateSelectionPage.vue";
+import CustomCreatePage from "@/views/frontend/questionnaire/CustomCreatePage.vue";
+import AnsweredPage from "@/views/frontend/user/components/questionnaires/AnsweredPage.vue";
+import CreatedPage from "@/views/frontend/user/components/questionnaires/CreatedPage.vue";
+import PendingPage from "@/views/frontend/user/components/questionnaires/PendingPage.vue";
+import PublishedPage from "@/views/frontend/user/components/questionnaires/PublishedPage.vue";
+import TrashPage from "@/views/frontend/user/components/questionnaires/TrashPage.vue";
 
 export default [
   { path: "/login", component: LoginPage },
@@ -55,12 +59,18 @@ export default [
         children: [
           { path: "", redirect: "/profile/info" },
           { path: "info", component: InfoPage },
-          { path: "creations", component: CreationsPage },
-          { path: "creations/editor", component: CreationEditor },
-          { path: "history", component: HistoryPage },
           { path: "collections", component: CollectionsPage },
+          { path: "history", component: HistoryPage },
+          { path: "questionnaires/answered", component: AnsweredPage },
+          { path: "questionnaires/created", component: CreatedPage },
+          { path: "questionnaires/pending", component: PendingPage },
+          { path: "questionnaires/published", component: PublishedPage },
+          { path: "questionnaires/trash", component: TrashPage },
           { path: "achievements", component: AchievementsPage },
           { path: "reports", component: ReportsPage },
+          // 保留原有的创建页面路由
+          { path: "creations", component: CreationsPage },
+          { path: "creations/editor", component: CreationEditor },
         ],
       },
       { path: "create", component: CreateQuestionnairePage, meta: { requiresAuth: true } },

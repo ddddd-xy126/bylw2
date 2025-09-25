@@ -43,17 +43,6 @@
       />
     </div>
 
-    <!-- 搜索和过滤 -->
-    <div class="search-wrapper">
-      <SearchFilter
-        v-model:search-query="searchQuery"
-        v-model:selected-category="selectedCategory"
-        :categories="categories"
-        @search="handleSearch"
-        @category-change="handleCategoryChange"
-      />
-    </div>
-
     <!-- 热门推荐 -->
     <div class="featured-wrapper">
       <FeaturedSurveys
@@ -62,6 +51,17 @@
         @survey-click="goToSurvey"
         @survey-start="goToSurvey"
         @toggle-favorite="toggleFavorite"
+      />
+    </div>
+
+    <!-- 搜索和过滤 -->
+    <div class="search-wrapper">
+      <SearchFilter
+        v-model:search-query="searchQuery"
+        v-model:selected-category="selectedCategory"
+        :categories="categories"
+        @search="handleSearch"
+        @category-change="handleCategoryChange"
       />
     </div>
 
@@ -173,20 +173,20 @@ onMounted(() => {
 <style scoped>
 .home {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
 /* 欢迎横幅 */
 .welcome-banner {
   position: relative;
-  min-height: 500px;
+  min-height: 480px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  margin-bottom: 60px;
+  margin-bottom: 40px;
 }
 
 .banner-content {
@@ -197,21 +197,24 @@ onMounted(() => {
 }
 
 .banner-title {
-  font-size: 3.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(45deg, #ffffff, #e8f4fd);
+  font-size: 3.2rem;
+  font-weight: 800;
+  margin-bottom: 1.2rem;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #ffffff 0%, #e8f4fd 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  letter-spacing: -0.02em;
 }
 
 .banner-subtitle {
-  font-size: 1.25rem;
-  margin-bottom: 2rem;
-  opacity: 0.9;
-  line-height: 1.6;
+  font-size: 1.3rem;
+  margin-bottom: 2.5rem;
+  opacity: 0.95;
+  line-height: 1.7;
+  font-weight: 400;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .banner-actions {
@@ -222,18 +225,35 @@ onMounted(() => {
 }
 
 .banner-actions .el-button {
-  padding: 12px 32px;
-  font-size: 1rem;
-  border-radius: 25px;
+  padding: 14px 36px;
+  font-size: 1.05rem;
+  border-radius: 50px;
   border: none;
   font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.banner-actions .el-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s;
 }
 
 .banner-actions .el-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+}
+
+.banner-actions .el-button:hover::before {
+  left: 100%;
 }
 
 /* 装饰元素 */
@@ -297,33 +317,78 @@ onMounted(() => {
 }
 
 .stats-wrapper {
-  margin-bottom: 40px;
-  transform: translateY(-30px);
-}
-
-.search-wrapper {
-  margin-bottom: 40px;
-  background: white;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
+  margin-bottom: 32px;
+  transform: translateY(-20px);
 }
 
 .featured-wrapper {
-  margin-bottom: 60px;
-  background: white;
-  padding: 40px 30px;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  margin-bottom: 32px;
+  background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+  padding: 36px 32px;
+  border-radius: 24px;
+  box-shadow: 
+    0 8px 32px rgba(102, 126, 234, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  position: relative;
+  overflow: hidden;
+}
+
+.featured-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+.search-wrapper {
+  margin-bottom: 24px;
+  background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+  padding: 32px;
+  border-radius: 24px;
+  box-shadow: 
+    0 8px 32px rgba(102, 126, 234, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.search-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
 }
 
 .surveys-section {
-  background: white;
-  padding: 40px 30px;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+  padding: 36px 32px;
+  border-radius: 24px;
+  box-shadow: 
+    0 8px 32px rgba(102, 126, 234, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   margin-bottom: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.surveys-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
 }
 
 .pagination-section {
@@ -334,20 +399,65 @@ onMounted(() => {
 }
 
 .pagination-section .el-pagination {
-  background: white;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+  padding: 24px 32px;
+  border-radius: 20px;
+  box-shadow: 
+    0 8px 32px rgba(102, 126, 234, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+/* 添加滚动动画 */
+.stats-wrapper,
+.featured-wrapper,
+.search-wrapper,
+.surveys-section {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.featured-wrapper {
+  animation-delay: 0.1s;
+}
+
+.search-wrapper {
+  animation-delay: 0.2s;
+}
+
+.surveys-section {
+  animation-delay: 0.3s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 悬停效果 */
+.featured-wrapper:hover,
+.search-wrapper:hover,
+.surveys-section:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 16px 48px rgba(102, 126, 234, 0.16),
+    0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
   .banner-title {
-    font-size: 2.5rem;
+    font-size: 2.4rem;
   }
   
   .banner-subtitle {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
   }
   
   .banner-actions {
@@ -362,8 +472,9 @@ onMounted(() => {
   .search-wrapper,
   .featured-wrapper,
   .surveys-section {
-    margin: 0 15px 30px;
-    padding: 20px;
+    margin: 0 15px 24px;
+    padding: 24px 20px;
+    border-radius: 20px;
   }
   
   .stats-wrapper {
@@ -373,18 +484,38 @@ onMounted(() => {
   .decoration-circle {
     display: none;
   }
+  
+  .banner-actions .el-button {
+    padding: 12px 28px;
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
   .banner-title {
     font-size: 2rem;
+    letter-spacing: -0.01em;
+  }
+  
+  .banner-subtitle {
+    font-size: 1.1rem;
   }
   
   .search-wrapper,
   .featured-wrapper,
   .surveys-section {
     margin: 0 10px 20px;
-    padding: 15px;
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+  
+  .banner-actions .el-button {
+    padding: 10px 24px;
+    font-size: 0.95rem;
+  }
+  
+  .welcome-banner {
+    min-height: 400px;
   }
 }
 </style>
