@@ -10,6 +10,9 @@ import SurveyReviewPage from "@/views/backend/admin/components/surveys/SurveyRev
 import CompletionPage from "@/views/backend/admin/components/statistics/CompletionPage.vue";
 import DistributionPage from "@/views/backend/admin/components/statistics/DistributionPage.vue";
 import QuestionManagePage from "@/views/backend/admin/components/questions/QuestionManagePage.vue";
+import QuestionnaireListPage from "@/views/backend/admin/components/questionnaires/QuestionnaireListPage.vue";
+import PendingQuestionnairesPage from "@/views/backend/admin/components/questionnaires/PendingQuestionnairesPage.vue";
+import AdminProfilePage from "@/views/backend/admin/components/profile/AdminProfilePage.vue";
 
 export default [
   { path: "/admin/login", component: AdminLoginPage },
@@ -28,6 +31,9 @@ export default [
       { path: "surveys/edit/:id", component: SurveyEditorPage },
       { path: "surveys/review", component: SurveyReviewPage },
       { path: "questions", component: QuestionManagePage },
+      { path: "questionnaires/list", component: QuestionnaireListPage },
+      { path: "questionnaires/pending", component: PendingQuestionnairesPage },
+      { path: "profile", component: AdminProfilePage },
       { path: "statistics/completion", component: CompletionPage },
       { path: "statistics/distribution", component: DistributionPage },
     ],

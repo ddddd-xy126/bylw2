@@ -1,0 +1,777 @@
+<template>
+  <div class="questionnaire-list-page">
+    <!-- 页面头部 -->
+    <div class="page-header">
+      <div class="header-content">
+        <h1>问卷列表</h1>
+        <p>管理所有系统中的问卷</p>
+      </div>
+      <div class="header-actions">
+        <el-button type="primary" @click="createQuestionnaire">
+          <el-icon><Plus /></el-icon>
+          创建问卷
+        </el-button>
+      </div>
+    </div>
+
+    <!-- 筛选和搜索 -->
+    <el-card class="filter-card" shadow="never">
+      <div class="filter-content">
+        <div class="filter-left">
+          <el-input
+            v-model="searchKeyword"
+            placeholder="搜索问卷标题或描述"
+            style="width: 300px"
+            clearable
+            @input="handleSearch"
+          >
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+          </el-input>
+        </div>
+        <div class="filter-right">
+          <el-select v-model="filterStatus" placeholder="状态筛选" style="width: 120px" @change="handleFilter">
+            <el-option label="全部" value="" />
+            <el-option label="草稿" value="draft" />
+            <el-option label="已发布" value="published" />
+            <el-option label="已停止" value="stopped" />
+          </el-select>
+          
+          <el-select v-model="filterCategory" placeholder="分类筛选" style="width: 120px" @change="handleFilter">
+            <el-option label="全部" value="" />
+            <el-option label="满意度调查" value="satisfaction" />
+            <el-option label="市场调研" value="market" />
+            <el-option label="产品反馈" value="feedback" />
+            <el-option label="学术研究" value="academic" />
+          </el-select>
+
+          <el-button @click="resetFilters">重置</el-button>
+        </div>
+      </div>
+    </el-card>
+
+    <!-- 问卷列表 -->
+    <el-card class="list-card" shadow="never">
+      <div class="list-header">
+        <div class="list-info">
+          <span>共 {{ total }} 个问卷</span>
+        </div>
+        <div class="list-actions">
+          <el-button-group>
+            <el-button 
+              :type="viewMode === 'card' ? 'primary' : ''" 
+              @click="viewMode = 'card'"
+              size="small"
+            >
+              <el-icon><Grid /></el-icon>
+            </el-button>
+            <el-button 
+              :type="viewMode === 'table' ? 'primary' : ''" 
+              @click="viewMode = 'table'"
+              size="small"
+            >
+              <el-icon><List /></el-icon>
+            </el-button>
+          </el-button-group>
+        </div>
+      </div>
+
+      <!-- 卡片视图 -->
+      <div v-if="viewMode === 'card'" class="card-view" v-loading="loading">
+        <div class="questionnaire-grid">
+          <div 
+            v-for="questionnaire in paginatedList"
+            :key="questionnaire.id"
+            class="questionnaire-card"
+            @click="viewQuestionnaire(questionnaire.id)"
+          >
+            <div class="card-header">
+              <div class="card-status">
+                <el-tag 
+                  :type="getStatusType(questionnaire.status)" 
+                  size="small"
+                >
+                  {{ getStatusText(questionnaire.status) }}
+                </el-tag>
+              </div>
+              <div class="card-actions">
+                <el-dropdown @command="(command) => handleAction(command, questionnaire)">
+                  <el-button type="text" size="small">
+                    <el-icon><MoreFilled /></el-icon>
+                  </el-button>
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item command="edit">编辑</el-dropdown-item>
+                      <el-dropdown-item command="preview">预览</el-dropdown-item>
+                      <el-dropdown-item command="copy">复制</el-dropdown-item>
+                      <el-dropdown-item command="statistics">统计</el-dropdown-item>
+                      <el-dropdown-item command="offline" v-if="questionnaire.status === 'published'">下架</el-dropdown-item>
+                      <el-dropdown-item command="online" v-if="questionnaire.status === 'stopped'">上架</el-dropdown-item>
+                      <el-dropdown-item divided command="delete">删除</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
+              </div>
+            </div>
+
+            <div class="card-content">
+              <h3 class="card-title">{{ questionnaire.title }}</h3>
+              <p class="card-description">{{ questionnaire.description || '暂无描述' }}</p>
+            </div>
+
+            <div class="card-footer">
+              <div class="card-stats">
+                <span class="stat-item">
+                  <el-icon><View /></el-icon>
+                  {{ questionnaire.viewCount }}
+                </span>
+                <span class="stat-item">
+                  <el-icon><EditPen /></el-icon>
+                  {{ questionnaire.responseCount }}
+                </span>
+              </div>
+              <div class="card-meta">
+                <span class="meta-date">{{ formatDate(questionnaire.createdAt) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 空状态 -->
+        <el-empty v-if="!paginatedList.length && !loading" description="暂无问卷数据">
+          <el-button type="primary" @click="createQuestionnaire">创建第一个问卷</el-button>
+        </el-empty>
+      </div>
+
+      <!-- 表格视图 -->
+      <div v-if="viewMode === 'table'" class="table-view">
+        <el-table 
+          :data="paginatedList" 
+          v-loading="loading"
+          @selection-change="handleSelectionChange"
+        >
+          <el-table-column type="selection" width="55" />
+          
+          <el-table-column prop="title" label="标题" min-width="200">
+            <template #default="{row}">
+              <div class="title-cell">
+                <span class="title-text" @click="viewQuestionnaire(row.id)">{{ row.title }}</span>
+                <span class="title-description">{{ row.description }}</span>
+              </div>
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="status" label="状态" width="100">
+            <template #default="{row}">
+              <el-tag :type="getStatusType(row.status)" size="small">
+                {{ getStatusText(row.status) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="category" label="分类" width="120">
+            <template #default="{row}">
+              <el-tag type="info" size="small">{{ getCategoryText(row.category) }}</el-tag>
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="viewCount" label="浏览量" width="100" />
+          <el-table-column prop="responseCount" label="回答数" width="100" />
+
+          <el-table-column prop="createdAt" label="创建时间" width="180">
+            <template #default="{row}">
+              {{ formatDateTime(row.createdAt) }}
+            </template>
+          </el-table-column>
+
+          <el-table-column label="操作" width="240" fixed="right">
+            <template #default="{row}">
+              <el-button type="text" size="small" @click="editQuestionnaire(row.id)">
+                编辑
+              </el-button>
+              <el-button type="text" size="small" @click="previewQuestionnaire(row.id)">
+                预览
+              </el-button>
+              <el-button type="text" size="small" @click="viewStatistics(row.id)">
+                统计
+              </el-button>
+              <el-button 
+                v-if="row.status === 'published'" 
+                type="text" 
+                size="small" 
+                @click="offlineQuestionnaire(row.id)" 
+                class="warning-btn"
+              >
+                下架
+              </el-button>
+              <el-button 
+                v-if="row.status === 'stopped'" 
+                type="text" 
+                size="small" 
+                @click="onlineQuestionnaire(row.id)" 
+                class="success-btn"
+              >
+                上架
+              </el-button>
+              <el-button type="text" size="small" @click="deleteQuestionnaire(row.id)" class="danger-btn">
+                删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+
+      <!-- 分页 -->
+      <div class="pagination-wrapper">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="filteredList.length"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
+    </el-card>
+  </div>
+</template>
+
+<script setup>
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import {
+  Plus,
+  Search,
+  Grid,
+  List,
+  MoreFilled,
+  View,
+  EditPen
+} from '@element-plus/icons-vue'
+
+const router = useRouter()
+
+// 响应式数据
+const loading = ref(false)
+const searchKeyword = ref('')
+const filterStatus = ref('')
+const filterCategory = ref('')
+const viewMode = ref('card')
+const currentPage = ref(1)
+const pageSize = ref(20)
+const selectedItems = ref([])
+
+// 假数据
+const questionnaireList = ref([
+  {
+    id: 1,
+    title: '用户满意度调查问卷',
+    description: '针对我们产品的用户满意度进行调研，了解用户需求和改进方向',
+    status: 'published',
+    category: 'satisfaction',
+    viewCount: 1234,
+    responseCount: 89,
+    createdAt: '2024-01-15T10:30:00',
+    updatedAt: '2024-01-16T14:20:00'
+  },
+  {
+    id: 2,
+    title: '市场调研问卷',
+    description: '了解目标市场的需求和竞争情况',
+    status: 'draft',
+    category: 'market',
+    viewCount: 567,
+    responseCount: 23,
+    createdAt: '2024-01-14T09:15:00',
+    updatedAt: '2024-01-14T16:45:00'
+  },
+  {
+    id: 3,
+    title: '产品功能反馈调查',
+    description: '收集用户对新功能的使用反馈和建议',
+    status: 'published',
+    category: 'feedback',
+    viewCount: 890,
+    responseCount: 156,
+    createdAt: '2024-01-13T14:20:00',
+    updatedAt: '2024-01-15T11:30:00'
+  },
+  {
+    id: 4,
+    title: '学术研究调查',
+    description: '关于消费者行为的学术研究调查',
+    status: 'stopped',
+    category: 'academic',
+    viewCount: 456,
+    responseCount: 78,
+    createdAt: '2024-01-12T16:45:00',
+    updatedAt: '2024-01-13T10:15:00'
+  },
+  {
+    id: 5,
+    title: '员工满意度调查',
+    description: '了解员工对工作环境和福利待遇的满意度',
+    status: 'published',
+    category: 'satisfaction',
+    viewCount: 234,
+    responseCount: 45,
+    createdAt: '2024-01-11T11:30:00',
+    updatedAt: '2024-01-12T09:20:00'
+  }
+])
+
+// 计算属性
+const filteredList = computed(() => {
+  let list = questionnaireList.value
+
+  // 关键词搜索
+  if (searchKeyword.value) {
+    const keyword = searchKeyword.value.toLowerCase()
+    list = list.filter(item => 
+      item.title.toLowerCase().includes(keyword) ||
+      item.description.toLowerCase().includes(keyword)
+    )
+  }
+
+  // 状态筛选
+  if (filterStatus.value) {
+    list = list.filter(item => item.status === filterStatus.value)
+  }
+
+  // 分类筛选
+  if (filterCategory.value) {
+    list = list.filter(item => item.category === filterCategory.value)
+  }
+
+  return list
+})
+
+const total = computed(() => filteredList.value.length)
+
+const paginatedList = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  const end = start + pageSize.value
+  return filteredList.value.slice(start, end)
+})
+
+// 方法
+const handleSearch = () => {
+  currentPage.value = 1
+}
+
+const handleFilter = () => {
+  currentPage.value = 1
+}
+
+const resetFilters = () => {
+  searchKeyword.value = ''
+  filterStatus.value = ''
+  filterCategory.value = ''
+  currentPage.value = 1
+}
+
+const handleSizeChange = (val) => {
+  pageSize.value = val
+  currentPage.value = 1
+}
+
+const handleCurrentChange = (val) => {
+  currentPage.value = val
+}
+
+const handleSelectionChange = (val) => {
+  selectedItems.value = val
+}
+
+const getStatusType = (status) => {
+  const statusMap = {
+    draft: 'info',
+    published: 'success',
+    stopped: 'danger'
+  }
+  return statusMap[status] || 'info'
+}
+
+const getStatusText = (status) => {
+  const statusMap = {
+    draft: '草稿',
+    published: '已发布',
+    stopped: '已停止'
+  }
+  return statusMap[status] || '未知'
+}
+
+const getCategoryText = (category) => {
+  const categoryMap = {
+    satisfaction: '满意度调查',
+    market: '市场调研',
+    feedback: '产品反馈',
+    academic: '学术研究'
+  }
+  return categoryMap[category] || '其他'
+}
+
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('zh-CN')
+}
+
+const formatDateTime = (dateString) => {
+  return new Date(dateString).toLocaleString('zh-CN')
+}
+
+const createQuestionnaire = () => {
+  ElMessage.info('创建问卷功能待实现')
+  // router.push('/admin/questionnaires/create')
+}
+
+const viewQuestionnaire = (id) => {
+  ElMessage.info(`查看问卷 ${id}`)
+  // router.push(`/admin/questionnaires/${id}`)
+}
+
+const editQuestionnaire = (id) => {
+  ElMessage.info(`编辑问卷 ${id}`)
+  // router.push(`/admin/questionnaires/${id}/edit`)
+}
+
+const previewQuestionnaire = (id) => {
+  ElMessage.info(`预览问卷 ${id}`)
+}
+
+const viewStatistics = (id) => {
+  ElMessage.info(`查看统计 ${id}`)
+  // router.push(`/admin/questionnaires/${id}/statistics`)
+}
+
+const offlineQuestionnaire = (id) => {
+  ElMessageBox.confirm(
+    '确定要下架这个问卷吗？下架后用户将无法访问。',
+    '确认下架',
+    {
+      confirmButtonText: '下架',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  ).then(() => {
+    // 这里应该调用下架API
+    ElMessage.success('下架成功')
+    // 更新状态
+    const questionnaire = questionnaireList.value.find(item => item.id === id)
+    if (questionnaire) {
+      questionnaire.status = 'stopped'
+    }
+  }).catch(() => {
+    ElMessage.info('已取消下架')
+  })
+}
+
+const onlineQuestionnaire = (id) => {
+  ElMessageBox.confirm(
+    '确定要重新上架这个问卷吗？上架后用户可以正常访问。',
+    '确认上架',
+    {
+      confirmButtonText: '上架',
+      cancelButtonText: '取消',
+      type: 'success',
+    }
+  ).then(() => {
+    // 这里应该调用上架API
+    ElMessage.success('上架成功')
+    // 更新状态
+    const questionnaire = questionnaireList.value.find(item => item.id === id)
+    if (questionnaire) {
+      questionnaire.status = 'published'
+    }
+  }).catch(() => {
+    ElMessage.info('已取消上架')
+  })
+}
+
+const deleteQuestionnaire = (id) => {
+  ElMessageBox.confirm(
+    '确定要删除这个问卷吗？删除后将无法恢复。',
+    '确认删除',
+    {
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  ).then(() => {
+    // 这里应该调用删除API
+    ElMessage.success('删除成功')
+    // 从列表中移除
+    const index = questionnaireList.value.findIndex(item => item.id === id)
+    if (index > -1) {
+      questionnaireList.value.splice(index, 1)
+    }
+  }).catch(() => {
+    ElMessage.info('已取消删除')
+  })
+}
+
+const handleAction = (command, questionnaire) => {
+  switch (command) {
+    case 'edit':
+      editQuestionnaire(questionnaire.id)
+      break
+    case 'preview':
+      previewQuestionnaire(questionnaire.id)
+      break
+    case 'copy':
+      ElMessage.info(`复制问卷 ${questionnaire.id}`)
+      break
+    case 'statistics':
+      viewStatistics(questionnaire.id)
+      break
+    case 'offline':
+      offlineQuestionnaire(questionnaire.id)
+      break
+    case 'online':
+      onlineQuestionnaire(questionnaire.id)
+      break
+    case 'delete':
+      deleteQuestionnaire(questionnaire.id)
+      break
+  }
+}
+
+onMounted(() => {
+  // 初始化数据
+  loading.value = false
+})
+</script>
+
+<style scoped>
+.questionnaire-list-page {
+  padding: 0;
+}
+
+/* 页面头部 */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header-content h1 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.header-content p {
+  margin: 0;
+  color: #718096;
+  font-size: 16px;
+}
+
+/* 筛选卡片 */
+.filter-card {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.filter-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.filter-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* 列表卡片 */
+.list-card {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.list-info {
+  color: #666;
+  font-size: 14px;
+}
+
+/* 卡片视图 */
+.questionnaire-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.questionnaire-card {
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #fff;
+}
+
+.questionnaire-card:hover {
+  border-color: #409eff;
+  box-shadow: 0 4px 20px rgba(64, 158, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.card-content {
+  margin-bottom: 16px;
+}
+
+.card-title {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a202c;
+  line-height: 1.4;
+}
+
+.card-description {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #666;
+}
+
+.meta-date {
+  font-size: 12px;
+  color: #999;
+}
+
+/* 表格视图 */
+.title-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title-text {
+  font-weight: 500;
+  color: #409eff;
+  cursor: pointer;
+}
+
+.title-text:hover {
+  text-decoration: underline;
+}
+
+.title-description {
+  font-size: 12px;
+  color: #999;
+  line-height: 1.4;
+}
+
+.success-btn {
+  color: #67c23a !important;
+}
+
+.success-btn:hover {
+  background-color: rgba(103, 194, 58, 0.1);
+}
+
+.warning-btn {
+  color: #e6a23c !important;
+}
+
+.warning-btn:hover {
+  background-color: rgba(230, 162, 60, 0.1);
+}
+
+.danger-btn {
+  color: #f56c6c !important;
+}
+
+.danger-btn:hover {
+  background-color: rgba(245, 108, 108, 0.1);
+}
+
+/* 分页 */
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .filter-content {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .filter-right {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .questionnaire-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+</style>

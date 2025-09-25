@@ -150,6 +150,15 @@
 
           <el-table-column prop="nickname" label="昵称" width="120" />
 
+          <el-table-column label="地区/职业" width="150">
+            <template #default="{ row }">
+              <div class="location-info">
+                <div class="city">{{ row.city || '未知' }}</div>
+                <div class="profession">{{ row.profession || '未填写' }}</div>
+              </div>
+            </template>
+          </el-table-column>
+
           <el-table-column prop="role" label="角色" width="100">
             <template #default="{ row }">
               <el-tag
@@ -297,6 +306,9 @@
           <el-descriptions-item label="昵称">
             {{ selectedUser.nickname || "未设置" }}
           </el-descriptions-item>
+          <el-descriptions-item label="手机号">
+            {{ selectedUser.phone || "未绑定" }}
+          </el-descriptions-item>
           <el-descriptions-item label="角色">
             <el-tag
               :type="selectedUser.role === 'admin' ? 'danger' : 'primary'"
@@ -309,13 +321,31 @@
               {{ getStatusText(selectedUser) }}
             </el-tag>
           </el-descriptions-item>
+          <el-descriptions-item label="城市">
+            {{ selectedUser.city || "未填写" }}
+          </el-descriptions-item>
+          <el-descriptions-item label="职业">
+            {{ selectedUser.profession || "未填写" }}
+          </el-descriptions-item>
+          <el-descriptions-item label="年龄">
+            {{ selectedUser.age ? selectedUser.age + '岁' : "未填写" }}
+          </el-descriptions-item>
+          <el-descriptions-item label="性别">
+            {{ selectedUser.gender === 'male' ? '男' : selectedUser.gender === 'female' ? '女' : '未填写' }}
+          </el-descriptions-item>
+          <el-descriptions-item label="积分等级">
+            {{ selectedUser.points }}分 / 等级{{ selectedUser.level }}
+          </el-descriptions-item>
+          <el-descriptions-item label="个人简介" :span="2">
+            {{ selectedUser.bio || "暂无简介" }}
+          </el-descriptions-item>
           <el-descriptions-item label="注册时间">
             {{ formatDateTime(selectedUser.createdAt) }}
           </el-descriptions-item>
           <el-descriptions-item label="最后登录">
             {{ formatDateTime(selectedUser.lastLoginAt) || "从未登录" }}
           </el-descriptions-item>
-          <el-descriptions-item label="IP地址">
+          <el-descriptions-item label="登录IP">
             {{ selectedUser.lastLoginIp || "未知" }}
           </el-descriptions-item>
         </el-descriptions>
@@ -520,12 +550,10 @@ const adminUsers = computed(
 const loadUsers = async () => {
   loading.value = true;
   try {
-    const data = await getUsersApi({
-      page: currentPage.value,
-      limit: pageSize.value,
-    });
-    users.value = data.items || [];
-    total.value = data.total || 0;
+    // 使用本地模拟数据而不是API
+    const { mockUsers } = await import('@/mockData/users.js');
+    users.value = mockUsers;
+    total.value = mockUsers.length;
   } catch (error) {
     ElMessage.error("加载用户列表失败：" + error.message);
   } finally {
@@ -864,6 +892,23 @@ onMounted(() => {
 .user-id {
   font-size: 11px;
   color: #999;
+}
+
+.location-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.city {
+  font-size: 12px;
+  color: #333;
+  font-weight: 500;
+}
+
+.profession {
+  font-size: 11px;
+  color: #666;
 }
 
 .user-stats {

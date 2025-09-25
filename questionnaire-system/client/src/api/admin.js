@@ -175,7 +175,18 @@ export const getUserDetailApi = async (id) => {
   if (!user) {
     throw new Error("用户不存在");
   }
-  return mockApiResponse(user);
+  
+  // 增强用户详情数据
+  const enhancedUser = {
+    ...user,
+    stats: user.stats || {
+      totalAnswers: user._count?.answers || 0,
+      totalFavorites: user._count?.favorites || 0,
+      totalPoints: user.points || 0
+    }
+  };
+  
+  return mockApiResponse(enhancedUser);
 };
 
 export const updateUserApi = async (id, data) => {
@@ -258,5 +269,114 @@ export const getCategoriesApi = async () => {
   return mockApiResponse({
     list: mockCategories,
     total: mockCategories.length
+  });
+};
+
+// 管理员个人资料相关API
+export const getAdminProfileApi = async () => {
+  const adminProfile = {
+    id: 3,
+    username: 'admin',
+    nickname: '系统管理员',
+    email: 'admin@example.com',
+    phone: '13800000000',
+    department: 'tech',
+    bio: '负责系统维护和用户管理，确保平台稳定运行。',
+    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=admin',
+    role: 'admin',
+    createdAt: '2024-01-01T08:00:00Z',
+    lastLoginAt: '2024-01-25T11:00:00Z',
+    lastLoginIp: '192.168.1.1'
+  };
+  
+  return mockApiResponse(adminProfile);
+};
+
+export const updateAdminProfileApi = async (data) => {
+  return mockApiResponse({
+    success: true,
+    message: '个人资料更新成功',
+    profile: {
+      ...data,
+      updatedAt: new Date().toISOString()
+    }
+  });
+};
+
+export const changeAdminPasswordApi = async (passwordData) => {
+  // 模拟密码验证
+  if (passwordData.currentPassword !== '123456') {
+    throw new Error('当前密码不正确');
+  }
+  
+  return mockApiResponse({
+    success: true,
+    message: '密码修改成功'
+  });
+};
+
+export const updateAdminAvatarApi = async (avatarData) => {
+  return mockApiResponse({
+    success: true,
+    message: '头像更新成功',
+    avatar: avatarData.avatar
+  });
+};
+
+export const getAdminStatsApi = async () => {
+  const adminStats = {
+    totalSurveys: 156,
+    totalUsers: 1248,
+    pendingReviews: 23,
+    loginDays: 45,
+    todayLogins: 89,
+    monthlyActive: 892
+  };
+  
+  return mockApiResponse(adminStats);
+};
+
+export const getAdminActivitiesApi = async (limit = 10) => {
+  const activities = [
+    {
+      id: 1,
+      title: '审核问卷',
+      description: '审核通过了"用户满意度调查问卷"',
+      type: 'review',
+      timestamp: '2024-01-25T10:30:00Z'
+    },
+    {
+      id: 2,
+      title: '用户管理',
+      description: '封禁了违规用户 "spam_user"',
+      type: 'user_action',
+      timestamp: '2024-01-25T09:15:00Z'
+    },
+    {
+      id: 3,
+      title: '系统维护',
+      description: '更新了系统配置',
+      type: 'system',
+      timestamp: '2024-01-24T16:45:00Z'
+    },
+    {
+      id: 4,
+      title: '数据导出',
+      description: '导出了用户数据报表',
+      type: 'export',
+      timestamp: '2024-01-24T14:20:00Z'
+    },
+    {
+      id: 5,
+      title: '问卷下架',
+      description: '下架了过期的"市场调研问卷"',
+      type: 'survey_action',
+      timestamp: '2024-01-24T11:30:00Z'
+    }
+  ];
+  
+  return mockApiResponse({
+    list: activities.slice(0, limit),
+    total: activities.length
   });
 };
