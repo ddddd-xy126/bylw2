@@ -243,24 +243,24 @@ const sendingEmail = ref(false);
 const changingPassword = ref(false);
 const showPasswordDialog = ref(false);
 
-// 用户信息 - 使用假数据
+// 用户信息 - 从store获取真实数据
 const userInfo = reactive({
-  username: '张三',
-  email: 'zhangsan@example.com',
-  phone: '13812345678',
-  gender: 'male',
-  birthday: '1990-05-15',
-  occupation: '软件工程师',
-  bio: '热爱技术，喜欢学习新知识，专注于前端开发和用户体验设计。',
-  emailVerified: true
+  username: '',
+  email: '',
+  phone: '',
+  gender: '',
+  birthday: '',
+  occupation: '',
+  bio: '',
+  emailVerified: false
 });
 
-// 用户统计 - 使用假数据
+// 用户统计 - 从API获取真实数据
 const userStats = reactive({
-  totalQuestionnaires: 12,
-  totalAnswers: 45,
-  totalPoints: 2850,
-  totalCollections: 8
+  totalQuestionnaires: 0,
+  totalAnswers: 0,
+  totalPoints: 0,
+  totalCollections: 0
 });
 
 // 密码修改表单
@@ -312,15 +312,47 @@ const passwordRules = {
 const userInfoForm = ref();
 const passwordFormRef = ref();
 
-// 方法 - 使用模拟数据，不调用后端
+// 方法 - 从store和API获取真实数据
 const loadUserInfo = () => {
-  // 模拟加载用户信息，数据已经在上面定义
-  console.log('用户信息已加载（模拟数据）');
+  // 从用户store获取profile数据
+  const profile = userStore.profile;
+  if (profile) {
+    Object.assign(userInfo, {
+      username: profile.username || '',
+      email: profile.email || '',
+      phone: profile.phone || '',
+      gender: profile.gender || '',
+      birthday: profile.birthday || '',
+      occupation: profile.profession || '',
+      bio: profile.bio || '',
+      emailVerified: profile.emailVerified || false
+    });
+  }
+  console.log('用户信息已加载:', userInfo);
 };
 
-const loadUserStats = () => {
-  // 模拟加载用户统计，数据已经在上面定义
-  console.log('用户统计已加载（模拟数据）');
+const loadUserStats = async () => {
+  try {
+    // 从用户store获取基本统计
+    const profile = userStore.profile;
+    if (profile) {
+      userStats.totalPoints = profile.points || 0;
+    }
+    
+    // 获取收藏数量
+    userStats.totalCollections = userStore.favorites?.length || 0;
+    
+    // 获取答题数量 - 从answers数据获取
+    userStats.totalAnswers = userStore.answers?.length || 0;
+    
+    // 获取创建问卷数量 - 这里可以通过API获取
+    // 暂时设为0，后续可以添加API调用
+    userStats.totalQuestionnaires = 0;
+    
+    console.log('用户统计已加载:', userStats);
+  } catch (error) {
+    console.error('加载用户统计失败:', error);
+  }
 };
 
 const saveUserInfo = async () => {
@@ -330,32 +362,49 @@ const saveUserInfo = async () => {
     await userInfoForm.value.validate();
     saving.value = true;
     
-    // 模拟保存延迟
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // 获取当前用户信息
+    const currentProfile = userStore.profile;
+    if (!currentProfile) {
+      throw new Error('用户未登录');
+    }
+    
+    // 准备更新数据
+    const updatedData = {
+      ...currentProfile,
+      username: userInfo.username,
+      email: userInfo.email,
+      phone: userInfo.phone,
+      gender: userInfo.gender,
+      profession: userInfo.occupation,
+      bio: userInfo.bio,
+      updatedAt: new Date().toISOString()
+    };
+    
+    // 调用API更新用户信息
+    const { updateProfileApi } = await import('@/api/user.js');
+    await updateProfileApi(currentProfile.id, updatedData);
+    
+    // 更新store中的用户信息
+    userStore.setProfile(updatedData);
     
     ElMessage.success('个人信息更新成功');
     editMode.value = false;
     
-    // 更新 store 中的用户信息（如果需要的话）
-    if (userStore.updateProfile) {
-      userStore.updateProfile(userInfo);
-    }
-    
-    console.log('用户信息已保存（模拟）:', userInfo);
+    console.log('用户信息已保存:', updatedData);
   } catch (error) {
-    console.error('表单验证失败:', error);
-    ElMessage.error('请检查输入信息');
+    console.error('保存用户信息失败:', error);
+    ElMessage.error(error.message || '保存失败，请重试');
   } finally {
     saving.value = false;
   }
 };
 
 const resetForm = () => {
-  if (userInfoForm.value) {
-    userInfoForm.value.resetFields();
-  }
   editMode.value = false;
   loadUserInfo(); // 重新加载原始数据
+  if (userInfoForm.value) {
+    userInfoForm.value.clearValidate();
+  }
 };
 
 const sendVerificationEmail = async () => {

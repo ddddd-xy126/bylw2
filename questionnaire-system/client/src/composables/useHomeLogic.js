@@ -129,8 +129,8 @@ export function useHomeLogic() {
       }
 
       // 如果用户已登录，加载收藏等数据
-      if (userStore.isLoggedIn) {
-        const favoritesResponse = await getFavoritesApi();
+      if (userStore.isLoggedIn && userStore.profile?.id) {
+        const favoritesResponse = await getFavoritesApi(userStore.profile.id);
         const favorites = favoritesResponse.success
           ? favoritesResponse.data
           : Array.isArray(favoritesResponse)
@@ -166,9 +166,15 @@ export function useHomeLogic() {
       return;
     }
 
+    const userId = userStore.profile?.id;
+    if (!userId) {
+      ElMessage.error("用户信息错误");
+      return;
+    }
+
     try {
       if (isFavorite(surveyId)) {
-        await removeFavoriteApi(surveyId);
+        await removeFavoriteApi(userId, surveyId);
         const favoritesArray = Array.isArray(userStore.favorites)
           ? userStore.favorites
           : [];
@@ -177,7 +183,7 @@ export function useHomeLogic() {
         );
         ElMessage.success("取消收藏成功");
       } else {
-        await addFavoriteApi(surveyId);
+        await addFavoriteApi(userId, surveyId);
         const favoritesArray = Array.isArray(userStore.favorites)
           ? userStore.favorites
           : [];

@@ -15,7 +15,6 @@
       </div>
       <div class="header-right">
         <router-link v-if="!isAuthed" to="/login">登录</router-link>
-        <router-link v-if="!isAuthed" to="/register">注册</router-link>
 
         <el-dropdown v-if="isAuthed" @command="handleCommand" class="user-dropdown">
           <div class="user-info">

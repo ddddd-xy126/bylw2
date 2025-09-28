@@ -99,6 +99,30 @@
       "lastLoginAt": "2024-01-24T16:45:00Z",
       "lastLoginIp": "192.168.3.15",
       "password": "123456"
+    },
+    {
+      "id": "ec9c",
+      "username": "123",
+      "nickname": "123",
+      "email": "123@qq.com",
+      "phone": "13544955423",
+      "password": "123456",
+      "avatar": "/avatars/default.jpg",
+      "role": "user",
+      "banned": false,
+      "isActive": true,
+      "points": 0,
+      "level": 1,
+      "bio": "",
+      "city": "",
+      "gender": "other",
+      "age": 0,
+      "profession": "",
+      "joinedDate": "2025-09-28",
+      "createdAt": "2025-09-28T10:18:33.205Z",
+      "lastLoginAt": "2025-09-28T10:18:33.205Z",
+      "lastLoginIp": "",
+      "updatedAt": "2025-09-28T10:22:39.005Z"
     }
   ],
   "categories": [
@@ -428,6 +452,24 @@
       "userId": 3,
       "surveyId": null,
       "createdAt": "2025-09-28T03:05:01.304Z"
+    },
+    {
+      "id": "1f74",
+      "userId": 3,
+      "surveyId": null,
+      "createdAt": "2025-09-28T10:22:49.194Z"
+    },
+    {
+      "id": "916a",
+      "userId": "ec9c",
+      "surveyId": "2",
+      "createdAt": "2025-09-28T10:25:00.000Z"
+    },
+    {
+      "id": "4b8f",
+      "userId": null,
+      "surveyId": 1,
+      "createdAt": "2025-09-28T10:30:18.512Z"
     }
   ],
   "achievements": [

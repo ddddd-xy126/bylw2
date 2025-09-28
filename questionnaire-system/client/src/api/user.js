@@ -88,10 +88,20 @@ export const getFavoritesApi = async (userId) => {
   const favorites = await apiClient.get(`/favorites?userId=${userId}`);
   const surveys = await apiClient.get('/surveys');
   
-  const favoriteSurveys = favorites.map(fav => {
-    const survey = surveys.find(s => s.id === fav.surveyId);
-    return { questionnaireId: survey.id, ...survey };
-  });
+  const favoriteSurveys = favorites
+    .filter(fav => fav.surveyId) // 过滤掉surveyId为null的记录
+    .map(fav => {
+      const survey = surveys.find(s => s.id == fav.surveyId);
+      if (!survey) return null;
+      return { 
+        id: fav.id, // 收藏记录的ID
+        surveyId: survey.id,
+        questionnaireId: survey.id, 
+        createdAt: fav.createdAt, // 收藏时间
+        ...survey 
+      };
+    })
+    .filter(item => item !== null); // 过滤掉找不到的问卷
   
   return favoriteSurveys;
 };
@@ -151,4 +161,10 @@ export const getAnswerDetailApi = async (answerId) => {
 export const deleteAnswerApi = async (answerId) => {
   await apiClient.delete(`/answers/${answerId}`);
   return { success: true, message: "删除成功" };
+};
+
+// 更新用户信息
+export const updateProfileApi = async (userId, userData) => {
+  const updatedUser = await apiClient.patch(`/users/${userId}`, userData);
+  return updatedUser;
 };

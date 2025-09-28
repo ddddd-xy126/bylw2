@@ -22,4 +22,13 @@ instance.interceptors.response.use(
   }
 );
 
-export default instance;
+// 添加便捷方法
+const apiClient = {
+  get: (url, config) => instance.get(url, config),
+  post: (url, data, config) => instance.post(url, data, config),
+  put: (url, data, config) => instance.put(url, data, config),
+  patch: (url, data, config) => instance.patch(url, data, config),
+  delete: (url, config) => instance.delete(url, config)
+};
+
+export default apiClient;
