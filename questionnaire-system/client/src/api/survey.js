@@ -1,32 +1,20 @@
-import { 
-  mockSurveys, 
-  mockSurveyDetail, 
-  mockComments, 
-  mockCategories, 
-  mockSubmitResponse,
-  mockApiResponse 
-} from "@/mockData";
+import apiClient from './index.js';
 
 // 问卷列表和详情
 export async function listSurveys() {
-  return mockApiResponse(mockSurveys);
+  const surveys = await apiClient.get('/surveys');
+  return surveys;
 }
 
 export async function getSurveyDetail(id) {
-  const survey = mockSurveys.find(s => s.id == id);
+  const survey = await apiClient.get(`/surveys/${id}`);
   if (!survey) {
     throw new Error("问卷不存在");
   }
   
-  // 返回详细信息（包含题目）
-  if (id == 1) {
-    return mockApiResponse(mockSurveyDetail);
-  }
-  
-  // 为其他问卷生成基本的题目结构
-  const detailWithQuestions = {
-    ...survey,
-    questions: [
+  // 添加questions字段，如果没有则使用默认题目
+  if (!survey.questionList || survey.questionList.length === 0) {
+    survey.questions = [
       {
         id: 1,
         type: "single",
@@ -49,49 +37,65 @@ export async function getSurveyDetail(id) {
         ],
         required: false
       }
-    ],
-    isFavorite: false
-  };
+    ];
+  } else {
+    survey.questions = survey.questionList;
+  }
   
-  return mockApiResponse(detailWithQuestions);
+  survey.isFavorite = false;
+  
+  return survey;
 }
 
 // 答题相关
 export async function submitSurveyApi(id, data) {
-  // 模拟提交结果
-  return mockApiResponse({
-    answerId: Date.now(),
+  const newAnswer = {
+    userId: data.userId || 1,
+    surveyId: parseInt(id),
+    surveyTitle: data.surveyTitle || "问卷",
     score: Math.floor(Math.random() * 40) + 60, // 60-100分
     result: "良好",
+    submittedAt: new Date().toISOString(),
+    duration: data.duration || 300,
+    answers: data.answers || []
+  };
+  
+  const answer = await apiClient.post('/answers', newAnswer);
+  
+  return {
+    answerId: answer.id,
+    score: answer.score,
+    result: answer.result,
     analysis: "根据您的回答，我们为您生成了个性化的分析报告..."
-  });
+  };
 }
 
 // 评论相关
 export async function getSurveyCommentsApi(id) {
-  const comments = mockComments.filter(c => c.surveyId == id);
-  return mockApiResponse({
+  const comments = await apiClient.get(`/comments?surveyId=${id}`);
+  return {
     list: comments,
     total: comments.length
-  });
+  };
 }
 
 export async function createCommentApi(id, data) {
   const newComment = {
-    id: Date.now(),
     surveyId: parseInt(id),
-    userId: 1,
-    username: "张三",
-    avatar: "/avatars/user1.jpg",
+    userId: data.userId || 1,
+    username: data.username || "匿名用户",
+    avatar: data.avatar || "/avatars/default.jpg",
     content: data.content,
     rating: data.rating || 5,
     createdAt: new Date().toISOString()
   };
   
-  return mockApiResponse(newComment);
+  const comment = await apiClient.post('/comments', newComment);
+  return comment;
 }
 
 // 分类
 export async function getCategoriesApi() {
-  return mockApiResponse(mockCategories);
+  const categories = await apiClient.get('/categories');
+  return categories;
 }

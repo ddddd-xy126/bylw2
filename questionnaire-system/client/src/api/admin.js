@@ -1,73 +1,96 @@
-import { 
-  mockAdminStats,
-  mockRecentSurveys,
-  mockRecentUsers,
-  mockSystemStatus,
-  mockActivityData,
-  mockCategoryDistribution,
-  mockQuestions,
-  mockAdminSurveys,
-  mockHealthCheck,
-  mockUsers,
-  mockCategories,
-  mockApiResponse 
-} from "@/mockData";
+import apiClient from './index.js';
 
 // 系统管理
 export const healthCheckApi = async () => {
-  return mockApiResponse(mockHealthCheck);
+  const status = await apiClient.get('/systemStatus');
+  return status;
 };
 
 export const seedAdminApi = async (data) => {
-  return mockApiResponse({ 
+  const newAdmin = {
+    username: data.username,
+    nickname: data.nickname || data.username,
+    email: data.email,
+    password: data.password,
+    role: "admin",
+    banned: false,
+    isActive: true,
+    points: 0,
+    level: 1,
+    avatar: "/avatars/admin.jpg",
+    createdAt: new Date().toISOString()
+  };
+  
+  const admin = await apiClient.post('/users', newAdmin);
+  
+  return { 
     success: true, 
     message: "管理员账户创建成功",
     admin: {
-      username: data.username,
-      role: "admin",
-      createdAt: new Date().toISOString()
+      username: admin.username,
+      role: admin.role,
+      createdAt: admin.createdAt
     }
-  });
+  };
 };
 
 // 用户管理
 export const getAllUsersApi = async () => {
-  return mockApiResponse({
-    list: mockUsers,
-    total: mockUsers.length
-  });
+  const users = await apiClient.get('/users');
+  return {
+    list: users,
+    total: users.length
+  };
 };
 
 export const createUserApi = async (data) => {
   const newUser = {
-    id: Date.now(),
-    ...data,
+    username: data.username,
+    nickname: data.nickname || data.username,
+    email: data.email,
+    phone: data.phone || '',
+    password: data.password,
     avatar: "/avatars/default.jpg",
-    status: "active",
+    role: data.role || "user",
+    banned: false,
+    isActive: true,
     points: 0,
     level: 1,
-    createdAt: new Date().toISOString()
+    bio: '',
+    city: '',
+    gender: '',
+    age: 0,
+    profession: '',
+    joinedDate: new Date().toISOString().split('T')[0],
+    createdAt: new Date().toISOString(),
+    lastLoginAt: new Date().toISOString(),
+    lastLoginIp: ''
   };
   
-  return mockApiResponse(newUser);
+  const user = await apiClient.post('/users', newUser);
+  return user;
 };
 
 export const deleteUserApi = async (id) => {
-  return mockApiResponse({ success: true, message: "用户删除成功" });
+  await apiClient.delete(`/users/${id}`);
+  return { success: true, message: "用户删除成功" };
 };
 
 export const banUserApi = async (id) => {
-  return mockApiResponse({ success: true, message: "用户已被禁用" });
+  const user = await apiClient.get(`/users/${id}`);
+  await apiClient.put(`/users/${id}`, { ...user, banned: true, isActive: false });
+  return { success: true, message: "用户已被禁用" };
 };
 
 export const unbanUserApi = async (id) => {
-  return mockApiResponse({ success: true, message: "用户已被启用" });
+  const user = await apiClient.get(`/users/${id}`);
+  await apiClient.put(`/users/${id}`, { ...user, banned: false, isActive: true });
+  return { success: true, message: "用户已被启用" };
 };
 
 // 问卷管理
 export const createAdminSurveyApi = async (data) => {
   const newSurvey = {
-    id: Date.now(),
     ...data,
     author: "管理员",
     authorId: 3,
@@ -78,183 +101,229 @@ export const createAdminSurveyApi = async (data) => {
     updatedAt: new Date().toISOString()
   };
   
-  return mockApiResponse(newSurvey);
+  const survey = await apiClient.post('/surveys', newSurvey);
+  return survey;
 };
 
 export const deleteAdminSurveyApi = async (id) => {
-  return mockApiResponse({ success: true, message: "问卷删除成功" });
+  await apiClient.delete(`/surveys/${id}`);
+  return { success: true, message: "问卷删除成功" };
 };
 
 // 题目管理
 export const listQuestionsApi = async () => {
-  return mockApiResponse({
-    list: mockQuestions,
-    total: mockQuestions.length
-  });
+  const questions = await apiClient.get('/questions');
+  return {
+    list: questions,
+    total: questions.length
+  };
 };
 
 export const createQuestionApi = async (data) => {
   const newQuestion = {
-    id: Date.now(),
     ...data,
     usageCount: 0,
     createdAt: new Date().toISOString()
   };
   
-  return mockApiResponse(newQuestion);
+  const question = await apiClient.post('/questions', newQuestion);
+  return question;
 };
 
 export const deleteQuestionApi = async (id) => {
-  return mockApiResponse({ success: true, message: "题目删除成功" });
+  await apiClient.delete(`/questions/${id}`);
+  return { success: true, message: "题目删除成功" };
 };
 
 // Dashboard 相关API
 export const getDashboardStatsApi = async () => {
-  return mockApiResponse(mockAdminStats);
+  const stats = await apiClient.get('/adminStats');
+  return stats;
 };
 
 export const getRecentSurveysApi = async (limit = 5) => {
-  const surveys = mockRecentSurveys.slice(0, limit);
-  return mockApiResponse({
+  const surveys = await apiClient.get(`/surveys?_sort=createdAt&_order=desc&_limit=${limit}`);
+  return {
     list: surveys,
     total: surveys.length
-  });
+  };
 };
 
 export const getRecentUsersApi = async (limit = 5) => {
-  const users = mockRecentUsers.slice(0, limit);
-  return mockApiResponse({
+  const users = await apiClient.get(`/users?_sort=createdAt&_order=desc&_limit=${limit}`);
+  return {
     list: users,
     total: users.length
-  });
+  };
 };
 
 export const getSystemStatusApi = async () => {
-  return mockApiResponse(mockSystemStatus);
+  const status = await apiClient.get('/systemStatus');
+  return status;
 };
 
 export const getActivityDataApi = async () => {
-  return mockApiResponse({
-    list: mockActivityData,
-    total: mockActivityData.length
-  });
+  const data = await apiClient.get('/activityData');
+  return {
+    list: data,
+    total: data.length
+  };
 };
 
 export const getCategoryDistributionApi = async () => {
-  return mockApiResponse({
-    list: mockCategoryDistribution,
-    total: mockCategoryDistribution.length
-  });
+  const categories = await apiClient.get('/categories');
+  return {
+    list: categories,
+    total: categories.length
+  };
 };
 
 // 用户管理扩展
 export const getUsersApi = async (params = {}) => {
-  let filteredUsers = [...mockUsers];
+  let url = '/users';
+  let queryParams = [];
   
-  if (params.status) {
-    filteredUsers = filteredUsers.filter(user => user.status === params.status);
+  if (params.role) {
+    queryParams.push(`role=${params.role}`);
   }
   if (params.search) {
-    filteredUsers = filteredUsers.filter(user => 
-      user.username.includes(params.search) || 
-      user.nickname.includes(params.search) ||
-      user.email.includes(params.search)
-    );
+    queryParams.push(`q=${params.search}`);
+  }
+  if (params.page && params.pageSize) {
+    queryParams.push(`_page=${params.page}&_limit=${params.pageSize}`);
   }
   
-  return mockApiResponse({
-    list: filteredUsers,
-    total: filteredUsers.length,
+  if (queryParams.length > 0) {
+    url += '?' + queryParams.join('&');
+  }
+  
+  const users = await apiClient.get(url);
+  
+  return {
+    list: users,
+    total: users.length,
     page: params.page || 1,
     pageSize: params.pageSize || 10
-  });
+  };
 };
 
 export const getUserDetailApi = async (id) => {
-  const user = mockUsers.find(u => u.id == id);
+  const user = await apiClient.get(`/users/${id}`);
   if (!user) {
     throw new Error("用户不存在");
   }
   
+  // 获取用户的统计数据
+  const [answers, favorites] = await Promise.all([
+    apiClient.get(`/answers?userId=${id}`),
+    apiClient.get(`/favorites?userId=${id}`)
+  ]);
+  
   // 增强用户详情数据
   const enhancedUser = {
     ...user,
-    stats: user.stats || {
-      totalAnswers: user._count?.answers || 0,
-      totalFavorites: user._count?.favorites || 0,
+    stats: {
+      totalAnswers: answers.length,
+      totalFavorites: favorites.length,
       totalPoints: user.points || 0
     }
   };
   
-  return mockApiResponse(enhancedUser);
+  return enhancedUser;
 };
 
 export const updateUserApi = async (id, data) => {
-  return mockApiResponse({ 
+  const updatedUser = await apiClient.put(`/users/${id}`, {
+    ...data,
+    updatedAt: new Date().toISOString()
+  });
+  
+  return { 
     success: true, 
     message: "用户信息更新成功",
-    user: { id: parseInt(id), ...data, updatedAt: new Date().toISOString() }
-  });
+    user: updatedUser
+  };
 };
 
 export const resetPasswordApi = async (id) => {
-  return mockApiResponse({ 
+  const user = await apiClient.get(`/users/${id}`);
+  await apiClient.put(`/users/${id}`, {
+    ...user,
+    password: "123456",
+    updatedAt: new Date().toISOString()
+  });
+  
+  return { 
     success: true, 
     message: "密码重置成功",
     newPassword: "123456"
-  });
+  };
 };
 
 // 问卷管理扩展
 export const getSurveysApi = async (params = {}) => {
-  let filteredSurveys = [...mockAdminSurveys];
+  let url = '/surveys';
+  let queryParams = [];
   
   if (params.status) {
-    filteredSurveys = filteredSurveys.filter(survey => survey.status === params.status);
+    queryParams.push(`status=${params.status}`);
   }
-  if (params.category) {
-    filteredSurveys = filteredSurveys.filter(survey => survey.category === params.category);
+  if (params.categoryId) {
+    queryParams.push(`categoryId=${params.categoryId}`);
   }
   if (params.search) {
-    filteredSurveys = filteredSurveys.filter(survey => 
-      survey.title.includes(params.search) || 
-      survey.description.includes(params.search)
-    );
+    queryParams.push(`q=${params.search}`);
+  }
+  if (params.page && params.pageSize) {
+    queryParams.push(`_page=${params.page}&_limit=${params.pageSize}`);
   }
   
-  return mockApiResponse({
-    list: filteredSurveys,
-    total: filteredSurveys.length,
+  if (queryParams.length > 0) {
+    url += '?' + queryParams.join('&');
+  }
+  
+  const surveys = await apiClient.get(url);
+  
+  return {
+    list: surveys,
+    total: surveys.length,
     page: params.page || 1,
     pageSize: params.pageSize || 10
-  });
+  };
 };
 
 export const getSurveyDetailApi = async (id) => {
-  const survey = mockAdminSurveys.find(s => s.id == id);
+  const survey = await apiClient.get(`/surveys/${id}`);
   if (!survey) {
     throw new Error("问卷不存在");
   }
-  return mockApiResponse(survey);
+  return survey;
 };
 
 export const updateSurveyStatusApi = async (id, status) => {
-  return mockApiResponse({ 
+  const survey = await apiClient.get(`/surveys/${id}`);
+  const updatedSurvey = await apiClient.put(`/surveys/${id}`, {
+    ...survey,
+    status,
+    updatedAt: new Date().toISOString()
+  });
+  
+  return { 
     success: true, 
     message: "问卷状态更新成功",
-    survey: { id: parseInt(id), status, updatedAt: new Date().toISOString() }
-  });
+    survey: updatedSurvey
+  };
 };
 
 export const copySurveyApi = async (id) => {
-  const originalSurvey = mockAdminSurveys.find(s => s.id == id);
+  const originalSurvey = await apiClient.get(`/surveys/${id}`);
   if (!originalSurvey) {
     throw new Error("原始问卷不存在");
   }
   
   const copiedSurvey = {
     ...originalSurvey,
-    id: Date.now(),
+    id: undefined, // 让json-server自动生成ID
     title: `${originalSurvey.title} - 副本`,
     status: "draft",
     participants: 0,
@@ -262,81 +331,108 @@ export const copySurveyApi = async (id) => {
     updatedAt: new Date().toISOString()
   };
   
-  return mockApiResponse(copiedSurvey);
+  const newSurvey = await apiClient.post('/surveys', copiedSurvey);
+  return newSurvey;
 };
 
 export const getCategoriesApi = async () => {
-  return mockApiResponse({
-    list: mockCategories,
-    total: mockCategories.length
-  });
+  const categories = await apiClient.get('/categories');
+  return {
+    list: categories,
+    total: categories.length
+  };
 };
 
 // 管理员个人资料相关API
 export const getAdminProfileApi = async () => {
-  const adminProfile = {
-    id: 3,
-    username: 'admin',
-    nickname: '系统管理员',
-    email: 'admin@example.com',
-    phone: '13800000000',
-    department: 'tech',
-    bio: '负责系统维护和用户管理，确保平台稳定运行。',
-    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=admin',
-    role: 'admin',
-    createdAt: '2024-01-01T08:00:00Z',
-    lastLoginAt: '2024-01-25T11:00:00Z',
-    lastLoginIp: '192.168.1.1'
-  };
+  // 获取管理员用户信息
+  const users = await apiClient.get('/users?role=admin');
+  const adminProfile = users.find(user => user.username === 'admin');
   
-  return mockApiResponse(adminProfile);
+  if (!adminProfile) {
+    throw new Error('管理员账户不存在');
+  }
+  
+  return adminProfile;
 };
 
 export const updateAdminProfileApi = async (data) => {
-  return mockApiResponse({
+  const users = await apiClient.get('/users?role=admin');
+  const admin = users.find(user => user.username === 'admin');
+  
+  if (!admin) {
+    throw new Error('管理员账户不存在');
+  }
+  
+  const updatedAdmin = await apiClient.put(`/users/${admin.id}`, {
+    ...admin,
+    ...data,
+    updatedAt: new Date().toISOString()
+  });
+  
+  return {
     success: true,
     message: '个人资料更新成功',
-    profile: {
-      ...data,
-      updatedAt: new Date().toISOString()
-    }
-  });
+    profile: updatedAdmin
+  };
 };
 
 export const changeAdminPasswordApi = async (passwordData) => {
-  // 模拟密码验证
-  if (passwordData.currentPassword !== '123456') {
+  const users = await apiClient.get('/users?role=admin');
+  const admin = users.find(user => user.username === 'admin');
+  
+  if (!admin) {
+    throw new Error('管理员账户不存在');
+  }
+  
+  // 验证当前密码
+  if (passwordData.currentPassword !== admin.password) {
     throw new Error('当前密码不正确');
   }
   
-  return mockApiResponse({
+  // 更新密码
+  await apiClient.put(`/users/${admin.id}`, {
+    ...admin,
+    password: passwordData.newPassword,
+    updatedAt: new Date().toISOString()
+  });
+  
+  return {
     success: true,
     message: '密码修改成功'
-  });
+  };
 };
 
 export const updateAdminAvatarApi = async (avatarData) => {
-  return mockApiResponse({
+  const users = await apiClient.get('/users?role=admin');
+  const admin = users.find(user => user.username === 'admin');
+  
+  if (!admin) {
+    throw new Error('管理员账户不存在');
+  }
+  
+  await apiClient.put(`/users/${admin.id}`, {
+    ...admin,
+    avatar: avatarData.avatar,
+    updatedAt: new Date().toISOString()
+  });
+  
+  return {
     success: true,
     message: '头像更新成功',
     avatar: avatarData.avatar
-  });
+  };
 };
 
 export const getAdminStatsApi = async () => {
-  const adminStats = {
-    totalSurveys: 156,
-    totalUsers: 1248,
-    pendingReviews: 23,
-    loginDays: 45,
-    todayLogins: 89,
-    monthlyActive: 892
-  };
-  
-  return mockApiResponse(adminStats);
+  // 从adminStats获取统计数据
+  const stats = await apiClient.get('/adminStats');
+  return stats;
 };
 
 export const getAdminActivitiesApi = async (limit = 10) => {
+  // 这里可以从日志表或活动记录表获取数据
+  // 目前返回模拟数据，实际可以从数据库获取
   const activities = [
     {
       id: 1,
@@ -375,8 +471,8 @@ export const getAdminActivitiesApi = async (limit = 10) => {
     }
   ];
   
-  return mockApiResponse({
+  return {
     list: activities.slice(0, limit),
     total: activities.length
-  });
+  };
 };

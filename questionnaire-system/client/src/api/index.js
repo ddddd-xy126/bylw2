@@ -1,7 +1,10 @@
 import axios from "axios";
 import { useUserStore } from "@/store/user";
 
-const instance = axios.create({ baseURL: "/api" });
+const instance = axios.create({ 
+  baseURL: "http://localhost:3002",
+  timeout: 10000 
+});
 
 instance.interceptors.request.use((config) => {
   const store = useUserStore();

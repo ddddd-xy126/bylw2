@@ -1,106 +1,154 @@
-import { 
-  mockAuthResponse, 
-  mockUserProfile, 
-  mockUserAnswers, 
-  mockUserAchievements, 
-  mockUserReports,
-  mockSurveys,
-  mockApiResponse 
-} from "@/mockData";
-
-// 用户收藏的问卷ID列表
-let userFavorites = [1, 3];
+import apiClient from './index.js';
 
 // 认证相关
 export const loginApi = async (data) => {
-  // 模拟登录验证
-  if (data.username === "admin" && data.password === "admin123") {
-    return mockApiResponse({
-      token: "mock-jwt-token-admin",
-      user: { ...mockUserProfile, id: 3, username: "admin", nickname: "管理员", role: "admin" }
-    });
-  } else if (data.username === "user1" && data.password === "123456") {
-    return mockApiResponse(mockAuthResponse);
-  } else {
+  // 查找用户
+  const users = await apiClient.get('/users');
+  const user = users.find(u => 
+    (u.username === data.username || u.email === data.username) && 
+    u.password === data.password
+  );
+  
+  if (!user) {
     throw new Error("用户名或密码错误");
   }
+  
+  return {
+    token: `mock-jwt-token-${user.id}`,
+    user: {
+      id: user.id,
+      username: user.username,
+      nickname: user.nickname,
+      email: user.email,
+      avatar: user.avatar,
+      role: user.role,
+      points: user.points,
+      level: user.level
+    }
+  };
 };
 
 export const registerApi = async (data) => {
-  // 模拟注册
-  if (data.username === "existuser") {
-    throw new Error("用户名已存在");
+  // 检查用户名是否已存在
+  const users = await apiClient.get('/users');
+  const existingUser = users.find(u => u.username === data.username || u.email === data.email);
+  
+  if (existingUser) {
+    throw new Error("用户名或邮箱已存在");
   }
-  return mockApiResponse({
-    token: "mock-jwt-token-new-user",
+  
+  // 创建新用户
+  const newUser = {
+    username: data.username,
+    nickname: data.nickname || data.username,
+    email: data.email,
+    phone: data.phone || '',
+    avatar: "/avatars/default.jpg",
+    role: "user",
+    banned: false,
+    isActive: true,
+    points: 0,
+    level: 1,
+    bio: '',
+    city: '',
+    gender: '',
+    age: 0,
+    profession: '',
+    joinedDate: new Date().toISOString().split('T')[0],
+    createdAt: new Date().toISOString(),
+    lastLoginAt: new Date().toISOString(),
+    lastLoginIp: '',
+    password: data.password
+  };
+  
+  const createdUser = await apiClient.post('/users', newUser);
+  
+  return {
+    token: `mock-jwt-token-${createdUser.id}`,
     user: {
-      id: Date.now(),
-      username: data.username,
-      nickname: data.nickname || data.username,
-      email: data.email,
-      phone: data.phone,
-      avatar: "/avatars/default.jpg",
-      role: "user",
-      status: "active",
-      points: 0,
-      level: 1,
-      createdAt: new Date().toISOString()
+      id: createdUser.id,
+      username: createdUser.username,
+      nickname: createdUser.nickname,
+      email: createdUser.email,
+      avatar: createdUser.avatar,
+      role: createdUser.role,
+      points: createdUser.points,
+      level: createdUser.level
     }
-  });
+  };
 };
 
-export const profileApi = async () => {
-  return mockApiResponse(mockUserProfile);
+export const profileApi = async (userId) => {
+  const user = await apiClient.get(`/users/${userId}`);
+  return user;
 };
 
 // 收藏相关
-export const getFavoritesApi = async () => {
-  const favoriteSurveys = mockSurveys.filter(survey => userFavorites.includes(survey.id));
-  return mockApiResponse(favoriteSurveys.map(survey => ({ questionnaireId: survey.id, ...survey })));
+export const getFavoritesApi = async (userId) => {
+  const favorites = await apiClient.get(`/favorites?userId=${userId}`);
+  const surveys = await apiClient.get('/surveys');
+  
+  const favoriteSurveys = favorites.map(fav => {
+    const survey = surveys.find(s => s.id === fav.surveyId);
+    return { questionnaireId: survey.id, ...survey };
+  });
+  
+  return favoriteSurveys;
 };
 
-export const addFavoriteApi = async (surveyId) => {
-  if (!userFavorites.includes(parseInt(surveyId))) {
-    userFavorites.push(parseInt(surveyId));
+export const addFavoriteApi = async (userId, surveyId) => {
+  const newFavorite = {
+    userId: parseInt(userId),
+    surveyId: parseInt(surveyId),
+    createdAt: new Date().toISOString()
+  };
+  
+  const favorite = await apiClient.post('/favorites', newFavorite);
+  return { success: true, message: "收藏成功" };
+};
+
+export const removeFavoriteApi = async (userId, surveyId) => {
+  const favorites = await apiClient.get(`/favorites?userId=${userId}&surveyId=${surveyId}`);
+  if (favorites.length > 0) {
+    await apiClient.delete(`/favorites/${favorites[0].id}`);
   }
-  return mockApiResponse({ success: true, message: "收藏成功" });
-};
-
-export const removeFavoriteApi = async (surveyId) => {
-  userFavorites = userFavorites.filter(id => id !== parseInt(surveyId));
-  return mockApiResponse({ success: true, message: "取消收藏成功" });
+  return { success: true, message: "取消收藏成功" };
 };
 
 // 用户记录
-export const getUserAnswersApi = async () => {
-  return mockApiResponse({
-    list: mockUserAnswers,
-    total: mockUserAnswers.length
-  });
+export const getUserAnswersApi = async (userId) => {
+  const answers = await apiClient.get(`/answers?userId=${userId}`);
+  return {
+    list: answers,
+    total: answers.length
+  };
 };
 
-export const getUserAchievementsApi = async () => {
-  return mockApiResponse({
-    list: mockUserAchievements,
-    total: mockUserAchievements.length
-  });
+export const getUserAchievementsApi = async (userId) => {
+  const achievements = await apiClient.get(`/achievements?userId=${userId}`);
+  return {
+    list: achievements,
+    total: achievements.length
+  };
 };
 
-export const getUserReportsApi = async () => {
-  return mockApiResponse({
-    list: mockUserReports,
-    total: mockUserReports.length
-  });
+export const getUserReportsApi = async (userId) => {
+  const reports = await apiClient.get(`/reports?userId=${userId}`);
+  return {
+    list: reports,
+    total: reports.length
+  };
 };
 
 export const getAnswerDetailApi = async (answerId) => {
-  const answer = mockUserAnswers.find(a => a.id == answerId);
+  const answer = await apiClient.get(`/answers/${answerId}`);
   if (!answer) {
     throw new Error("答题记录不存在");
   }
-  return mockApiResponse(answer);
+  return answer;
 };
 
 export const deleteAnswerApi = async (answerId) => {
-  return mockApiResponse({ success: true, message: "删除成功" });
+  await apiClient.delete(`/answers/${answerId}`);
+  return { success: true, message: "删除成功" };
 };

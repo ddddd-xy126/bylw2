@@ -550,10 +550,17 @@ const adminUsers = computed(
 const loadUsers = async () => {
   loading.value = true;
   try {
-    // 使用本地模拟数据而不是API
-    const { mockUsers } = await import('@/mockData/users.js');
-    users.value = mockUsers;
-    total.value = mockUsers.length;
+    // 从json-server加载用户数据
+    const { getUsersApi } = await import('@/api/admin.js');
+    const response = await getUsersApi({
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      search: searchKeyword.value,
+      status: statusFilter.value,
+      role: roleFilter.value
+    });
+    users.value = response.list;
+    total.value = response.total;
   } catch (error) {
     ElMessage.error("加载用户列表失败：" + error.message);
   } finally {

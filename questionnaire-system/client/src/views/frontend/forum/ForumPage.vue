@@ -117,6 +117,7 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/user";
 import { ElMessage } from "element-plus";
+import apiClient from "@/api/index.js";
 import { 
   Edit, 
   Search, 
@@ -141,61 +142,19 @@ const postForm = ref({
   content: ""
 });
 
-// 模拟论坛数据
-const forumPosts = ref([
-  {
-    id: 1,
-    title: "如何设计有效的问卷问题？",
-    excerpt: "在设计问卷时，问题的表述方式直接影响数据质量。本文分享一些实用的问题设计技巧...",
-    content: "详细内容...",
-    category: "design",
-    author: "问卷专家",
-    authorId: 1,
-    views: 1250,
-    replies: 23,
-    likes: 45,
-    createdAt: "2024-01-20T10:30:00Z"
-  },
-  {
-    id: 2,
-    title: "SPSS在问卷数据分析中的应用",
-    excerpt: "SPSS是问卷数据分析的强大工具，本文介绍常用的分析方法和操作步骤...",
-    content: "详细内容...",
-    category: "analysis",
-    author: "数据分析师",
-    authorId: 2,
-    views: 890,
-    replies: 15,
-    likes: 32,
-    createdAt: "2024-01-19T14:20:00Z"
-  },
-  {
-    id: 3,
-    title: "我的问卷收集经验分享",
-    excerpt: "经过多次问卷调研项目，总结出一些提高回收率的实用方法...",
-    content: "详细内容...",
-    category: "experience",
-    author: "调研老手",
-    authorId: 3,
-    views: 672,
-    replies: 31,
-    likes: 28,
-    createdAt: "2024-01-18T09:15:00Z"
-  },
-  {
-    id: 4,
-    title: "求助：如何处理问卷中的无效数据？",
-    excerpt: "在数据清洗过程中遇到了一些问题，希望有经验的朋友能给点建议...",
-    content: "详细内容...",
-    category: "help",
-    author: "新手小白",
-    authorId: 4,
-    views: 445,
-    replies: 18,
-    likes: 12,
-    createdAt: "2024-01-17T16:45:00Z"
+// 论坛数据
+const forumPosts = ref([]);
+
+// 加载论坛数据
+const loadForumPosts = async () => {
+  try {
+    const posts = await apiClient.get('/forumPosts');
+    forumPosts.value = posts;
+  } catch (error) {
+    console.error('加载论坛数据失败:', error);
+    ElMessage.error('加载论坛数据失败');
   }
-]);
+};
 
 // 计算属性
 const filteredPosts = computed(() => {
@@ -309,35 +268,39 @@ const resetForm = () => {
   };
 };
 
-const submitPost = () => {
+const submitPost = async () => {
   if (!postForm.value.title || !postForm.value.category || !postForm.value.content) {
     ElMessage.warning("请填写完整信息");
     return;
   }
 
-  // 模拟发帖
-  const newPost = {
-    id: Date.now(),
-    title: postForm.value.title,
-    excerpt: postForm.value.content.substring(0, 100) + "...",
-    content: postForm.value.content,
-    category: postForm.value.category,
-    author: userStore.profile?.nickname || "匿名用户",
-    authorId: userStore.profile?.id || 0,
-    views: 0,
-    replies: 0,
-    likes: 0,
-    createdAt: new Date().toISOString()
-  };
+  try {
+    const newPost = {
+      title: postForm.value.title,
+      excerpt: postForm.value.content.substring(0, 100) + "...",
+      content: postForm.value.content,
+      category: postForm.value.category,
+      author: userStore.profile?.nickname || "匿名用户",
+      authorId: userStore.profile?.id || 0,
+      views: 0,
+      replies: 0,
+      likes: 0,
+      createdAt: new Date().toISOString()
+    };
 
-  forumPosts.value.unshift(newPost);
-  showCreatePost.value = false;
-  resetForm();
-  ElMessage.success("帖子发布成功！");
+    const createdPost = await apiClient.post('/forumPosts', newPost);
+    forumPosts.value.unshift(createdPost);
+    showCreatePost.value = false;
+    resetForm();
+    ElMessage.success("帖子发布成功！");
+  } catch (error) {
+    console.error('发布帖子失败:', error);
+    ElMessage.error('发布帖子失败');
+  }
 };
 
 onMounted(() => {
-  // 这里可以加载论坛数据
+  loadForumPosts();
 });
 </script>
 

@@ -1,0 +1,573 @@
+{
+  "users": [
+    {
+      "role": "user",
+      "updatedAt": "2025-09-28T03:40:37.307Z",
+      "id": "1",
+      "banned": false,
+      "isActive": true,
+      "password": "123456"
+    },
+    {
+      "id": "2",
+      "username": "lisi_career",
+      "nickname": "李四",
+      "email": "lisi@example.com",
+      "phone": "13899999999",
+      "avatar": "/avatars/user2.jpg",
+      "role": "user",
+      "banned": false,
+      "isActive": true,
+      "points": 2800,
+      "level": 3,
+      "bio": "职场新人，专注于职业发展和个人成长",
+      "city": "上海市",
+      "gender": "female",
+      "age": 25,
+      "profession": "市场专员",
+      "joinedDate": "2024-01-10",
+      "createdAt": "2024-01-10T08:00:00Z",
+      "lastLoginAt": "2024-01-25T09:15:00Z",
+      "lastLoginIp": "192.168.1.101",
+      "password": "123456"
+    },
+    {
+      "id": "3",
+      "username": "admin",
+      "nickname": "系统管理员",
+      "email": "admin@example.com",
+      "phone": "13800000000",
+      "avatar": "/avatars/admin.jpg",
+      "role": "admin",
+      "banned": false,
+      "isActive": true,
+      "points": 8500,
+      "level": 5,
+      "bio": "系统管理员，负责平台维护和用户管理",
+      "city": "北京市",
+      "gender": "male",
+      "age": 35,
+      "profession": "系统管理员",
+      "joinedDate": "2024-01-01",
+      "createdAt": "2024-01-01T08:00:00Z",
+      "lastLoginAt": "2024-01-25T11:00:00Z",
+      "lastLoginIp": "192.168.1.1",
+      "password": "admin123"
+    },
+    {
+      "id": "4",
+      "username": "wangprof",
+      "nickname": "王教授",
+      "email": "wangprof@university.edu.cn",
+      "phone": "13777777777",
+      "avatar": "/avatars/prof1.jpg",
+      "role": "user",
+      "banned": false,
+      "isActive": true,
+      "points": 4200,
+      "level": 4,
+      "bio": "教育心理学专家，专注学习方法和认知研究",
+      "city": "南京市",
+      "gender": "male",
+      "age": 52,
+      "profession": "大学教授",
+      "joinedDate": "2024-01-05",
+      "createdAt": "2024-01-05T08:00:00Z",
+      "lastLoginAt": "2024-01-24T14:20:00Z",
+      "lastLoginIp": "192.168.2.10",
+      "password": "123456"
+    },
+    {
+      "id": "5",
+      "username": "zhangjob",
+      "nickname": "张规划师",
+      "email": "zhangjob@career.com",
+      "phone": "13666666666",
+      "avatar": "/avatars/career1.jpg",
+      "role": "user",
+      "banned": false,
+      "isActive": true,
+      "points": 3600,
+      "level": 4,
+      "bio": "职业规划专家，帮助他人找到职业方向和发展路径",
+      "city": "深圳市",
+      "gender": "female",
+      "age": 38,
+      "profession": "职业规划师",
+      "joinedDate": "2024-01-03",
+      "createdAt": "2024-01-03T08:00:00Z",
+      "lastLoginAt": "2024-01-24T16:45:00Z",
+      "lastLoginIp": "192.168.3.15",
+      "password": "123456"
+    }
+  ],
+  "categories": [
+    {
+      "id": "1",
+      "name": "心理健康",
+      "slug": "psychology",
+      "count": 18,
+      "description": "评估心理状态，提供心理调节建议"
+    },
+    {
+      "id": "2",
+      "name": "学习能力",
+      "slug": "learning",
+      "count": 15,
+      "description": "测试学习方法，提升学习效率"
+    },
+    {
+      "id": "3",
+      "name": "职业发展",
+      "slug": "career",
+      "count": 12,
+      "description": "职业规划指导，发现职业潜能"
+    },
+    {
+      "id": "4",
+      "name": "生活方式",
+      "slug": "lifestyle",
+      "count": 14,
+      "description": "健康生活评估，改善生活质量"
+    },
+    {
+      "id": "5",
+      "name": "兴趣爱好",
+      "slug": "hobbies",
+      "count": 9,
+      "description": "发现兴趣偏好，丰富业余生活"
+    },
+    {
+      "id": "6",
+      "name": "人际关系",
+      "slug": "social",
+      "count": 11,
+      "description": "改善人际交往，建立良好关系"
+    },
+    {
+      "id": "7",
+      "name": "情绪管理",
+      "slug": "emotion",
+      "count": 13,
+      "description": "情绪调节技巧，提升情商水平"
+    },
+    {
+      "id": "8",
+      "name": "认知能力",
+      "slug": "cognitive",
+      "count": 10,
+      "description": "认知功能测试，训练思维能力"
+    }
+  ],
+  "surveys": [
+    {
+      "id": "1",
+      "title": "心理健康评估问卷",
+      "description": "评估您当前的心理健康状况，提供个性化建议和心理调节方案",
+      "category": "心理健康",
+      "categoryId": 1,
+      "author": "李心理",
+      "authorId": 3,
+      "questions": 15,
+      "duration": 10,
+      "difficulty": "中等",
+      "status": "published",
+      "tags": [
+        "心理",
+        "健康",
+        "评估",
+        "情绪管理"
+      ],
+      "thumbnail": "/images/psychology.jpg",
+      "rating": 4.5,
+      "participants": 1250,
+      "participantCount": 1250,
+      "createdAt": "2024-01-10T08:00:00Z",
+      "updatedAt": "2024-01-15T10:30:00Z",
+      "questionList": [
+        {
+          "id": 1,
+          "type": "single",
+          "title": "您最近一周的睡眠质量如何？",
+          "options": [
+            {
+              "id": "a",
+              "text": "很好，每天都能充足睡眠"
+            },
+            {
+              "id": "b",
+              "text": "一般，偶尔失眠"
+            },
+            {
+              "id": "c",
+              "text": "较差，经常失眠"
+            },
+            {
+              "id": "d",
+              "text": "很差，严重失眠"
+            }
+          ],
+          "required": true
+        },
+        {
+          "id": 2,
+          "type": "single",
+          "title": "您对目前的生活状态满意吗？",
+          "options": [
+            {
+              "id": "a",
+              "text": "非常满意"
+            },
+            {
+              "id": "b",
+              "text": "比较满意"
+            },
+            {
+              "id": "c",
+              "text": "一般"
+            },
+            {
+              "id": "d",
+              "text": "不太满意"
+            },
+            {
+              "id": "e",
+              "text": "很不满意"
+            }
+          ],
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "学习方式偏好调查",
+      "description": "了解您的学习偏好，帮助您找到最适合的学习方法和提升效率",
+      "category": "学习能力",
+      "categoryId": 2,
+      "author": "王教授",
+      "authorId": 4,
+      "questions": 20,
+      "duration": 15,
+      "difficulty": "简单",
+      "status": "published",
+      "tags": [
+        "学习",
+        "方法",
+        "偏好",
+        "效率"
+      ],
+      "thumbnail": "/images/learning.jpg",
+      "rating": 4.2,
+      "participants": 890,
+      "participantCount": 890,
+      "createdAt": "2024-01-08T09:00:00Z",
+      "updatedAt": "2024-01-12T14:20:00Z",
+      "questionList": []
+    },
+    {
+      "id": "3",
+      "title": "职业兴趣测试",
+      "description": "发现您的职业兴趣和潜在发展方向，为职业规划提供科学依据",
+      "category": "职业发展",
+      "categoryId": 3,
+      "author": "张规划师",
+      "authorId": 5,
+      "questions": 25,
+      "duration": 20,
+      "difficulty": "中等",
+      "status": "published",
+      "tags": [
+        "职业",
+        "兴趣",
+        "规划",
+        "发展"
+      ],
+      "thumbnail": "/images/career.jpg",
+      "rating": 4.7,
+      "participants": 2150,
+      "participantCount": 2150,
+      "createdAt": "2024-01-05T11:00:00Z",
+      "updatedAt": "2024-01-18T16:45:00Z",
+      "questionList": []
+    }
+  ],
+  "questions": [
+    {
+      "id": "1",
+      "type": "single",
+      "title": "您的年龄段是？",
+      "options": [
+        {
+          "id": "a",
+          "text": "18-25岁"
+        },
+        {
+          "id": "b",
+          "text": "26-35岁"
+        },
+        {
+          "id": "c",
+          "text": "36-45岁"
+        },
+        {
+          "id": "d",
+          "text": "46岁以上"
+        }
+      ],
+      "category": "基础信息",
+      "usageCount": 25,
+      "createdAt": "2024-01-10T08:00:00Z"
+    },
+    {
+      "id": "2",
+      "type": "multiple",
+      "title": "您使用过哪些学习工具？",
+      "options": [
+        {
+          "id": "a",
+          "text": "在线课程平台"
+        },
+        {
+          "id": "b",
+          "text": "学习APP"
+        },
+        {
+          "id": "c",
+          "text": "电子书"
+        },
+        {
+          "id": "d",
+          "text": "视频教程"
+        }
+      ],
+      "category": "学习工具",
+      "usageCount": 18,
+      "createdAt": "2024-01-12T10:30:00Z"
+    }
+  ],
+  "answers": [
+    {
+      "id": "1",
+      "userId": 1,
+      "surveyId": 1,
+      "surveyTitle": "心理健康评估问卷",
+      "score": 85,
+      "result": "良好",
+      "submittedAt": "2024-01-20T10:30:00Z",
+      "duration": 600,
+      "answers": [
+        {
+          "questionId": 1,
+          "answer": "经常"
+        },
+        {
+          "questionId": 2,
+          "answer": "偶尔"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "userId": 1,
+      "surveyId": 2,
+      "surveyTitle": "学习方式偏好调查",
+      "score": 72,
+      "result": "视觉学习者",
+      "submittedAt": "2024-01-19T14:20:00Z",
+      "duration": 480,
+      "answers": [
+        {
+          "questionId": 4,
+          "answer": "图表和图像"
+        },
+        {
+          "questionId": 5,
+          "answer": "阅读材料"
+        }
+      ]
+    }
+  ],
+  "comments": [
+    {
+      "id": "1",
+      "surveyId": 1,
+      "userId": 1,
+      "username": "张三",
+      "avatar": "/avatars/user1.jpg",
+      "content": "这个问卷很有帮助，让我更了解自己的心理状况。",
+      "rating": 5,
+      "createdAt": "2024-01-16T10:30:00Z"
+    },
+    {
+      "id": "2",
+      "surveyId": 1,
+      "userId": 2,
+      "username": "李四",
+      "avatar": "/avatars/user2.jpg",
+      "content": "题目设计得很专业，结果分析也很详细。",
+      "rating": 4,
+      "createdAt": "2024-01-17T14:20:00Z"
+    }
+  ],
+  "favorites": [
+    {
+      "id": "1",
+      "userId": 1,
+      "surveyId": 1,
+      "createdAt": "2024-01-16T10:30:00Z"
+    },
+    {
+      "id": "2",
+      "userId": 1,
+      "surveyId": 3,
+      "createdAt": "2024-01-18T14:20:00Z"
+    },
+    {
+      "id": "1d7f",
+      "userId": 3,
+      "surveyId": null,
+      "createdAt": "2025-09-28T03:05:01.304Z"
+    }
+  ],
+  "achievements": [
+    {
+      "id": "1",
+      "userId": 1,
+      "title": "初次答题",
+      "description": "完成第一份问卷",
+      "icon": "🏆",
+      "unlockedAt": "2024-01-15T08:30:00Z"
+    },
+    {
+      "id": "2",
+      "userId": 1,
+      "title": "勤奋学习者",
+      "description": "完成10份问卷",
+      "icon": "📚",
+      "unlockedAt": "2024-01-18T16:45:00Z"
+    }
+  ],
+  "reports": [
+    {
+      "id": "1",
+      "userId": 1,
+      "title": "个人学习能力分析报告",
+      "type": "learning_ability",
+      "generatedAt": "2024-01-20T15:00:00Z",
+      "content": {
+        "summary": "您展现出了较强的逻辑思维能力和学习适应性...",
+        "scores": {
+          "logic": 85,
+          "memory": 78,
+          "creativity": 92
+        },
+        "suggestions": [
+          "建议多进行创意性思维训练",
+          "可以尝试更多样化的学习方法"
+        ]
+      }
+    }
+  ],
+  "forumPosts": [
+    {
+      "id": "1",
+      "title": "如何设计有效的问卷问题？",
+      "excerpt": "在设计问卷时，问题的表述方式直接影响数据质量。本文分享一些实用的问题设计技巧...",
+      "content": "详细内容...",
+      "category": "design",
+      "authorId": 1,
+      "author": "问卷专家",
+      "views": 1250,
+      "replies": 23,
+      "likes": 45,
+      "createdAt": "2024-01-20T10:30:00Z"
+    },
+    {
+      "id": "2",
+      "title": "SPSS在问卷数据分析中的应用",
+      "excerpt": "SPSS是问卷数据分析的强大工具，本文介绍常用的分析方法和操作步骤...",
+      "content": "详细内容...",
+      "category": "analysis",
+      "authorId": 2,
+      "author": "数据分析师",
+      "views": 890,
+      "replies": 15,
+      "likes": 32,
+      "createdAt": "2024-01-19T14:20:00Z"
+    }
+  ],
+  "adminStats": {
+    "totalUsers": 1250,
+    "totalSurveys": 45,
+    "totalAnswers": 8950,
+    "activeUsers": 320,
+    "todayRegistrations": 15,
+    "todaySubmissions": 89,
+    "monthlyGrowth": {
+      "users": 12.5,
+      "surveys": 8.3,
+      "answers": 18.7
+    }
+  },
+  "systemStatus": {
+    "serverStatus": "healthy",
+    "databaseStatus": "healthy",
+    "memoryUsage": 68.5,
+    "cpuUsage": 34.2,
+    "diskUsage": 42.8,
+    "uptime": "15 天 8 小时 23 分钟",
+    "lastBackup": "2024-01-21T02:00:00Z"
+  },
+  "activityData": [
+    {
+      "date": "2024-01-15",
+      "users": 45,
+      "surveys": 3,
+      "answers": 120,
+      "id": "c9fa"
+    },
+    {
+      "date": "2024-01-16",
+      "users": 52,
+      "surveys": 5,
+      "answers": 145,
+      "id": "d4a8"
+    },
+    {
+      "date": "2024-01-17",
+      "users": 38,
+      "surveys": 2,
+      "answers": 98,
+      "id": "5777"
+    },
+    {
+      "date": "2024-01-18",
+      "users": 61,
+      "surveys": 4,
+      "answers": 167,
+      "id": "246a"
+    },
+    {
+      "date": "2024-01-19",
+      "users": 49,
+      "surveys": 3,
+      "answers": 134,
+      "id": "23f1"
+    },
+    {
+      "date": "2024-01-20",
+      "users": 58,
+      "surveys": 6,
+      "answers": 189,
+      "id": "389c"
+    },
+    {
+      "date": "2024-01-21",
+      "users": 42,
+      "surveys": 2,
+      "answers": 112,
+      "id": "f870"
+    }
+  ]
+}
