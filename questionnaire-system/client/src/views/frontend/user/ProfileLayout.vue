@@ -31,11 +31,6 @@
             <el-icon><Star /></el-icon>
             <span>收藏管理</span>
           </el-menu-item>
-          
-          <el-menu-item index="/profile/history">
-            <el-icon><Document /></el-icon>
-            <span>历史记录</span>
-          </el-menu-item>
 
           <el-sub-menu index="questionnaires">
             <template #title>

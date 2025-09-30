@@ -613,7 +613,7 @@ const publishQuestionnaire = async () => {
   if (!validateForm()) return
   
   ElMessage.success('问卷发布成功！')
-  router.push('/profile/creations')
+  router.push('/profile/questionnaires/created')
 }
 
 const validateBasicInfo = () => {

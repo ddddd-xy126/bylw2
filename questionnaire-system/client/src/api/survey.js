@@ -12,37 +12,68 @@ export async function getSurveyDetail(id) {
     throw new Error("问卷不存在");
   }
   
-  // 添加questions字段，如果没有则使用默认题目
-  if (!survey.questionList || survey.questionList.length === 0) {
+  // 使用questionList作为questions，确保每个问题都有order字段
+  if (survey.questionList && survey.questionList.length > 0) {
+    survey.questions = survey.questionList.map((q, index) => ({
+      ...q,
+      order: q.order !== undefined ? q.order : index + 1
+    }));
+  } else {
+    // 如果没有问题列表，使用默认题目
     survey.questions = [
       {
         id: 1,
         type: "single",
-        title: "示例单选题",
+        title: "您最喜欢的颜色是什么？",
+        description: "请选择一个您最喜欢的颜色",
         options: [
-          { id: "a", text: "选项A" },
-          { id: "b", text: "选项B" },
-          { id: "c", text: "选项C" }
+          { id: "red", text: "红色" },
+          { id: "blue", text: "蓝色" },
+          { id: "green", text: "绿色" },
+          { id: "yellow", text: "黄色" }
         ],
-        required: true
+        required: true,
+        order: 1
       },
       {
         id: 2,
         type: "multiple",
-        title: "示例多选题",
+        title: "您喜欢的运动有哪些？",
+        description: "可以选择多个选项",
         options: [
-          { id: "a", text: "选项A" },
-          { id: "b", text: "选项B" },
-          { id: "c", text: "选项C" }
+          { id: "basketball", text: "篮球" },
+          { id: "football", text: "足球" },
+          { id: "tennis", text: "网球" },
+          { id: "swimming", text: "游泳" },
+          { id: "running", text: "跑步" }
         ],
-        required: false
+        required: false,
+        order: 2
+      },
+      {
+        id: 3,
+        type: "rating",
+        title: "请为我们的服务打分",
+        description: "您对我们服务的整体满意度",
+        maxRating: 5,
+        required: true,
+        order: 3
+      },
+      {
+        id: 4,
+        type: "text",
+        title: "您还有什么建议或意见吗？",
+        description: "请在此处输入您的建议",
+        required: false,
+        order: 4
       }
     ];
-  } else {
-    survey.questions = survey.questionList;
   }
   
+  // 添加一些额外的统计信息
   survey.isFavorite = false;
+  survey.estimatedTime = survey.duration || Math.ceil(survey.questions.length * 1.5);
+  survey.averageRating = survey.rating || 4.5;
   
   return survey;
 }

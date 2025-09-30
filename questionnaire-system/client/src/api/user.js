@@ -125,15 +125,27 @@ export const removeFavoriteApi = async (userId, surveyId) => {
   return { success: true, message: "取消收藏成功" };
 };
 
-// 用户记录
-export const getUserAnswersApi = async (userId) => {
+// 获取用户答题记录
+export const getUserAnsweredSurveysApi = async (userId) => {
   const answers = await apiClient.get(`/answers?userId=${userId}`);
-  return {
-    list: answers,
-    total: answers.length
-  };
+  const surveys = await apiClient.get('/surveys');
+  
+  // 合并答题记录和问卷信息
+  const answeredSurveys = answers.map(answer => {
+    const survey = surveys.find(s => s.id == answer.surveyId);
+    return {
+      ...answer,
+      survey: survey || null,
+      title: answer.surveyTitle || (survey ? survey.title : '未知问卷'),
+      category: survey ? survey.category : '未知分类',
+      estimatedTime: survey ? survey.estimatedTime : 0
+    };
+  });
+  
+  return answeredSurveys;
 };
 
+// 用户成就和报告记录（保留必要功能）
 export const getUserAchievementsApi = async (userId) => {
   const achievements = await apiClient.get(`/achievements?userId=${userId}`);
   return {
@@ -148,19 +160,6 @@ export const getUserReportsApi = async (userId) => {
     list: reports,
     total: reports.length
   };
-};
-
-export const getAnswerDetailApi = async (answerId) => {
-  const answer = await apiClient.get(`/answers/${answerId}`);
-  if (!answer) {
-    throw new Error("答题记录不存在");
-  }
-  return answer;
-};
-
-export const deleteAnswerApi = async (answerId) => {
-  await apiClient.delete(`/answers/${answerId}`);
-  return { success: true, message: "删除成功" };
 };
 
 // 更新用户信息

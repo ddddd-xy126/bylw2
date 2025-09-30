@@ -13,9 +13,6 @@ import RatingPage from "@/views/frontend/rankings/RatingPage.vue";
 import UserPointsPage from "@/views/frontend/rankings/UserPointsPage.vue";
 import ProfileLayout from "@/views/frontend/user/ProfileLayout.vue";
 import InfoPage from "@/views/frontend/user/components/profile/InfoPage.vue";
-import CreationsPage from "@/views/frontend/user/components/profile/CreationsPage.vue";
-import CreationEditor from "@/views/frontend/user/components/profile/CreationEditor.vue";
-import HistoryPage from "@/views/frontend/user/HistoryPage.vue";
 import CollectionsPage from "@/views/frontend/user/components/profile/CollectionsPage.vue";
 import AchievementsPage from "@/views/frontend/user/components/profile/AchievementsPage.vue";
 import ReportsPage from "@/views/frontend/user/components/profile/ReportsPage.vue";
@@ -60,7 +57,6 @@ export default [
           { path: "", redirect: "/profile/info" },
           { path: "info", component: InfoPage },
           { path: "collections", component: CollectionsPage },
-          { path: "history", component: HistoryPage },
           { path: "questionnaires/answered", component: AnsweredPage },
           { path: "questionnaires/created", component: CreatedPage },
           { path: "questionnaires/pending", component: PendingPage },
@@ -68,9 +64,6 @@ export default [
           { path: "questionnaires/trash", component: TrashPage },
           { path: "achievements", component: AchievementsPage },
           { path: "reports", component: ReportsPage },
-          // 保留原有的创建页面路由
-          { path: "creations", component: CreationsPage },
-          { path: "creations/editor", component: CreationEditor },
         ],
       },
       { path: "create", component: CreateQuestionnairePage, meta: { requiresAuth: true } },

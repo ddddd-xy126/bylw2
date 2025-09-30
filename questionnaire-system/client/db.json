@@ -1,11 +1,27 @@
 {
   "users": [
     {
-      "role": "user",
-      "updatedAt": "2025-09-28T03:40:37.307Z",
       "id": "1",
+      "username": "testuser",
+      "nickname": "测试用户",
+      "email": "test@example.com",
+      "phone": "13800138000",
+      "avatar": "/avatars/user1.jpg",
+      "role": "user",
       "banned": false,
       "isActive": true,
+      "points": 1200,
+      "level": 2,
+      "bio": "这是一个测试用户账号",
+      "city": "深圳市",
+      "gender": "male",
+      "age": 28,
+      "profession": "软件工程师",
+      "joinedDate": "2024-01-05",
+      "createdAt": "2024-01-05T08:00:00Z",
+      "lastLoginAt": "2025-09-29T09:00:00Z",
+      "lastLoginIp": "192.168.1.102",
+      "updatedAt": "2025-09-28T03:40:37.307Z",
       "password": "123456"
     },
     {
@@ -408,6 +424,69 @@
         {
           "questionId": 5,
           "answer": "阅读材料"
+        }
+      ]
+    },
+    {
+      "id": "c5d8",
+      "userId": 1,
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 76,
+      "result": "良好",
+      "submittedAt": "2025-09-29T10:06:40.735Z",
+      "duration": 298,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "yellow",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "swimming"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 5,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "无",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "9c05",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 93,
+      "result": "良好",
+      "submittedAt": "2025-09-30T03:12:41.372Z",
+      "duration": 5,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "tennis"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 5,
+          "question": "请为我们的服务打分"
         }
       ]
     }
