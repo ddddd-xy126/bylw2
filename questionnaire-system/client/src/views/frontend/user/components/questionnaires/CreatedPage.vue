@@ -504,7 +504,7 @@ const handleMoreAction = async ({ action, data }) => {
     case "delete":
       try {
         await ElMessageBox.confirm(
-          '确定要删除这个问卷吗？此操作不可撤销。',
+          '确定要删除这个问卷吗？删除后将移至回收站，30天内可恢复。',
           '确认删除',
           {
             confirmButtonText: '确定删除',
@@ -513,21 +513,56 @@ const handleMoreAction = async ({ action, data }) => {
           }
         );
         
-        // 从 json-server 删除问卷
-        const response = await fetch(`http://localhost:3002/surveys/${data.id}`, {
+        // 获取完整的问卷数据
+        const surveyResponse = await fetch(`http://localhost:3002/surveys/${data.id}`);
+        if (!surveyResponse.ok) {
+          throw new Error('获取问卷数据失败');
+        }
+        const surveyData = await surveyResponse.json();
+        
+        // 创建回收站记录
+        const recycleBinItem = {
+          id: Date.now(),
+          surveyId: data.id,
+          title: surveyData.title,
+          description: surveyData.description,
+          category: surveyData.category,
+          originalStatus: surveyData.status,
+          questions: surveyData.questions || (surveyData.questionList || []).length,
+          deletedAt: new Date().toISOString(),
+          userId: surveyData.userId || surveyData.authorId,
+          authorId: surveyData.userId || surveyData.authorId,
+          surveyData: surveyData
+        };
+        
+        // 添加到回收站
+        const addResponse = await fetch('http://localhost:3002/recycleBin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(recycleBinItem)
+        });
+        
+        if (!addResponse.ok) {
+          throw new Error('添加到回收站失败');
+        }
+        
+        // 从 surveys 表删除
+        const deleteResponse = await fetch(`http://localhost:3002/surveys/${data.id}`, {
           method: 'DELETE'
         });
         
-        if (!response.ok) {
-          throw new Error('删除失败');
+        if (!deleteResponse.ok) {
+          throw new Error('删除问卷失败');
         }
         
-        ElMessage.success("问卷删除成功");
+        ElMessage.success("问卷已移至回收站");
         await loadCreatedSurveys();
       } catch (error) {
         if (error !== 'cancel') {
           console.error('删除问卷失败:', error);
-          ElMessage.error("删除失败");
+          ElMessage.error("删除失败：" + error.message);
         }
       }
       break;
