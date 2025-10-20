@@ -342,21 +342,31 @@ const loadCreatedSurveys = async () => {
       return;
     }
     
-    // 从 localStorage 获取用户创建的问卷
-    const allQuestionnaires = JSON.parse(localStorage.getItem('questionnaires') || '[]');
-    const userQuestionnaires = allQuestionnaires.filter(q => q.createdBy === userId);
+    // 从 json-server 获取所有问卷
+    const response = await fetch('http://localhost:3002/surveys');
+    if (!response.ok) {
+      throw new Error('加载问卷失败');
+    }
     
-    // 格式化数据以匹配 surveys 结构
-    surveys.value = userQuestionnaires.map(q => ({
+    const allSurveys = await response.json();
+    
+    // 筛选当前用户创建的问卷（包含 draft、pending 和 published 状态）
+    const userSurveys = allSurveys.filter(s => 
+      (s.userId === userId || s.authorId === userId) && 
+      (s.status === 'draft' || s.status === 'pending' || s.status === 'published')
+    );
+    
+    // 格式化数据
+    surveys.value = userSurveys.map(q => ({
       id: q.id,
       title: q.title,
       description: q.description,
       category: q.category,
       status: q.status,
-      createdAt: q.createTime,
-      updatedAt: q.updateTime,
-      questions: (q.questions || []).length,
-      participants: q.participantCount || 0,
+      createdAt: q.createdAt,
+      updatedAt: q.updatedAt,
+      questions: q.questions || (q.questionList || []).length,
+      participants: q.participantCount || q.participants || 0,
       shareCount: q.shareCount || 0
     }));
   } catch (error) {
@@ -452,20 +462,24 @@ const publishSurvey = async (id) => {
       }
     );
     
-    // 更新 localStorage 中的问卷状态
-    const allQuestionnaires = JSON.parse(localStorage.getItem('questionnaires') || '[]');
-    const questionnaireIndex = allQuestionnaires.findIndex(q => q.id === id);
+    // 更新 json-server 中的问卷状态
+    const response = await fetch(`http://localhost:3002/surveys/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        status: 'pending',
+        updatedAt: new Date().toISOString()
+      })
+    });
     
-    if (questionnaireIndex !== -1) {
-      allQuestionnaires[questionnaireIndex].status = 'pending';
-      allQuestionnaires[questionnaireIndex].updateTime = new Date().toISOString();
-      localStorage.setItem('questionnaires', JSON.stringify(allQuestionnaires));
-      
-      ElMessage.success("问卷已提交审核");
-      await loadCreatedSurveys();
-    } else {
-      ElMessage.error("未找到要发布的问卷");
+    if (!response.ok) {
+      throw new Error('提交失败');
     }
+    
+    ElMessage.success("问卷已提交审核");
+    await loadCreatedSurveys();
   } catch (error) {
     if (error !== 'cancel') {
       console.error('发布问卷失败:', error);
@@ -499,10 +513,14 @@ const handleMoreAction = async ({ action, data }) => {
           }
         );
         
-        // 从 localStorage 删除问卷
-        const allQuestionnaires = JSON.parse(localStorage.getItem('questionnaires') || '[]');
-        const updatedQuestionnaires = allQuestionnaires.filter(q => q.id !== data.id);
-        localStorage.setItem('questionnaires', JSON.stringify(updatedQuestionnaires));
+        // 从 json-server 删除问卷
+        const response = await fetch(`http://localhost:3002/surveys/${data.id}`, {
+          method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+          throw new Error('删除失败');
+        }
         
         ElMessage.success("问卷删除成功");
         await loadCreatedSurveys();

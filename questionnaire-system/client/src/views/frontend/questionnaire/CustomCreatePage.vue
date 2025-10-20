@@ -386,9 +386,11 @@ import {
   Delete
 } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
+import { useUserStore } from '@/store/user'
 
 const router = useRouter()
 const route = useRoute()
+const userStore = useUserStore()
 
 // 检查是否为编辑模式
 const isEditMode = ref(false)
@@ -1037,11 +1039,21 @@ const saveAsDraft = async () => {
   try {
     const questionnaireData = buildQuestionnaireData('draft')
     
-    // 保存到本地存储
-    const draftKey = `draft_questionnaire_${Date.now()}`
-    localStorage.setItem(draftKey, JSON.stringify(questionnaireData))
+    // 导入 API
+    const { createQuestionnaire, updateQuestionnaire } = await import('@/api/questionnaire')
     
-    ElMessage.success('草稿保存成功')
+    if (isEditMode.value && currentQuestionnaireId.value) {
+      // 编辑模式：更新现有问卷
+      await updateQuestionnaire(currentQuestionnaireId.value, questionnaireData)
+      ElMessage.success('草稿更新成功')
+    } else {
+      // 创建模式：创建新问卷
+      await createQuestionnaire(questionnaireData)
+      ElMessage.success('草稿保存成功')
+    }
+    
+    // 清除本地存储
+    clearLocalStorage()
     
     // 跳转到草稿列表页面
     router.push('/profile/questionnaires/created')
@@ -1057,19 +1069,22 @@ const publishQuestionnaire = async () => {
   try {
     const questionnaireData = buildQuestionnaireData('pending')
     
-    // 直接保存到本地存储，模拟提交到待审核状态
-    const pendingKey = `pending_questionnaire_${Date.now()}`
-    localStorage.setItem(pendingKey, JSON.stringify(questionnaireData))
+    // 导入 API
+    const { createQuestionnaire, updateQuestionnaire } = await import('@/api/questionnaire')
     
-    // 也可以添加到一个统一的问卷列表中
-    const allQuestionnaires = JSON.parse(localStorage.getItem('all_questionnaires') || '[]')
-    allQuestionnaires.push(questionnaireData)
-    localStorage.setItem('all_questionnaires', JSON.stringify(allQuestionnaires))
+    if (isEditMode.value && currentQuestionnaireId.value) {
+      // 编辑模式：更新现有问卷为待审核状态
+      await updateQuestionnaire(currentQuestionnaireId.value, questionnaireData)
+      ElMessage.success('问卷已重新提交审核！')
+    } else {
+      // 创建模式：创建新问卷并设为待审核状态
+      await createQuestionnaire(questionnaireData)
+      ElMessage.success('问卷已提交审核！')
+    }
     
     // 清除本地草稿
     clearLocalStorage()
     
-    ElMessage.success('问卷已提交审核！')
     router.push('/profile/questionnaires/pending')
   } catch (error) {
     console.error('发布失败:', error)
@@ -1082,16 +1097,12 @@ const updateQuestionnaire = async () => {
   
   try {
     const questionnaireData = buildQuestionnaireData('draft')
-    questionnaireData.id = currentQuestionnaireId.value
     
-    // 更新本地存储中的问卷数据
-    const allQuestionnaires = JSON.parse(localStorage.getItem('all_questionnaires') || '[]')
-    const index = allQuestionnaires.findIndex(q => q.id === currentQuestionnaireId.value)
+    // 导入 API
+    const { updateQuestionnaire: updateQuestionnaireApi } = await import('@/api/questionnaire')
     
-    if (index !== -1) {
-      allQuestionnaires[index] = questionnaireData
-      localStorage.setItem('all_questionnaires', JSON.stringify(allQuestionnaires))
-    }
+    // 调用 API 更新问卷
+    await updateQuestionnaireApi(currentQuestionnaireId.value, questionnaireData)
     
     // 清除本地草稿
     clearLocalStorage()
@@ -1105,7 +1116,11 @@ const updateQuestionnaire = async () => {
 }
 
 // 构建问卷数据
+// 构建问卷数据
 const buildQuestionnaireData = (status = 'draft') => {
+  const userId = userStore.profile?.id || 1
+  const userName = userStore.profile?.nickname || userStore.profile?.username || '匿名用户'
+  
   return {
     id: currentQuestionnaireId.value || Date.now(),
     title: questionnaireForm.title,
@@ -1123,7 +1138,8 @@ const buildQuestionnaireData = (status = 'draft') => {
     status: status,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    userId: 1 // 临时硬编码，实际应从用户状态获取
+    userId: userId,
+    authorName: userName
   }
 }
 

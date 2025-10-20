@@ -521,6 +521,132 @@
           "order": 2
         }
       ]
+    },
+    {
+      "id": "1760948457095",
+      "title": "eqeqwe",
+      "description": "qweqweqe",
+      "category": "psychology",
+      "duration": 10,
+      "tags": [
+        "weqeq"
+      ],
+      "questions": 5,
+      "settings": {
+        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
+        "showProgress": true,
+        "randomOrder": false
+      },
+      "status": "pending",
+      "createdAt": "2025-10-20T08:20:57.112Z",
+      "updatedAt": "2025-10-20T09:24:51.599Z",
+      "userId": "ec9c",
+      "authorName": "123",
+      "creatorId": "ec9c",
+      "authorId": "ec9c",
+      "author": "123",
+      "responses": 0,
+      "participants": 0,
+      "participantCount": 0,
+      "rating": 0,
+      "thumbnail": "/images/default.jpg",
+      "questionList": [
+        {
+          "type": "single",
+          "title": "新的单选题qeqwe",
+          "description": "qweqe",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1",
+              "text": "选项1"
+            },
+            {
+              "id": "opt2",
+              "text": "选项2"
+            }
+          ],
+          "allowOther": false,
+          "id": 1760948437510.531,
+          "order": 1
+        },
+        {
+          "type": "single",
+          "title": "新的单选题 (副本)eqweqwe",
+          "description": "qweqweqe",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1760948439134_0.17673769171953824",
+              "text": "选项1"
+            },
+            {
+              "id": "opt2_1760948439134_0.2630666430921047",
+              "text": "选项2"
+            }
+          ],
+          "allowOther": false,
+          "id": 1760948439134.6104,
+          "order": 2
+        },
+        {
+          "type": "single",
+          "title": "新的单选题 (副本)eqweqwe",
+          "description": "qweqweqee",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1760948439470_0.712217560205572",
+              "text": "选项1"
+            },
+            {
+              "id": "opt2_1760948439470_0.23641593172543007",
+              "text": "选项2"
+            }
+          ],
+          "allowOther": false,
+          "id": 1760948439470.0989,
+          "order": 3
+        },
+        {
+          "type": "single",
+          "title": "新的单选题 (副本)eeeq",
+          "description": "e",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1760948439646_0.44544700911197044",
+              "text": "选项1"
+            },
+            {
+              "id": "opt2_1760948439646_0.24837080904137154",
+              "text": "选项2"
+            }
+          ],
+          "allowOther": false,
+          "id": 1760948439646.0881,
+          "order": 4
+        },
+        {
+          "type": "single",
+          "title": "新的单选题 (副本)weqweq",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1760948439814_0.10852207345938747",
+              "text": "选项1"
+            },
+            {
+              "id": "opt2_1760948439814_0.08265114229097092",
+              "text": "选项2"
+            }
+          ],
+          "allowOther": false,
+          "id": 1760948439814.0251,
+          "order": 5
+        }
+      ]
     }
   ],
   "questions": [

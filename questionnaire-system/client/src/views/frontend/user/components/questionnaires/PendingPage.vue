@@ -292,20 +292,45 @@ const filteredSurveys = computed(() => {
 const loadPendingSurveys = async () => {
   loading.value = true;
   try {
-    // 从localStorage加载待审核问卷
-    const allQuestionnaires = JSON.parse(localStorage.getItem('all_questionnaires') || '[]');
-    const userId = userStore.profile?.id || 1;
+    const userId = userStore.profile?.id;
+    if (!userId) {
+      ElMessage.error("请先登录");
+      pendingSurveys.value = [];
+      return;
+    }
     
-    // 筛选出当前用户的待审核问卷
-    const userPendingSurveys = allQuestionnaires.filter(q => 
-      q.userId === userId && q.status === 'pending'
+    // 从 json-server 获取所有问卷
+    const response = await fetch('http://localhost:3002/surveys');
+    if (!response.ok) {
+      throw new Error('加载待审核问卷失败');
+    }
+    
+    const allSurveys = await response.json();
+    
+    // 筛选当前用户的待审核问卷
+    const userPendingSurveys = allSurveys.filter(s => 
+      (s.userId === userId || s.authorId === userId) && s.status === 'pending'
     );
     
-    pendingSurveys.value = userPendingSurveys;
+    // 格式化数据
+    pendingSurveys.value = userPendingSurveys.map(q => ({
+      id: q.id,
+      title: q.title,
+      description: q.description,
+      category: q.category,
+      status: q.status,
+      createdAt: q.createdAt,
+      updatedAt: q.updatedAt,
+      questions: q.questions || (q.questionList || []).length,
+      duration: q.duration || 10,
+      participants: q.participantCount || q.participants || 0
+    }));
+    
     console.log('Loaded pending surveys:', userPendingSurveys);
   } catch (error) {
     console.error('加载待审核问卷失败:', error);
     ElMessage.error("加载待审核问卷失败：" + error.message);
+    pendingSurveys.value = [];
   } finally {
     loading.value = false;
   }
@@ -352,11 +377,27 @@ const withdrawSurvey = async (id) => {
       }
     );
     
-    await updateSurveyApi(id, { status: 'draft' });
+    // 更新 json-server 中的问卷状态
+    const response = await fetch(`http://localhost:3002/surveys/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        status: 'draft',
+        updatedAt: new Date().toISOString()
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error('撤回失败');
+    }
+    
     ElMessage.success("问卷已撤回到草稿状态");
     loadPendingSurveys();
   } catch (error) {
     if (error !== 'cancel') {
+      console.error('撤回失败:', error);
       ElMessage.error("撤回失败：" + error.message);
     }
   }
