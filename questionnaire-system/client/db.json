@@ -330,6 +330,197 @@
       "createdAt": "2024-01-05T11:00:00Z",
       "updatedAt": "2024-01-18T16:45:00Z",
       "questionList": []
+    },
+    {
+      "id": "4",
+      "title": "我的第一个问卷",
+      "description": "这是我创建的第一个调研问卷，用于测试功能",
+      "category": "测试",
+      "categoryId": 1,
+      "author": "张三",
+      "authorId": 1,
+      "questions": 3,
+      "duration": 5,
+      "difficulty": "简单",
+      "status": "draft",
+      "tags": [
+        "测试",
+        "练习"
+      ],
+      "thumbnail": "/images/default.jpg",
+      "rating": 0,
+      "participants": 0,
+      "participantCount": 0,
+      "createdAt": "2024-01-20T09:00:00Z",
+      "updatedAt": "2024-01-20T09:00:00Z",
+      "questionList": [
+        {
+          "id": "1",
+          "type": "single",
+          "title": "您对我们的服务满意吗？",
+          "options": [
+            {
+              "id": "a",
+              "text": "非常满意"
+            },
+            {
+              "id": "b",
+              "text": "满意"
+            },
+            {
+              "id": "c",
+              "text": "一般"
+            },
+            {
+              "id": "d",
+              "text": "不满意"
+            }
+          ],
+          "required": true,
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "title": "用户体验调研问卷",
+      "description": "收集用户对产品使用体验的反馈意见",
+      "category": "产品",
+      "categoryId": 2,
+      "author": "张三",
+      "authorId": 1,
+      "questions": 5,
+      "duration": 8,
+      "difficulty": "中等",
+      "status": "pending",
+      "tags": [
+        "用户体验",
+        "产品调研"
+      ],
+      "thumbnail": "/images/ux-survey.jpg",
+      "rating": 0,
+      "participants": 0,
+      "participantCount": 0,
+      "createdAt": "2024-01-22T10:30:00Z",
+      "updatedAt": "2024-01-22T14:20:00Z",
+      "questionList": [
+        {
+          "id": "1",
+          "type": "single",
+          "title": "您使用我们产品多长时间了？",
+          "options": [
+            {
+              "id": "a",
+              "text": "不到1个月"
+            },
+            {
+              "id": "b",
+              "text": "1-3个月"
+            },
+            {
+              "id": "c",
+              "text": "3-6个月"
+            },
+            {
+              "id": "d",
+              "text": "6个月以上"
+            }
+          ],
+          "required": true,
+          "order": 1
+        },
+        {
+          "id": "2",
+          "type": "rating",
+          "title": "请为产品整体使用体验打分",
+          "maxRating": 5,
+          "required": true,
+          "order": 2
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "title": "员工满意度调查",
+      "description": "了解员工对公司环境和福利的满意度",
+      "category": "企业",
+      "categoryId": 3,
+      "author": "张三",
+      "authorId": 1,
+      "questions": 8,
+      "duration": 12,
+      "difficulty": "中等",
+      "status": "published",
+      "tags": [
+        "员工满意度",
+        "企业管理"
+      ],
+      "thumbnail": "/images/employee-survey.jpg",
+      "rating": 4.2,
+      "participants": 45,
+      "participantCount": 45,
+      "createdAt": "2024-01-18T08:00:00Z",
+      "updatedAt": "2024-01-25T16:00:00Z",
+      "questionList": [
+        {
+          "id": "1",
+          "type": "single",
+          "title": "您对目前的工作环境满意吗？",
+          "options": [
+            {
+              "id": "a",
+              "text": "非常满意"
+            },
+            {
+              "id": "b",
+              "text": "满意"
+            },
+            {
+              "id": "c",
+              "text": "一般"
+            },
+            {
+              "id": "d",
+              "text": "不满意"
+            },
+            {
+              "id": "e",
+              "text": "非常不满意"
+            }
+          ],
+          "required": true,
+          "order": 1
+        },
+        {
+          "id": "2",
+          "type": "multiple",
+          "title": "您希望公司改进哪些方面？",
+          "options": [
+            {
+              "id": "salary",
+              "text": "薪资待遇"
+            },
+            {
+              "id": "benefit",
+              "text": "福利保障"
+            },
+            {
+              "id": "environment",
+              "text": "办公环境"
+            },
+            {
+              "id": "culture",
+              "text": "企业文化"
+            },
+            {
+              "id": "training",
+              "text": "培训机会"
+            }
+          ],
+          "required": false,
+          "order": 2
+        }
+      ]
     }
   ],
   "questions": [
@@ -487,6 +678,545 @@
           "questionId": "3",
           "answer": 5,
           "question": "请为我们的服务打分"
+        }
+      ]
+    },
+    {
+      "id": "24eb",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 71,
+      "result": "良好",
+      "submittedAt": "2025-10-20T06:00:19.179Z",
+      "duration": 36,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "football"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 5,
+          "question": "请为我们的服务打分"
+        }
+      ]
+    },
+    {
+      "id": "12f6",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 65,
+      "result": "良好",
+      "submittedAt": "2025-10-20T06:00:24.123Z",
+      "duration": 36,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "football"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 5,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "驱蚊器",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "12ec",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 92,
+      "result": "良好",
+      "submittedAt": "2025-10-20T06:07:06.713Z",
+      "duration": 10,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "basketball"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 5,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "是的",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "7121",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 87,
+      "result": "良好",
+      "submittedAt": "2025-10-20T06:13:09.265Z",
+      "duration": 15,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "swimming"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 5,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "aadada",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "6801",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 94,
+      "result": "良好",
+      "submittedAt": "2025-10-20T06:13:20.569Z",
+      "duration": 15,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "swimming"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 5,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "aadada",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "2c50",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 70,
+      "result": "良好",
+      "submittedAt": "2025-10-20T06:14:22.207Z",
+      "duration": 9,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "swimming"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 5,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "adada",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "7cbd",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 69,
+      "result": "良好",
+      "submittedAt": "2025-10-20T06:19:18.862Z",
+      "duration": 11,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "tennis"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 3,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "adada",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "814b",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 69,
+      "result": "良好",
+      "submittedAt": "2025-10-20T06:21:58.329Z",
+      "duration": 10,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "basketball"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 5,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "恶气恶气",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "e658",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 74,
+      "result": "良好",
+      "submittedAt": "2025-10-20T06:26:59.475Z",
+      "duration": 9,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "running"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 4,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "大而全",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "3316",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 60,
+      "result": "良好",
+      "submittedAt": "2025-10-20T06:29:00.034Z",
+      "duration": 8,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "football"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 4,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "qwe",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "6b87",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 91,
+      "result": "良好",
+      "submittedAt": "2025-10-20T06:47:19.499Z",
+      "duration": 72,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "tennis"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 4,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "请问企鹅",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "633b",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 71,
+      "result": "良好",
+      "submittedAt": "2025-10-20T07:16:24.329Z",
+      "duration": 11,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "running"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 4,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "qweqwe",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "5bfe",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 92,
+      "result": "良好",
+      "submittedAt": "2025-10-20T07:19:55.912Z",
+      "duration": 8,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "football"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 4,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "wqeqwe",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "9b09",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 71,
+      "result": "良好",
+      "submittedAt": "2025-10-20T07:30:06.980Z",
+      "duration": 10,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "football"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 5,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "3乔沃维奇",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "0354",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 87,
+      "result": "良好",
+      "submittedAt": "2025-10-20T07:34:05.363Z",
+      "duration": 19,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "green",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "swimming"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 5,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "qaweqw",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "132a",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 77,
+      "result": "良好",
+      "submittedAt": "2025-10-20T07:36:35.254Z",
+      "duration": 9,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "blue",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "swimming"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 5,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "qeq",
+          "question": "您还有什么建议或意见吗？"
         }
       ]
     }

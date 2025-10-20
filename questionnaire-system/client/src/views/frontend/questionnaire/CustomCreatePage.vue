@@ -7,8 +7,18 @@
           <el-icon><ArrowLeft /></el-icon>
           返回
         </el-button>
-        <h1>自定义创建问卷</h1>
-        <p>从零开始设计您的问卷，完全自定义问题类型、逻辑和样式</p>
+        <h1>
+          {{ isEditMode ? '编辑问卷' : isTemplateMode ? '基于模板创建' : '自定义创建问卷' }}
+        </h1>
+        <p>
+          {{
+            isEditMode 
+              ? '修改问卷内容和设置' 
+              : isTemplateMode 
+                ? '基于专业模板快速创建问卷' 
+                : '从零开始设计您的问卷，完全自定义问题类型、逻辑和样式'
+          }}
+        </p>
       </div>
     </div>
 
@@ -117,7 +127,11 @@
           <div class="card-header">
             <span>问题设计</span>
             <div class="header-actions">
-              <el-dropdown @command="handleAddQuestion" trigger="click">
+              <el-button type="success" size="small" @click="addSampleQuestions" style="margin-right: 8px;">
+                <el-icon><Promotion /></el-icon>
+                添加示例问题
+              </el-button>
+              <el-dropdown @command="addSimpleQuestion" trigger="click">
                 <el-button type="primary" size="small">
                   <el-icon><Plus /></el-icon>
                   添加问题
@@ -141,10 +155,6 @@
                       <el-icon><Star /></el-icon>
                       评分题
                     </el-dropdown-item>
-                    <el-dropdown-item command="likert">
-                      <el-icon><DataLine /></el-icon>
-                      量表题
-                    </el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
@@ -154,8 +164,11 @@
 
         <div v-if="questions.length === 0" class="empty-questions">
           <el-empty description="暂无问题，点击上方按钮添加问题">
-            <el-button type="primary" @click="handleAddQuestion('single')">
+            <el-button type="primary" @click="addSimpleQuestion('single')">
               添加第一个问题
+            </el-button>
+            <el-button type="success" @click="addSampleQuestions" style="margin-left: 8px;">
+              添加示例问题
             </el-button>
           </el-empty>
         </div>
@@ -178,13 +191,13 @@
                     <span class="question-type-badge">{{ getQuestionTypeText(question.type) }}</span>
                   </div>
                   <div class="question-actions">
-                    <el-button
+                    <el-checkbox 
+                      :model-value="question.required" 
+                      @change="toggleQuestionRequired(question.id)"
                       size="small"
-                      type="text"
-                      @click="editQuestion(question)"
                     >
-                      编辑
-                    </el-button>
+                      必填
+                    </el-checkbox>
                     <el-button
                       size="small"
                       type="text"
@@ -203,67 +216,96 @@
                   </div>
                 </div>
                 
-                <div class="question-content" @click="editQuestion(question)">
-                  <div class="question-title">
-                    {{ question.title || '未设置问题标题' }}
+                <div class="question-content">
+                  <!-- 可编辑的问题标题 -->
+                  <div class="question-title-editor">
+                    <el-input
+                      :model-value="question.title"
+                      @input="updateQuestionTitle(question.id, $event)"
+                      placeholder="请输入问题标题"
+                      size="large"
+                      maxlength="200"
+                      show-word-limit
+                    />
                     <span v-if="question.required" class="required-mark">*</span>
                   </div>
-                  <div class="question-preview">
-                    <!-- 单选题预览 -->
-                    <div v-if="question.type === 'single'" class="options-preview">
+                  
+                  <!-- 可编辑的问题描述 -->
+                  <div class="question-description-editor" style="margin-top: 8px;">
+                    <el-input
+                      :model-value="question.description"
+                      @input="updateQuestionDescription(question.id, $event)"
+                      placeholder="问题描述（可选）"
+                      type="textarea"
+                      :rows="2"
+                      maxlength="500"
+                      show-word-limit
+                    />
+                  </div>
+                  
+                  <!-- 选择题选项编辑 -->
+                  <div v-if="question.type === 'single' || question.type === 'multiple'" class="options-editor" style="margin-top: 12px;">
+                    <div class="options-header">
+                      <span>选项设置</span>
+                      <el-button size="small" @click="addOption(question.id)">
+                        <el-icon><Plus /></el-icon>
+                        添加选项
+                      </el-button>
+                    </div>
+                    <div class="options-list">
                       <div
                         v-for="(option, optIndex) in question.options"
                         :key="optIndex"
-                        class="option-item"
+                        class="option-editor-item"
                       >
-                        <el-radio :model-value="false">{{ option.text || `选项${optIndex + 1}` }}</el-radio>
-                      </div>
-                      <div v-if="!question.options?.length" class="no-options">
-                        未设置选项
+                        <span class="option-label">{{ String.fromCharCode(65 + optIndex) }}.</span>
+                        <el-input
+                          :model-value="option.text"
+                          @input="updateOptionText(question.id, optIndex, $event)"
+                          :placeholder="`选项${optIndex + 1}`"
+                          size="small"
+                        />
+                        <el-button
+                          size="small"
+                          type="text"
+                          @click="removeOption(question.id, optIndex)"
+                          :disabled="question.options.length <= 2"
+                          class="danger-btn"
+                        >
+                          <el-icon><Delete /></el-icon>
+                        </el-button>
                       </div>
                     </div>
-                    
-                    <!-- 多选题预览 -->
-                    <div v-else-if="question.type === 'multiple'" class="options-preview">
-                      <div
-                        v-for="(option, optIndex) in question.options"
-                        :key="optIndex"
-                        class="option-item"
-                      >
-                        <el-checkbox :model-value="false">{{ option.text || `选项${optIndex + 1}` }}</el-checkbox>
-                      </div>
-                      <div v-if="!question.options?.length" class="no-options">
-                        未设置选项
-                      </div>
-                    </div>
-                    
-                    <!-- 文本题预览 -->
-                    <div v-else-if="question.type === 'text'" class="text-preview">
+                  </div>
+                  
+                  <!-- 文本题设置 -->
+                  <div v-else-if="question.type === 'text'" class="text-settings" style="margin-top: 12px;">
+                    <el-input
+                      :model-value="question.placeholder"
+                      @input="(val) => question.placeholder = val"
+                      placeholder="设置占位符文本"
+                      size="small"
+                      style="margin-bottom: 8px;"
+                    />
+                    <div class="text-demo">
                       <el-input
                         :type="question.textType || 'text'"
                         :placeholder="question.placeholder || '请输入...'"
                         readonly
+                        size="small"
                       />
                     </div>
-                    
-                    <!-- 评分题预览 -->
-                    <div v-else-if="question.type === 'rating'" class="rating-preview">
+                  </div>
+                  
+                  <!-- 评分题预览 -->
+                  <div v-else-if="question.type === 'rating'" class="rating-preview" style="margin-top: 12px;">
+                    <div class="rating-demo">
                       <el-rate
                         :model-value="0"
                         :max="question.maxRating || 5"
                         disabled
+                        show-score
                       />
-                    </div>
-                    
-                    <!-- 量表题预览 -->
-                    <div v-else-if="question.type === 'likert'" class="likert-preview">
-                      <div class="likert-options">
-                        <span v-for="(option, optIndex) in getLikertOptions(question)"
-                              :key="optIndex"
-                              class="likert-option">
-                          <el-radio :model-value="false">{{ option }}</el-radio>
-                        </span>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -337,34 +379,23 @@
         </div>
         <div class="actions-right">
           <el-button @click="goBack">取消</el-button>
-          <el-button type="primary" @click="publishQuestionnaire">
+          <el-button v-if="isEditMode" type="primary" @click="updateQuestionnaire">
+            <el-icon><DocumentCopy /></el-icon>
+            保存修改
+          </el-button>
+          <el-button v-else type="primary" @click="publishQuestionnaire">
             <el-icon><Promotion /></el-icon>
             发布问卷
           </el-button>
         </div>
       </div>
     </div>
-
-    <!-- 问题编辑对话框 -->
-    <el-dialog
-      v-model="questionDialogVisible"
-      :title="editingQuestion ? '编辑问题' : '添加问题'"
-      width="800px"
-      class="question-dialog"
-    >
-      <QuestionEditor
-        v-if="questionDialogVisible"
-        :question="editingQuestion"
-        @save="saveQuestion"
-        @cancel="cancelEditQuestion"
-      />
-    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   ArrowLeft,
@@ -378,19 +409,277 @@ import {
   Sort,
   View,
   DocumentCopy,
-  Promotion
+  Promotion,
+  Delete
 } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
-import QuestionEditor from './components/QuestionEditor.vue'
 
 const router = useRouter()
+const route = useRoute()
+
+// 检查是否为编辑模式
+const isEditMode = ref(false)
+const isTemplateMode = ref(false)
+const currentQuestionnaireId = ref(null)
+const currentTemplateId = ref(null)
+
+// 自动保存相关
+const autoSaveTimer = ref(null)
+const lastSavedData = ref(null)
+
+onMounted(() => {
+  // 检查模式
+  if (route.path.includes('/edit/')) {
+    isEditMode.value = true
+    currentQuestionnaireId.value = route.params.id
+    loadQuestionnaireForEdit(route.params.id)
+  } else if (route.path.includes('/template/')) {
+    isTemplateMode.value = true
+    currentTemplateId.value = route.params.id
+    loadTemplate(route.params.id)
+  } else {
+    // 检查是否有本地草稿
+    checkLocalDraft()
+  }
+  
+  // 启动自动保存
+  startAutoSave()
+  
+  // 监听页面刷新/关闭事件
+  window.addEventListener('beforeunload', handleBeforeUnload)
+})
+
+// 检查本地草稿
+const checkLocalDraft = async () => {
+  const localData = loadFromLocalStorage()
+  if (localData && (localData.title || localData.questions?.length > 0)) {
+    try {
+      await ElMessageBox.confirm(
+        '检测到有未保存的草稿，是否继续编辑？',
+        '恢复草稿',
+        {
+          confirmButtonText: '继续编辑',
+          cancelButtonText: '新建问卷',
+          type: 'info'
+        }
+      )
+      loadQuestionnaireData(localData)
+    } catch {
+      clearLocalStorage()
+    }
+  }
+}
+
+// 加载模板
+const loadTemplate = async (templateId) => {
+  try {
+    // 模拟模板数据 - 实际项目中应该从API获取
+    const templates = {
+      1: {
+        title: '员工满意度调查',
+        description: '全面了解员工对工作环境、薪酬福利、职业发展等方面的满意度',
+        category: 'enterprise',
+        duration: 15,
+        tags: ['员工', '满意度', '企业管理'],
+        questions: [
+          {
+            id: 1,
+            type: 'single',
+            title: '您的工作部门是？',
+            required: true,
+            options: [
+              { text: '技术部' },
+              { text: '市场部' },
+              { text: '人事部' },
+              { text: '财务部' },
+              { text: '其他' }
+            ]
+          },
+          {
+            id: 2,
+            type: 'rating',
+            title: '您对当前工作内容的满意度',
+            required: true,
+            maxRating: 5,
+            ratingStyle: 'star'
+          }
+        ]
+      },
+      2: {
+        title: '产品用户体验调研',
+        description: '收集用户对产品功能、界面设计、使用体验的反馈和建议',
+        category: 'product',
+        duration: 12,
+        tags: ['用户体验', '产品', '反馈'],
+        questions: [
+          {
+            id: 1,
+            type: 'single',
+            title: '您的年龄段是？',
+            required: true,
+            options: [
+              { text: '18-25岁' },
+              { text: '26-35岁' },
+              { text: '36-45岁' },
+              { text: '46岁以上' }
+            ]
+          },
+          {
+            id: 2,
+            type: 'multiple',
+            title: '您最喜欢的功能有哪些？',
+            required: false,
+            options: [
+              { text: '界面设计' },
+              { text: '功能丰富' },
+              { text: '响应速度' },
+              { text: '用户体验' }
+            ]
+          }
+        ]
+      }
+    }
+    
+    const templateData = templates[templateId]
+    if (templateData) {
+      loadQuestionnaireData(templateData)
+      ElMessage.success(`已加载模板：${templateData.title}`)
+    } else {
+      throw new Error('模板不存在')
+    }
+  } catch (error) {
+    console.error('加载模板失败:', error)
+    ElMessage.error('加载模板失败：' + error.message)
+    router.push('/create')
+  }
+}
+
+onBeforeUnmount(() => {
+  // 清理定时器和事件监听
+  if (autoSaveTimer.value) {
+    clearInterval(autoSaveTimer.value)
+  }
+  window.removeEventListener('beforeunload', handleBeforeUnload)
+})
+
+// 自动保存功能
+const startAutoSave = () => {
+  autoSaveTimer.value = setInterval(() => {
+    const currentData = buildQuestionnaireData('draft')
+    const dataStr = JSON.stringify(currentData)
+    
+    // 只有数据发生变化时才保存
+    if (dataStr !== lastSavedData.value) {
+      saveToLocalStorage(currentData)
+      lastSavedData.value = dataStr
+    }
+  }, 30000) // 每30秒自动保存一次
+}
+
+// 本地存储管理
+const saveToLocalStorage = (data) => {
+  try {
+    const key = isEditMode.value 
+      ? `edit_questionnaire_${currentQuestionnaireId.value}`
+      : 'new_questionnaire_draft'
+    localStorage.setItem(key, JSON.stringify(data))
+  } catch (error) {
+    console.error('本地保存失败:', error)
+  }
+}
+
+const loadFromLocalStorage = () => {
+  try {
+    const key = isEditMode.value 
+      ? `edit_questionnaire_${currentQuestionnaireId.value}`
+      : 'new_questionnaire_draft'
+    const data = localStorage.getItem(key)
+    return data ? JSON.parse(data) : null
+  } catch (error) {
+    console.error('从本地存储加载失败:', error)
+    return null
+  }
+}
+
+const clearLocalStorage = () => {
+  try {
+    const key = isEditMode.value 
+      ? `edit_questionnaire_${currentQuestionnaireId.value}`
+      : 'new_questionnaire_draft'
+    localStorage.removeItem(key)
+  } catch (error) {
+    console.error('清理本地存储失败:', error)
+  }
+}
+
+// 编辑模式：加载现有问卷数据
+const loadQuestionnaireForEdit = async (id) => {
+  try {
+    // 首先尝试从本地存储加载（可能有未保存的编辑）
+    const localData = loadFromLocalStorage()
+    if (localData) {
+      const shouldLoadLocal = await ElMessageBox.confirm(
+        '检测到有未保存的编辑内容，是否继续编辑？',
+        '恢复编辑',
+        {
+          confirmButtonText: '继续编辑',
+          cancelButtonText: '重新开始',
+          type: 'info'
+        }
+      ).catch(() => false)
+      
+      if (shouldLoadLocal) {
+        loadQuestionnaireData(localData)
+        return
+      } else {
+        clearLocalStorage()
+      }
+    }
+    
+    // 从服务器加载问卷数据
+    const response = await fetch(`http://localhost:3001/surveys/${id}`)
+    if (!response.ok) {
+      throw new Error('问卷不存在或加载失败')
+    }
+    
+    const questionnaireData = await response.json()
+    loadQuestionnaireData(questionnaireData)
+  } catch (error) {
+    console.error('加载问卷失败:', error)
+    ElMessage.error('加载问卷失败：' + error.message)
+    router.push('/create')
+  }
+}
+
+// 将问卷数据加载到表单
+const loadQuestionnaireData = (data) => {
+  // 加载基本信息
+  questionnaireForm.title = data.title || ''
+  questionnaireForm.description = data.description || ''
+  questionnaireForm.category = data.category || ''
+  questionnaireForm.duration = data.duration || 10
+  questionnaireForm.tags = data.tags || []
+  
+  // 加载问题
+  questions.value = data.questions || []
+  
+  // 加载设置
+  if (data.settings) {
+    Object.assign(settingsForm, data.settings)
+  }
+}
+
+// 页面离开前检查
+const handleBeforeUnload = (event) => {
+  if (hasUnsavedChanges()) {
+    event.preventDefault()
+    event.returnValue = '您有未保存的更改，确定要离开吗？'
+  }
+}
 
 // 响应式数据
 const formRef = ref(null)
 const tagInputRef = ref(null)
-const questionDialogVisible = ref(false)
-const editingQuestion = ref(null)
-const activeQuestionId = ref(null)
 const tagInputVisible = ref(false)
 const tagInputValue = ref('')
 
@@ -472,51 +761,156 @@ const hasUnsavedChanges = () => {
   return questionnaireForm.title || questionnaireForm.description || questions.value.length > 0
 }
 
-const handleAddQuestion = (type) => {
-  const newQuestion = {
-    id: Date.now(),
-    type: type,
-    title: '',
-    required: false,
-    options: type === 'single' || type === 'multiple' ? [{ text: '' }, { text: '' }] : undefined,
-    placeholder: type === 'text' ? '请输入...' : undefined,
-    textType: type === 'text' ? 'text' : undefined,
-    maxRating: type === 'rating' ? 5 : undefined,
-    likertType: type === 'likert' ? '5-point' : undefined
-  }
-  
-  editingQuestion.value = newQuestion
-  questionDialogVisible.value = true
-}
-
-const editQuestion = (question) => {
-  editingQuestion.value = { ...question }
-  activeQuestionId.value = question.id
-  questionDialogVisible.value = true
-}
-
-const saveQuestion = (questionData) => {
-  if (editingQuestion.value.id) {
-    // 编辑现有问题
-    const index = questions.value.findIndex(q => q.id === editingQuestion.value.id)
-    if (index !== -1) {
-      questions.value[index] = { ...questionData, id: editingQuestion.value.id }
+// 添加预设的示例问题
+const addSampleQuestions = () => {
+  const sampleQuestions = [
+    {
+      id: 1,
+      type: 'single',
+      title: '您的性别是？',
+      description: '',
+      required: true,
+      options: [{ text: '男' }, { text: '女' }, { text: '其他' }],
+      allowOther: false
+    },
+    {
+      id: 2,
+      type: 'multiple',
+      title: '您平时喜欢的运动有哪些？',
+      description: '可以选择多个选项',
+      required: false,
+      options: [{ text: '跑步' }, { text: '游泳' }, { text: '健身' }, { text: '瑜伽' }, { text: '篮球' }],
+      allowOther: true,
+      randomOrder: false
+    },
+    {
+      id: 3,
+      type: 'text',
+      title: '请描述您对我们产品的建议',
+      description: '您的意见对我们很重要',
+      required: false,
+      textType: 'textarea',
+      placeholder: '请输入您的建议...',
+      minLength: null,
+      maxLength: 500
+    },
+    {
+      id: 4,
+      type: 'rating',
+      title: '请对我们的服务进行评分',
+      description: '',
+      required: true,
+      minRating: 1,
+      maxRating: 5,
+      ratingStyle: 'star',
+      ratingLabels: { low: '很差', high: '很好' }
     }
-  } else {
-    // 添加新问题
-    questions.value.push({ ...questionData, id: Date.now() })
-  }
+  ]
   
-  questionDialogVisible.value = false
-  editingQuestion.value = null
-  activeQuestionId.value = null
-  ElMessage.success('问题保存成功')
+  questions.value = [...sampleQuestions]
+  ElMessage.success('已添加示例问题')
 }
 
-const cancelEditQuestion = () => {
-  questionDialogVisible.value = false
-  editingQuestion.value = null
-  activeQuestionId.value = null
+// 添加简单的问题类型
+const addSimpleQuestion = (type) => {
+  const questionTypes = {
+    'single': {
+      type: 'single',
+      title: '新的单选题',
+      description: '',
+      required: false,
+      options: [{ text: '选项1' }, { text: '选项2' }],
+      allowOther: false
+    },
+    'multiple': {
+      type: 'multiple',
+      title: '新的多选题',
+      description: '',
+      required: false,
+      options: [{ text: '选项1' }, { text: '选项2' }, { text: '选项3' }],
+      allowOther: false,
+      randomOrder: false
+    },
+    'text': {
+      type: 'text',
+      title: '新的文本题',
+      description: '',
+      required: false,
+      textType: 'text',
+      placeholder: '请输入...',
+      minLength: null,
+      maxLength: null
+    },
+    'rating': {
+      type: 'rating',
+      title: '新的评分题',
+      description: '',
+      required: false,
+      minRating: 1,
+      maxRating: 5,
+      ratingStyle: 'star',
+      ratingLabels: { low: '', high: '' }
+    }
+  }
+  
+  const newQuestion = {
+    ...questionTypes[type],
+    id: Date.now()
+  }
+  
+  questions.value.push(newQuestion)
+  ElMessage.success('已添加新问题')
+}
+
+// 直接编辑问题标题
+const updateQuestionTitle = (questionId, newTitle) => {
+  const question = questions.value.find(q => q.id === questionId)
+  if (question) {
+    question.title = newTitle
+  }
+}
+
+// 直接编辑问题描述
+const updateQuestionDescription = (questionId, newDescription) => {
+  const question = questions.value.find(q => q.id === questionId)
+  if (question) {
+    question.description = newDescription
+  }
+}
+
+// 切换问题必填状态
+const toggleQuestionRequired = (questionId) => {
+  const question = questions.value.find(q => q.id === questionId)
+  if (question) {
+    question.required = !question.required
+  }
+}
+
+// 添加选项
+const addOption = (questionId) => {
+  const question = questions.value.find(q => q.id === questionId)
+  if (question && (question.type === 'single' || question.type === 'multiple')) {
+    const optionIndex = question.options.length + 1
+    question.options.push({ text: `选项${optionIndex}` })
+  }
+}
+
+// 删除选项
+const removeOption = (questionId, optionIndex) => {
+  const question = questions.value.find(q => q.id === questionId)
+  if (question && question.options && question.options.length > 2) {
+    question.options.splice(optionIndex, 1)
+  } else {
+    ElMessage.warning('至少需要保留2个选项')
+  }
+}
+
+// 更新选项文本
+const updateOptionText = (questionId, optionIndex, newText) => {
+  const question = questions.value.find(q => q.id === questionId)
+  if (question && question.options && question.options[optionIndex]) {
+    question.options[optionIndex].text = newText
+  }
 }
 
 const copyQuestion = (question) => {
@@ -600,22 +994,114 @@ const removeTag = (tag) => {
 const previewQuestionnaire = () => {
   if (!validateForm()) return
   
-  ElMessage.info('预览功能开发中...')
+  // 构建预览数据
+  const previewData = buildQuestionnaireData('draft')
+  
+  // 保存到本地存储用于预览
+  localStorage.setItem('previewQuestionnaire', JSON.stringify(previewData))
+  
+  // 打开预览页面
+  const previewUrl = `/preview/questionnaire`
+  window.open(previewUrl, '_blank')
 }
 
 const saveAsDraft = async () => {
   if (!validateBasicInfo()) return
   
-  ElMessage.success('草稿保存成功')
+  try {
+    const questionnaireData = buildQuestionnaireData('draft')
+    
+    // 保存到本地存储
+    const draftKey = `draft_questionnaire_${Date.now()}`
+    localStorage.setItem(draftKey, JSON.stringify(questionnaireData))
+    
+    ElMessage.success('草稿保存成功')
+    
+    // 跳转到草稿列表页面
+    router.push('/profile/questionnaires/created')
+  } catch (error) {
+    console.error('保存草稿失败:', error)
+    ElMessage.error('保存失败：' + error.message)
+  }
 }
 
 const publishQuestionnaire = async () => {
   if (!validateForm()) return
   
-  ElMessage.success('问卷发布成功！')
-  router.push('/profile/questionnaires/created')
+  try {
+    const questionnaireData = buildQuestionnaireData('pending')
+    
+    // 直接保存到本地存储，模拟提交到待审核状态
+    const pendingKey = `pending_questionnaire_${Date.now()}`
+    localStorage.setItem(pendingKey, JSON.stringify(questionnaireData))
+    
+    // 也可以添加到一个统一的问卷列表中
+    const allQuestionnaires = JSON.parse(localStorage.getItem('all_questionnaires') || '[]')
+    allQuestionnaires.push(questionnaireData)
+    localStorage.setItem('all_questionnaires', JSON.stringify(allQuestionnaires))
+    
+    // 清除本地草稿
+    clearLocalStorage()
+    
+    ElMessage.success('问卷已提交审核！')
+    router.push('/profile/questionnaires/pending')
+  } catch (error) {
+    console.error('发布失败:', error)
+    ElMessage.error('发布失败：' + error.message)
+  }
 }
 
+const updateQuestionnaire = async () => {
+  if (!validateForm()) return
+  
+  try {
+    const questionnaireData = buildQuestionnaireData('draft')
+    questionnaireData.id = currentQuestionnaireId.value
+    
+    // 更新本地存储中的问卷数据
+    const allQuestionnaires = JSON.parse(localStorage.getItem('all_questionnaires') || '[]')
+    const index = allQuestionnaires.findIndex(q => q.id === currentQuestionnaireId.value)
+    
+    if (index !== -1) {
+      allQuestionnaires[index] = questionnaireData
+      localStorage.setItem('all_questionnaires', JSON.stringify(allQuestionnaires))
+    }
+    
+    // 清除本地草稿
+    clearLocalStorage()
+    
+    ElMessage.success('问卷修改已保存！')
+    router.push('/profile/questionnaires/created')
+  } catch (error) {
+    console.error('更新失败:', error)
+    ElMessage.error('更新失败：' + error.message)
+  }
+}
+
+// 构建问卷数据
+const buildQuestionnaireData = (status = 'draft') => {
+  return {
+    id: currentQuestionnaireId.value || Date.now(),
+    title: questionnaireForm.title,
+    description: questionnaireForm.description,
+    category: questionnaireForm.category,
+    duration: questionnaireForm.duration,
+    tags: questionnaireForm.tags,
+    questions: questions.value.map((q, index) => ({
+      ...q,
+      order: index + 1
+    })),
+    settings: {
+      ...settingsForm
+    },
+    status: status,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    userId: 1 // 临时硬编码，实际应从用户状态获取
+  }
+}
+
+// 保存问卷到服务器
 const validateBasicInfo = () => {
   if (!questionnaireForm.title.trim()) {
     ElMessage.error('请输入问卷标题')
@@ -625,6 +1111,11 @@ const validateBasicInfo = () => {
 }
 
 const validateForm = () => {
+  console.log('Validating form...')
+  console.log('Basic info valid:', validateBasicInfo())
+  console.log('Questions count:', questions.value.length)
+  console.log('Questions data:', questions.value)
+  
   if (!validateBasicInfo()) return false
   
   if (!questionnaireForm.description.trim()) {
@@ -645,7 +1136,9 @@ const validateForm = () => {
   // 验证问题
   for (let i = 0; i < questions.value.length; i++) {
     const question = questions.value[i]
-    if (!question.title.trim()) {
+    console.log(`Validating question ${i + 1}:`, question)
+    
+    if (!question.title || !question.title.trim()) {
       ElMessage.error(`第${i + 1}个问题的标题不能为空`)
       return false
     }
@@ -655,8 +1148,20 @@ const validateForm = () => {
       ElMessage.error(`第${i + 1}个问题至少需要2个选项`)
       return false
     }
+    
+    // 验证选项内容
+    if (question.type === 'single' || question.type === 'multiple') {
+      const validOptions = question.options.filter(opt => 
+        opt && opt.text && opt.text.trim()
+      )
+      if (validOptions.length < 2) {
+        ElMessage.error(`第${i + 1}个问题至少需要2个有效选项`)
+        return false
+      }
+    }
   }
   
+  console.log('Form validation passed!')
   return true
 }
 </script>
@@ -923,5 +1428,59 @@ const validateForm = () => {
     width: 100%;
     justify-content: space-around;
   }
+}
+
+/* 新增的编辑器样式 */
+.question-title-editor {
+  position: relative;
+}
+
+.question-title-editor .required-mark {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #f56c6c;
+  font-weight: bold;
+}
+
+.options-editor {
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  padding: 12px;
+  background: #fafbfc;
+}
+
+.options-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #333;
+}
+
+.option-editor-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.option-label {
+  min-width: 24px;
+  font-weight: 600;
+  color: #666;
+}
+
+.text-settings, .rating-preview {
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  padding: 12px;
+  background: #fafbfc;
+}
+
+.text-demo, .rating-demo {
+  margin-top: 8px;
 }
 </style>

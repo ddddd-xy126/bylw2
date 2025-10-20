@@ -130,3 +130,70 @@ export async function getCategoriesApi() {
   const categories = await apiClient.get('/categories');
   return categories;
 }
+
+// 问卷状态管理
+export async function getUserSurveysApi(userId, status = null) {
+  let url = `/surveys?authorId=${userId}`;
+  if (status) {
+    url += `&status=${status}`;
+  }
+  const surveys = await apiClient.get(url);
+  return surveys.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+}
+
+export async function createSurveyApi(data) {
+  const newSurvey = {
+    title: data.title,
+    description: data.description,
+    category: data.category,
+    categoryId: data.categoryId || 1,
+    author: data.author || "用户",
+    authorId: data.authorId,
+    questions: data.questions?.length || 0,
+    duration: data.estimatedTime || 5,
+    difficulty: data.difficulty || "简单",
+    status: "draft", // 新创建的问卷为草稿状态
+    tags: data.tags || [],
+    thumbnail: data.thumbnail || "/images/default.jpg",
+    rating: 0,
+    participants: 0,
+    participantCount: 0,
+    questionList: data.questionList || [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  
+  const survey = await apiClient.post('/surveys', newSurvey);
+  return survey;
+}
+
+export async function updateSurveyApi(id, data) {
+  const updatedData = {
+    ...data,
+    updatedAt: new Date().toISOString()
+  };
+  
+  const survey = await apiClient.patch(`/surveys/${id}`, updatedData);
+  return survey;
+}
+
+export async function publishSurveyApi(id) {
+  const survey = await apiClient.patch(`/surveys/${id}`, {
+    status: "pending",
+    updatedAt: new Date().toISOString()
+  });
+  return survey;
+}
+
+export async function approveSurveyApi(id) {
+  const survey = await apiClient.patch(`/surveys/${id}`, {
+    status: "published",
+    updatedAt: new Date().toISOString()
+  });
+  return survey;
+}
+
+export async function deleteSurveyApi(id) {
+  await apiClient.delete(`/surveys/${id}`);
+  return { success: true };
+}

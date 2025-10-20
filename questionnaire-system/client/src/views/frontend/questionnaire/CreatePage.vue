@@ -354,21 +354,24 @@ const goToTemplateSelect = () => {
 }
 
 const selectTemplate = (template) => {
+  // 跳转到模板创建页面，传递模板ID
   router.push(`/create/template/${template.id}`)
 }
 
 const useTemplate = (template) => {
   ElMessage.success(`正在使用模板：${template.title}`)
+  // 跳转到模板创建页面，传递模板ID
   router.push(`/create/template/${template.id}`)
 }
 
 const previewTemplate = (template) => {
   ElMessage.info(`预览模板：${template.title}`)
-  // 这里可以打开预览对话框
+  // 这里可以打开预览对话框或跳转到预览页面
 }
 
 const editQuestionnaire = (id) => {
-  router.push(`/create/edit/${id}`)
+  // 跳转到编辑页面
+  router.push(`/questionnaires/edit/${id}`)
 }
 
 const formatDate = (dateString) => {

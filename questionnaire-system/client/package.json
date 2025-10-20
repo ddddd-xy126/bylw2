@@ -19,6 +19,7 @@
     "jspdf": "^2.5.1",
     "lottie-web": "^5.12.2",
     "pinia": "^2.1.7",
+    "three": "^0.180.0",
     "vue": "^3.4.0",
     "vue-router": "^4.3.0",
     "vuedraggable": "^2.24.3"

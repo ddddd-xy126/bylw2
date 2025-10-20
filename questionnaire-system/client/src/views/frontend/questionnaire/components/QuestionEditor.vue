@@ -1,6 +1,11 @@
 <template>
   <div class="question-editor">
-    <el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
+    <div v-if="!isComponentMounted" class="loading-state">
+      <el-icon class="is-loading"><Loading /></el-icon>
+      <span>加载中...</span>
+    </div>
+    
+    <el-form v-else :model="form" :rules="rules" ref="formRef" label-width="100px"  :disabled="isInitializing">
       <!-- 问题基本信息 -->
       <el-form-item label="问题类型">
         <el-select v-model="form.type" @change="onTypeChange" disabled>
@@ -361,13 +366,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, onMounted } from 'vue'
+import { ref, reactive, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   Plus,
   ArrowUp,
   ArrowDown,
-  Delete
+  Delete,
+  Loading
 } from '@element-plus/icons-vue'
 
 const props = defineProps({
@@ -385,13 +391,15 @@ const previewValues = ref([])
 const previewText = ref('')
 const previewRating = ref(0)
 const previewLikert = ref('')
+const isComponentMounted = ref(false)
+const isInitializing = ref(false)
 
 const form = reactive({
   type: 'single',
   title: '',
   description: '',
   required: false,
-  options: [{ text: '' }, { text: '' }],
+  options: [{ text: '选项1' }, { text: '选项2' }],
   allowOther: false,
   randomOrder: false,
   textType: 'text',
@@ -412,54 +420,115 @@ const form = reactive({
 
 const rules = {
   title: [
-    { required: true, message: '请输入问题标题', trigger: 'blur' },
-    { min: 2, max: 200, message: '标题长度在 2 到 200 个字符', trigger: 'blur' }
+    { required: false, message: '请输入问题标题', trigger: 'blur' },
+    { min: 1, max: 200, message: '标题长度在 1 到 200 个字符', trigger: 'blur' }
   ]
 }
-
-onMounted(() => {
-  if (props.question) {
-    Object.assign(form, props.question)
-  }
-  
-  // 初始化默认选项
-  if (!form.options && (form.type === 'single' || form.type === 'multiple')) {
-    form.options = [{ text: '' }, { text: '' }]
-  }
-  
-  if (form.type === 'likert' && form.likertType === 'custom' && !form.likertOptions) {
-    form.likertOptions = [{ text: '' }, { text: '' }]
-  }
-})
 
 // 监听类型变化
 watch(() => form.type, (newType) => {
   onTypeChange(newType)
 })
 
+// 监听props变化，重置表单数据
+watch(() => props.question, (newQuestion) => {
+  if (isInitializing.value) return
+  
+  console.log('QuestionEditor received question:', newQuestion)
+  
+  if (newQuestion && Object.keys(newQuestion).length > 0) {
+    // 使用nextTick确保DOM更新完成后再更新数据
+    nextTick(() => {
+      if (!isComponentMounted.value) return
+      
+      try {
+        isInitializing.value = true
+        
+        // 重置表单数据
+        Object.keys(form).forEach(key => {
+          if (newQuestion.hasOwnProperty(key)) {
+            if (Array.isArray(newQuestion[key])) {
+              // 深拷贝数组
+              form[key] = JSON.parse(JSON.stringify(newQuestion[key]))
+            } else if (typeof newQuestion[key] === 'object' && newQuestion[key] !== null) {
+              // 深拷贝对象
+              form[key] = JSON.parse(JSON.stringify(newQuestion[key]))
+            } else {
+              form[key] = newQuestion[key]
+            }
+          }
+        })
+        
+        // 确保options数组格式正确
+        if ((newQuestion.type === 'single' || newQuestion.type === 'multiple') && newQuestion.options) {
+          form.options = newQuestion.options.map(opt => ({ text: opt.text || opt }))
+        }
+        
+        // 确保likertOptions数组格式正确
+        if (newQuestion.type === 'likert' && newQuestion.likertOptions) {
+          form.likertOptions = newQuestion.likertOptions.map(opt => ({ text: opt.text || opt }))
+        }
+        
+        console.log('Form updated:', form)
+      } catch (error) {
+        console.error('Error updating form:', error)
+      } finally {
+        isInitializing.value = false
+      }
+    })
+  } else {
+    // 新问题，重置为默认值
+    nextTick(() => {
+      if (!isComponentMounted.value) return
+      
+      try {
+        isInitializing.value = true
+        onTypeChange(form.type)
+      } catch (error) {
+        console.error('Error resetting form:', error)
+      } finally {
+        isInitializing.value = false
+      }
+    })
+  }
+}, { deep: true })
+
 const onTypeChange = (type) => {
-  // 重置相关字段
-  if (type === 'single' || type === 'multiple') {
-    if (!form.options || form.options.length === 0) {
-      form.options = [{ text: '' }, { text: '' }]
+  try {
+    // 重置相关字段
+    if (type === 'single' || type === 'multiple') {
+      if (!form.options || form.options.length === 0) {
+        form.options = [{ text: '选项1' }, { text: '选项2' }]
+      }
+    } else if (type === 'text') {
+      form.textType = 'text'
+      form.placeholder = '请输入...'
+    } else if (type === 'rating') {
+      form.minRating = 1
+      form.maxRating = 5
+      form.ratingStyle = 'star'
+      if (!form.ratingLabels) {
+        form.ratingLabels = { low: '', high: '' }
+      } else {
+        form.ratingLabels.low = ''
+        form.ratingLabels.high = ''
+      }
+    } else if (type === 'likert') {
+      form.likertType = '5-point'
+      form.likertDisplay = 'horizontal'
+      if (!form.likertOptions) {
+        form.likertOptions = []
+      }
     }
-  } else if (type === 'text') {
-    form.textType = 'text'
-    form.placeholder = '请输入...'
-  } else if (type === 'rating') {
-    form.minRating = 1
-    form.maxRating = 5
-    form.ratingStyle = 'star'
-    form.ratingLabels = { low: '', high: '' }
-  } else if (type === 'likert') {
-    form.likertType = '5-point'
-    form.likertDisplay = 'horizontal'
+  } catch (error) {
+    console.error('Error in onTypeChange:', error)
   }
 }
 
 // 选项管理
 const addOption = () => {
-  form.options.push({ text: '' })
+  const nextIndex = form.options.length + 1
+  form.options.push({ text: `选项${nextIndex}` })
 }
 
 const removeOption = (index) => {
@@ -490,7 +559,8 @@ const getOptionLabel = (index) => {
 
 // 量表选项管理
 const addLikertOption = () => {
-  form.likertOptions.push({ text: '' })
+  const nextIndex = form.likertOptions.length + 1
+  form.likertOptions.push({ text: `选项${nextIndex}` })
 }
 
 const removeLikertOption = (index) => {
@@ -515,42 +585,96 @@ const getLikertOptions = () => {
 
 // 保存和取消
 const save = async () => {
+  if (!isComponentMounted.value || isInitializing.value) {
+    ElMessage.error('组件加载中，请稍后再试')
+    return
+  }
+  
   try {
-    await formRef.value.validate()
+    console.log('开始保存问题，表单数据:', form)
     
-    // 验证选项
+    // 基本验证：仅检查必要的数据完整性
+    if (form.title && form.title.length > 200) {
+      ElMessage.error('问题标题不能超过200个字符')
+      return
+    }
+    
+    // 对于选择题，至少要有2个选项且有内容
     if ((form.type === 'single' || form.type === 'multiple')) {
-      const validOptions = form.options.filter(opt => opt.text.trim())
+      const validOptions = form.options.filter(opt => opt.text && opt.text.trim())
       if (validOptions.length < 2) {
-        ElMessage.error('至少需要设置2个有效选项')
+        ElMessage.error('选择题至少需要2个有效选项')
         return
       }
     }
     
-    // 验证量表选项
+    // 对于自定义量表，至少要有2个选项且有内容
     if (form.type === 'likert' && form.likertType === 'custom') {
-      const validLikertOptions = form.likertOptions.filter(opt => opt.text.trim())
+      const validLikertOptions = form.likertOptions.filter(opt => opt.text && opt.text.trim())
       if (validLikertOptions.length < 2) {
-        ElMessage.error('至少需要设置2个有效的量表选项')
+        ElMessage.error('自定义量表至少需要2个有效选项')
         return
       }
     }
     
+    console.log('验证通过，准备发送保存事件')
     emit('save', { ...form })
+    
   } catch (error) {
-    console.error('表单验证失败:', error)
+    console.error('保存问题时出错:', error)
+    ElMessage.error('保存问题时出现错误，请重试')
   }
 }
 
 const cancel = () => {
-  emit('cancel')
+  if (isComponentMounted.value) {
+    emit('cancel')
+  }
 }
+
+// 组件挂载后初始化
+onMounted(() => {
+  isComponentMounted.value = true
+  nextTick(() => {
+    // 如果有传入的问题数据，确保表单已正确初始化
+    if (props.question && Object.keys(props.question).length > 0) {
+      try {
+        isInitializing.value = true
+        onTypeChange(props.question.type || form.type)
+      } catch (error) {
+        console.error('Error in onMounted initialization:', error)
+      } finally {
+        isInitializing.value = false
+      }
+    }
+  })
+})
+
+// 组件卸载前清理
+onBeforeUnmount(() => {
+  isComponentMounted.value = false
+  isInitializing.value = false
+})
 </script>
 
 <style scoped>
 .question-editor {
   max-height: 70vh;
   overflow-y: auto;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #666;
+}
+
+.loading-state .el-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
 }
 
 .section-header {

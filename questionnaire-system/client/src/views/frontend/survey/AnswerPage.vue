@@ -171,44 +171,25 @@
             </div>
           </template>
 
-          <!-- 圆形进度条 -->
-          <div class="circle-progress">
-            <el-progress
-              type="circle"
-              :percentage="progressPercentage"
-              :width="120"
-              :stroke-width="8"
-              color="#67C23A"
-            >
-              <template #default="{ percentage }">
-                <span class="progress-inner">
-                  <div class="progress-number">{{ percentage }}%</div>
-                  <div class="progress-label">已完成</div>
-                </span>
-              </template>
-            </el-progress>
-          </div>
+          <!-- 动态进度条组件 -->
+          <div class="dynamic-progress-container">
+            <!-- 圆形进度条 -->
+            <div class="progress-item">
+              <DynamicProgress type="circle" :percent="Math.round(progressPercentage)" />
+            </div>
 
-          <!-- 树木生长动画 -->
-          <div class="tree-animation">
-            <div class="tree-container">
-              <div class="tree-trunk"></div>
-              <div 
-                class="tree-branch" 
-                v-for="(branch, index) in treeBranches" 
-                :key="index"
-                :style="branch.style"
-                :class="{ 'grown': branch.grown }"
-              ></div>
-              <div 
-                class="tree-leaf" 
-                v-for="(leaf, index) in treeLeaves" 
-                :key="index"
-                :style="leaf.style"
-                :class="{ 'grown': leaf.grown }"
-              >🍃</div>
+            <!-- 树木生长动画 -->
+            <div class="progress-item tree-growth-item">
+              <TreeGrowth :progress="Math.round(progressPercentage)" />
+            </div>
+
+            <!-- 液体填充百分比 -->
+            <div class="progress-item">
+              <LiquidFill :model-value="Math.round(progressPercentage)" />
             </div>
           </div>
+
+
 
           <!-- 问题导航 -->
           <div class="question-nav">
@@ -257,18 +238,20 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, watch } from "vue";
+import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   ArrowLeft,
   ArrowRight,
-  Check,
-  Clock
+  Check
 } from "@element-plus/icons-vue";
 
 import { getSurveyDetail, submitSurveyApi } from "@/api/survey";
 import { useUserStore } from "@/store/user";
+import DynamicProgress from "@/components/DynamicProgress.vue";
+import TreeGrowth from "@/components/TreeGrowth.vue";
+import LiquidFill from "@/components/LiquidFill.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -291,10 +274,6 @@ const timer = ref(null);
 
 // 评分选项
 const ratingTexts = ref(['很差', '较差', '一般', '较好', '很好']);
-
-// 树木动画数据
-const treeBranches = ref([]);
-const treeLeaves = ref([]);
 
 // 计算属性
 const currentQuestion = computed(() => {
@@ -381,70 +360,8 @@ const formatTime = (seconds) => {
   return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-const initTreeAnimation = () => {
-  // 初始化树枝
-  treeBranches.value = [
-    { 
-      style: { 
-        left: '50%', 
-        bottom: '60px', 
-        transform: 'translateX(-50%) rotate(-15deg)',
-        width: '40px',
-        height: '4px'
-      }, 
-      grown: false 
-    },
-    { 
-      style: { 
-        left: '45%', 
-        bottom: '80px', 
-        transform: 'translateX(-50%) rotate(20deg)',
-        width: '35px',
-        height: '3px'
-      }, 
-      grown: false 
-    },
-    { 
-      style: { 
-        left: '55%', 
-        bottom: '70px', 
-        transform: 'translateX(-50%) rotate(-25deg)',
-        width: '30px',
-        height: '3px'
-      }, 
-      grown: false 
-    },
-  ];
-
-  // 初始化树叶
-  treeLeaves.value = [
-    { style: { left: '40%', bottom: '90px' }, grown: false },
-    { style: { left: '60%', bottom: '95px' }, grown: false },
-    { style: { left: '50%', bottom: '105px' }, grown: false },
-    { style: { left: '35%', bottom: '85px' }, grown: false },
-    { style: { left: '65%', bottom: '80px' }, grown: false },
-  ];
-};
-
-const updateTreeGrowth = () => {
-  const progress = progressPercentage.value;
-  
-  // 树枝生长
-  treeBranches.value.forEach((branch, index) => {
-    const threshold = (index + 1) * (100 / treeBranches.value.length) * 0.6;
-    branch.grown = progress >= threshold;
-  });
-  
-  // 树叶生长
-  treeLeaves.value.forEach((leaf, index) => {
-    const threshold = 40 + (index * 12); // 从40%开始长叶子
-    leaf.grown = progress >= threshold;
-  });
-};
-
 const handleAnswerChange = () => {
-  // 答案改变时更新树木生长
-  updateTreeGrowth();
+  // 答案改变时的处理
 };
 
 const nextQuestion = async () => {
@@ -460,7 +377,6 @@ const nextQuestion = async () => {
   } else {
     // 下一题
     currentQuestionIndex.value++;
-    updateTreeGrowth();
   }
 };
 
@@ -541,9 +457,6 @@ const restartSurvey = async () => {
     startTime.value = Date.now();
     elapsedTime.value = 0;
     
-    // 重置树木动画
-    initTreeAnimation();
-    
     // 重新开始计时器
     startTimer();
     
@@ -580,11 +493,6 @@ const startTimer = () => {
   }, 1000);
 };
 
-// 监听进度变化
-watch(progressPercentage, () => {
-  updateTreeGrowth();
-});
-
 // 生命周期
 onMounted(async () => {
   try {
@@ -600,9 +508,6 @@ onMounted(async () => {
         q.order = index + 1;
       }
     });
-    
-    // 初始化树木动画
-    initTreeAnimation();
     
     // 开始计时
     startTimer();
@@ -855,114 +760,46 @@ onUnmounted(() => {
   font-size: 14px;
 }
 
-.circle-progress {
-  text-align: center;
-  margin: 20px 0;
-}
-
-.progress-inner {
+/* 动态进度条容器 */
+.dynamic-progress-container {
   display: flex;
   flex-direction: column;
+  gap: 24px;
+  padding: 20px 0;
+}
+
+.progress-item {
+  display: flex;
+  justify-content: center;
   align-items: center;
+  padding: 10px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  transition: all 0.3s ease;
 }
 
-.progress-number {
-  font-size: 18px;
-  font-weight: 700;
-  color: #67c23a;
+.progress-item:hover {
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.progress-label {
-  font-size: 12px;
-  color: #909399;
-  margin-top: 4px;
-}
-
-/* 树木动画 */
-.tree-animation {
-  margin: 20px 0;
-  height: 140px;
-  position: relative;
-  background: linear-gradient(to bottom, #87ceeb 0%, #98fb98 100%);
-  border-radius: 8px;
+/* 树木生长特殊样式 */
+.tree-growth-item {
+  background: radial-gradient(circle at center, #e8f5e9, #c8e6c9);
+  padding: 0;
   overflow: hidden;
+  min-height: 300px;
 }
 
-.tree-container {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100px;
-  height: 120px;
+.tree-growth-item:hover {
+  background: radial-gradient(circle at center, #c8e6c9, #a5d6a7);
+  box-shadow: 0 8px 24px rgba(76, 175, 80, 0.3);
 }
 
-.tree-trunk {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 8px;
-  height: 60px;
-  background: linear-gradient(to bottom, #8b4513, #a0522d);
-  border-radius: 4px;
-}
+/* 3D 能量可视化特殊样式 */
 
-.tree-branch {
-  position: absolute;
-  background: #8b4513;
-  border-radius: 2px;
-  opacity: 0;
-  transition: all 0.8s ease;
-  transform-origin: left center;
-}
-
-.tree-branch.grown {
-  opacity: 1;
-  animation: growBranch 0.8s ease-out;
-}
-
-.tree-leaf {
-  position: absolute;
-  font-size: 16px;
-  opacity: 0;
-  transition: all 0.6s ease;
-  transform: scale(0) rotate(0deg);
-}
-
-.tree-leaf.grown {
-  opacity: 1;
-  transform: scale(1) rotate(360deg);
-  animation: growLeaf 0.6s ease-out;
-}
-
-@keyframes growBranch {
-  from {
-    transform: scaleX(0);
-    opacity: 0;
-  }
-  to {
-    transform: scaleX(1);
-    opacity: 1;
-  }
-}
-
-@keyframes growLeaf {
-  0% {
-    transform: scale(0) rotate(0deg);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.2) rotate(180deg);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(1) rotate(360deg);
-    opacity: 1;
-  }
-}
-
-/* 题目导航 */
+/* 问题导航 */
 .question-nav {
   margin-top: 20px;
 }
@@ -1141,6 +978,11 @@ onUnmounted(() => {
     width: 28px;
     height: 28px;
     font-size: 11px;
+  }
+  
+  .dynamic-progress-container {
+    gap: 16px;
+    padding: 16px 0;
   }
 }
 

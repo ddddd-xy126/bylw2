@@ -1,24 +1,785 @@
 <template>
-  <el-card>
-    <template #header>
-      <h2>我创建的问卷</h2>
-    </template>
-    <el-empty description="我创建的问卷管理页面占位符">
-      <template #description>
-        <p>功能包括：查看创建的问卷、编辑问卷、复制问卷、删除问卷、查看统计数据等</p>
-      </template>
-      <el-button type="primary">功能开发中...</el-button>
-    </el-empty>
-  </el-card>
+  <div class="created-page">
+    <!-- 页面头部 -->
+    <div class="page-header">
+      <div class="header-info">
+        <h2>我创建的问卷</h2>
+        <p>管理您创建的所有问卷，包括草稿、待审核和已发布的问卷</p>
+      </div>
+      <div class="header-actions">
+        <el-button type="primary" @click="createNewSurvey">
+          <el-icon><Plus /></el-icon>
+          创建新问卷
+        </el-button>
+      </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <el-row :gutter="16" class="stats-section">
+      <el-col :span="6">
+        <el-card class="stat-card">
+          <div class="stat-content">
+            <div class="stat-icon draft">
+              <el-icon><EditPen /></el-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-number">{{ draftCount }}</div>
+              <div class="stat-label">草稿</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card class="stat-card">
+          <div class="stat-content">
+            <div class="stat-icon pending">
+              <el-icon><Clock /></el-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-number">{{ pendingCount }}</div>
+              <div class="stat-label">待审核</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card class="stat-card">
+          <div class="stat-content">
+            <div class="stat-icon published">
+              <el-icon><CircleCheck /></el-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-number">{{ publishedCount }}</div>
+              <div class="stat-label">已发布</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card class="stat-card">
+          <div class="stat-content">
+            <div class="stat-icon total">
+              <el-icon><Document /></el-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-number">{{ totalCount }}</div>
+              <div class="stat-label">总数</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <!-- 筛选和搜索 -->
+    <el-card class="filter-card" shadow="never">
+      <el-row :gutter="16">
+        <el-col :span="8">
+          <el-input
+            v-model="searchKeyword"
+            placeholder="搜索问卷标题"
+            clearable
+            @input="handleSearch"
+          >
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+          </el-input>
+        </el-col>
+        <el-col :span="6">
+          <el-select
+            v-model="filterStatus"
+            placeholder="问卷状态"
+            clearable
+            @change="handleFilter"
+          >
+            <el-option label="全部状态" value="" />
+            <el-option label="草稿" value="draft" />
+            <el-option label="待审核" value="pending" />
+            <el-option label="已发布" value="published" />
+          </el-select>
+        </el-col>
+        <el-col :span="6">
+          <el-select
+            v-model="filterCategory"
+            placeholder="问卷分类"
+            clearable
+            @change="handleFilter"
+          >
+            <el-option label="全部分类" value="" />
+            <el-option label="心理健康" value="心理健康" />
+            <el-option label="教育" value="教育" />
+            <el-option label="职业发展" value="职业发展" />
+            <el-option label="产品" value="产品" />
+            <el-option label="企业" value="企业" />
+          </el-select>
+        </el-col>
+        <el-col :span="4">
+          <el-button type="primary" @click="refreshData">
+            <el-icon><Refresh /></el-icon>
+            刷新
+          </el-button>
+        </el-col>
+      </el-row>
+    </el-card>
+
+    <!-- 问卷列表 -->
+    <div class="survey-list" v-loading="loading">
+      <div
+        v-for="survey in filteredSurveys"
+        :key="survey.id"
+        class="survey-item"
+        :class="{ 'status-draft': survey.status === 'draft' }"
+      >
+        <div class="survey-main">
+          <div class="survey-icon">
+            <el-icon size="24" :color="getStatusColor(survey.status)">
+              <component :is="getStatusIcon(survey.status)" />
+            </el-icon>
+          </div>
+          
+          <div class="survey-info">
+            <div class="survey-header">
+              <h3 class="survey-title">{{ survey.title }}</h3>
+              <div class="survey-badges">
+                <el-tag size="small" type="primary">{{ survey.category }}</el-tag>
+                <el-tag size="small" :type="getStatusTagType(survey.status)">
+                  {{ getStatusText(survey.status) }}
+                </el-tag>
+              </div>
+            </div>
+            
+            <div class="survey-meta">
+              <span class="meta-item">
+                <el-icon><Calendar /></el-icon>
+                创建时间：{{ formatDate(survey.createdAt) }}
+              </span>
+              <span class="meta-item">
+                <el-icon><Edit /></el-icon>
+                更新时间：{{ formatDate(survey.updatedAt) }}
+              </span>
+              <span class="meta-item">
+                <el-icon><Document /></el-icon>
+                题目数：{{ survey.questions }}题
+              </span>
+              <span class="meta-item" v-if="survey.status === 'published'">
+                <el-icon><User /></el-icon>
+                参与人数：{{ survey.participants }}人
+              </span>
+            </div>
+            
+            <div class="survey-description">
+              {{ survey.description }}
+            </div>
+          </div>
+        </div>
+
+        <div class="survey-actions">
+          <!-- 草稿状态 -->
+          <template v-if="survey.status === 'draft'">
+            <el-button type="primary" @click="editSurvey(survey.id)">
+              <el-icon><Edit /></el-icon>
+              编辑
+            </el-button>
+            <el-button @click="publishSurvey(survey.id)">
+              <el-icon><Upload /></el-icon>
+              提交审核
+            </el-button>
+          </template>
+          
+          <!-- 待审核状态 -->
+          <template v-else-if="survey.status === 'pending'">
+            <el-button type="warning" disabled>
+              <el-icon><Clock /></el-icon>
+              审核中
+            </el-button>
+            <el-button @click="editSurvey(survey.id)">
+              <el-icon><Edit /></el-icon>
+              查看
+            </el-button>
+          </template>
+          
+          <!-- 已发布状态 -->
+          <template v-else-if="survey.status === 'published'">
+            <el-button type="success" @click="viewSurvey(survey.id)">
+              <el-icon><View /></el-icon>
+              查看
+            </el-button>
+            <el-button @click="viewStats(survey.id)">
+              <el-icon><TrendCharts /></el-icon>
+              统计
+            </el-button>
+          </template>
+
+          <el-dropdown @command="handleMoreAction">
+            <el-button type="info">
+              更多 <el-icon><ArrowDown /></el-icon>
+            </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item
+                  :command="{ action: 'copy', data: survey }"
+                >
+                  复制问卷
+                </el-dropdown-item>
+                <el-dropdown-item
+                  :command="{ action: 'share', data: survey }"
+                  v-if="survey.status === 'published'"
+                >
+                  分享问卷
+                </el-dropdown-item>
+                <el-dropdown-item
+                  :command="{ action: 'delete', data: survey }"
+                  divided
+                  class="danger-item"
+                >
+                  删除问卷
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+      </div>
+
+      <!-- 空状态 -->
+      <el-empty 
+        v-if="!loading && filteredSurveys.length === 0" 
+        description="暂无创建的问卷"
+        class="empty-state"
+      >
+        <el-button type="primary" @click="createNewSurvey">
+          创建第一个问卷
+        </el-button>
+      </el-empty>
+    </div>
+
+    <!-- 分页 -->
+    <div class="pagination-wrapper" v-if="totalCount > pageSize">
+      <el-pagination
+        v-model:current-page="currentPage"
+        :page-size="pageSize"
+        :total="totalCount"
+        layout="prev, pager, next, jumper, total"
+        @current-change="handlePageChange"
+      />
+    </div>
+  </div>
 </template>
 
 <script setup>
-// 占位符页面
+import { ref, reactive, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessage, ElMessageBox } from "element-plus";
+import {
+  Plus,
+  Search,
+  Refresh,
+  EditPen,
+  Clock,
+  CircleCheck,
+  Document,
+  Calendar,
+  Edit,
+  User,
+  Upload,
+  View,
+  TrendCharts,
+  ArrowDown,
+} from "@element-plus/icons-vue";
+
+import { useUserStore } from "@/store/user";
+
+const router = useRouter();
+const userStore = useUserStore();
+
+// 响应式数据
+const loading = ref(false);
+const surveys = ref([]);
+const searchKeyword = ref("");
+const filterStatus = ref("");
+const filterCategory = ref("");
+const currentPage = ref(1);
+const pageSize = ref(10);
+
+// 计算属性
+const totalCount = computed(() => surveys.value.length);
+const draftCount = computed(() => surveys.value.filter(s => s.status === 'draft').length);
+const pendingCount = computed(() => surveys.value.filter(s => s.status === 'pending').length);
+const publishedCount = computed(() => surveys.value.filter(s => s.status === 'published').length);
+
+const filteredSurveys = computed(() => {
+  let result = surveys.value;
+
+  // 关键词搜索
+  if (searchKeyword.value) {
+    result = result.filter((survey) =>
+      survey.title.includes(searchKeyword.value)
+    );
+  }
+
+  // 状态筛选
+  if (filterStatus.value) {
+    result = result.filter((survey) => survey.status === filterStatus.value);
+  }
+
+  // 分类筛选
+  if (filterCategory.value) {
+    result = result.filter((survey) => survey.category === filterCategory.value);
+  }
+
+  // 分页
+  const startIndex = (currentPage.value - 1) * pageSize.value;
+  return result.slice(startIndex, startIndex + pageSize.value);
+});
+
+// 方法
+const loadCreatedSurveys = async () => {
+  loading.value = true;
+  try {
+    const userId = userStore.profile?.id;
+    if (!userId) {
+      ElMessage.error("请先登录");
+      surveys.value = [];
+      return;
+    }
+    
+    // 从 localStorage 获取用户创建的问卷
+    const allQuestionnaires = JSON.parse(localStorage.getItem('questionnaires') || '[]');
+    const userQuestionnaires = allQuestionnaires.filter(q => q.createdBy === userId);
+    
+    // 格式化数据以匹配 surveys 结构
+    surveys.value = userQuestionnaires.map(q => ({
+      id: q.id,
+      title: q.title,
+      description: q.description,
+      category: q.category,
+      status: q.status,
+      createdAt: q.createTime,
+      updatedAt: q.updateTime,
+      questions: (q.questions || []).length,
+      participants: q.participantCount || 0,
+      shareCount: q.shareCount || 0
+    }));
+  } catch (error) {
+    console.error('加载问卷失败:', error);
+    ElMessage.error("加载问卷失败：" + error.message);
+    surveys.value = [];
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleSearch = () => {
+  currentPage.value = 1;
+};
+
+const handleFilter = () => {
+  currentPage.value = 1;
+};
+
+const handlePageChange = (page) => {
+  currentPage.value = page;
+};
+
+const refreshData = () => {
+  loadCreatedSurveys();
+};
+
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString("zh-CN");
+};
+
+const getStatusText = (status) => {
+  const statusMap = {
+    draft: "草稿",
+    pending: "待审核",
+    published: "已发布"
+  };
+  return statusMap[status] || "未知";
+};
+
+const getStatusTagType = (status) => {
+  const typeMap = {
+    draft: "info",
+    pending: "warning",
+    published: "success"
+  };
+  return typeMap[status] || "info";
+};
+
+const getStatusColor = (status) => {
+  const colorMap = {
+    draft: "#909399",
+    pending: "#E6A23C",
+    published: "#67C23A"
+  };
+  return colorMap[status] || "#909399";
+};
+
+const getStatusIcon = (status) => {
+  const iconMap = {
+    draft: "EditPen",
+    pending: "Clock",
+    published: "CircleCheck"
+  };
+  return iconMap[status] || "Document";
+};
+
+const createNewSurvey = () => {
+  router.push("/create");
+};
+
+const editSurvey = (id) => {
+  router.push(`/create/custom?edit=${id}`);
+};
+
+const viewSurvey = (id) => {
+  router.push(`/surveys/${id}`);
+};
+
+const viewStats = (id) => {
+  ElMessage.info("统计功能开发中...");
+};
+
+const publishSurvey = async (id) => {
+  try {
+    await ElMessageBox.confirm(
+      '确定要提交此问卷进行审核吗？提交后将无法修改。',
+      '确认提交',
+      {
+        confirmButtonText: '确定提交',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    );
+    
+    // 更新 localStorage 中的问卷状态
+    const allQuestionnaires = JSON.parse(localStorage.getItem('questionnaires') || '[]');
+    const questionnaireIndex = allQuestionnaires.findIndex(q => q.id === id);
+    
+    if (questionnaireIndex !== -1) {
+      allQuestionnaires[questionnaireIndex].status = 'pending';
+      allQuestionnaires[questionnaireIndex].updateTime = new Date().toISOString();
+      localStorage.setItem('questionnaires', JSON.stringify(allQuestionnaires));
+      
+      ElMessage.success("问卷已提交审核");
+      await loadCreatedSurveys();
+    } else {
+      ElMessage.error("未找到要发布的问卷");
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('发布问卷失败:', error);
+      ElMessage.error("提交失败");
+    }
+  }
+};
+
+const handleMoreAction = async ({ action, data }) => {
+  switch (action) {
+    case "copy":
+      ElMessage.info("复制功能开发中...");
+      break;
+
+    case "share":
+      navigator.clipboard.writeText(
+        `${window.location.origin}/surveys/${data.id}`
+      );
+      ElMessage.success("问卷链接已复制到剪贴板");
+      break;
+
+    case "delete":
+      try {
+        await ElMessageBox.confirm(
+          '确定要删除这个问卷吗？此操作不可撤销。',
+          '确认删除',
+          {
+            confirmButtonText: '确定删除',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        );
+        
+        // 从 localStorage 删除问卷
+        const allQuestionnaires = JSON.parse(localStorage.getItem('questionnaires') || '[]');
+        const updatedQuestionnaires = allQuestionnaires.filter(q => q.id !== data.id);
+        localStorage.setItem('questionnaires', JSON.stringify(updatedQuestionnaires));
+        
+        ElMessage.success("问卷删除成功");
+        await loadCreatedSurveys();
+      } catch (error) {
+        if (error !== 'cancel') {
+          console.error('删除问卷失败:', error);
+          ElMessage.error("删除失败");
+        }
+      }
+      break;
+  }
+};
+
+// 生命周期
+onMounted(() => {
+  loadCreatedSurveys();
+});
 </script>
 
 <style scoped>
-h2 {
-  margin: 0;
+.created-page {
+  padding: 20px;
+}
+
+/* 页面头部 */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-info h2 {
+  margin: 0 0 8px 0;
   color: #303133;
+  font-size: 24px;
+}
+
+.header-info p {
+  margin: 0;
+  color: #606266;
+  font-size: 14px;
+}
+
+/* 统计卡片 */
+.stats-section {
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.stat-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.stat-icon.draft {
+  background: linear-gradient(135deg, #909399, #b1b3b8);
+}
+
+.stat-icon.pending {
+  background: linear-gradient(135deg, #E6A23C, #ebb563);
+}
+
+.stat-icon.published {
+  background: linear-gradient(135deg, #67C23A, #85ce61);
+}
+
+.stat-icon.total {
+  background: linear-gradient(135deg, #409EFF, #66b1ff);
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: #303133;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #606266;
+  margin-top: 4px;
+}
+
+/* 筛选卡片 */
+.filter-card {
+  margin-bottom: 20px;
+  border-radius: 12px;
+}
+
+/* 问卷列表 */
+.survey-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.survey-item {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 4px solid transparent;
+}
+
+.survey-item:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.survey-item.status-draft {
+  border-left-color: #909399;
+}
+
+.survey-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.survey-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: #f5f7fa;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.survey-info {
+  flex: 1;
+}
+
+.survey-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.survey-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.survey-badges {
+  display: flex;
+  gap: 8px;
+}
+
+.survey-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: #606266;
+}
+
+.survey-description {
+  color: #909399;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.survey-actions {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* 空状态 */
+.empty-state {
+  margin: 40px 0;
+}
+
+/* 分页 */
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+/* 危险操作 */
+.danger-item {
+  color: #f56c6c;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .created-page {
+    padding: 16px;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .stats-section .el-col {
+    margin-bottom: 16px;
+  }
+  
+  .survey-item {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .survey-main {
+    width: 100%;
+  }
+  
+  .survey-actions {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .survey-meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .survey-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .survey-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 }
 </style>
