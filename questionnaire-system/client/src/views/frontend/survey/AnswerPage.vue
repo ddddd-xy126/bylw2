@@ -422,13 +422,20 @@ const submitSurvey = async () => {
 
     const result = await submitSurveyApi(route.params.id, answerData);
     
-    isCompleted.value = true;
-    ElMessage.success('问卷提交成功！');
-    
     // 停止计时器
     if (timer.value) {
       clearInterval(timer.value);
       timer.value = null;
+    }
+    
+    ElMessage.success('问卷提交成功！');
+    
+    // 直接跳转到结果页面（使用返回的 answerId）
+    if (result && result.answerId) {
+      router.push(`/surveys/result/${result.answerId}`);
+    } else {
+      // 如果没有返回 answerId，显示完成页面
+      isCompleted.value = true;
     }
     
   } catch (error) {

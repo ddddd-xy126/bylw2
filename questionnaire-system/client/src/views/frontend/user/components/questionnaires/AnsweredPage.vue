@@ -141,6 +141,11 @@
                   分享结果
                 </el-dropdown-item>
                 <el-dropdown-item
+                  :command="{ action: 'delete', data: answer }"
+                >
+                  删除
+                </el-dropdown-item>
+                <el-dropdown-item
                   :command="{ action: 'favorite', data: answer }"
                   divided
                 >
@@ -231,7 +236,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import {
   Search,
   Refresh,
@@ -245,7 +250,7 @@ import {
   ArrowDown,
 } from "@element-plus/icons-vue";
 
-import { getUserAnsweredSurveysApi, addFavoriteApi } from "@/api/user";
+import { getUserAnsweredSurveysApi, addFavoriteApi, moveAnsweredToRecycleApi } from "@/api/user";
 import { useUserStore } from "@/store/user";
 
 const router = useRouter();
@@ -387,6 +392,32 @@ const handleMoreAction = async ({ action, data }) => {
         ElMessage.success("收藏成功");
       } catch (error) {
         ElMessage.error("收藏失败：" + error.message);
+      }
+      break;
+    case "delete":
+      try {
+        // 弹出确认框
+        await ElMessageBox.confirm(
+          '确定要删除此答题记录吗？删除后该记录会移入回收站，可在回收站恢复。',
+          '确认删除',
+          {
+            confirmButtonText: '删除',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        );
+
+        // 调用 API：先保存到 recycleBin 再删除 answers
+        await moveAnsweredToRecycleApi(data.id, data);
+
+        // 从本地数组移除
+        answeredSurveys.value = answeredSurveys.value.filter(a => a.id !== data.id);
+
+        ElMessage.success('已删除并移入回收站');
+      } catch (err) {
+        // 当取消确认时，Element Plus 会抛出一个对象，我们不显示错误
+        if (err && (err === 'cancel' || err.type === 'cancel')) return;
+        ElMessage.error('删除失败：' + (err.message || err));
       }
       break;
   }

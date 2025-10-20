@@ -145,6 +145,23 @@ export const getUserAnsweredSurveysApi = async (userId) => {
   return answeredSurveys;
 };
 
+// 将答题记录移动到回收站（先保存到 recycleBin，然后删除 answers 中的原记录）
+export const moveAnsweredToRecycleApi = async (answerId, answerData) => {
+  // 1) 将记录复制到 recycleBin（添加 deletedAt）
+  const recycleItem = {
+    ...answerData,
+    originalId: answerId,
+    deletedAt: new Date().toISOString()
+  };
+
+  await apiClient.post('/recycleBin', recycleItem);
+
+  // 2) 删除 answers 中的原记录
+  await apiClient.delete(`/answers/${answerId}`);
+
+  return { success: true };
+};
+
 // 用户成就和报告记录（保留必要功能）
 export const getUserAchievementsApi = async (userId) => {
   const achievements = await apiClient.get(`/achievements?userId=${userId}`);
