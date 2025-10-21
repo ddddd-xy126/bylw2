@@ -708,9 +708,9 @@
         "showProgress": true,
         "randomOrder": false
       },
-      "status": "draft",
+      "status": "pending",
       "createdAt": "2025-10-20T08:20:57.112Z",
-      "updatedAt": "2025-10-21T05:40:21.448Z",
+      "updatedAt": "2025-10-21T05:52:47.364Z",
       "userId": "ec9c",
       "authorName": "123",
       "creatorId": "ec9c",
@@ -995,7 +995,7 @@
       "questionList": []
     },
     {
-      "id": 1761025276907,
+      "id": "1761025276907",
       "title": "额为全额全额",
       "description": "e委屈恶气呃",
       "category": "product",
@@ -1009,9 +1009,9 @@
         "showProgress": true,
         "randomOrder": false
       },
-      "status": "draft",
+      "status": "pending",
       "createdAt": "2025-10-21T05:41:16.919Z",
-      "updatedAt": "2025-10-21T05:41:16.919Z",
+      "updatedAt": "2025-10-21T05:52:58.459Z",
       "userId": "ec9c",
       "authorName": "123",
       "creatorId": "ec9c",

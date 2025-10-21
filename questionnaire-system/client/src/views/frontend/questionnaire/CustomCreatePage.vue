@@ -397,6 +397,7 @@ const isEditMode = ref(false)
 const isTemplateMode = ref(false)
 const currentQuestionnaireId = ref(null)
 const currentTemplateId = ref(null)
+const originalQuestionnaireData = ref(null) // 保存原始问卷数据
 
 // 自动保存相关
 const autoSaveTimer = ref(null)
@@ -612,12 +613,14 @@ const loadQuestionnaireForEdit = async (id) => {
     }
     
     // 从服务器加载问卷数据
-    const response = await fetch(`http://localhost:3001/surveys/${id}`)
+    const response = await fetch(`http://localhost:3002/surveys/${id}`)
     if (!response.ok) {
       throw new Error('问卷不存在或加载失败')
     }
     
     const questionnaireData = await response.json()
+    // 保存原始数据
+    originalQuestionnaireData.value = questionnaireData
     loadQuestionnaireData(questionnaireData)
   } catch (error) {
     console.error('加载问卷失败:', error)
@@ -628,6 +631,8 @@ const loadQuestionnaireForEdit = async (id) => {
 
 // 将问卷数据加载到表单
 const loadQuestionnaireData = (data) => {
+  console.log('Loading questionnaire data:', data)
+  
   // 加载基本信息
   questionnaireForm.title = data.title || ''
   questionnaireForm.description = data.description || ''
@@ -635,8 +640,13 @@ const loadQuestionnaireData = (data) => {
   questionnaireForm.duration = data.duration || 10
   questionnaireForm.tags = data.tags || []
   
-  // 加载问题
-  questions.value = data.questions || []
+  // 加载问题 - 支持 questions 和 questionList 两种字段名
+  const questionData = data.questionList || data.questions || []
+  // 确保问题数据是数组
+  questions.value = Array.isArray(questionData) ? questionData : []
+  
+  console.log('Loaded questions:', questions.value)
+  console.log('Questions count:', questions.value.length)
   
   // 加载设置
   if (data.settings) {
@@ -1121,25 +1131,57 @@ const buildQuestionnaireData = (status = 'draft') => {
   const userId = userStore.profile?.id || 1
   const userName = userStore.profile?.nickname || userStore.profile?.username || '匿名用户'
   
-  return {
-    id: currentQuestionnaireId.value || Date.now(),
+  // 格式化问题列表
+  const formattedQuestions = questions.value.map((q, index) => ({
+    ...q,
+    order: index + 1
+  }))
+  
+  const baseData = {
     title: questionnaireForm.title,
     description: questionnaireForm.description,
     category: questionnaireForm.category,
     duration: questionnaireForm.duration,
     tags: questionnaireForm.tags,
-    questions: questions.value.map((q, index) => ({
-      ...q,
-      order: index + 1
-    })),
+    // 保存问题数量
+    questions: formattedQuestions.length,
+    // 保存问题详情列表
+    questionList: formattedQuestions,
     settings: {
       ...settingsForm
     },
     status: status,
+    updatedAt: new Date().toISOString()
+  }
+  
+  // 如果是编辑模式，保留原始数据的某些字段
+  if (isEditMode.value && originalQuestionnaireData.value) {
+    return {
+      ...originalQuestionnaireData.value, // 保留所有原始字段
+      ...baseData,                        // 覆盖更新的字段
+      id: currentQuestionnaireId.value || originalQuestionnaireData.value.id,
+      userId: originalQuestionnaireData.value.userId || originalQuestionnaireData.value.authorId || userId,
+      authorId: originalQuestionnaireData.value.authorId || originalQuestionnaireData.value.userId || userId,
+      authorName: originalQuestionnaireData.value.authorName || originalQuestionnaireData.value.author || userName,
+      author: originalQuestionnaireData.value.author || originalQuestionnaireData.value.authorName || userName,
+      createdAt: originalQuestionnaireData.value.createdAt, // 保留创建时间
+      participants: originalQuestionnaireData.value.participants || originalQuestionnaireData.value.participantCount || 0,
+      participantCount: originalQuestionnaireData.value.participantCount || originalQuestionnaireData.value.participants || 0
+    }
+  }
+  
+  // 新建模式
+  return {
+    ...baseData,
+    id: currentQuestionnaireId.value || Date.now(),
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
     userId: userId,
-    authorName: userName
+    authorId: userId,
+    authorName: userName,
+    author: userName,
+    // 初始化参与人数
+    participants: 0,
+    participantCount: 0
   }
 }
 

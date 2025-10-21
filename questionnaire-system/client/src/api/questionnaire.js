@@ -28,19 +28,28 @@ export const listQuestionnaires = async (params) => {
 };
 
 export const createQuestionnaire = async (data) => {
+  // 确保 questionList 是数组
+  let questionList = [];
+  if (Array.isArray(data.questionList)) {
+    questionList = data.questionList;
+  } else if (Array.isArray(data.questions) && typeof data.questions[0] === 'object') {
+    // 如果 questions 是对象数组，则它实际上是问题列表
+    questionList = data.questions;
+  }
+  
   const newQuestionnaire = {
     ...data,
-    creatorId: data.userId || 1, // 从当前用户获取
+    creatorId: data.userId || 1,
     authorId: data.userId || 1,
-    author: data.authorName || '匿名用户',
+    author: data.authorName || data.author || '匿名用户',
     status: data.status || "draft",
     responses: 0,
     participants: 0,
     participantCount: 0,
     rating: 0,
     thumbnail: data.thumbnail || '/images/default.jpg',
-    questions: (data.questions || []).length,
-    questionList: data.questions || [],
+    questions: questionList.length,      // 问题数量
+    questionList: questionList,           // 问题详情列表
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
@@ -50,10 +59,19 @@ export const createQuestionnaire = async (data) => {
 
 // 更新问卷
 export const updateQuestionnaire = async (id, data) => {
+  // 确保 questionList 是数组
+  let questionList = [];
+  if (Array.isArray(data.questionList)) {
+    questionList = data.questionList;
+  } else if (Array.isArray(data.questions) && typeof data.questions[0] === 'object') {
+    // 如果 questions 是对象数组，则它实际上是问题列表
+    questionList = data.questions;
+  }
+  
   const updatedData = {
     ...data,
-    questions: (data.questions || data.questionList || []).length,
-    questionList: data.questions || data.questionList || [],
+    questions: questionList.length, // 问题数量
+    questionList: questionList,      // 问题详情列表
     updatedAt: new Date().toISOString()
   };
   

@@ -439,7 +439,7 @@ const createNewSurvey = () => {
 };
 
 const editSurvey = (id) => {
-  router.push(`/create/custom?edit=${id}`);
+  router.push(`/create/edit/${id}`);
 };
 
 const viewSurvey = (id) => {
