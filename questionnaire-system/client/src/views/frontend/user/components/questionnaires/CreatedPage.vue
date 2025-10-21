@@ -45,12 +45,12 @@
       <el-col :span="6">
         <el-card class="stat-card">
           <div class="stat-content">
-            <div class="stat-icon published">
-              <el-icon><CircleCheck /></el-icon>
+            <div class="stat-icon rejected">
+              <el-icon><CircleClose /></el-icon>
             </div>
             <div class="stat-info">
-              <div class="stat-number">{{ publishedCount }}</div>
-              <div class="stat-label">已发布</div>
+              <div class="stat-number">{{ rejectedCount }}</div>
+              <div class="stat-label">已退回</div>
             </div>
           </div>
         </el-card>
@@ -58,12 +58,12 @@
       <el-col :span="6">
         <el-card class="stat-card">
           <div class="stat-content">
-            <div class="stat-icon total">
-              <el-icon><Document /></el-icon>
+            <div class="stat-icon published">
+              <el-icon><CircleCheck /></el-icon>
             </div>
             <div class="stat-info">
-              <div class="stat-number">{{ totalCount }}</div>
-              <div class="stat-label">总数</div>
+              <div class="stat-number">{{ publishedCount }}</div>
+              <div class="stat-label">已发布</div>
             </div>
           </div>
         </el-card>
@@ -95,6 +95,7 @@
             <el-option label="全部状态" value="" />
             <el-option label="草稿" value="draft" />
             <el-option label="待审核" value="pending" />
+            <el-option label="已退回" value="rejected" />
             <el-option label="已发布" value="published" />
           </el-select>
         </el-col>
@@ -148,6 +149,20 @@
               </div>
             </div>
             
+            <!-- 退回原因提示 -->
+            <el-alert
+              v-if="survey.status === 'rejected' && survey.rejectedReason"
+              type="error"
+              :closable="false"
+              class="rejected-alert"
+            >
+              <template #title>
+                <div class="rejected-reason">
+                  <strong>退回原因：</strong>{{ survey.rejectedReason }}
+                </div>
+              </template>
+            </el-alert>
+            
             <div class="survey-meta">
               <span class="meta-item">
                 <el-icon><Calendar /></el-icon>
@@ -183,6 +198,18 @@
             <el-button @click="publishSurvey(survey.id)">
               <el-icon><Upload /></el-icon>
               提交审核
+            </el-button>
+          </template>
+          
+          <!-- 退回状态 -->
+          <template v-else-if="survey.status === 'rejected'">
+            <el-button type="danger" @click="viewRejectedReason(survey)">
+              <el-icon><WarningFilled /></el-icon>
+              查看原因
+            </el-button>
+            <el-button type="primary" @click="editSurvey(survey.id)">
+              <el-icon><Edit /></el-icon>
+              修改后重新提交
             </el-button>
           </template>
           
@@ -276,6 +303,7 @@ import {
   EditPen,
   Clock,
   CircleCheck,
+  CircleClose,
   Document,
   Calendar,
   Edit,
@@ -284,6 +312,7 @@ import {
   View,
   TrendCharts,
   ArrowDown,
+  WarningFilled,
 } from "@element-plus/icons-vue";
 
 import { useUserStore } from "@/store/user";
@@ -304,6 +333,7 @@ const pageSize = ref(10);
 const totalCount = computed(() => surveys.value.length);
 const draftCount = computed(() => surveys.value.filter(s => s.status === 'draft').length);
 const pendingCount = computed(() => surveys.value.filter(s => s.status === 'pending').length);
+const rejectedCount = computed(() => surveys.value.filter(s => s.status === 'rejected').length);
 const publishedCount = computed(() => surveys.value.filter(s => s.status === 'published').length);
 
 const filteredSurveys = computed(() => {
@@ -350,10 +380,10 @@ const loadCreatedSurveys = async () => {
     
     const allSurveys = await response.json();
     
-    // 筛选当前用户创建的问卷（包含 draft、pending 和 published 状态）
+    // 筛选当前用户创建的问卷（包含所有状态）
     const userSurveys = allSurveys.filter(s => 
       (s.userId === userId || s.authorId === userId) && 
-      (s.status === 'draft' || s.status === 'pending' || s.status === 'published')
+      (s.status === 'draft' || s.status === 'pending' || s.status === 'rejected' || s.status === 'published')
     );
     
     // 格式化数据
@@ -367,7 +397,9 @@ const loadCreatedSurveys = async () => {
       updatedAt: q.updatedAt,
       questions: q.questions || (q.questionList || []).length,
       participants: q.participantCount || q.participants || 0,
-      shareCount: q.shareCount || 0
+      shareCount: q.shareCount || 0,
+      rejectedReason: q.rejectedReason || '',
+      rejectedAt: q.rejectedAt || null
     }));
   } catch (error) {
     console.error('加载问卷失败:', error);
@@ -402,6 +434,7 @@ const getStatusText = (status) => {
   const statusMap = {
     draft: "草稿",
     pending: "待审核",
+    rejected: "已退回",
     published: "已发布"
   };
   return statusMap[status] || "未知";
@@ -411,6 +444,7 @@ const getStatusTagType = (status) => {
   const typeMap = {
     draft: "info",
     pending: "warning",
+    rejected: "danger",
     published: "success"
   };
   return typeMap[status] || "info";
@@ -420,6 +454,7 @@ const getStatusColor = (status) => {
   const colorMap = {
     draft: "#909399",
     pending: "#E6A23C",
+    rejected: "#F56C6C",
     published: "#67C23A"
   };
   return colorMap[status] || "#909399";
@@ -429,6 +464,7 @@ const getStatusIcon = (status) => {
   const iconMap = {
     draft: "EditPen",
     pending: "Clock",
+    rejected: "CircleClose",
     published: "CircleCheck"
   };
   return iconMap[status] || "Document";
@@ -448,6 +484,18 @@ const viewSurvey = (id) => {
 
 const viewStats = (id) => {
   ElMessage.info("统计功能开发中...");
+};
+
+const viewRejectedReason = (survey) => {
+  ElMessageBox.alert(
+    survey.rejectedReason || '未提供具体原因',
+    '审核退回原因',
+    {
+      confirmButtonText: '知道了',
+      type: 'error',
+      dangerouslyUseHTMLString: false
+    }
+  );
 };
 
 const publishSurvey = async (id) => {
@@ -643,12 +691,25 @@ onMounted(() => {
   background: linear-gradient(135deg, #E6A23C, #ebb563);
 }
 
+.stat-icon.rejected {
+  background: linear-gradient(135deg, #F56C6C, #f78989);
+}
+
 .stat-icon.published {
   background: linear-gradient(135deg, #67C23A, #85ce61);
 }
 
 .stat-icon.total {
   background: linear-gradient(135deg, #409EFF, #66b1ff);
+}
+
+/* 退回原因提示框 */
+.rejected-alert {
+  margin: 12px 0;
+}
+
+.rejected-reason {
+  line-height: 1.6;
 }
 
 .stat-info {

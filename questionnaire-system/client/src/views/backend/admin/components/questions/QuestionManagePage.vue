@@ -371,6 +371,7 @@ import {
   View,
   Star
 } from '@element-plus/icons-vue'
+import { listQuestionsApi, createQuestionApi, deleteQuestionApi } from '@/api/admin'
 
 const router = useRouter()
 
@@ -386,95 +387,8 @@ const selectedItems = ref([])
 const previewDialogVisible = ref(false)
 const currentQuestion = ref(null)
 
-// 假数据
-const questionList = ref([
-  {
-    id: 1,
-    title: '您对我们的服务满意度如何？',
-    type: 'single',
-    category: 'satisfaction',
-    options: [
-      { id: 1, text: '非常满意' },
-      { id: 2, text: '比较满意' },
-      { id: 3, text: '一般' },
-      { id: 4, text: '不太满意' },
-      { id: 5, text: '非常不满意' }
-    ],
-    usageCount: 45,
-    isTemplate: true,
-    createdAt: '2024-01-15T10:30:00'
-  },
-  {
-    id: 2,
-    title: '您最喜欢我们产品的哪些功能？（可多选）',
-    type: 'multiple',
-    category: 'preference',
-    options: [
-      { id: 1, text: '界面设计' },
-      { id: 2, text: '功能丰富' },
-      { id: 3, text: '操作简单' },
-      { id: 4, text: '性能稳定' },
-      { id: 5, text: '客服支持' }
-    ],
-    usageCount: 32,
-    isTemplate: false,
-    createdAt: '2024-01-14T14:20:00'
-  },
-  {
-    id: 3,
-    title: '请简要描述您对产品的建议',
-    type: 'text',
-    category: 'other',
-    options: [],
-    usageCount: 28,
-    isTemplate: false,
-    createdAt: '2024-01-13T09:15:00'
-  },
-  {
-    id: 4,
-    title: '请为我们的服务质量打分',
-    type: 'rating',
-    category: 'satisfaction',
-    maxRating: 5,
-    options: [],
-    usageCount: 56,
-    isTemplate: true,
-    createdAt: '2024-01-12T16:45:00'
-  },
-  {
-    id: 5,
-    title: '您的年龄段是？',
-    type: 'single',
-    category: 'basic',
-    options: [
-      { id: 1, text: '18-25岁' },
-      { id: 2, text: '26-35岁' },
-      { id: 3, text: '36-45岁' },
-      { id: 4, text: '46-55岁' },
-      { id: 5, text: '56岁以上' }
-    ],
-    usageCount: 78,
-    isTemplate: true,
-    createdAt: '2024-01-11T11:30:00'
-  },
-  {
-    id: 6,
-    title: '您通常通过哪些渠道了解新产品？',
-    type: 'multiple',
-    category: 'behavior',
-    options: [
-      { id: 1, text: '搜索引擎' },
-      { id: 2, text: '社交媒体' },
-      { id: 3, text: '朋友推荐' },
-      { id: 4, text: '广告' },
-      { id: 5, text: '新闻媒体' },
-      { id: 6, text: '官方网站' }
-    ],
-    usageCount: 23,
-    isTemplate: false,
-    createdAt: '2024-01-10T13:20:00'
-  }
-])
+// 从 json-server 获取的题目列表
+const questionList = ref([])
 
 // 计算属性
 const filteredList = computed(() => {
@@ -484,7 +398,7 @@ const filteredList = computed(() => {
     const keyword = searchKeyword.value.toLowerCase()
     list = list.filter(item => 
       item.title.toLowerCase().includes(keyword) ||
-      (item.options && item.options.some(opt => opt.text.toLowerCase().includes(keyword)))
+      (item.options && item.options.some(opt => opt.text && opt.text.toLowerCase().includes(keyword)))
     )
   }
 
@@ -505,7 +419,7 @@ const totalCategories = computed(() => {
   const categories = new Set(questionList.value.map(q => q.category))
   return categories.size
 })
-const activeQuestions = computed(() => questionList.value.filter(q => q.usageCount > 0).length)
+const activeQuestions = computed(() => questionList.value.filter(q => q.usageCount && q.usageCount > 0).length)
 const templateCount = computed(() => questionList.value.filter(q => q.isTemplate).length)
 
 const paginatedList = computed(() => {
@@ -687,8 +601,22 @@ const batchExport = () => {
   ElMessage.success(`已导出 ${selectedItems.value.length} 个题目`)
 }
 
+// 加载题目列表
+const loadQuestions = async () => {
+  loading.value = true
+  try {
+    const response = await listQuestionsApi()
+    questionList.value = response.list || response || []
+  } catch (error) {
+    ElMessage.error('加载题目列表失败：' + error.message)
+    questionList.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
 onMounted(() => {
-  loading.value = false
+  loadQuestions()
 })
 </script>
 

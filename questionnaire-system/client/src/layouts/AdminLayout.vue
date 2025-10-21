@@ -58,6 +58,12 @@
           <el-icon><UserFilled /></el-icon>
           <span>人员管理</span>
         </el-menu-item>
+
+        <!-- 公告管理 -->
+        <el-menu-item index="/admin/announcements">
+          <el-icon><Bell /></el-icon>
+          <span>公告管理</span>
+        </el-menu-item>
       </el-menu>
     </aside>
     <div class="main">
@@ -144,6 +150,7 @@ const currentPageTitle = computed(() => {
     '/admin/questionnaires/pending': '待审核问卷',
     '/admin/questions': '题目管理',
     '/admin/users': '人员管理',
+    '/admin/announcements': '公告管理',
     '/admin/profile': '个人资料'
   }
   return pathTitleMap[route.path] || ''

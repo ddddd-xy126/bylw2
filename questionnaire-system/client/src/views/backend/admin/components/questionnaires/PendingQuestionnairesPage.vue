@@ -283,6 +283,7 @@ import {
   ChatDotRound,
   WarningFilled
 } from '@element-plus/icons-vue'
+import { getSurveysApi, updateSurveyStatusApi, deleteAdminSurveyApi } from '@/api/admin'
 
 // 响应式数据
 const loading = ref(false)
@@ -302,86 +303,8 @@ const reviewForm = reactive({
   comment: ''
 })
 
-// 假数据
-const pendingList = ref([
-  {
-    id: 1,
-    title: '员工工作环境满意度调查',
-    description: '针对公司员工工作环境、福利待遇等方面的满意度调查',
-    submitterName: '张小明',
-    submitterEmail: 'zhangxm@example.com',
-    submitterAvatar: 'https://api.dicebear.com/7.x/initials/svg?seed=张小明',
-    submittedAt: '2024-01-15T14:30:00',
-    priority: 'high',
-    category: 'satisfaction',
-    questionCount: 15,
-    questions: [
-      {
-        title: '您对目前的工作环境满意吗？',
-        type: 'single',
-        options: [
-          { id: 1, text: '非常满意' },
-          { id: 2, text: '比较满意' },
-          { id: 3, text: '一般' },
-          { id: 4, text: '不太满意' },
-          { id: 5, text: '非常不满意' }
-        ]
-      },
-      {
-        title: '您认为公司还需要改进哪些方面？（多选）',
-        type: 'multiple',
-        options: [
-          { id: 1, text: '办公设备' },
-          { id: 2, text: '工作氛围' },
-          { id: 3, text: '薪资待遇' },
-          { id: 4, text: '培训机会' },
-          { id: 5, text: '其他' }
-        ]
-      },
-      {
-        title: '请留下您的建议和意见',
-        type: 'text'
-      }
-    ]
-  },
-  {
-    id: 2,
-    title: '新产品用户体验调研',
-    description: '收集用户对新产品功能和界面设计的反馈意见',
-    submitterName: '李小红',
-    submitterEmail: 'lixh@example.com',
-    submitterAvatar: 'https://api.dicebear.com/7.x/initials/svg?seed=李小红',
-    submittedAt: '2024-01-15T10:15:00',
-    priority: 'medium',
-    category: 'feedback',
-    questionCount: 12,
-    questions: [
-      {
-        title: '您使用新产品的频率如何？',
-        type: 'single',
-        options: [
-          { id: 1, text: '每天使用' },
-          { id: 2, text: '每周使用' },
-          { id: 3, text: '偶尔使用' },
-          { id: 4, text: '很少使用' }
-        ]
-      }
-    ]
-  },
-  {
-    id: 3,
-    title: '市场需求分析调查',
-    description: '了解目标客户的需求偏好和购买意向',
-    submitterName: '王大力',
-    submitterEmail: 'wangdl@example.com',
-    submitterAvatar: 'https://api.dicebear.com/7.x/initials/svg?seed=王大力',
-    submittedAt: '2024-01-14T16:45:00',
-    priority: 'low',
-    category: 'market',
-    questionCount: 20,
-    questions: []
-  }
-])
+// 从 json-server 获取的待审核问卷列表
+const pendingList = ref([])
 
 // 计算属性
 const filteredList = computed(() => {
@@ -491,7 +414,7 @@ const closePreviewDialog = () => {
   currentQuestionnaire.value = null
 }
 
-const approveQuestionnaire = (questionnaire) => {
+const approveQuestionnaire = async (questionnaire) => {
   ElMessageBox.confirm(
     `确定通过问卷"${questionnaire.title}"的审核吗？`,
     '确认审核',
@@ -500,10 +423,16 @@ const approveQuestionnaire = (questionnaire) => {
       cancelButtonText: '取消',
       type: 'success',
     }
-  ).then(() => {
-    // 这里应该调用审核API
-    ElMessage.success('审核通过')
-    removeFromPendingList(questionnaire.id)
+  ).then(async () => {
+    try {
+      // 调用 API 更新问卷状态为 published
+      await updateSurveyStatusApi(questionnaire.id, 'published')
+      ElMessage.success('审核通过，问卷已发布')
+      // 从待审核列表中移除
+      removeFromPendingList(questionnaire.id)
+    } catch (error) {
+      ElMessage.error('审核失败：' + error.message)
+    }
   }).catch(() => {
     ElMessage.info('已取消审核')
   })
@@ -541,7 +470,7 @@ const showReviewDialog = (questionnaire) => {
   reviewDialogVisible.value = true
 }
 
-const submitReview = () => {
+const submitReview = async () => {
   // 验证表单
   if (reviewForm.result === 'reject' && !reviewForm.comment.trim()) {
     ElMessage.warning('拒绝审核必须填写原因')
@@ -553,20 +482,52 @@ const submitReview = () => {
     return
   }
 
-  // 这里应该调用审核API
-  const actionText = reviewForm.result === 'approve' ? '审核通过' : 
-                    reviewForm.result === 'reject' ? '审核拒绝' : '已要求修改'
-  ElMessage.success(`${actionText}成功`)
-  
-  if (reviewForm.result === 'approve' || reviewForm.result === 'reject') {
-    removeFromPendingList(currentQuestionnaire.value.id)
+  try {
+    // 根据审核结果调用不同的 API
+    if (reviewForm.result === 'approve') {
+      // 审核通过 - 状态改为 published
+      await updateSurveyStatusApi(currentQuestionnaire.value.id, 'published')
+      ElMessage.success('审核通过，问卷已发布')
+      removeFromPendingList(currentQuestionnaire.value.id)
+    } else if (reviewForm.result === 'reject') {
+      // 审核拒绝 - 状态改为 rejected，并记录拒绝原因
+      const response = await fetch(`http://localhost:3002/surveys/${currentQuestionnaire.value.id}`)
+      const survey = await response.json()
+      
+      await fetch(`http://localhost:3002/surveys/${currentQuestionnaire.value.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...survey,
+          status: 'rejected',
+          rejectedReason: reviewForm.comment,
+          rejectedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        })
+      })
+      
+      ElMessage.success('已拒绝审核，问卷已退回给作者')
+      removeFromPendingList(currentQuestionnaire.value.id)
+    } else {
+      // 要求修改 - 保持 pending 状态，只是添加审核意见
+      ElMessage.success('已要求作者修改')
+    }
+    
+    reviewDialogVisible.value = false
+    currentQuestionnaire.value = null
+  } catch (error) {
+    ElMessage.error('审核操作失败：' + error.message)
   }
-  
-  reviewDialogVisible.value = false
-  currentQuestionnaire.value = null
 }
 
-const batchApprove = () => {
+const batchApprove = async () => {
+  if (!selectedItems.value.length) {
+    ElMessage.warning('请先选择要审核的问卷')
+    return
+  }
+
   ElMessageBox.confirm(
     `确定批量通过选中的 ${selectedItems.value.length} 个问卷吗？`,
     '批量审核',
@@ -575,19 +536,35 @@ const batchApprove = () => {
       cancelButtonText: '取消',
       type: 'success',
     }
-  ).then(() => {
-    // 这里应该调用批量审核API
-    ElMessage.success(`已批量通过 ${selectedItems.value.length} 个问卷`)
-    selectedItems.value.forEach(item => {
-      removeFromPendingList(item.id)
-    })
-    selectedItems.value = []
+  ).then(async () => {
+    try {
+      // 批量调用审核 API
+      const promises = selectedItems.value.map(item => 
+        updateSurveyStatusApi(item.id, 'published')
+      )
+      await Promise.all(promises)
+      
+      ElMessage.success(`已批量通过 ${selectedItems.value.length} 个问卷`)
+      
+      // 从列表中移除
+      selectedItems.value.forEach(item => {
+        removeFromPendingList(item.id)
+      })
+      selectedItems.value = []
+    } catch (error) {
+      ElMessage.error('批量审核失败：' + error.message)
+    }
   }).catch(() => {
     ElMessage.info('已取消批量审核')
   })
 }
 
-const batchReject = () => {
+const batchReject = async () => {
+  if (!selectedItems.value.length) {
+    ElMessage.warning('请先选择要拒绝的问卷')
+    return
+  }
+
   ElMessageBox.confirm(
     `确定批量拒绝选中的 ${selectedItems.value.length} 个问卷吗？`,
     '批量审核',
@@ -596,13 +573,39 @@ const batchReject = () => {
       cancelButtonText: '取消',
       type: 'error',
     }
-  ).then(() => {
-    // 这里应该调用批量审核API
-    ElMessage.success(`已批量拒绝 ${selectedItems.value.length} 个问卷`)
-    selectedItems.value.forEach(item => {
-      removeFromPendingList(item.id)
-    })
-    selectedItems.value = []
+  ).then(async () => {
+    try {
+      // 批量调用审核 API，将状态改为 rejected
+      const promises = selectedItems.value.map(async item => {
+        const response = await fetch(`http://localhost:3002/surveys/${item.id}`)
+        const survey = await response.json()
+        
+        return fetch(`http://localhost:3002/surveys/${item.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            ...survey,
+            status: 'rejected',
+            rejectedReason: '批量审核不通过',
+            rejectedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          })
+        })
+      })
+      await Promise.all(promises)
+      
+      ElMessage.success(`已批量拒绝 ${selectedItems.value.length} 个问卷`)
+      
+      // 从列表中移除
+      selectedItems.value.forEach(item => {
+        removeFromPendingList(item.id)
+      })
+      selectedItems.value = []
+    } catch (error) {
+      ElMessage.error('批量拒绝失败：' + error.message)
+    }
   }).catch(() => {
     ElMessage.info('已取消批量审核')
   })
@@ -615,8 +618,37 @@ const removeFromPendingList = (id) => {
   }
 }
 
+// 加载待审核问卷列表
+const loadPendingQuestionnaires = async () => {
+  loading.value = true
+  try {
+    const response = await getSurveysApi({ status: 'pending' })
+    const surveys = response.list || response || []
+    
+    // 转换数据格式以适配现有模板
+    pendingList.value = surveys.map(survey => ({
+      id: survey.id,
+      title: survey.title,
+      description: survey.description,
+      submitterName: survey.author || survey.authorName || '未知',
+      submitterEmail: '',
+      submitterAvatar: `https://api.dicebear.com/7.x/initials/svg?seed=${survey.author || 'User'}`,
+      submittedAt: survey.createdAt || survey.updatedAt,
+      priority: 'medium', // json-server 数据中没有优先级字段，设置默认值
+      category: survey.category || '',
+      questionCount: survey.questions || survey.questionList?.length || 0,
+      questions: survey.questionList || []
+    }))
+  } catch (error) {
+    ElMessage.error('加载待审核问卷失败：' + error.message)
+    pendingList.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
 onMounted(() => {
-  loading.value = false
+  loadPendingQuestionnaires()
 })
 </script>
 

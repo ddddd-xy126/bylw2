@@ -55,7 +55,7 @@ import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/user";
 import { login as loginAuth, register as registerAuth } from "@/api/auth";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -84,6 +84,9 @@ const submitLogin = async () => {
     
     ElMessage.success('登录成功！');
     
+    // 检查是否有被退回的问卷
+    await checkRejectedSurveys(user);
+    
     // redirect admin to admin dashboard, others to home
     if (user?.role === "admin") {
       router.push("/admin/dashboard");
@@ -95,6 +98,63 @@ const submitLogin = async () => {
     ElMessage.error(error.message || '登录失败，请重试');
   } finally {
     loginLoading.value = false;
+  }
+};
+
+// 检查被退回的问卷
+const checkRejectedSurveys = async (user) => {
+  if (!user || user.role === 'admin') return;
+  
+  try {
+    const response = await fetch('http://localhost:3002/surveys');
+    if (!response.ok) return;
+    
+    const allSurveys = await response.json();
+    const userId = user.id;
+    
+    // 筛选当前用户被退回的问卷
+    const rejectedSurveys = allSurveys.filter(s => 
+      (s.userId === userId || s.authorId === userId) && 
+      s.status === 'rejected'
+    );
+    
+    // 如果有被退回的问卷，显示提醒
+    if (rejectedSurveys.length > 0) {
+      const messageContent = rejectedSurveys.map((survey, index) => {
+        return `<div style="margin-bottom: 12px; padding: 10px; border-left: 3px solid #f56c6c; background: #fef0f0; border-radius: 4px;">
+          <div style="font-weight: 600; margin-bottom: 6px; color: #f56c6c;">
+            ${index + 1}. ${survey.title}
+          </div>
+          <div style="font-size: 14px; color: #606266;">
+            退回原因: ${survey.rejectedReason || '未提供原因'}
+          </div>
+          <div style="font-size: 12px; color: #909399; margin-top: 4px;">
+            退回时间: ${new Date(survey.rejectedAt || survey.updatedAt).toLocaleString('zh-CN')}
+          </div>
+        </div>`;
+      }).join('');
+      
+      setTimeout(() => {
+        ElMessageBox({
+          title: `您有 ${rejectedSurveys.length} 个问卷被退回`,
+          message: messageContent,
+          dangerouslyUseHTMLString: true,
+          confirmButtonText: '前往查看',
+          cancelButtonText: '稍后处理',
+          showCancelButton: true,
+          type: 'warning',
+          customStyle: {
+            width: '550px'
+          }
+        }).then(() => {
+          router.push('/profile/created');
+        }).catch(() => {
+          // 用户点击稍后处理
+        });
+      }, 500);
+    }
+  } catch (error) {
+    console.error('检查被退回问卷失败:', error);
   }
 };
 

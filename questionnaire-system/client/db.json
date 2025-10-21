@@ -708,9 +708,9 @@
         "showProgress": true,
         "randomOrder": false
       },
-      "status": "pending",
+      "status": "published",
       "createdAt": "2025-10-20T08:20:57.112Z",
-      "updatedAt": "2025-10-21T05:52:47.364Z",
+      "updatedAt": "2025-10-21T06:27:11.862Z",
       "userId": "ec9c",
       "authorName": "123",
       "creatorId": "ec9c",
@@ -996,7 +996,7 @@
     },
     {
       "id": "1761025276907",
-      "title": "额为全额全额",
+      "title": "额为全额全额aa",
       "description": "e委屈恶气呃",
       "category": "product",
       "duration": 10,
@@ -1009,9 +1009,9 @@
         "showProgress": true,
         "randomOrder": false
       },
-      "status": "pending",
+      "status": "rejected",
       "createdAt": "2025-10-21T05:41:16.919Z",
-      "updatedAt": "2025-10-21T05:52:58.459Z",
+      "updatedAt": "2025-10-21T07:02:18.860Z",
       "userId": "ec9c",
       "authorName": "123",
       "creatorId": "ec9c",
@@ -1169,7 +1169,9 @@
           "id": 1761025266819.131,
           "order": 8
         }
-      ]
+      ],
+      "rejectedReason": "a",
+      "rejectedAt": "2025-10-21T07:02:18.860Z"
     }
   ],
   "questions": [
@@ -2212,6 +2214,34 @@
       "requirement": 10,
       "type": "share_count",
       "points": 150
+    }
+  ],
+  "announcements": [
+    {
+      "id": "1",
+      "title": "系统维护通知",
+      "content": "系统将于本周六凌晨2:00-4:00进行维护升级，届时将暂时无法访问，请各位用户提前安排好问卷填写时间。感谢您的理解与支持！",
+      "type": "info",
+      "priority": "high",
+      "publishedBy": "3",
+      "publishedByName": "系统管理员",
+      "publishedAt": "2025-01-20T10:00:00Z",
+      "isActive": false,
+      "expiresAt": "2025-01-27T00:00:00Z",
+      "views": 256
+    },
+    {
+      "id": "2",
+      "title": "新功能上线公告",
+      "content": "我们很高兴地宣布，问卷系统新增了智能推荐功能！系统会根据您的兴趣和历史记录，为您推荐最适合的问卷。快来体验吧！",
+      "type": "success",
+      "priority": "medium",
+      "publishedBy": "3",
+      "publishedByName": "系统管理员",
+      "publishedAt": "2025-01-18T14:30:00Z",
+      "isActive": true,
+      "expiresAt": null,
+      "views": 532
     }
   ]
 }

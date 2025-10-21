@@ -12,6 +12,7 @@ import DistributionPage from "@/views/backend/admin/components/statistics/Distri
 import QuestionManagePage from "@/views/backend/admin/components/questions/QuestionManagePage.vue";
 import QuestionnaireListPage from "@/views/backend/admin/components/questionnaires/QuestionnaireListPage.vue";
 import PendingQuestionnairesPage from "@/views/backend/admin/components/questionnaires/PendingQuestionnairesPage.vue";
+import AnnouncementManagePage from "@/views/backend/admin/components/announcements/AnnouncementManagePage.vue";
 import AdminProfilePage from "@/views/backend/admin/components/profile/AdminProfilePage.vue";
 
 export default [
@@ -33,6 +34,7 @@ export default [
       { path: "questions", component: QuestionManagePage },
       { path: "questionnaires/list", component: QuestionnaireListPage },
       { path: "questionnaires/pending", component: PendingQuestionnairesPage },
+      { path: "announcements", component: AnnouncementManagePage },
       { path: "profile", component: AdminProfilePage },
       { path: "statistics/completion", component: CompletionPage },
       { path: "statistics/distribution", component: DistributionPage },

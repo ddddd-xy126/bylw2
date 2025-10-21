@@ -46,6 +46,13 @@
         </nav>
       </div>
       <div class="header-right">
+        <!-- 公告通知图标 -->
+        <el-badge v-if="isAuthed" :value="unreadAnnouncementCount" :hidden="!unreadAnnouncementCount" class="notification-badge">
+          <el-button circle @click="showAnnouncements" type="info" size="default">
+            <el-icon><Bell /></el-icon>
+          </el-button>
+        </el-badge>
+        
         <router-link v-if="!isAuthed" to="/login">登录</router-link>
 
         <el-dropdown v-if="isAuthed" @command="handleCommand" class="user-dropdown">
@@ -81,17 +88,19 @@
 </template>
 
 <script setup>
-import { ref, computed, provide, watch } from "vue";
+import { ref, computed, provide, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/store/user";
 import { useDataStore } from "@/store/data";
-import { useRoute } from "vue-router";
-import { User, ArrowDown, SwitchButton, Search } from "@element-plus/icons-vue";
+import { useRoute, useRouter } from "vue-router";
+import { User, ArrowDown, SwitchButton, Search, Bell } from "@element-plus/icons-vue";
+import { ElNotification, ElMessageBox } from "element-plus";
 
 const userStore = useUserStore();
 const dataStore = useDataStore();
 const { profile, token } = storeToRefs(userStore);
 const route = useRoute();
+const router = useRouter();
 
 // 搜索和筛选状态
 const searchQuery = ref("");
@@ -100,6 +109,10 @@ const showSearchBar = computed(() => route.path === '/home');
 
 // 从 dataStore 获取分类列表
 const categories = computed(() => dataStore.categories || []);
+
+// 公告相关
+const announcements = ref([]);
+const unreadAnnouncementCount = ref(0);
 
 // 提供给子组件
 provide('headerSearch', {
@@ -117,8 +130,6 @@ function handleCategoryChange() {
   // 分类变化会通过 provide/inject 传递给 HomePage
 }
 
-import { useRouter } from "vue-router";
-
 const isAuthed = computed(() => !!token.value);
 const nickname = computed(() => profile.value?.nickname);
 const userAvatar = computed(() => {
@@ -133,7 +144,97 @@ const generateAvatarUrl = (name) => {
   return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=667eea,764ba2&fontSize=40`;
 };
 
-const router = useRouter();
+// 加载公告列表
+const loadAnnouncements = async () => {
+  if (!isAuthed.value) return;
+  
+  try {
+    const response = await fetch('http://localhost:3002/announcements?isActive=true&_sort=publishedAt&_order=desc');
+    if (!response.ok) return;
+    
+    const data = await response.json();
+    announcements.value = data;
+    
+    // 从localStorage获取已读公告ID列表
+    const readAnnouncementsStr = localStorage.getItem('readAnnouncements') || '[]';
+    const readAnnouncements = JSON.parse(readAnnouncementsStr);
+    
+    // 计算未读公告数量
+    const unreadCount = data.filter(a => !readAnnouncements.includes(a.id)).length;
+    unreadAnnouncementCount.value = unreadCount;
+  } catch (error) {
+    console.error('加载公告失败:', error);
+  }
+};
+
+// 显示公告列表
+const showAnnouncements = () => {
+  if (announcements.value.length === 0) {
+    ElNotification({
+      title: '暂无公告',
+      message: '当前没有新的系统公告',
+      type: 'info',
+      duration: 3000
+    });
+    return;
+  }
+  
+  // 构建公告HTML内容
+  const announcementHtml = announcements.value.map((announcement, index) => {
+    const typeIcon = {
+      info: 'ℹ️',
+      success: '✅',
+      warning: '⚠️',
+      error: '❌'
+    }[announcement.type] || 'ℹ️';
+    
+    return `
+      <div style="margin-bottom: 16px; padding: 12px; border-left: 3px solid ${getAnnouncementColor(announcement.type)}; background: #f5f7fa; border-radius: 4px;">
+        <div style="font-weight: 600; margin-bottom: 8px; color: #303133;">
+          ${typeIcon} ${announcement.title}
+        </div>
+        <div style="font-size: 14px; color: #606266; line-height: 1.6; margin-bottom: 8px;">
+          ${announcement.content}
+        </div>
+        <div style="font-size: 12px; color: #909399;">
+          发布时间: ${new Date(announcement.publishedAt).toLocaleString('zh-CN')}
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  ElMessageBox({
+    title: '系统公告',
+    message: announcementHtml,
+    dangerouslyUseHTMLString: true,
+    confirmButtonText: '知道了',
+    customStyle: {
+      width: '600px'
+    },
+    callback: () => {
+      // 标记所有公告为已读
+      const readAnnouncements = announcements.value.map(a => a.id);
+      localStorage.setItem('readAnnouncements', JSON.stringify(readAnnouncements));
+      unreadAnnouncementCount.value = 0;
+    }
+  });
+};
+
+// 获取公告类型对应的颜色
+const getAnnouncementColor = (type) => {
+  const colorMap = {
+    info: '#409EFF',
+    success: '#67C23A',
+    warning: '#E6A23C',
+    error: '#F56C6C'
+  };
+  return colorMap[type] || '#409EFF';
+};
+
+// 检查被退回的问卷(移除自动通知,只在登录页面提醒)
+const checkRejectedSurveys = async () => {
+  // 此函数已不再需要,退回提醒将在登录页面处理
+};
 
 function logout() {
   // 判断当前用户是否是管理员
@@ -154,6 +255,23 @@ function handleCommand(command) {
     logout();
   }
 }
+
+// 监听用户登录状态变化
+watch(isAuthed, (newVal) => {
+  if (newVal) {
+    loadAnnouncements();
+  } else {
+    announcements.value = [];
+    unreadAnnouncementCount.value = 0;
+  }
+});
+
+// 组件挂载时检查
+onMounted(() => {
+  if (isAuthed.value) {
+    loadAnnouncements();
+  }
+});
 </script>
 
 <style scoped>
@@ -304,6 +422,15 @@ function handleCommand(command) {
   display: flex;
   gap: 16px;
   align-items: center;
+}
+
+.notification-badge {
+  margin-right: 8px;
+}
+
+.notification-badge :deep(.el-badge__content) {
+  background-color: #f56c6c;
+  border: 2px solid #fff;
 }
 
 .header-right a {
