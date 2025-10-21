@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useUserStore } from "@/store/user";
 
+// 使用 json-server 作为后端 API
 const instance = axios.create({ 
   baseURL: "http://localhost:3002",
   timeout: 10000 

@@ -124,11 +124,11 @@
               <div class="card-stats">
                 <span class="stat-item">
                   <el-icon><View /></el-icon>
-                  {{ questionnaire.viewCount }}
+                  {{ questionnaire.participants || questionnaire.participantCount || 0 }}
                 </span>
                 <span class="stat-item">
                   <el-icon><EditPen /></el-icon>
-                  {{ questionnaire.responseCount }}
+                  {{ questionnaire.responseCount || questionnaire.responses || 0 }}
                 </span>
               </div>
               <div class="card-meta">
@@ -172,12 +172,21 @@
 
           <el-table-column prop="category" label="分类" width="120">
             <template #default="{row}">
-              <el-tag type="info" size="small">{{ getCategoryText(row.category) }}</el-tag>
+              <el-tag type="info" size="small">{{ row.category || '未分类' }}</el-tag>
             </template>
           </el-table-column>
 
-          <el-table-column prop="viewCount" label="浏览量" width="100" />
-          <el-table-column prop="responseCount" label="回答数" width="100" />
+          <el-table-column prop="participants" label="参与人数" width="100">
+            <template #default="{row}">
+              {{ row.participants || row.participantCount || 0 }}
+            </template>
+          </el-table-column>
+          
+          <el-table-column prop="responseCount" label="回答数" width="100">
+            <template #default="{row}">
+              {{ row.responseCount || row.responses || 0 }}
+            </template>
+          </el-table-column>
 
           <el-table-column prop="createdAt" label="创建时间" width="180">
             <template #default="{row}">
@@ -251,6 +260,7 @@ import {
   View,
   EditPen
 } from '@element-plus/icons-vue'
+import { getSurveysApi, deleteAdminSurveyApi, updateSurveyStatusApi } from '@/api/admin'
 
 const router = useRouter()
 
@@ -264,64 +274,8 @@ const currentPage = ref(1)
 const pageSize = ref(20)
 const selectedItems = ref([])
 
-// 假数据
-const questionnaireList = ref([
-  {
-    id: 1,
-    title: '用户满意度调查问卷',
-    description: '针对我们产品的用户满意度进行调研，了解用户需求和改进方向',
-    status: 'published',
-    category: 'satisfaction',
-    viewCount: 1234,
-    responseCount: 89,
-    createdAt: '2024-01-15T10:30:00',
-    updatedAt: '2024-01-16T14:20:00'
-  },
-  {
-    id: 2,
-    title: '市场调研问卷',
-    description: '了解目标市场的需求和竞争情况',
-    status: 'draft',
-    category: 'market',
-    viewCount: 567,
-    responseCount: 23,
-    createdAt: '2024-01-14T09:15:00',
-    updatedAt: '2024-01-14T16:45:00'
-  },
-  {
-    id: 3,
-    title: '产品功能反馈调查',
-    description: '收集用户对新功能的使用反馈和建议',
-    status: 'published',
-    category: 'feedback',
-    viewCount: 890,
-    responseCount: 156,
-    createdAt: '2024-01-13T14:20:00',
-    updatedAt: '2024-01-15T11:30:00'
-  },
-  {
-    id: 4,
-    title: '学术研究调查',
-    description: '关于消费者行为的学术研究调查',
-    status: 'stopped',
-    category: 'academic',
-    viewCount: 456,
-    responseCount: 78,
-    createdAt: '2024-01-12T16:45:00',
-    updatedAt: '2024-01-13T10:15:00'
-  },
-  {
-    id: 5,
-    title: '员工满意度调查',
-    description: '了解员工对工作环境和福利待遇的满意度',
-    status: 'published',
-    category: 'satisfaction',
-    viewCount: 234,
-    responseCount: 45,
-    createdAt: '2024-01-11T11:30:00',
-    updatedAt: '2024-01-12T09:20:00'
-  }
-])
+// 从 json-server 获取的问卷列表
+const questionnaireList = ref([])
 
 // 计算属性
 const filteredList = computed(() => {
@@ -332,7 +286,7 @@ const filteredList = computed(() => {
     const keyword = searchKeyword.value.toLowerCase()
     list = list.filter(item => 
       item.title.toLowerCase().includes(keyword) ||
-      item.description.toLowerCase().includes(keyword)
+      (item.description && item.description.toLowerCase().includes(keyword))
     )
   }
 
@@ -389,8 +343,10 @@ const handleSelectionChange = (val) => {
 const getStatusType = (status) => {
   const statusMap = {
     draft: 'info',
+    pending: 'warning',
     published: 'success',
-    stopped: 'danger'
+    stopped: 'danger',
+    active: 'success'
   }
   return statusMap[status] || 'info'
 }
@@ -398,8 +354,10 @@ const getStatusType = (status) => {
 const getStatusText = (status) => {
   const statusMap = {
     draft: '草稿',
+    pending: '待审核',
     published: '已发布',
-    stopped: '已停止'
+    stopped: '已停止',
+    active: '进行中'
   }
   return statusMap[status] || '未知'
 }
@@ -446,7 +404,7 @@ const viewStatistics = (id) => {
   // router.push(`/admin/questionnaires/${id}/statistics`)
 }
 
-const offlineQuestionnaire = (id) => {
+const offlineQuestionnaire = async (id) => {
   ElMessageBox.confirm(
     '确定要下架这个问卷吗？下架后用户将无法访问。',
     '确认下架',
@@ -455,20 +413,21 @@ const offlineQuestionnaire = (id) => {
       cancelButtonText: '取消',
       type: 'warning',
     }
-  ).then(() => {
-    // 这里应该调用下架API
-    ElMessage.success('下架成功')
-    // 更新状态
-    const questionnaire = questionnaireList.value.find(item => item.id === id)
-    if (questionnaire) {
-      questionnaire.status = 'stopped'
+  ).then(async () => {
+    try {
+      await updateSurveyStatusApi(id, 'stopped')
+      ElMessage.success('下架成功')
+      // 重新加载数据
+      await loadQuestionnaires()
+    } catch (error) {
+      ElMessage.error('下架失败：' + error.message)
     }
   }).catch(() => {
     ElMessage.info('已取消下架')
   })
 }
 
-const onlineQuestionnaire = (id) => {
+const onlineQuestionnaire = async (id) => {
   ElMessageBox.confirm(
     '确定要重新上架这个问卷吗？上架后用户可以正常访问。',
     '确认上架',
@@ -477,20 +436,21 @@ const onlineQuestionnaire = (id) => {
       cancelButtonText: '取消',
       type: 'success',
     }
-  ).then(() => {
-    // 这里应该调用上架API
-    ElMessage.success('上架成功')
-    // 更新状态
-    const questionnaire = questionnaireList.value.find(item => item.id === id)
-    if (questionnaire) {
-      questionnaire.status = 'published'
+  ).then(async () => {
+    try {
+      await updateSurveyStatusApi(id, 'published')
+      ElMessage.success('上架成功')
+      // 重新加载数据
+      await loadQuestionnaires()
+    } catch (error) {
+      ElMessage.error('上架失败：' + error.message)
     }
   }).catch(() => {
     ElMessage.info('已取消上架')
   })
 }
 
-const deleteQuestionnaire = (id) => {
+const deleteQuestionnaire = async (id) => {
   ElMessageBox.confirm(
     '确定要删除这个问卷吗？删除后将无法恢复。',
     '确认删除',
@@ -499,13 +459,14 @@ const deleteQuestionnaire = (id) => {
       cancelButtonText: '取消',
       type: 'warning',
     }
-  ).then(() => {
-    // 这里应该调用删除API
-    ElMessage.success('删除成功')
-    // 从列表中移除
-    const index = questionnaireList.value.findIndex(item => item.id === id)
-    if (index > -1) {
-      questionnaireList.value.splice(index, 1)
+  ).then(async () => {
+    try {
+      await deleteAdminSurveyApi(id)
+      ElMessage.success('删除成功')
+      // 重新加载数据
+      await loadQuestionnaires()
+    } catch (error) {
+      ElMessage.error('删除失败：' + error.message)
     }
   }).catch(() => {
     ElMessage.info('已取消删除')
@@ -538,9 +499,23 @@ const handleAction = (command, questionnaire) => {
   }
 }
 
+// 加载问卷列表
+const loadQuestionnaires = async () => {
+  loading.value = true
+  try {
+    const response = await getSurveysApi()
+    questionnaireList.value = response.list || response || []
+  } catch (error) {
+    ElMessage.error('加载问卷列表失败：' + error.message)
+    questionnaireList.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
 onMounted(() => {
-  // 初始化数据
-  loading.value = false
+  // 从 json-server 加载数据
+  loadQuestionnaires()
 })
 </script>
 
