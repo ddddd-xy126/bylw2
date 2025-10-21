@@ -7,7 +7,7 @@
         <p>管理问卷题目库，创建和编辑题目模板</p>
       </div>
       <div class="header-actions">
-        <el-button type="primary" @click="createQuestion">
+        <el-button type="primary" @click="showCreateDialog">
           <el-icon><Plus /></el-icon>
           创建题目
         </el-button>
@@ -56,7 +56,6 @@
             <el-option label="多选题" value="multiple" />
             <el-option label="填空题" value="text" />
             <el-option label="评分题" value="rating" />
-            <el-option label="矩阵题" value="matrix" />
           </el-select>
 
           <el-select v-model="filterCategory" placeholder="题目分类" style="width: 140px" @change="handleFilter">
@@ -75,10 +74,6 @@
               <el-icon><Delete /></el-icon>
               批量删除
             </el-button>
-            <el-button @click="batchExport" :disabled="!selectedItems.length">
-              <el-icon><Download /></el-icon>
-              批量导出
-            </el-button>
           </el-button-group>
           <el-button @click="resetFilters">重置筛选</el-button>
         </div>
@@ -87,193 +82,107 @@
 
     <!-- 题目列表 -->
     <el-card class="list-card" shadow="never">
-      <div class="list-header">
-        <div class="list-info">
-          <span>共 {{ total }} 个题目</span>
-        </div>
-        <div class="list-actions">
-          <el-button-group>
-            <el-button 
-              :type="viewMode === 'card' ? 'primary' : ''" 
-              @click="viewMode = 'card'"
-              size="small"
-            >
-              <el-icon><Grid /></el-icon>
-            </el-button>
-            <el-button 
-              :type="viewMode === 'table' ? 'primary' : ''" 
-              @click="viewMode = 'table'"
-              size="small"
-            >
-              <el-icon><List /></el-icon>
-            </el-button>
-          </el-button-group>
-        </div>
-      </div>
-
-      <!-- 卡片视图 -->
-      <div v-if="viewMode === 'card'" class="card-view" v-loading="loading">
-        <div class="question-grid">
-          <div 
-            v-for="question in paginatedList"
-            :key="question.id"
-            class="question-card"
-            @click="viewQuestion(question.id)"
-          >
-            <div class="card-header">
-              <div class="card-badges">
-                <el-tag 
-                  :type="getTypeTagType(question.type)" 
-                  size="small"
-                >
-                  {{ getTypeText(question.type) }}
+      <el-table 
+        :data="paginatedList" 
+        v-loading="loading"
+        @selection-change="handleSelectionChange"
+        row-key="id"
+      >
+        <el-table-column type="selection" width="55" />
+        
+        <el-table-column prop="title" label="题目内容" min-width="250">
+          <template #default="{row}">
+            <div class="title-cell">
+              <div class="title-text" @click="previewQuestion(row)">{{ row.title }}</div>
+              <div class="title-tags">
+                <el-tag :type="getTypeTagType(row.type)" size="small">
+                  {{ getTypeText(row.type) }}
                 </el-tag>
-                <el-tag 
-                  type="info" 
-                  size="small"
-                >
-                  {{ getCategoryText(question.category) }}
-                </el-tag>
-              </div>
-              <div class="card-actions">
-                <el-dropdown @command="(command) => handleAction(command, question)">
-                  <el-button type="text" size="small">
-                    <el-icon><MoreFilled /></el-icon>
-                  </el-button>
-                  <template #dropdown>
-                    <el-dropdown-menu>
-                      <el-dropdown-item command="edit">编辑</el-dropdown-item>
-                      <el-dropdown-item command="preview">预览</el-dropdown-item>
-                      <el-dropdown-item command="copy">复制</el-dropdown-item>
-                      <el-dropdown-item command="template">保存为模板</el-dropdown-item>
-                      <el-dropdown-item divided command="delete">删除</el-dropdown-item>
-                    </el-dropdown-menu>
-                  </template>
-                </el-dropdown>
+                <el-tag type="info" size="small">{{ getCategoryText(row.category) }}</el-tag>
+                <el-tag v-if="row.required" type="danger" size="small">必填</el-tag>
+                <el-tag v-if="row.isTemplate" type="success" size="small">模板</el-tag>
               </div>
             </div>
+          </template>
+        </el-table-column>
 
-            <div class="card-content">
-              <h3 class="question-title">{{ question.title }}</h3>
-              <div class="question-preview" v-if="question.options && question.options.length">
-                <div class="option-preview">
-                  <span v-for="(option, index) in question.options.slice(0, 3)" :key="index" class="option-item">
-                    {{ option.text }}
-                  </span>
-                  <span v-if="question.options.length > 3" class="more-options">
-                    +{{ question.options.length - 3 }} 更多
-                  </span>
-                </div>
-              </div>
-              <div v-else-if="question.type === 'text'" class="question-preview">
-                <el-input placeholder="文本输入框预览" disabled size="small" />
-              </div>
-              <div v-else-if="question.type === 'rating'" class="question-preview">
-                <el-rate disabled :max="question.maxRating || 5" />
-              </div>
+        <el-table-column prop="options" label="选项/配置" width="200">
+          <template #default="{row}">
+            <div v-if="row.options && row.options.length" class="options-preview">
+              <span v-for="(opt, idx) in row.options.slice(0, 3)" :key="idx" class="option-tag">
+                {{ opt.text }}
+              </span>
+              <span v-if="row.options.length > 3" class="more-tag">+{{ row.options.length - 3 }}</span>
             </div>
+            <span v-else-if="row.type === 'text'" class="text-preview">
+              {{ row.minLength || 0 }}-{{ row.maxLength || '不限' }}字
+            </span>
+            <span v-else-if="row.type === 'rating'" class="rating-preview">
+              评分 (1-{{ row.maxRating || 5 }})
+            </span>
+          </template>
+        </el-table-column>
 
-            <div class="card-footer">
-              <div class="card-stats">
-                <span class="stat-item">
-                  <el-icon><View /></el-icon>
-                  {{ question.usageCount || 0 }}
-                </span>
-                <span class="stat-item" v-if="question.isTemplate">
-                  <el-icon><Star /></el-icon>
-                  模板
-                </span>
-              </div>
-              <div class="card-meta">
-                <span class="meta-date">{{ formatDate(question.createdAt) }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <el-table-column prop="permission" label="答题权限" width="120">
+          <template #default="{row}">
+            <el-tag size="small" :type="getPermissionTagType(row.permission)">
+              {{ getPermissionText(row.permission) }}
+            </el-tag>
+          </template>
+        </el-table-column>
 
-        <!-- 空状态 -->
-        <el-empty v-if="!paginatedList.length && !loading" description="暂无题目数据">
-          <el-button type="primary" @click="createQuestion">创建第一个题目</el-button>
-        </el-empty>
-      </div>
+        <el-table-column prop="enableLogic" label="跳转逻辑" width="100">
+          <template #default="{row}">
+            <el-tag v-if="row.enableLogic" type="warning" size="small">已启用</el-tag>
+            <el-tag v-else type="info" size="small">未启用</el-tag>
+          </template>
+        </el-table-column>
 
-      <!-- 表格视图 -->
-      <div v-if="viewMode === 'table'" class="table-view">
-        <el-table 
-          :data="paginatedList" 
-          v-loading="loading"
-          @selection-change="handleSelectionChange"
-          row-key="id"
-        >
-          <el-table-column type="selection" width="55" />
-          
-          <el-table-column prop="title" label="题目内容" min-width="250">
-            <template #default="{row}">
-              <div class="title-cell">
-                <span class="title-text" @click="viewQuestion(row.id)">{{ row.title }}</span>
-                <div class="title-tags">
-                  <el-tag :type="getTypeTagType(row.type)" size="small">
-                    {{ getTypeText(row.type) }}
-                  </el-tag>
-                  <el-tag type="info" size="small">{{ getCategoryText(row.category) }}</el-tag>
-                  <el-tag v-if="row.isTemplate" type="warning" size="small">模板</el-tag>
-                </div>
-              </div>
-            </template>
-          </el-table-column>
+        <el-table-column prop="usageCount" label="使用次数" width="100">
+          <template #default="{row}">
+            <el-tag type="info" size="small">{{ row.usageCount || 0 }}</el-tag>
+          </template>
+        </el-table-column>
 
-          <el-table-column prop="options" label="选项预览" width="200">
-            <template #default="{row}">
-              <div v-if="row.options && row.options.length" class="options-preview">
-                <span v-for="(option, index) in row.options.slice(0, 2)" :key="index" class="option-tag">
-                  {{ option.text }}
-                </span>
-                <span v-if="row.options.length > 2" class="more-tag">
-                  +{{ row.options.length - 2 }}
-                </span>
-              </div>
-              <span v-else-if="row.type === 'text'" class="text-preview">文本输入</span>
-              <span v-else-if="row.type === 'rating'" class="rating-preview">评分 (1-{{ row.maxRating || 5 }})</span>
-            </template>
-          </el-table-column>
+        <el-table-column prop="createdAt" label="创建时间" width="180">
+          <template #default="{row}">
+            {{ formatDateTime(row.createdAt) }}
+          </template>
+        </el-table-column>
 
-          <el-table-column prop="usageCount" label="使用次数" width="100">
-            <template #default="{row}">
-              <el-tag type="info" size="small">{{ row.usageCount || 0 }}</el-tag>
-            </template>
-          </el-table-column>
+        <el-table-column label="操作" width="240" fixed="right">
+          <template #default="{row}">
+            <el-button type="text" size="small" @click="previewQuestion(row)">
+              <el-icon><View /></el-icon>
+              预览
+            </el-button>
+            <el-button type="text" size="small" @click="editQuestion(row)">
+              <el-icon><Edit /></el-icon>
+              编辑
+            </el-button>
+            <el-button type="text" size="small" @click="copyQuestion(row)">
+              <el-icon><CopyDocument /></el-icon>
+              复制
+            </el-button>
+            <el-button type="text" size="small" @click="deleteQuestion(row.id)" class="danger-btn">
+              <el-icon><Delete /></el-icon>
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
 
-          <el-table-column prop="createdAt" label="创建时间" width="180">
-            <template #default="{row}">
-              {{ formatDateTime(row.createdAt) }}
-            </template>
-          </el-table-column>
-
-          <el-table-column label="操作" width="220" fixed="right">
-            <template #default="{row}">
-              <el-button type="text" size="small" @click="editQuestion(row.id)">
-                编辑
-              </el-button>
-              <el-button type="text" size="small" @click="previewQuestion(row)">
-                预览
-              </el-button>
-              <el-button type="text" size="small" @click="copyQuestion(row.id)">
-                复制
-              </el-button>
-              <el-button type="text" size="small" @click="deleteQuestion(row.id)" class="danger-btn">
-                删除
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
+      <!-- 空状态 -->
+      <el-empty v-if="!paginatedList.length && !loading" description="暂无题目数据">
+        <el-button type="primary" @click="showCreateDialog">创建第一个题目</el-button>
+      </el-empty>
 
       <!-- 分页 -->
       <div class="pagination-wrapper" v-if="total > 0">
         <el-pagination
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
-          :page-sizes="[12, 24, 48, 96]"
+          :page-sizes="[10, 20, 50]"
           :total="filteredList.length"
           layout="total, sizes, prev, pager, next, jumper"
           @size-change="handleSizeChange"
@@ -296,6 +205,10 @@
               {{ getTypeText(currentQuestion.type) }}
             </el-tag>
             <el-tag type="info">{{ getCategoryText(currentQuestion.category) }}</el-tag>
+            <el-tag v-if="currentQuestion.required" type="danger">必填</el-tag>
+          </div>
+          <div class="preview-description" v-if="currentQuestion.description">
+            <p>{{ currentQuestion.description }}</p>
           </div>
         </div>
         
@@ -332,7 +245,7 @@
               type="textarea" 
               :rows="3"
               disabled 
-              placeholder="请输入您的答案"
+              :placeholder="`请输入您的答案 (${currentQuestion.minLength || 0}-${currentQuestion.maxLength || '不限'}字)`"
             />
           </div>
           
@@ -340,6 +253,29 @@
           <div v-else-if="currentQuestion.type === 'rating'" class="question-preview-content">
             <el-rate disabled :max="currentQuestion.maxRating || 5" />
           </div>
+        </div>
+
+        <!-- 跳转逻辑显示 -->
+        <div v-if="currentQuestion.enableLogic && currentQuestion.logicRules?.length" class="preview-logic">
+          <el-divider content-position="left">跳转逻辑</el-divider>
+          <div v-for="(rule, idx) in currentQuestion.logicRules" :key="idx" class="logic-display">
+            <el-tag type="primary" size="small">
+              选择"{{ getOptionText(currentQuestion.options, rule.optionId) }}"
+            </el-tag>
+            <span class="logic-arrow">→</span>
+            <el-tag type="success" size="small">跳转到第{{ rule.targetQuestion }}题</el-tag>
+          </div>
+        </div>
+
+        <!-- 权限信息 -->
+        <div class="preview-permission">
+          <el-divider content-position="left">答题权限</el-divider>
+          <el-tag :type="getPermissionTagType(currentQuestion.permission)">
+            {{ getPermissionText(currentQuestion.permission) }}
+          </el-tag>
+          <span v-if="currentQuestion.permission === 'custom'" class="permission-detail">
+            (最低等级: Lv.{{ currentQuestion.minLevel }})
+          </span>
         </div>
       </div>
       
@@ -352,43 +288,259 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- 创建/编辑题目对话框 -->
+    <el-dialog
+      v-model="questionDialogVisible"
+      :title="isEditing ? '编辑题目' : '创建题目'"
+      width="800px"
+      :close-on-click-modal="false"
+    >
+      <el-form :model="questionForm" :rules="questionRules" ref="questionFormRef" label-width="120px">
+        <!-- 基本信息 -->
+        <el-divider content-position="left">基本信息</el-divider>
+        
+        <el-form-item label="题目类型" prop="type">
+          <el-select v-model="questionForm.type" placeholder="请选择题目类型" @change="handleTypeChange">
+            <el-option label="单选题" value="single" />
+            <el-option label="多选题" value="multiple" />
+            <el-option label="填空题" value="text" />
+            <el-option label="评分题" value="rating" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="题目内容" prop="title">
+          <el-input
+            v-model="questionForm.title"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入题目内容"
+          />
+        </el-form-item>
+
+        <el-form-item label="题目分类" prop="category">
+          <el-select v-model="questionForm.category" placeholder="请选择分类">
+            <el-option label="满意度" value="satisfaction" />
+            <el-option label="基本信息" value="basic" />
+            <el-option label="偏好调查" value="preference" />
+            <el-option label="行为分析" value="behavior" />
+            <el-option label="其他" value="other" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="是否必填">
+          <el-switch v-model="questionForm.required" />
+        </el-form-item>
+
+        <!-- 选项配置 (单选/多选) -->
+        <template v-if="questionForm.type === 'single' || questionForm.type === 'multiple'">
+          <el-divider content-position="left">选项配置</el-divider>
+          
+          <el-form-item label="题目选项">
+            <div class="options-container">
+              <div 
+                v-for="(option, index) in questionForm.options" 
+                :key="index"
+                class="option-item"
+              >
+                <el-input 
+                  v-model="option.text" 
+                  placeholder="请输入选项内容"
+                  style="flex: 1;"
+                />
+                <el-button 
+                  type="danger" 
+                  :icon="Delete" 
+                  circle
+                  @click="removeOption(index)"
+                  :disabled="questionForm.options.length <= 2"
+                />
+              </div>
+              <el-button type="primary" @click="addOption" style="width: 100%;">
+                <el-icon><Plus /></el-icon>
+                添加选项
+              </el-button>
+            </div>
+          </el-form-item>
+
+          <!-- 跳转逻辑配置 -->
+          <el-divider content-position="left">跳转逻辑</el-divider>
+          
+          <el-form-item label="启用跳转逻辑">
+            <el-switch v-model="questionForm.enableLogic" />
+            <span class="form-tip">根据用户选择的选项跳转到不同题目</span>
+          </el-form-item>
+
+          <template v-if="questionForm.enableLogic">
+            <el-form-item label="跳转规则">
+              <div class="logic-container">
+                <div 
+                  v-for="(rule, index) in questionForm.logicRules" 
+                  :key="index"
+                  class="logic-rule"
+                >
+                  <el-select v-model="rule.optionId" placeholder="选择选项" style="width: 200px;">
+                    <el-option 
+                      v-for="opt in questionForm.options" 
+                      :key="opt.id"
+                      :label="opt.text"
+                      :value="opt.id"
+                    />
+                  </el-select>
+                  <span style="margin: 0 10px;">→ 跳转到</span>
+                  <el-input-number 
+                    v-model="rule.targetQuestion" 
+                    :min="1"
+                    placeholder="题号"
+                    style="width: 120px;"
+                  />
+                  <el-button 
+                    type="danger" 
+                    :icon="Delete" 
+                    circle
+                    @click="removeLogicRule(index)"
+                  />
+                </div>
+                <el-button type="primary" @click="addLogicRule" style="width: 100%;">
+                  <el-icon><Plus /></el-icon>
+                  添加跳转规则
+                </el-button>
+              </div>
+            </el-form-item>
+          </template>
+        </template>
+
+        <!-- 评分题配置 -->
+        <template v-if="questionForm.type === 'rating'">
+          <el-divider content-position="left">评分配置</el-divider>
+          
+          <el-form-item label="最高分值">
+            <el-input-number v-model="questionForm.maxRating" :min="1" :max="10" />
+          </el-form-item>
+        </template>
+
+        <!-- 填空题配置 -->
+        <template v-if="questionForm.type === 'text'">
+          <el-divider content-position="left">填空配置</el-divider>
+          
+          <el-form-item label="最小字数">
+            <el-input-number v-model="questionForm.minLength" :min="0" />
+          </el-form-item>
+
+          <el-form-item label="最大字数">
+            <el-input-number v-model="questionForm.maxLength" :min="0" />
+          </el-form-item>
+        </template>
+
+        <!-- 答题权限设置 -->
+        <el-divider content-position="left">答题权限</el-divider>
+        
+        <el-form-item label="权限设置">
+          <el-radio-group v-model="questionForm.permission">
+            <el-radio label="all">所有用户</el-radio>
+            <el-radio label="registered">仅注册用户</el-radio>
+            <el-radio label="vip">VIP用户</el-radio>
+            <el-radio label="custom">自定义</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
+        <el-form-item v-if="questionForm.permission === 'custom'" label="最低等级">
+          <el-input-number v-model="questionForm.minLevel" :min="1" :max="10" />
+          <span class="form-tip">只有达到指定等级的用户才能回答此题</span>
+        </el-form-item>
+
+        <!-- 其他设置 -->
+        <el-divider content-position="left">其他设置</el-divider>
+        
+        <el-form-item label="设为模板">
+          <el-switch v-model="questionForm.isTemplate" />
+          <span class="form-tip">模板题目可以被其他问卷快速引用</span>
+        </el-form-item>
+
+        <el-form-item label="题目标签">
+          <el-input v-model="questionForm.tags" placeholder="多个标签用逗号分隔" />
+        </el-form-item>
+
+        <el-form-item label="题目说明">
+          <el-input
+            v-model="questionForm.description"
+            type="textarea"
+            :rows="2"
+            placeholder="题目的补充说明(可选)"
+          />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="questionDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitQuestion" :loading="submitLoading">保存</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Plus,
   Upload,
   Search,
   Delete,
-  Download,
-  Grid,
-  List,
-  MoreFilled,
   View,
-  Star
+  Edit,
+  CopyDocument
 } from '@element-plus/icons-vue'
-import { listQuestionsApi, createQuestionApi, deleteQuestionApi } from '@/api/admin'
-
-const router = useRouter()
 
 // 响应式数据
 const loading = ref(false)
+const submitLoading = ref(false)
 const searchKeyword = ref('')
 const filterType = ref('')
 const filterCategory = ref('')
-const viewMode = ref('card')
 const currentPage = ref(1)
-const pageSize = ref(24)
+const pageSize = ref(20)
 const selectedItems = ref([])
 const previewDialogVisible = ref(false)
+const questionDialogVisible = ref(false)
+const isEditing = ref(false)
 const currentQuestion = ref(null)
+const questionFormRef = ref(null)
 
-// 从 json-server 获取的题目列表
+// 题目列表
 const questionList = ref([])
+
+// 题目表单
+const questionForm = reactive({
+  id: null,
+  type: 'single',
+  title: '',
+  category: '',
+  required: false,
+  options: [
+    { id: 'opt_1', text: '' },
+    { id: 'opt_2', text: '' }
+  ],
+  enableLogic: false,
+  logicRules: [],
+  maxRating: 5,
+  minLength: 0,
+  maxLength: 500,
+  permission: 'all',
+  minLevel: 1,
+  isTemplate: false,
+  tags: '',
+  description: ''
+})
+
+// 表单验证规则
+const questionRules = {
+  type: [{ required: true, message: '请选择题目类型', trigger: 'change' }],
+  title: [{ required: true, message: '请输入题目内容', trigger: 'blur' }],
+  category: [{ required: true, message: '请选择题目分类', trigger: 'change' }]
+}
 
 // 计算属性
 const filteredList = computed(() => {
@@ -462,8 +614,7 @@ const getTypeTagType = (type) => {
     single: 'primary',
     multiple: 'success',
     text: 'info',
-    rating: 'warning',
-    matrix: 'danger'
+    rating: 'warning'
   }
   return typeMap[type] || 'info'
 }
@@ -473,8 +624,7 @@ const getTypeText = (type) => {
     single: '单选题',
     multiple: '多选题',
     text: '填空题',
-    rating: '评分题',
-    matrix: '矩阵题'
+    rating: '评分题'
   }
   return typeMap[type] || '未知'
 }
@@ -490,123 +640,297 @@ const getCategoryText = (category) => {
   return categoryMap[category] || '其他'
 }
 
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('zh-CN')
+const getPermissionTagType = (permission) => {
+  const typeMap = {
+    all: 'success',
+    registered: 'primary',
+    vip: 'warning',
+    custom: 'danger'
+  }
+  return typeMap[permission] || 'info'
+}
+
+const getPermissionText = (permission) => {
+  const textMap = {
+    all: '所有用户',
+    registered: '注册用户',
+    vip: 'VIP用户',
+    custom: '自定义'
+  }
+  return textMap[permission] || '未知'
+}
+
+const getOptionText = (options, optionId) => {
+  const option = options?.find(opt => opt.id === optionId)
+  return option?.text || '未知选项'
 }
 
 const formatDateTime = (dateString) => {
   return new Date(dateString).toLocaleString('zh-CN')
 }
 
-const createQuestion = () => {
-  ElMessage.info('创建题目功能待实现')
+// 显示创建对话框
+const showCreateDialog = () => {
+  isEditing.value = false
+  resetQuestionForm()
+  questionDialogVisible.value = true
 }
 
-const importQuestions = () => {
-  ElMessage.info('批量导入功能待实现')
+// 重置表单
+const resetQuestionForm = () => {
+  Object.assign(questionForm, {
+    id: null,
+    type: 'single',
+    title: '',
+    category: '',
+    required: false,
+    options: [
+      { id: 'opt_1', text: '' },
+      { id: 'opt_2', text: '' }
+    ],
+    enableLogic: false,
+    logicRules: [],
+    maxRating: 5,
+    minLength: 0,
+    maxLength: 500,
+    permission: 'all',
+    minLevel: 1,
+    isTemplate: false,
+    tags: '',
+    description: ''
+  })
 }
 
-const viewQuestion = (id) => {
-  const question = questionList.value.find(q => q.id === id)
-  if (question) {
-    previewQuestion(question)
+// 题目类型改变
+const handleTypeChange = (type) => {
+  if (type === 'text' || type === 'rating') {
+    questionForm.options = []
+    questionForm.enableLogic = false
+    questionForm.logicRules = []
+  } else if (!questionForm.options.length) {
+    questionForm.options = [
+      { id: 'opt_1', text: '' },
+      { id: 'opt_2', text: '' }
+    ]
   }
 }
 
-const editQuestion = (id) => {
-  ElMessage.info(`编辑题目 ${id}`)
+// 添加选项
+const addOption = () => {
+  const newId = `opt_${questionForm.options.length + 1}`
+  questionForm.options.push({ id: newId, text: '' })
 }
 
+// 删除选项
+const removeOption = (index) => {
+  questionForm.options.splice(index, 1)
+}
+
+// 添加跳转规则
+const addLogicRule = () => {
+  questionForm.logicRules.push({
+    optionId: '',
+    targetQuestion: 1
+  })
+}
+
+// 删除跳转规则
+const removeLogicRule = (index) => {
+  questionForm.logicRules.splice(index, 1)
+}
+
+// 提交题目
+const submitQuestion = async () => {
+  if (!questionFormRef.value) return
+  
+  await questionFormRef.value.validate(async (valid) => {
+    if (!valid) return
+    
+    submitLoading.value = true
+    try {
+      const data = {
+        ...questionForm,
+        createdAt: questionForm.id ? questionForm.createdAt : new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        usageCount: questionForm.usageCount || 0
+      }
+      
+      if (isEditing.value) {
+        // 更新题目
+        const response = await fetch(`http://localhost:3002/questions/${questionForm.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        })
+        
+        if (!response.ok) {
+          throw new Error('更新题目失败')
+        }
+        
+        ElMessage.success('题目已更新')
+      } else {
+        // 创建新题目
+        const response = await fetch('http://localhost:3002/questions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        })
+        
+        if (!response.ok) {
+          throw new Error('创建题目失败')
+        }
+        
+        ElMessage.success('题目已创建')
+      }
+      
+      questionDialogVisible.value = false
+      await loadQuestions()
+    } catch (error) {
+      ElMessage.error('操作失败：' + error.message)
+    } finally {
+      submitLoading.value = false
+    }
+  })
+}
+
+// 编辑题目
+const editQuestion = (question) => {
+  isEditing.value = true
+  Object.assign(questionForm, {
+    ...question,
+    options: question.options || [],
+    logicRules: question.logicRules || [],
+    enableLogic: question.enableLogic || false
+  })
+  questionDialogVisible.value = true
+}
+
+// 预览题目
 const previewQuestion = (question) => {
   currentQuestion.value = question
   previewDialogVisible.value = true
 }
 
-const copyQuestion = (id) => {
-  ElMessage.success(`题目 ${id} 已复制`)
-}
-
-const deleteQuestion = (id) => {
-  ElMessageBox.confirm(
-    '确定要删除这个题目吗？删除后将无法恢复。',
-    '确认删除',
-    {
-      confirmButtonText: '删除',
-      cancelButtonText: '取消',
-      type: 'warning',
-    }
-  ).then(() => {
-    const index = questionList.value.findIndex(item => item.id === id)
-    if (index > -1) {
-      questionList.value.splice(index, 1)
-      ElMessage.success('删除成功')
-    }
-  }).catch(() => {
-    ElMessage.info('已取消删除')
-  })
-}
-
+// 从预览编辑
 const editFromPreview = () => {
   if (currentQuestion.value) {
-    editQuestion(currentQuestion.value.id)
     previewDialogVisible.value = false
+    editQuestion(currentQuestion.value)
   }
 }
 
-const handleAction = (command, question) => {
-  switch (command) {
-    case 'edit':
-      editQuestion(question.id)
-      break
-    case 'preview':
-      previewQuestion(question)
-      break
-    case 'copy':
-      copyQuestion(question.id)
-      break
-    case 'template':
-      ElMessage.info(`题目 ${question.id} 已保存为模板`)
-      question.isTemplate = true
-      break
-    case 'delete':
-      deleteQuestion(question.id)
-      break
-  }
-}
-
-const batchDelete = () => {
-  ElMessageBox.confirm(
-    `确定删除选中的 ${selectedItems.value.length} 个题目吗？`,
-    '批量删除',
-    {
-      confirmButtonText: '删除',
-      cancelButtonText: '取消',
-      type: 'warning',
+// 复制题目
+const copyQuestion = async (question) => {
+  try {
+    const newQuestion = {
+      ...question,
+      id: undefined,
+      title: question.title + ' (副本)',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      usageCount: 0
     }
-  ).then(() => {
-    selectedItems.value.forEach(item => {
-      const index = questionList.value.findIndex(q => q.id === item.id)
-      if (index > -1) {
-        questionList.value.splice(index, 1)
-      }
+    
+    const response = await fetch('http://localhost:3002/questions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(newQuestion)
     })
-    selectedItems.value = []
-    ElMessage.success('批量删除成功')
-  }).catch(() => {
-    ElMessage.info('已取消删除')
-  })
+    
+    if (!response.ok) {
+      throw new Error('复制失败')
+    }
+    
+    ElMessage.success('题目已复制')
+    await loadQuestions()
+  } catch (error) {
+    ElMessage.error('复制失败：' + error.message)
+  }
 }
 
-const batchExport = () => {
-  ElMessage.success(`已导出 ${selectedItems.value.length} 个题目`)
+// 删除题目
+const deleteQuestion = async (id) => {
+  try {
+    await ElMessageBox.confirm(
+      '确定要删除这个题目吗？删除后将无法恢复。',
+      '确认删除',
+      {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+    )
+    
+    const response = await fetch(`http://localhost:3002/questions/${id}`, {
+      method: 'DELETE'
+    })
+    
+    if (!response.ok) {
+      throw new Error('删除失败')
+    }
+    
+    ElMessage.success('删除成功')
+    await loadQuestions()
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error('删除失败：' + error.message)
+    }
+  }
+}
+
+// 批量删除
+const batchDelete = async () => {
+  if (!selectedItems.value.length) {
+    ElMessage.warning('请先选择要删除的题目')
+    return
+  }
+
+  try {
+    await ElMessageBox.confirm(
+      `确定删除选中的 ${selectedItems.value.length} 个题目吗？`,
+      '批量删除',
+      {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+    )
+    
+    const promises = selectedItems.value.map(item => 
+      fetch(`http://localhost:3002/questions/${item.id}`, { method: 'DELETE' })
+    )
+    await Promise.all(promises)
+    
+    ElMessage.success('批量删除成功')
+    selectedItems.value = []
+    await loadQuestions()
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error('批量删除失败')
+    }
+  }
+}
+
+// 批量导入
+const importQuestions = () => {
+  ElMessage.info('批量导入功能待实现')
 }
 
 // 加载题目列表
 const loadQuestions = async () => {
   loading.value = true
   try {
-    const response = await listQuestionsApi()
-    questionList.value = response.list || response || []
+    const response = await fetch('http://localhost:3002/questions?_sort=createdAt&_order=desc')
+    if (!response.ok) {
+      throw new Error('加载题目失败')
+    }
+    questionList.value = await response.json()
   } catch (error) {
     ElMessage.error('加载题目列表失败：' + error.message)
     questionList.value = []
@@ -683,12 +1007,14 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
 }
 
 .filter-left {
   display: flex;
   gap: 12px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .filter-right {
@@ -704,118 +1030,7 @@ onMounted(() => {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
-.list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 16px 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.list-info {
-  color: #666;
-  font-size: 14px;
-}
-
-/* 卡片视图 */
-.question-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
-.question-card {
-  border: 1px solid #e8e8e8;
-  border-radius: 12px;
-  padding: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: #fff;
-}
-
-.question-card:hover {
-  border-color: #409eff;
-  box-shadow: 0 4px 20px rgba(64, 158, 255, 0.15);
-  transform: translateY(-2px);
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.card-badges {
-  display: flex;
-  gap: 8px;
-}
-
-.card-content {
-  margin-bottom: 16px;
-}
-
-.question-title {
-  margin: 0 0 12px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #1a202c;
-  line-height: 1.4;
-}
-
-.question-preview {
-  margin-top: 12px;
-}
-
-.option-preview {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.option-item {
-  background: #f0f2f5;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  color: #666;
-}
-
-.more-options {
-  background: #e6f7ff;
-  color: #1890ff;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-}
-
-.card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-stats {
-  display: flex;
-  gap: 16px;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: #666;
-}
-
-.meta-date {
-  font-size: 12px;
-  color: #999;
-}
-
-/* 表格视图 */
+/* 表格样式 */
 .title-cell {
   display: flex;
   flex-direction: column;
@@ -871,10 +1086,6 @@ onMounted(() => {
   color: #f56c6c !important;
 }
 
-.danger-btn:hover {
-  background-color: rgba(245, 108, 108, 0.1);
-}
-
 /* 分页 */
 .pagination-wrapper {
   display: flex;
@@ -886,7 +1097,7 @@ onMounted(() => {
 
 /* 预览对话框 */
 .preview-content {
-  max-height: 500px;
+  max-height: 600px;
   overflow-y: auto;
 }
 
@@ -905,12 +1116,72 @@ onMounted(() => {
 .preview-badges {
   display: flex;
   gap: 8px;
+  margin-bottom: 12px;
+}
+
+.preview-description p {
+  margin: 0;
+  color: #666;
+  line-height: 1.6;
 }
 
 .question-preview-content {
   padding: 16px;
   background: #f8f9fa;
   border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.preview-logic,
+.preview-permission {
+  margin-top: 16px;
+}
+
+.logic-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.logic-arrow {
+  color: #999;
+  font-size: 16px;
+}
+
+.permission-detail {
+  margin-left: 8px;
+  color: #666;
+  font-size: 12px;
+}
+
+/* 表单样式 */
+.options-container {
+  width: 100%;
+}
+
+.option-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.logic-container {
+  width: 100%;
+}
+
+.logic-rule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.form-tip {
+  margin-left: 8px;
+  color: #999;
+  font-size: 12px;
 }
 
 /* 响应式设计 */
@@ -921,35 +1192,14 @@ onMounted(() => {
     gap: 16px;
   }
 
-  .header-actions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .stats-cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .filter-content {
     flex-direction: column;
-    gap: 16px;
     align-items: stretch;
   }
 
   .filter-left,
   .filter-right {
-    justify-content: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .question-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .stats-cards {
-    grid-template-columns: 1fr;
+    width: 100%;
   }
 }
 </style>
