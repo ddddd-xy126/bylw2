@@ -1172,6 +1172,179 @@
       ],
       "rejectedReason": "a",
       "rejectedAt": "2025-10-21T07:02:18.860Z"
+    },
+    {
+      "id": "1761033155346",
+      "title": "asdad",
+      "description": "sdada",
+      "category": "psychology",
+      "duration": 10,
+      "tags": [
+        "dsadasd"
+      ],
+      "questions": 5,
+      "questionList": [
+        {
+          "type": "single",
+          "title": "新的单选题",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1",
+              "text": "2"
+            },
+            {
+              "id": "opt2",
+              "text": "3"
+            }
+          ],
+          "allowOther": false,
+          "id": 1761032914989.239,
+          "enableLogic": true,
+          "logicRules": [
+            {
+              "optionId": "opt1",
+              "targetQuestion": 2
+            },
+            {
+              "optionId": "opt2",
+              "targetQuestion": 3
+            }
+          ],
+          "order": 1
+        },
+        {
+          "type": "single",
+          "title": "新的单选题asda",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1",
+              "text": "4"
+            },
+            {
+              "id": "opt2",
+              "text": "5"
+            }
+          ],
+          "allowOther": false,
+          "id": 1761032933901.0586,
+          "enableLogic": true,
+          "logicRules": [
+            {
+              "optionId": "opt1",
+              "targetQuestion": 4
+            },
+            {
+              "optionId": "opt2",
+              "targetQuestion": 5
+            }
+          ],
+          "order": 2
+        },
+        {
+          "type": "multiple",
+          "title": "新的多选题",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1",
+              "text": "选项1"
+            },
+            {
+              "id": "opt2",
+              "text": "选项2"
+            },
+            {
+              "id": "opt3",
+              "text": "选项3"
+            }
+          ],
+          "allowOther": false,
+          "randomOrder": false,
+          "id": 1761032935469.3125,
+          "enableLogic": false,
+          "logicRules": [],
+          "order": 3
+        },
+        {
+          "type": "single",
+          "title": "新的单选题 (副本)",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1761032937053_0.5403791632287117",
+              "text": "选项1"
+            },
+            {
+              "id": "opt2_1761032937053_0.8842710654149365",
+              "text": "选项2"
+            }
+          ],
+          "allowOther": false,
+          "id": 1761032937053.24,
+          "enableLogic": false,
+          "logicRules": [
+            {
+              "optionId": "opt1",
+              "targetQuestion": 2
+            },
+            {
+              "optionId": "opt1",
+              "targetQuestion": 2
+            }
+          ],
+          "order": 4
+        },
+        {
+          "type": "single",
+          "title": "新的单选题 (副本)",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1761032937253_0.4174912609686606",
+              "text": "选项1"
+            },
+            {
+              "id": "opt2_1761032937253_0.8722986825993186",
+              "text": "选项2"
+            }
+          ],
+          "allowOther": false,
+          "id": 1761032937253.0024,
+          "enableLogic": false,
+          "logicRules": [
+            {
+              "optionId": "opt2_1761032937253_0.8722986825993186",
+              "targetQuestion": 2
+            }
+          ],
+          "order": 5
+        }
+      ],
+      "settings": {
+        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
+        "showProgress": true,
+        "randomOrder": false
+      },
+      "status": "pending",
+      "updatedAt": "2025-10-21T10:28:52.402Z",
+      "createdAt": "2025-10-21T07:52:35.360Z",
+      "userId": "ec9c",
+      "authorId": "ec9c",
+      "authorName": "123",
+      "author": "123",
+      "participants": 0,
+      "participantCount": 0,
+      "creatorId": "ec9c",
+      "responses": 0,
+      "rating": 0,
+      "thumbnail": "/images/default.jpg"
     }
   ],
   "questions": [

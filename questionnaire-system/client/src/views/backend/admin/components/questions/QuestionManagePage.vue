@@ -123,21 +123,6 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="permission" label="答题权限" width="120">
-          <template #default="{row}">
-            <el-tag size="small" :type="getPermissionTagType(row.permission)">
-              {{ getPermissionText(row.permission) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-
-        <el-table-column prop="enableLogic" label="跳转逻辑" width="100">
-          <template #default="{row}">
-            <el-tag v-if="row.enableLogic" type="warning" size="small">已启用</el-tag>
-            <el-tag v-else type="info" size="small">未启用</el-tag>
-          </template>
-        </el-table-column>
-
         <el-table-column prop="usageCount" label="使用次数" width="100">
           <template #default="{row}">
             <el-tag type="info" size="small">{{ row.usageCount || 0 }}</el-tag>
@@ -254,29 +239,6 @@
             <el-rate disabled :max="currentQuestion.maxRating || 5" />
           </div>
         </div>
-
-        <!-- 跳转逻辑显示 -->
-        <div v-if="currentQuestion.enableLogic && currentQuestion.logicRules?.length" class="preview-logic">
-          <el-divider content-position="left">跳转逻辑</el-divider>
-          <div v-for="(rule, idx) in currentQuestion.logicRules" :key="idx" class="logic-display">
-            <el-tag type="primary" size="small">
-              选择"{{ getOptionText(currentQuestion.options, rule.optionId) }}"
-            </el-tag>
-            <span class="logic-arrow">→</span>
-            <el-tag type="success" size="small">跳转到第{{ rule.targetQuestion }}题</el-tag>
-          </div>
-        </div>
-
-        <!-- 权限信息 -->
-        <div class="preview-permission">
-          <el-divider content-position="left">答题权限</el-divider>
-          <el-tag :type="getPermissionTagType(currentQuestion.permission)">
-            {{ getPermissionText(currentQuestion.permission) }}
-          </el-tag>
-          <span v-if="currentQuestion.permission === 'custom'" class="permission-detail">
-            (最低等级: Lv.{{ currentQuestion.minLevel }})
-          </span>
-        </div>
       </div>
       
       <template #footer>
@@ -362,52 +324,6 @@
               </el-button>
             </div>
           </el-form-item>
-
-          <!-- 跳转逻辑配置 -->
-          <el-divider content-position="left">跳转逻辑</el-divider>
-          
-          <el-form-item label="启用跳转逻辑">
-            <el-switch v-model="questionForm.enableLogic" />
-            <span class="form-tip">根据用户选择的选项跳转到不同题目</span>
-          </el-form-item>
-
-          <template v-if="questionForm.enableLogic">
-            <el-form-item label="跳转规则">
-              <div class="logic-container">
-                <div 
-                  v-for="(rule, index) in questionForm.logicRules" 
-                  :key="index"
-                  class="logic-rule"
-                >
-                  <el-select v-model="rule.optionId" placeholder="选择选项" style="width: 200px;">
-                    <el-option 
-                      v-for="opt in questionForm.options" 
-                      :key="opt.id"
-                      :label="opt.text"
-                      :value="opt.id"
-                    />
-                  </el-select>
-                  <span style="margin: 0 10px;">→ 跳转到</span>
-                  <el-input-number 
-                    v-model="rule.targetQuestion" 
-                    :min="1"
-                    placeholder="题号"
-                    style="width: 120px;"
-                  />
-                  <el-button 
-                    type="danger" 
-                    :icon="Delete" 
-                    circle
-                    @click="removeLogicRule(index)"
-                  />
-                </div>
-                <el-button type="primary" @click="addLogicRule" style="width: 100%;">
-                  <el-icon><Plus /></el-icon>
-                  添加跳转规则
-                </el-button>
-              </div>
-            </el-form-item>
-          </template>
         </template>
 
         <!-- 评分题配置 -->
@@ -431,23 +347,6 @@
             <el-input-number v-model="questionForm.maxLength" :min="0" />
           </el-form-item>
         </template>
-
-        <!-- 答题权限设置 -->
-        <el-divider content-position="left">答题权限</el-divider>
-        
-        <el-form-item label="权限设置">
-          <el-radio-group v-model="questionForm.permission">
-            <el-radio label="all">所有用户</el-radio>
-            <el-radio label="registered">仅注册用户</el-radio>
-            <el-radio label="vip">VIP用户</el-radio>
-            <el-radio label="custom">自定义</el-radio>
-          </el-radio-group>
-        </el-form-item>
-
-        <el-form-item v-if="questionForm.permission === 'custom'" label="最低等级">
-          <el-input-number v-model="questionForm.minLevel" :min="1" :max="10" />
-          <span class="form-tip">只有达到指定等级的用户才能回答此题</span>
-        </el-form-item>
 
         <!-- 其他设置 -->
         <el-divider content-position="left">其他设置</el-divider>
@@ -640,31 +539,6 @@ const getCategoryText = (category) => {
   return categoryMap[category] || '其他'
 }
 
-const getPermissionTagType = (permission) => {
-  const typeMap = {
-    all: 'success',
-    registered: 'primary',
-    vip: 'warning',
-    custom: 'danger'
-  }
-  return typeMap[permission] || 'info'
-}
-
-const getPermissionText = (permission) => {
-  const textMap = {
-    all: '所有用户',
-    registered: '注册用户',
-    vip: 'VIP用户',
-    custom: '自定义'
-  }
-  return textMap[permission] || '未知'
-}
-
-const getOptionText = (options, optionId) => {
-  const option = options?.find(opt => opt.id === optionId)
-  return option?.text || '未知选项'
-}
-
 const formatDateTime = (dateString) => {
   return new Date(dateString).toLocaleString('zh-CN')
 }
@@ -688,13 +562,9 @@ const resetQuestionForm = () => {
       { id: 'opt_1', text: '' },
       { id: 'opt_2', text: '' }
     ],
-    enableLogic: false,
-    logicRules: [],
     maxRating: 5,
     minLength: 0,
     maxLength: 500,
-    permission: 'all',
-    minLevel: 1,
     isTemplate: false,
     tags: '',
     description: ''
@@ -705,8 +575,6 @@ const resetQuestionForm = () => {
 const handleTypeChange = (type) => {
   if (type === 'text' || type === 'rating') {
     questionForm.options = []
-    questionForm.enableLogic = false
-    questionForm.logicRules = []
   } else if (!questionForm.options.length) {
     questionForm.options = [
       { id: 'opt_1', text: '' },
@@ -724,19 +592,6 @@ const addOption = () => {
 // 删除选项
 const removeOption = (index) => {
   questionForm.options.splice(index, 1)
-}
-
-// 添加跳转规则
-const addLogicRule = () => {
-  questionForm.logicRules.push({
-    optionId: '',
-    targetQuestion: 1
-  })
-}
-
-// 删除跳转规则
-const removeLogicRule = (index) => {
-  questionForm.logicRules.splice(index, 1)
 }
 
 // 提交题目
@@ -802,9 +657,7 @@ const editQuestion = (question) => {
   isEditing.value = true
   Object.assign(questionForm, {
     ...question,
-    options: question.options || [],
-    logicRules: question.logicRules || [],
-    enableLogic: question.enableLogic || false
+    options: question.options || []
   })
   questionDialogVisible.value = true
 }
@@ -1132,29 +985,6 @@ onMounted(() => {
   margin-bottom: 16px;
 }
 
-.preview-logic,
-.preview-permission {
-  margin-top: 16px;
-}
-
-.logic-display {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.logic-arrow {
-  color: #999;
-  font-size: 16px;
-}
-
-.permission-detail {
-  margin-left: 8px;
-  color: #666;
-  font-size: 12px;
-}
-
 /* 表单样式 */
 .options-container {
   width: 100%;
@@ -1164,17 +994,6 @@ onMounted(() => {
   display: flex;
   gap: 8px;
   align-items: center;
-  margin-bottom: 12px;
-}
-
-.logic-container {
-  width: 100%;
-}
-
-.logic-rule {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   margin-bottom: 12px;
 }
 

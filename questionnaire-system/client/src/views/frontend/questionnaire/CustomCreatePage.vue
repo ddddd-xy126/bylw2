@@ -269,6 +269,73 @@
                     </el-button>
                   </div>
                 </div>
+                
+                <!-- 跳转逻辑配置 -->
+                <div class="logic-config" style="margin-top: 12px;">
+                  <div class="logic-header">
+                    <el-checkbox 
+                      :model-value="question.enableLogic" 
+                      @change="toggleQuestionLogic(question.id)"
+                      size="small"
+                    >
+                      启用跳转逻辑
+                    </el-checkbox>
+                    <el-tooltip content="根据用户选择的选项跳转到不同题目" placement="top">
+                      <el-icon style="margin-left: 4px; color: #909399;"><QuestionFilled /></el-icon>
+                    </el-tooltip>
+                  </div>
+                  
+                  <div v-if="question.enableLogic" class="logic-rules" style="margin-top: 8px; padding: 12px; background: #f5f7fa; border-radius: 4px;">
+                    <div 
+                      v-for="(rule, ruleIndex) in (question.logicRules || [])"
+                      :key="ruleIndex"
+                      class="logic-rule-item"
+                      style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;"
+                    >
+                      <span style="font-size: 12px; color: #606266;">当选择</span>
+                      <el-select 
+                        :model-value="rule.optionId"
+                        @change="updateLogicRuleOption(question.id, ruleIndex, $event)"
+                        size="small"
+                        style="width: 150px;"
+                        placeholder="选择选项"
+                      >
+                        <el-option 
+                          v-for="(opt, optIdx) in question.options" 
+                          :key="optIdx"
+                          :label="`${String.fromCharCode(65 + optIdx)}. ${opt.text}`"
+                          :value="opt.id"
+                        />
+                      </el-select>
+                      <span style="font-size: 12px; color: #606266;">时，跳转到第</span>
+                      <el-input-number
+                        :model-value="rule.targetQuestion"
+                        @change="updateLogicRuleTarget(question.id, ruleIndex, $event)"
+                        :min="1"
+                        :max="questions.length"
+                        size="small"
+                        style="width: 100px;"
+                      />
+                      <span style="font-size: 12px; color: #606266;">题</span>
+                      <el-button
+                        size="small"
+                        type="text"
+                        @click="removeLogicRule(question.id, ruleIndex)"
+                        class="danger-btn"
+                      >
+                        <el-icon><Delete /></el-icon>
+                      </el-button>
+                    </div>
+                    <el-button 
+                      size="small" 
+                      @click="addLogicRule(question.id)"
+                      style="width: 100%;"
+                    >
+                      <el-icon><Plus /></el-icon>
+                      添加跳转规则
+                    </el-button>
+                  </div>
+                </div>
               </div>
               
               <!-- 文本题设置 -->
@@ -339,29 +406,15 @@
 
     <!-- 底部操作栏 -->
     <div class="footer-actions">
-      <div class="actions-content">
-        <div class="actions-left">
-          <el-button @click="previewQuestionnaire">
-            <el-icon><View /></el-icon>
-            预览问卷
-          </el-button>
-          <el-button @click="saveAsDraft">
-            <el-icon><DocumentCopy /></el-icon>
-            保存草稿
-          </el-button>
-        </div>
-        <div class="actions-right">
-          <el-button @click="goBack">取消</el-button>
-          <el-button v-if="isEditMode" type="primary" @click="updateQuestionnaire">
-            <el-icon><DocumentCopy /></el-icon>
-            保存修改
-          </el-button>
-          <el-button v-else type="primary" @click="publishQuestionnaire">
-            <el-icon><Promotion /></el-icon>
-            发布问卷
-          </el-button>
-        </div>
-      </div>
+      <!-- 预览按钮已移除 -->
+      <el-button @click="saveAsDraft">
+        <el-icon><DocumentCopy /></el-icon>
+        保存草稿
+      </el-button>
+      <el-button type="primary" @click="publishQuestionnaire">
+        <el-icon><Promotion /></el-icon>
+        {{ isEditMode ? '提交审核' : '发布问卷' }}
+      </el-button>
     </div>
   </div>
 </template>
@@ -383,7 +436,8 @@ import {
   View,
   DocumentCopy,
   Promotion,
-  Delete
+  Delete,
+  QuestionFilled
 } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
 import { useUserStore } from '@/store/user'
@@ -591,8 +645,12 @@ const clearLocalStorage = () => {
 // 编辑模式：加载现有问卷数据
 const loadQuestionnaireForEdit = async (id) => {
   try {
+    console.log('[编辑模式] 开始加载问卷，ID:', id)
+    
     // 首先尝试从本地存储加载（可能有未保存的编辑）
     const localData = loadFromLocalStorage()
+    console.log('[编辑模式] 本地存储数据:', localData)
+    
     if (localData) {
       const shouldLoadLocal = await ElMessageBox.confirm(
         '检测到有未保存的编辑内容，是否继续编辑？',
@@ -605,25 +663,34 @@ const loadQuestionnaireForEdit = async (id) => {
       ).catch(() => false)
       
       if (shouldLoadLocal) {
+        console.log('[编辑模式] 用户选择加载本地数据')
         loadQuestionnaireData(localData)
         return
       } else {
+        console.log('[编辑模式] 用户选择清除本地数据')
         clearLocalStorage()
       }
     }
     
     // 从服务器加载问卷数据
+    console.log('[编辑模式] 从服务器加载数据...')
     const response = await fetch(`http://localhost:3002/surveys/${id}`)
+    console.log('[编辑模式] 服务器响应状态:', response.status)
+    
     if (!response.ok) {
       throw new Error('问卷不存在或加载失败')
     }
     
     const questionnaireData = await response.json()
+    console.log('[编辑模式] 服务器返回的数据:', questionnaireData)
+    
     // 保存原始数据
     originalQuestionnaireData.value = questionnaireData
     loadQuestionnaireData(questionnaireData)
+    
+    console.log('[编辑模式] 数据加载完成')
   } catch (error) {
-    console.error('加载问卷失败:', error)
+    console.error('[编辑模式] 加载问卷失败:', error)
     ElMessage.error('加载问卷失败：' + error.message)
     router.push('/create')
   }
@@ -631,7 +698,7 @@ const loadQuestionnaireForEdit = async (id) => {
 
 // 将问卷数据加载到表单
 const loadQuestionnaireData = (data) => {
-  console.log('Loading questionnaire data:', data)
+  console.log('[加载数据] 开始加载问卷数据:', data)
   
   // 加载基本信息
   questionnaireForm.title = data.title || ''
@@ -640,18 +707,32 @@ const loadQuestionnaireData = (data) => {
   questionnaireForm.duration = data.duration || 10
   questionnaireForm.tags = data.tags || []
   
+  console.log('[加载数据] 基本信息已加载:', {
+    title: questionnaireForm.title,
+    description: questionnaireForm.description,
+    category: questionnaireForm.category,
+    duration: questionnaireForm.duration,
+    tags: questionnaireForm.tags
+  })
+  
   // 加载问题 - 支持 questions 和 questionList 两种字段名
   const questionData = data.questionList || data.questions || []
+  console.log('[加载数据] 原始问题数据:', questionData)
+  console.log('[加载数据] 问题数据类型:', Array.isArray(questionData) ? '数组' : typeof questionData)
+  
   // 确保问题数据是数组
   questions.value = Array.isArray(questionData) ? questionData : []
   
-  console.log('Loaded questions:', questions.value)
-  console.log('Questions count:', questions.value.length)
+  console.log('[加载数据] 加载后的问题列表:', questions.value)
+  console.log('[加载数据] 问题数量:', questions.value.length)
   
   // 加载设置
   if (data.settings) {
     Object.assign(settingsForm, data.settings)
+    console.log('[加载数据] 设置已加载:', settingsForm)
   }
+  
+  console.log('[加载数据] 数据加载完成，当前编辑模式:', isEditMode.value)
 }
 
 // 页面离开前检查
@@ -940,6 +1021,57 @@ const updateOptionText = (questionId, optionIndex, newText) => {
   }
 }
 
+// 切换跳转逻辑
+const toggleQuestionLogic = (questionId) => {
+  const question = questions.value.find(q => q.id === questionId)
+  if (question) {
+    question.enableLogic = !question.enableLogic
+    if (question.enableLogic && !question.logicRules) {
+      question.logicRules = []
+    }
+  }
+}
+
+// 添加跳转规则
+const addLogicRule = (questionId) => {
+  const question = questions.value.find(q => q.id === questionId)
+  if (question) {
+    if (!question.logicRules) {
+      question.logicRules = []
+    }
+    question.logicRules.push({
+      optionId: question.options[0]?.id || '',
+      targetQuestion: questions.value.findIndex(q => q.id === questionId) + 2
+    })
+    ElMessage.success('已添加跳转规则')
+  }
+}
+
+// 删除跳转规则
+const removeLogicRule = (questionId, ruleIndex) => {
+  const question = questions.value.find(q => q.id === questionId)
+  if (question && question.logicRules) {
+    question.logicRules.splice(ruleIndex, 1)
+    ElMessage.success('已删除跳转规则')
+  }
+}
+
+// 更新跳转规则选项
+const updateLogicRuleOption = (questionId, ruleIndex, optionId) => {
+  const question = questions.value.find(q => q.id === questionId)
+  if (question && question.logicRules && question.logicRules[ruleIndex]) {
+    question.logicRules[ruleIndex].optionId = optionId
+  }
+}
+
+// 更新跳转规则目标
+const updateLogicRuleTarget = (questionId, ruleIndex, target) => {
+  const question = questions.value.find(q => q.id === questionId)
+  if (question && question.logicRules && question.logicRules[ruleIndex]) {
+    question.logicRules[ruleIndex].targetQuestion = target
+  }
+}
+
 const copyQuestion = (question) => {
   // 深拷贝问题对象
   const copiedQuestion = JSON.parse(JSON.stringify(question))
@@ -1029,20 +1161,6 @@ const removeTag = (tag) => {
 }
 
 // 问卷操作
-const previewQuestionnaire = () => {
-  if (!validateForm()) return
-  
-  // 构建预览数据
-  const previewData = buildQuestionnaireData('draft')
-  
-  // 保存到本地存储用于预览
-  localStorage.setItem('previewQuestionnaire', JSON.stringify(previewData))
-  
-  // 打开预览页面
-  const previewUrl = `/preview/questionnaire`
-  window.open(previewUrl, '_blank')
-}
-
 const saveAsDraft = async () => {
   if (!validateBasicInfo()) return
   
@@ -1077,6 +1195,18 @@ const publishQuestionnaire = async () => {
   if (!validateForm()) return
   
   try {
+    await ElMessageBox.confirm(
+      isEditMode.value 
+        ? '确定要提交此问卷进行审核吗？提交后需等待管理员审核。'
+        : '确定要提交此问卷进行审核吗？',
+      '确认提交',
+      {
+        confirmButtonText: '确定提交',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    
     const questionnaireData = buildQuestionnaireData('pending')
     
     // 导入 API
@@ -1088,17 +1218,19 @@ const publishQuestionnaire = async () => {
       ElMessage.success('问卷已重新提交审核！')
     } else {
       // 创建模式：创建新问卷并设为待审核状态
-      await createQuestionnaire(questionnaireData)
+      const result = await createQuestionnaire(questionnaireData)
       ElMessage.success('问卷已提交审核！')
     }
     
     // 清除本地草稿
     clearLocalStorage()
     
-    router.push('/profile/questionnaires/pending')
+    router.push('/profile/questionnaires/created')
   } catch (error) {
-    console.error('发布失败:', error)
-    ElMessage.error('发布失败：' + error.message)
+    if (error !== 'cancel') {
+      console.error('发布失败:', error)
+      ElMessage.error('发布失败：' + error.message)
+    }
   }
 }
 

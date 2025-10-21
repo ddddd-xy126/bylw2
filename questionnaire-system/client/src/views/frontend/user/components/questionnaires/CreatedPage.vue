@@ -191,13 +191,17 @@
         <div class="survey-actions">
           <!-- 草稿状态 -->
           <template v-if="survey.status === 'draft'">
-            <el-button type="primary" @click="editSurvey(survey.id)">
+            <el-button type="primary" size="default" @click="editSurvey(survey.id)">
               <el-icon><Edit /></el-icon>
-              编辑
+              继续编辑
             </el-button>
-            <el-button @click="publishSurvey(survey.id)">
+            <el-button type="success" size="default" @click="publishSurvey(survey.id)">
               <el-icon><Upload /></el-icon>
               提交审核
+            </el-button>
+            <el-button type="danger" size="default" @click="handleMoreAction({ action: 'delete', data: survey })">
+              <el-icon><Delete /></el-icon>
+              删除
             </el-button>
           </template>
           
@@ -313,6 +317,7 @@ import {
   TrendCharts,
   ArrowDown,
   WarningFilled,
+  Delete,
 } from "@element-plus/icons-vue";
 
 import { useUserStore } from "@/store/user";
