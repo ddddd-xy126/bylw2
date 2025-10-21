@@ -280,10 +280,20 @@
                     >
                       启用跳转逻辑
                     </el-checkbox>
-                    <el-tooltip content="根据用户选择的选项跳转到不同题目" placement="top">
+                    <el-tooltip content="根据用户选择的选项跳转到不同题目。注意：如果用户的答案不匹配任何跳转规则，问卷将直接结束。" placement="top">
                       <el-icon style="margin-left: 4px; color: #909399;"><QuestionFilled /></el-icon>
                     </el-tooltip>
                   </div>
+                  
+                  <el-alert 
+                    v-if="question.enableLogic"
+                    title="跳转逻辑说明"
+                    type="info"
+                    :closable="false"
+                    style="margin-top: 8px; font-size: 12px;"
+                  >
+                    当启用跳转逻辑后，如果用户的答案不匹配任何跳转规则，问卷将直接结束（不会继续显示后续题目）。请确保为所有可能的答案设置跳转规则，或者明确希望某些答案直接结束问卷。
+                  </el-alert>
                   
                   <div v-if="question.enableLogic" class="logic-rules" style="margin-top: 8px; padding: 12px; background: #f5f7fa; border-radius: 4px;">
                     <div 

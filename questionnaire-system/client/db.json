@@ -1332,8 +1332,8 @@
         "showProgress": true,
         "randomOrder": false
       },
-      "status": "pending",
-      "updatedAt": "2025-10-21T10:28:52.402Z",
+      "status": "published",
+      "updatedAt": "2025-10-21T10:30:42.120Z",
       "createdAt": "2025-10-21T07:52:35.360Z",
       "userId": "ec9c",
       "authorId": "ec9c",
@@ -2335,6 +2335,73 @@
           "questionId": "4",
           "answer": "adas",
           "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "0f0f",
+      "userId": "ec9c",
+      "surveyId": 1761033155346,
+      "surveyTitle": "asdad",
+      "score": 76,
+      "result": "良好",
+      "submittedAt": "2025-10-21T10:31:09.189Z",
+      "duration": 9,
+      "answers": [
+        {
+          "questionId": "1761032914989.239",
+          "answer": "opt1",
+          "question": "新的单选题"
+        },
+        {
+          "questionId": "1761032933901.0586",
+          "answer": "opt2",
+          "question": "新的单选题asda"
+        },
+        {
+          "questionId": "1761032935469.3125",
+          "answer": [
+            "opt1",
+            "opt2"
+          ],
+          "question": "新的多选题"
+        },
+        {
+          "questionId": "1761032937053.24",
+          "answer": "opt2_1761032937053_0.8842710654149365",
+          "question": "新的单选题 (副本)"
+        },
+        {
+          "questionId": "1761032937253.0024",
+          "answer": "opt2_1761032937253_0.8722986825993186",
+          "question": "新的单选题 (副本)"
+        }
+      ]
+    },
+    {
+      "id": "6f00",
+      "userId": "ec9c",
+      "surveyId": 1761033155346,
+      "surveyTitle": "asdad",
+      "score": 67,
+      "result": "良好",
+      "submittedAt": "2025-10-21T10:39:04.200Z",
+      "duration": 4,
+      "answers": [
+        {
+          "questionId": "1761032914989.239",
+          "answer": "opt1",
+          "question": "新的单选题"
+        },
+        {
+          "questionId": "1761032933901.0586",
+          "answer": "opt2",
+          "question": "新的单选题asda"
+        },
+        {
+          "questionId": "1761032937253.0024",
+          "answer": "opt1_1761032937253_0.4174912609686606",
+          "question": "新的单选题 (副本)"
         }
       ]
     }

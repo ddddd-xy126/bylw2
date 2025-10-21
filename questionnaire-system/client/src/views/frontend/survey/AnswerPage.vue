@@ -371,6 +371,43 @@ const nextQuestion = async () => {
     return;
   }
 
+  // 检查是否有跳转逻辑
+  const question = currentQuestion.value;
+  if (question && question.enableLogic && question.logicRules && question.logicRules.length > 0) {
+    // 获取用户的答案
+    const userAnswer = answers[question.id];
+    
+    // 查找匹配的跳转规则
+    let matchedRule = null;
+    
+    if (question.type === 'single') {
+      // 单选题：直接匹配选项ID
+      matchedRule = question.logicRules.find(rule => rule.optionId === userAnswer);
+    } else if (question.type === 'multiple') {
+      // 多选题：检查是否包含某个选项
+      if (Array.isArray(userAnswer)) {
+        matchedRule = question.logicRules.find(rule => userAnswer.includes(rule.optionId));
+      }
+    }
+    
+    if (matchedRule) {
+      // 找到匹配的跳转规则
+      const targetQuestionNumber = matchedRule.targetQuestion;
+      const targetIndex = targetQuestionNumber - 1; // 题号转索引
+      
+      if (targetIndex >= 0 && targetIndex < totalQuestions.value) {
+        // 跳转到指定题目
+        currentQuestionIndex.value = targetIndex;
+        return;
+      }
+    } else {
+      // 没有匹配的跳转规则，如果启用了跳转逻辑，则直接结束问卷
+      await submitSurvey();
+      return;
+    }
+  }
+
+  // 没有启用跳转逻辑，按顺序进行
   if (isLastQuestion.value) {
     // 提交问卷
     await submitSurvey();
