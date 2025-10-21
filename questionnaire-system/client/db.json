@@ -22,7 +22,11 @@
       "lastLoginAt": "2025-09-29T09:00:00Z",
       "lastLoginIp": "192.168.1.102",
       "updatedAt": "2025-09-28T03:40:37.307Z",
-      "password": "123456"
+      "password": "123456",
+      "unlockedBadges": [
+        "badge_3",
+        "badge_4"
+      ]
     },
     {
       "id": "2",
@@ -45,7 +49,13 @@
       "createdAt": "2024-01-10T08:00:00Z",
       "lastLoginAt": "2024-01-25T09:15:00Z",
       "lastLoginIp": "192.168.1.101",
-      "password": "123456"
+      "password": "123456",
+      "unlockedBadges": [
+        "badge_3",
+        "badge_4",
+        "badge_1",
+        "badge_5"
+      ]
     },
     {
       "id": "3",
@@ -68,7 +78,15 @@
       "createdAt": "2024-01-01T08:00:00Z",
       "lastLoginAt": "2024-01-25T11:00:00Z",
       "lastLoginIp": "192.168.1.1",
-      "password": "admin123"
+      "password": "admin123",
+      "unlockedBadges": [
+        "badge_3",
+        "badge_4",
+        "badge_1",
+        "badge_5",
+        "badge_6",
+        "badge_2"
+      ]
     },
     {
       "id": "4",
@@ -91,7 +109,12 @@
       "createdAt": "2024-01-05T08:00:00Z",
       "lastLoginAt": "2024-01-24T14:20:00Z",
       "lastLoginIp": "192.168.2.10",
-      "password": "123456"
+      "password": "123456",
+      "unlockedBadges": [
+        "badge_3",
+        "badge_4",
+        "badge_1"
+      ]
     },
     {
       "id": "5",
@@ -114,7 +137,12 @@
       "createdAt": "2024-01-03T08:00:00Z",
       "lastLoginAt": "2024-01-24T16:45:00Z",
       "lastLoginIp": "192.168.3.15",
-      "password": "123456"
+      "password": "123456",
+      "unlockedBadges": [
+        "badge_3",
+        "badge_4",
+        "badge_5"
+      ]
     },
     {
       "id": "ec9c",
@@ -127,7 +155,7 @@
       "role": "user",
       "banned": false,
       "isActive": true,
-      "points": 0,
+      "points": 360,
       "level": 1,
       "bio": "",
       "city": "",
@@ -138,7 +166,13 @@
       "createdAt": "2025-09-28T10:18:33.205Z",
       "lastLoginAt": "2025-09-28T10:18:33.205Z",
       "lastLoginIp": "",
-      "updatedAt": "2025-09-28T10:22:39.005Z"
+      "updatedAt": "2025-09-28T10:18:33.206Z",
+      "unlockedBadges": [
+        "badge_3",
+        "badge_4",
+        "badge_6",
+        "badge_13"
+      ]
     }
   ],
   "categories": [
@@ -1466,34 +1500,6 @@
       }
     }
   ],
-  "forumPosts": [
-    {
-      "id": "1",
-      "title": "如何设计有效的问卷问题？",
-      "excerpt": "在设计问卷时，问题的表述方式直接影响数据质量。本文分享一些实用的问题设计技巧...",
-      "content": "详细内容...",
-      "category": "design",
-      "authorId": 1,
-      "author": "问卷专家",
-      "views": 1250,
-      "replies": 23,
-      "likes": 45,
-      "createdAt": "2024-01-20T10:30:00Z"
-    },
-    {
-      "id": "2",
-      "title": "SPSS在问卷数据分析中的应用",
-      "excerpt": "SPSS是问卷数据分析的强大工具，本文介绍常用的分析方法和操作步骤...",
-      "content": "详细内容...",
-      "category": "analysis",
-      "authorId": 2,
-      "author": "数据分析师",
-      "views": 890,
-      "replies": 15,
-      "likes": 32,
-      "createdAt": "2024-01-19T14:20:00Z"
-    }
-  ],
   "adminStats": {
     "totalUsers": 1250,
     "totalSurveys": 45,
@@ -1565,6 +1571,158 @@
       "surveys": 2,
       "answers": 112,
       "id": "f870"
+    }
+  ],
+  "badges": [
+    {
+      "id": "badge_1",
+      "name": "评测达人",
+      "description": "完成50份问卷",
+      "icon": "🏆",
+      "image": "/badges/evaluation-master.png",
+      "requirement": 50,
+      "type": "survey_count",
+      "points": 200
+    },
+    {
+      "id": "badge_2",
+      "name": "速通王者",
+      "description": "限时模式满分3次",
+      "icon": "⚡",
+      "image": "/badges/speed-king.png",
+      "requirement": 3,
+      "type": "speed_perfect",
+      "points": 300
+    },
+    {
+      "id": "badge_3",
+      "name": "新手上路",
+      "description": "完成第一份问卷",
+      "icon": "🎯",
+      "image": "/badges/first-try.png",
+      "requirement": 1,
+      "type": "survey_count",
+      "points": 10
+    },
+    {
+      "id": "badge_4",
+      "name": "勤奋学习",
+      "description": "完成10份问卷",
+      "icon": "📚",
+      "image": "/badges/diligent.png",
+      "requirement": 10,
+      "type": "survey_count",
+      "points": 50
+    },
+    {
+      "id": "badge_5",
+      "name": "完美主义者",
+      "description": "获得一次满分",
+      "icon": "💯",
+      "image": "/badges/perfectionist.png",
+      "requirement": 1,
+      "type": "perfect_score",
+      "points": 150
+    },
+    {
+      "id": "badge_6",
+      "name": "学霸",
+      "description": "获得3次90分以上",
+      "icon": "🌟",
+      "image": "/badges/top-student.png",
+      "requirement": 3,
+      "type": "high_score",
+      "points": 100
+    },
+    {
+      "id": "badge_7",
+      "name": "百炼成钢",
+      "description": "完成100份问卷",
+      "icon": "💎",
+      "image": "/badges/hundred.png",
+      "requirement": 100,
+      "type": "survey_count",
+      "points": 500
+    },
+    {
+      "id": "badge_8",
+      "name": "连续签到",
+      "description": "连续7天答题",
+      "icon": "📅",
+      "image": "/badges/daily-active.png",
+      "requirement": 7,
+      "type": "consecutive_days",
+      "points": 100
+    },
+    {
+      "id": "badge_9",
+      "name": "全能选手",
+      "description": "完成5个不同分类的问卷",
+      "icon": "🎓",
+      "image": "/badges/all-rounder.png",
+      "requirement": 5,
+      "type": "category_count",
+      "points": 200
+    },
+    {
+      "id": "badge_10",
+      "name": "早起鸟",
+      "description": "在早上6-8点完成5次问卷",
+      "icon": "🌅",
+      "image": "/badges/early-bird.png",
+      "requirement": 5,
+      "type": "early_bird",
+      "points": 150
+    },
+    {
+      "id": "badge_11",
+      "name": "积分新星",
+      "description": "累计获得1000积分",
+      "icon": "✨",
+      "image": "/badges/points-star.png",
+      "requirement": 1000,
+      "type": "total_points",
+      "points": 100
+    },
+    {
+      "id": "badge_12",
+      "name": "积分富豪",
+      "description": "累计获得5000积分",
+      "icon": "💰",
+      "image": "/badges/points-rich.png",
+      "requirement": 5000,
+      "type": "total_points",
+      "points": 500
+    },
+    {
+      "id": "badge_13",
+      "name": "效率之星",
+      "description": "10次快速完成问卷",
+      "icon": "🚀",
+      "image": "/badges/efficient.png",
+      "requirement": 10,
+      "type": "fast_complete",
+      "points": 200
+    },
+    {
+      "id": "badge_14",
+      "name": "资深用户",
+      "description": "注册满30天",
+      "icon": "👑",
+      "image": "/badges/veteran.png",
+      "requirement": 30,
+      "type": "register_days",
+      "points": 300
+    },
+    {
+      "id": "badge_15",
+      "name": "社交达人",
+      "description": "分享问卷10次",
+      "icon": "🎉",
+      "image": "/badges/social.png",
+      "requirement": 10,
+      "type": "share_count",
+      "points": 150
     }
   ]
 }

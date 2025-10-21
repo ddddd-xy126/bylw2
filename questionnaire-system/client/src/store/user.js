@@ -23,6 +23,7 @@ export const useUserStore = defineStore("user", {
     isLoggedIn: (state) => !!state.token,
     isAdmin: (state) => state.profile?.role === "admin",
     userName: (state) => state.profile?.nickname || "用户",
+    userId: (state) => state.profile?.id || null,
   },
   actions: {
     setToken(token) {

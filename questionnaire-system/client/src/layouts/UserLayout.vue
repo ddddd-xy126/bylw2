@@ -7,7 +7,6 @@
       <div class="header-center">
         <nav class="nav-center">
           <router-link to="/home">首页</router-link>
-          <router-link to="/forum">问卷论坛</router-link>
           <router-link v-if="isAuthed" to="/create">创建问卷</router-link>
           <router-link to="/rankings/participation">问卷排行榜</router-link>
           <router-link v-if="isAuthed" to="/profile">个人中心</router-link>
