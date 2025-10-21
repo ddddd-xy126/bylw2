@@ -67,9 +67,13 @@
           </el-button>
           <el-button 
             size="small" 
-            :icon="isFavorite(survey.id) ? 'Star' : 'StarFilled'"
+            :type="isFavorite(survey.id) ? 'warning' : 'default'"
             @click.stop="$emit('toggle-favorite', survey.id)"
           >
+            <el-icon>
+              <StarFilled v-if="isFavorite(survey.id)" />
+              <Star v-else />
+            </el-icon>
             {{ isFavorite(survey.id) ? '已收藏' : '收藏' }}
           </el-button>
         </div>
@@ -80,7 +84,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { Star, User, Clock } from '@element-plus/icons-vue'
+import { Star, StarFilled, User, Clock } from '@element-plus/icons-vue'
 
 const props = defineProps({
   surveys: {
@@ -113,7 +117,8 @@ const featuredSurveys = computed(() => {
 })
 
 const isFavorite = (surveyId) => {
-  return props.userFavorites.includes(surveyId)
+  const favoritesArray = Array.isArray(props.userFavorites) ? props.userFavorites : []
+  return favoritesArray.some(fav => fav.questionnaireId === surveyId)
 }
 
 const formatParticipants = (num) => {
@@ -259,6 +264,17 @@ const formatParticipants = (num) => {
 
 .card-footer .el-button {
   flex: 1;
+}
+
+.card-footer .el-button--warning {
+  background: linear-gradient(135deg, #fadb14 0%, #ffd666 100%);
+  border-color: #fadb14;
+  color: white;
+}
+
+.card-footer .el-button--warning:hover {
+  background: linear-gradient(135deg, #ffd666 0%, #fadb14 100%);
+  transform: scale(1.05);
 }
 
 /* 响应式设计 */

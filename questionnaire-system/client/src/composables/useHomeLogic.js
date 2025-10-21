@@ -55,7 +55,12 @@ export function useHomeLogic() {
         );
         break;
       case "recommended":
-        filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        // 热门推荐：综合评分（评分 * 0.6 + 参与人数/1000 * 0.4）
+        filtered.sort((a, b) => {
+          const scoreA = (a.rating || 0) * 0.6 + ((a.participants || 0) / 1000) * 0.4;
+          const scoreB = (b.rating || 0) * 0.6 + ((b.participants || 0) / 1000) * 0.4;
+          return scoreB - scoreA;
+        });
         break;
     }
 
@@ -175,19 +180,11 @@ export function useHomeLogic() {
     try {
       if (isFavorite(surveyId)) {
         await removeFavoriteApi(userId, surveyId);
-        const favoritesArray = Array.isArray(userStore.favorites)
-          ? userStore.favorites
-          : [];
-        userStore.favorites = favoritesArray.filter(
-          (fav) => fav.questionnaireId !== surveyId
-        );
+        userStore.removeFavorite(surveyId);
         ElMessage.success("取消收藏成功");
       } else {
         await addFavoriteApi(userId, surveyId);
-        const favoritesArray = Array.isArray(userStore.favorites)
-          ? userStore.favorites
-          : [];
-        userStore.favorites = [...favoritesArray, { questionnaireId: surveyId }];
+        userStore.addFavorite(surveyId);
         ElMessage.success("收藏成功");
       }
     } catch (error) {

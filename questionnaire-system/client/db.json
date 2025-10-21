@@ -145,6 +145,143 @@
       ]
     },
     {
+      "id": "6",
+      "username": "liuxiaoming",
+      "nickname": "刘小明",
+      "email": "liuxm@example.com",
+      "phone": "13555555555",
+      "avatar": "/avatars/user6.jpg",
+      "role": "user",
+      "banned": false,
+      "isActive": true,
+      "points": 5600,
+      "level": 4,
+      "bio": "热爱学习，喜欢参与各种问卷调查",
+      "city": "杭州市",
+      "gender": "male",
+      "age": 26,
+      "profession": "产品经理",
+      "joinedDate": "2024-01-08",
+      "createdAt": "2024-01-08T08:00:00Z",
+      "lastLoginAt": "2024-01-25T10:00:00Z",
+      "lastLoginIp": "192.168.4.20",
+      "password": "123456",
+      "unlockedBadges": [
+        "badge_1",
+        "badge_2",
+        "badge_3"
+      ]
+    },
+    {
+      "id": "7",
+      "username": "chenyan",
+      "nickname": "陈艳",
+      "email": "chenyan@example.com",
+      "phone": "13444444444",
+      "avatar": "/avatars/user7.jpg",
+      "role": "user",
+      "banned": false,
+      "isActive": true,
+      "points": 3200,
+      "level": 3,
+      "bio": "关注心理健康和职业发展",
+      "city": "广州市",
+      "gender": "female",
+      "age": 29,
+      "profession": "心理咨询师",
+      "joinedDate": "2024-01-12",
+      "createdAt": "2024-01-12T08:00:00Z",
+      "lastLoginAt": "2024-01-25T09:30:00Z",
+      "lastLoginIp": "192.168.5.30",
+      "password": "123456",
+      "unlockedBadges": [
+        "badge_1",
+        "badge_3"
+      ]
+    },
+    {
+      "id": "8",
+      "username": "wangfeng",
+      "nickname": "王峰",
+      "email": "wangfeng@example.com",
+      "phone": "13333333333",
+      "avatar": "/avatars/user8.jpg",
+      "role": "user",
+      "banned": false,
+      "isActive": true,
+      "points": 4800,
+      "level": 4,
+      "bio": "数据分析爱好者",
+      "city": "武汉市",
+      "gender": "male",
+      "age": 31,
+      "profession": "数据分析师",
+      "joinedDate": "2024-01-06",
+      "createdAt": "2024-01-06T08:00:00Z",
+      "lastLoginAt": "2024-01-25T11:20:00Z",
+      "lastLoginIp": "192.168.6.40",
+      "password": "123456",
+      "unlockedBadges": [
+        "badge_1",
+        "badge_2"
+      ]
+    },
+    {
+      "id": "9",
+      "username": "zhaoli",
+      "nickname": "赵丽",
+      "email": "zhaoli@example.com",
+      "phone": "13222222222",
+      "avatar": "/avatars/user9.jpg",
+      "role": "user",
+      "banned": false,
+      "isActive": true,
+      "points": 2400,
+      "level": 2,
+      "bio": "教育工作者，关注学生心理发展",
+      "city": "成都市",
+      "gender": "female",
+      "age": 35,
+      "profession": "中学教师",
+      "joinedDate": "2024-01-15",
+      "createdAt": "2024-01-15T08:00:00Z",
+      "lastLoginAt": "2024-01-24T15:00:00Z",
+      "lastLoginIp": "192.168.7.50",
+      "password": "123456",
+      "unlockedBadges": [
+        "badge_1"
+      ]
+    },
+    {
+      "id": "10",
+      "username": "sunhao",
+      "nickname": "孙浩",
+      "email": "sunhao@example.com",
+      "phone": "13111111111",
+      "avatar": "/avatars/user10.jpg",
+      "role": "user",
+      "banned": false,
+      "isActive": true,
+      "points": 6800,
+      "level": 5,
+      "bio": "问卷系统忠实用户，积极参与各类调查",
+      "city": "天津市",
+      "gender": "male",
+      "age": 27,
+      "profession": "软件开发工程师",
+      "joinedDate": "2024-01-02",
+      "createdAt": "2024-01-02T08:00:00Z",
+      "lastLoginAt": "2024-01-25T12:00:00Z",
+      "lastLoginIp": "192.168.8.60",
+      "password": "123456",
+      "unlockedBadges": [
+        "badge_1",
+        "badge_2",
+        "badge_3",
+        "badge_4"
+      ]
+    },
+    {
       "id": "ec9c",
       "username": "123",
       "nickname": "123",
@@ -571,9 +708,9 @@
         "showProgress": true,
         "randomOrder": false
       },
-      "status": "pending",
+      "status": "draft",
       "createdAt": "2025-10-20T08:20:57.112Z",
-      "updatedAt": "2025-10-20T09:24:51.599Z",
+      "updatedAt": "2025-10-21T05:40:21.448Z",
       "userId": "ec9c",
       "authorName": "123",
       "creatorId": "ec9c",
@@ -679,6 +816,358 @@
           "allowOther": false,
           "id": 1760948439814.0251,
           "order": 5
+        }
+      ]
+    },
+    {
+      "id": "8",
+      "title": "健康生活习惯调查",
+      "description": "了解您的日常健康习惯，提供改善建议",
+      "category": "健康",
+      "categoryId": 1,
+      "author": "刘小明",
+      "authorId": 6,
+      "questions": 12,
+      "duration": 8,
+      "difficulty": "简单",
+      "status": "published",
+      "tags": [
+        "健康",
+        "生活习惯",
+        "运动"
+      ],
+      "thumbnail": "/images/health.jpg",
+      "rating": 4.6,
+      "participants": 1580,
+      "participantCount": 1580,
+      "createdAt": "2024-01-09T08:00:00Z",
+      "updatedAt": "2024-01-24T10:00:00Z",
+      "questionList": []
+    },
+    {
+      "id": "9",
+      "title": "大学生就业意向调查",
+      "description": "调研大学生的就业意向和职业规划",
+      "category": "职业发展",
+      "categoryId": 3,
+      "author": "陈艳",
+      "authorId": 7,
+      "questions": 18,
+      "duration": 12,
+      "difficulty": "中等",
+      "status": "published",
+      "tags": [
+        "就业",
+        "大学生",
+        "职业规划"
+      ],
+      "thumbnail": "/images/employment.jpg",
+      "rating": 4.3,
+      "participants": 3200,
+      "participantCount": 3200,
+      "createdAt": "2024-01-07T08:00:00Z",
+      "updatedAt": "2024-01-23T15:30:00Z",
+      "questionList": []
+    },
+    {
+      "id": "10",
+      "title": "手机使用习惯调查",
+      "description": "了解用户的手机使用行为和偏好",
+      "category": "科技",
+      "categoryId": 4,
+      "author": "王峰",
+      "authorId": 8,
+      "questions": 10,
+      "duration": 6,
+      "difficulty": "简单",
+      "status": "published",
+      "tags": [
+        "手机",
+        "科技",
+        "使用习惯"
+      ],
+      "thumbnail": "/images/mobile.jpg",
+      "rating": 4,
+      "participants": 2680,
+      "participantCount": 2680,
+      "createdAt": "2024-01-11T08:00:00Z",
+      "updatedAt": "2024-01-24T12:00:00Z",
+      "questionList": []
+    },
+    {
+      "id": "11",
+      "title": "线上学习效果评估",
+      "description": "评估线上学习的效果和体验",
+      "category": "学习能力",
+      "categoryId": 2,
+      "author": "赵丽",
+      "authorId": 9,
+      "questions": 15,
+      "duration": 10,
+      "difficulty": "中等",
+      "status": "published",
+      "tags": [
+        "在线学习",
+        "教育",
+        "效果评估"
+      ],
+      "thumbnail": "/images/online-learning.jpg",
+      "rating": 4.4,
+      "participants": 1920,
+      "participantCount": 1920,
+      "createdAt": "2024-01-13T08:00:00Z",
+      "updatedAt": "2024-01-24T14:00:00Z",
+      "questionList": []
+    },
+    {
+      "id": "12",
+      "title": "消费者购物行为研究",
+      "description": "研究消费者的购物决策过程",
+      "category": "市场调研",
+      "categoryId": 5,
+      "author": "孙浩",
+      "authorId": 10,
+      "questions": 20,
+      "duration": 15,
+      "difficulty": "中等",
+      "status": "published",
+      "tags": [
+        "消费",
+        "购物",
+        "市场调研"
+      ],
+      "thumbnail": "/images/shopping.jpg",
+      "rating": 4.8,
+      "participants": 4120,
+      "participantCount": 4120,
+      "createdAt": "2024-01-04T08:00:00Z",
+      "updatedAt": "2024-01-25T09:00:00Z",
+      "questionList": []
+    },
+    {
+      "id": "13",
+      "title": "压力管理能力测评",
+      "description": "测试您的压力应对能力",
+      "category": "心理健康",
+      "categoryId": 1,
+      "author": "王教授",
+      "authorId": 4,
+      "questions": 16,
+      "duration": 12,
+      "difficulty": "中等",
+      "status": "published",
+      "tags": [
+        "压力",
+        "心理",
+        "情绪管理"
+      ],
+      "thumbnail": "/images/stress.jpg",
+      "rating": 4.5,
+      "participants": 1765,
+      "participantCount": 1765,
+      "createdAt": "2024-01-14T08:00:00Z",
+      "updatedAt": "2024-01-24T16:00:00Z",
+      "questionList": []
+    },
+    {
+      "id": "14",
+      "title": "品牌认知度调查",
+      "description": "了解消费者对品牌的认知情况",
+      "category": "市场调研",
+      "categoryId": 5,
+      "author": "张规划师",
+      "authorId": 5,
+      "questions": 12,
+      "duration": 8,
+      "difficulty": "简单",
+      "status": "published",
+      "tags": [
+        "品牌",
+        "市场",
+        "认知"
+      ],
+      "thumbnail": "/images/brand.jpg",
+      "rating": 4.1,
+      "participants": 980,
+      "participantCount": 980,
+      "createdAt": "2024-01-16T08:00:00Z",
+      "updatedAt": "2024-01-23T11:00:00Z",
+      "questionList": []
+    },
+    {
+      "id": 1761025276907,
+      "title": "额为全额全额",
+      "description": "e委屈恶气呃",
+      "category": "product",
+      "duration": 10,
+      "tags": [
+        "q恶气恶气"
+      ],
+      "questions": 8,
+      "settings": {
+        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
+        "showProgress": true,
+        "randomOrder": false
+      },
+      "status": "draft",
+      "createdAt": "2025-10-21T05:41:16.919Z",
+      "updatedAt": "2025-10-21T05:41:16.919Z",
+      "userId": "ec9c",
+      "authorName": "123",
+      "creatorId": "ec9c",
+      "authorId": "ec9c",
+      "author": "123",
+      "responses": 0,
+      "participants": 0,
+      "participantCount": 0,
+      "rating": 0,
+      "thumbnail": "/images/default.jpg",
+      "questionList": [
+        {
+          "type": "single",
+          "title": "新的单选题驱蚊器恶气",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1",
+              "text": "选项1"
+            },
+            {
+              "id": "opt2",
+              "text": "选项2"
+            }
+          ],
+          "allowOther": false,
+          "id": 1761025242579.8027,
+          "order": 1
+        },
+        {
+          "type": "single",
+          "title": "新的单选题驱蚊器恶气 (副本)",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1761025247011_0.2404844707827104",
+              "text": "选项1"
+            },
+            {
+              "id": "opt2_1761025247011_0.7153776356766121",
+              "text": "选项2"
+            }
+          ],
+          "allowOther": false,
+          "id": 1761025247011.0173,
+          "order": 2
+        },
+        {
+          "type": "single",
+          "title": "新的单选题驱蚊器恶气 (副本)",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1761025247379_0.14174602840769557",
+              "text": "选项1"
+            },
+            {
+              "id": "opt2_1761025247379_0.9757759053071425",
+              "text": "选项2"
+            }
+          ],
+          "allowOther": false,
+          "id": 1761025247379.3018,
+          "order": 3
+        },
+        {
+          "type": "single",
+          "title": "新的单选题驱蚊器恶气 (副本)",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1761025247611_0.000256395159591305",
+              "text": "选项1"
+            },
+            {
+              "id": "opt2_1761025247611_0.6013241616707159",
+              "text": "选项2"
+            }
+          ],
+          "allowOther": false,
+          "id": 1761025247611.2097,
+          "order": 4
+        },
+        {
+          "type": "single",
+          "title": "新的单选题驱蚊器恶气 (副本)",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1761025247819_0.22267861858403915",
+              "text": "选项1"
+            },
+            {
+              "id": "opt2_1761025247819_0.4626024121938742",
+              "text": "选项2"
+            }
+          ],
+          "allowOther": false,
+          "id": 1761025247819.019,
+          "order": 5
+        },
+        {
+          "type": "multiple",
+          "title": "新的多选题",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1",
+              "text": "选项1"
+            },
+            {
+              "id": "opt2",
+              "text": "选项2"
+            },
+            {
+              "id": "opt3",
+              "text": "选项3"
+            }
+          ],
+          "allowOther": false,
+          "randomOrder": false,
+          "id": 1761025262059.976,
+          "order": 6
+        },
+        {
+          "type": "text",
+          "title": "新的文本题",
+          "description": "",
+          "required": false,
+          "textType": "text",
+          "placeholder": "请输入...",
+          "minLength": null,
+          "maxLength": 500,
+          "id": 1761025264475.2634,
+          "order": 7
+        },
+        {
+          "type": "rating",
+          "title": "新的评分题",
+          "description": "qwe企鹅",
+          "required": false,
+          "minRating": 1,
+          "maxRating": 5,
+          "ratingStyle": "star",
+          "ratingLabels": {
+            "low": "很差",
+            "high": "很好"
+          },
+          "id": 1761025266819.131,
+          "order": 8
         }
       ]
     }
@@ -1449,16 +1938,16 @@
       "createdAt": "2025-09-28T10:22:49.194Z"
     },
     {
-      "id": "916a",
-      "userId": "ec9c",
-      "surveyId": "2",
-      "createdAt": "2025-09-28T10:25:00.000Z"
+      "id": "8249",
+      "userId": null,
+      "surveyId": 3,
+      "createdAt": "2025-10-21T03:36:58.093Z"
     },
     {
-      "id": "4b8f",
+      "id": "a0aa",
       "userId": null,
-      "surveyId": 1,
-      "createdAt": "2025-09-28T10:30:18.512Z"
+      "surveyId": 12,
+      "createdAt": "2025-10-21T03:44:15.852Z"
     }
   ],
   "achievements": [

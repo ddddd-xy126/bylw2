@@ -43,28 +43,6 @@
       />
     </div>
 
-    <!-- 热门推荐 -->
-    <div class="featured-wrapper">
-      <FeaturedSurveys
-        :surveys="surveys"
-        :user-favorites="userStore.favorites"
-        @survey-click="goToSurvey"
-        @survey-start="goToSurvey"
-        @toggle-favorite="toggleFavorite"
-      />
-    </div>
-
-    <!-- 搜索和过滤 -->
-    <div class="search-wrapper">
-      <SearchFilter
-        v-model:search-query="searchQuery"
-        v-model:selected-category="selectedCategory"
-        :categories="categories"
-        @search="handleSearch"
-        @category-change="handleCategoryChange"
-      />
-    </div>
-
     <!-- 问卷列表 -->
     <div class="surveys-section" ref="surveysSection">
       <SurveyList
@@ -97,13 +75,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, inject, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useHomeLogic } from "@/composables/useHomeLogic";
-import SearchFilter from "./components/SearchFilter.vue";
 import StatsCards from "./components/StatsCards.vue";
 import SurveyList from "./components/SurveyList.vue";
-import FeaturedSurveys from "./components/FeaturedSurveys.vue";
 
 const router = useRouter();
 const surveysSection = ref(null);
@@ -141,6 +117,22 @@ const {
   // Store
   userStore
 } = useHomeLogic();
+
+// 从导航栏注入搜索和筛选
+const headerSearch = inject('headerSearch', null);
+
+// 监听导航栏的搜索和筛选变化
+if (headerSearch) {
+  watch(() => headerSearch.searchQuery.value, (newVal) => {
+    searchQuery.value = newVal;
+    handleSearch();
+  });
+  
+  watch(() => headerSearch.selectedCategory.value, (newVal) => {
+    selectedCategory.value = newVal;
+    handleCategoryChange();
+  });
+}
 
 // 路由跳转
 const goToSurvey = (surveyId) => {
@@ -308,8 +300,6 @@ onMounted(() => {
 
 /* 内容区域 */
 .stats-wrapper,
-.search-wrapper,
-.featured-wrapper,
 .surveys-section {
   max-width: 1200px;
   margin: 0 auto;
@@ -319,53 +309,6 @@ onMounted(() => {
 .stats-wrapper {
   margin-bottom: 32px;
   transform: translateY(-20px);
-}
-
-.featured-wrapper {
-  margin-bottom: 32px;
-  background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
-  padding: 36px 32px;
-  border-radius: 24px;
-  box-shadow: 
-    0 8px 32px rgba(102, 126, 234, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  position: relative;
-  overflow: hidden;
-}
-
-.featured-wrapper::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-}
-
-.search-wrapper {
-  margin-bottom: 24px;
-  background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
-  padding: 32px;
-  border-radius: 24px;
-  box-shadow: 
-    0 8px 32px rgba(102, 126, 234, 0.08),
-    0 2px 8px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  position: relative;
-  overflow: hidden;
-}
-
-.search-wrapper::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
 }
 
 .surveys-section {
@@ -410,22 +353,12 @@ onMounted(() => {
 
 /* 添加滚动动画 */
 .stats-wrapper,
-.featured-wrapper,
-.search-wrapper,
 .surveys-section {
   animation: fadeInUp 0.6s ease-out;
 }
 
-.featured-wrapper {
-  animation-delay: 0.1s;
-}
-
-.search-wrapper {
-  animation-delay: 0.2s;
-}
-
 .surveys-section {
-  animation-delay: 0.3s;
+  animation-delay: 0.1s;
 }
 
 @keyframes fadeInUp {
@@ -440,8 +373,6 @@ onMounted(() => {
 }
 
 /* 悬停效果 */
-.featured-wrapper:hover,
-.search-wrapper:hover,
 .surveys-section:hover {
   transform: translateY(-4px);
   box-shadow: 
@@ -469,8 +400,6 @@ onMounted(() => {
     width: 200px;
   }
   
-  .search-wrapper,
-  .featured-wrapper,
   .surveys-section {
     margin: 0 15px 24px;
     padding: 24px 20px;
@@ -501,8 +430,6 @@ onMounted(() => {
     font-size: 1.1rem;
   }
   
-  .search-wrapper,
-  .featured-wrapper,
   .surveys-section {
     margin: 0 10px 20px;
     padding: 20px 16px;

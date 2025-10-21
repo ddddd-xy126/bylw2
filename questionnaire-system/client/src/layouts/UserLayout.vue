@@ -10,6 +10,39 @@
           <router-link v-if="isAuthed" to="/create">创建问卷</router-link>
           <router-link to="/rankings/participation">问卷排行榜</router-link>
           <router-link v-if="isAuthed" to="/profile">个人中心</router-link>
+          
+          <!-- 搜索框 -->
+          <div v-if="showSearchBar" class="header-search">
+            <el-input
+              v-model="searchQuery"
+              placeholder="搜索问卷..."
+              size="small"
+              clearable
+              @input="handleSearch"
+            >
+              <template #prefix>
+                <el-icon><Search /></el-icon>
+              </template>
+            </el-input>
+          </div>
+          
+          <!-- 分类筛选 -->
+          <div v-if="showSearchBar" class="header-category">
+            <el-select
+              v-model="selectedCategory"
+              placeholder="分类"
+              size="small"
+              clearable
+              @change="handleCategoryChange"
+            >
+              <el-option
+                v-for="category in categories"
+                :key="category.id"
+                :label="category.name"
+                :value="category.id"
+              />
+            </el-select>
+          </div>
         </nav>
       </div>
       <div class="header-right">
@@ -48,13 +81,41 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { ref, computed, provide, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/store/user";
-import { User, ArrowDown, SwitchButton } from "@element-plus/icons-vue";
+import { useDataStore } from "@/store/data";
+import { useRoute } from "vue-router";
+import { User, ArrowDown, SwitchButton, Search } from "@element-plus/icons-vue";
 
 const userStore = useUserStore();
+const dataStore = useDataStore();
 const { profile, token } = storeToRefs(userStore);
+const route = useRoute();
+
+// 搜索和筛选状态
+const searchQuery = ref("");
+const selectedCategory = ref(null);
+const showSearchBar = computed(() => route.path === '/home');
+
+// 从 dataStore 获取分类列表
+const categories = computed(() => dataStore.categories || []);
+
+// 提供给子组件
+provide('headerSearch', {
+  searchQuery,
+  selectedCategory,
+  handleSearch,
+  handleCategoryChange
+});
+
+function handleSearch() {
+  // 搜索会通过 provide/inject 传递给 HomePage
+}
+
+function handleCategoryChange() {
+  // 分类变化会通过 provide/inject 传递给 HomePage
+}
 
 import { useRouter } from "vue-router";
 
@@ -139,7 +200,53 @@ function handleCommand(command) {
 .nav-center {
   display: flex;
   gap: 28px;
+  align-items: center;
 }
+
+.header-search {
+  min-width: 200px;
+}
+
+.header-search :deep(.el-input__wrapper) {
+  border-radius: 20px;
+  background: rgba(102, 126, 234, 0.05);
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  transition: all 0.3s ease;
+}
+
+.header-search :deep(.el-input__wrapper:hover) {
+  background: rgba(102, 126, 234, 0.08);
+  border-color: rgba(102, 126, 234, 0.2);
+}
+
+.header-search :deep(.el-input__wrapper.is-focus) {
+  background: white;
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+.header-category {
+  min-width: 120px;
+}
+
+.header-category :deep(.el-select__wrapper) {
+  border-radius: 20px;
+  background: rgba(102, 126, 234, 0.05);
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  transition: all 0.3s ease;
+}
+
+.header-category :deep(.el-select__wrapper:hover) {
+  background: rgba(102, 126, 234, 0.08);
+  border-color: rgba(102, 126, 234, 0.2);
+}
+
+.header-category :deep(.el-select__wrapper.is-focused) {
+  background: white;
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
 .nav-center a {
   color: #333;
   text-decoration: none;

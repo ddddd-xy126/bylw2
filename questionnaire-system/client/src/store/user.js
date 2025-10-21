@@ -40,6 +40,16 @@ export const useUserStore = defineStore("user", {
       this.achievements = data.achievements;
       this.reports = Array.isArray(data.reports) ? data.reports : [];
     },
+    addFavorite(surveyId) {
+      const favoritesArray = Array.isArray(this.favorites) ? this.favorites : [];
+      if (!favoritesArray.some(fav => fav.questionnaireId === surveyId)) {
+        this.favorites = [...favoritesArray, { questionnaireId: surveyId }];
+      }
+    },
+    removeFavorite(surveyId) {
+      const favoritesArray = Array.isArray(this.favorites) ? this.favorites : [];
+      this.favorites = favoritesArray.filter(fav => fav.questionnaireId !== surveyId);
+    },
     logout() {
       this.token = "";
       this.profile = null;
