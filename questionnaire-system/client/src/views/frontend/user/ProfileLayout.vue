@@ -134,16 +134,16 @@ onMounted(() => {
 <style scoped>
 .profile-layout {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #80e6a265;
   padding: 20px;
 }
 
 .profile-container {
-  max-width: 1400px;
+  max-width: 1300px;
   margin: 0 auto;
   display: flex;
   gap: 24px;
-  min-height: calc(100vh - 40px);
+  min-height: calc(100vh - 20px);
 }
 
 /* 左侧边栏样式 */
@@ -155,14 +155,14 @@ onMounted(() => {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
-  height: fit-content;
+  /* height: fit-content;
   position: sticky;
-  top: 20px;
+  top: 30px; */
 }
 
 .user-info-mini {
   padding: 32px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #25923457;
   color: white;
   text-align: center;
 }
@@ -201,7 +201,7 @@ onMounted(() => {
 .profile-menu .el-menu-item {
   height: 56px;
   line-height: 56px;
-  margin: 0 12px;
+  margin: 10px 12px;
   border-radius: 12px;
   margin-bottom: 4px;
   transition: all 0.3s ease;
@@ -210,15 +210,15 @@ onMounted(() => {
 }
 
 .profile-menu .el-menu-item:hover {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #25923457;
   color: white;
   transform: translateX(4px);
 }
 
 .profile-menu .el-menu-item.is-active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #25923457;
   color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(65, 128, 79, 0.3);
 }
 
 .profile-menu .el-sub-menu .el-sub-menu__title {

@@ -3,14 +3,9 @@
     <div class="page-header">
       <h2>个人信息</h2>
       <p>管理您的个人资料和账户设置</p>
-      <el-alert
-        title="演示模式"
-        description="当前使用模拟数据进行演示，修改密码时请输入当前密码：123456"
-        type="info"
-        :closable="false"
-        show-icon
-        style="margin-top: 16px;"
-      />
+      <el-button type="success" plain @click="showPasswordDialog = true" class="password-button">
+        修改密码
+      </el-button>
     </div>
 
     <div class="info-content">
@@ -18,26 +13,17 @@
       <el-card class="info-card" shadow="never">
         <template #header>
           <div class="card-header">
-            <el-icon><User /></el-icon>
+            <el-icon>
+              <User />
+            </el-icon>
             <span>基本信息</span>
-            <el-button 
-              type="primary" 
-              size="small" 
-              :icon="Edit"
-              @click="editMode = !editMode"
-            >
+            <el-button type="success" size="small" :icon="Edit" @click="editMode = !editMode">
               {{ editMode ? '取消编辑' : '编辑资料' }}
             </el-button>
           </div>
         </template>
 
-        <el-form
-          ref="userInfoForm"
-          :model="userInfo"
-          :rules="formRules"
-          label-width="100px"
-          :disabled="!editMode"
-        >
+        <el-form ref="userInfoForm" :model="userInfo" :rules="formRules" label-width="100px" :disabled="!editMode">
           <el-row :gutter="24">
             <el-col :span="12">
               <el-form-item label="用户名" prop="username">
@@ -71,15 +57,11 @@
           <el-row :gutter="24">
             <el-col :span="12">
               <el-form-item label="生日" prop="birthday">
-                <el-date-picker
-                  v-model="userInfo.birthday"
-                  type="date"
-                  placeholder="选择生日"
-                  format="YYYY-MM-DD"
-                  value-format="YYYY-MM-DD"
-                />
+                <el-date-picker v-model="userInfo.birthday" type="date" placeholder="选择生日" format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD" />
               </el-form-item>
             </el-col>
+
             <el-col :span="12">
               <el-form-item label="职业" prop="occupation">
                 <el-input v-model="userInfo.occupation" placeholder="请输入职业" />
@@ -88,14 +70,8 @@
           </el-row>
 
           <el-form-item label="个人简介" prop="bio">
-            <el-input
-              v-model="userInfo.bio"
-              type="textarea"
-              :rows="4"
-              placeholder="介绍一下自己吧..."
-              maxlength="500"
-              show-word-limit
-            />
+            <el-input v-model="userInfo.bio" type="textarea" :rows="4" placeholder="介绍一下自己吧..." maxlength="500"
+              show-word-limit />
           </el-form-item>
 
           <el-form-item v-if="editMode">
@@ -111,7 +87,9 @@
       <el-card class="info-card" shadow="never">
         <template #header>
           <div class="card-header">
-            <el-icon><DataAnalysis /></el-icon>
+            <el-icon>
+              <DataAnalysis />
+            </el-icon>
             <span>账户统计</span>
           </div>
         </template>
@@ -135,87 +113,19 @@
           </div>
         </div>
       </el-card>
-
-      <!-- 安全设置 -->
-      <el-card class="info-card" shadow="never">
-        <template #header>
-          <div class="card-header">
-            <el-icon><Lock /></el-icon>
-            <span>安全设置</span>
-          </div>
-        </template>
-
-        <div class="security-items">
-          <div class="security-item">
-            <div class="security-info">
-              <div class="security-title">登录密码</div>
-              <div class="security-desc">用于保护账户安全</div>
-            </div>
-            <el-button type="primary" text @click="showPasswordDialog = true">
-              修改密码
-            </el-button>
-          </div>
-          
-          <div class="security-item">
-            <div class="security-info">
-              <div class="security-title">邮箱验证</div>
-              <div class="security-desc">
-                {{ userInfo.emailVerified ? '已验证' : '未验证' }}
-              </div>
-            </div>
-            <el-button 
-              v-if="!userInfo.emailVerified" 
-              type="primary" 
-              text 
-              @click="sendVerificationEmail"
-              :loading="sendingEmail"
-            >
-              发送验证邮件
-            </el-button>
-            <el-tag v-else type="success">已验证</el-tag>
-          </div>
-        </div>
-      </el-card>
     </div>
 
     <!-- 修改密码对话框 -->
-    <el-dialog
-      v-model="showPasswordDialog"
-      title="修改密码"
-      width="400px"
-    >
-      <el-form
-        ref="passwordFormRef"
-        :model="passwordForm"
-        :rules="passwordRules"
-        label-width="100px"
-      >
-        <el-form-item label="当前密码" prop="oldPassword">
-          <el-input
-            v-model="passwordForm.oldPassword"
-            type="password"
-            placeholder="请输入当前密码"
-            show-password
-          />
-        </el-form-item>
-        <el-form-item label="新密码" prop="newPassword">
-          <el-input
-            v-model="passwordForm.newPassword"
-            type="password"
-            placeholder="请输入新密码"
-            show-password
-          />
-        </el-form-item>
-        <el-form-item label="确认密码" prop="confirmPassword">
-          <el-input
-            v-model="passwordForm.confirmPassword"
-            type="password"
-            placeholder="请确认新密码"
-            show-password
-          />
-        </el-form-item>
-      </el-form>
-      
+    <el-dialog v-model="showPasswordDialog" title="修改密码" width="400px" top="250px">
+      <el-form ref="passwordFormRef" :model="passwordForm" :rules="passwordRules" label-width="100px">
+            <el-form-item label="新密码" prop="newPassword">
+              <el-input v-model="passwordForm.newPassword" type="password" placeholder="请输入新密码" show-password />
+            </el-form-item>
+            <el-form-item label="确认密码" prop="confirmPassword">
+              <el-input v-model="passwordForm.confirmPassword" type="password" placeholder="请确认新密码" show-password />
+            </el-form-item>
+          </el-form>
+
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="showPasswordDialog = false">取消</el-button>
@@ -252,7 +162,6 @@ const userInfo = reactive({
   birthday: '',
   occupation: '',
   bio: '',
-  emailVerified: false
 });
 
 // 用户统计 - 从API获取真实数据
@@ -265,7 +174,6 @@ const userStats = reactive({
 
 // 密码修改表单
 const passwordForm = reactive({
-  oldPassword: '',
   newPassword: '',
   confirmPassword: ''
 });
@@ -286,9 +194,6 @@ const formRules = {
 };
 
 const passwordRules = {
-  oldPassword: [
-    { required: true, message: '请输入当前密码', trigger: 'blur' }
-  ],
   newPassword: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
     { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
@@ -325,7 +230,6 @@ const loadUserInfo = () => {
       birthday: profile.birthday || '',
       occupation: profile.profession || '',
       bio: profile.bio || '',
-      emailVerified: profile.emailVerified || false
     });
   }
   console.log('用户信息已加载:', userInfo);
@@ -338,17 +242,17 @@ const loadUserStats = async () => {
     if (profile) {
       userStats.totalPoints = profile.points || 0;
     }
-    
+
     // 获取收藏数量
     userStats.totalCollections = userStore.favorites?.length || 0;
-    
+
     // 获取答题数量 - 从answers数据获取
     userStats.totalAnswers = userStore.answers?.length || 0;
-    
+
     // 获取创建问卷数量 - 这里可以通过API获取
     // 暂时设为0，后续可以添加API调用
     userStats.totalQuestionnaires = 0;
-    
+
     console.log('用户统计已加载:', userStats);
   } catch (error) {
     console.error('加载用户统计失败:', error);
@@ -357,17 +261,17 @@ const loadUserStats = async () => {
 
 const saveUserInfo = async () => {
   if (!userInfoForm.value) return;
-  
+
   try {
     await userInfoForm.value.validate();
     saving.value = true;
-    
+
     // 获取当前用户信息
     const currentProfile = userStore.profile;
     if (!currentProfile) {
       throw new Error('用户未登录');
     }
-    
+
     // 准备更新数据
     const updatedData = {
       ...currentProfile,
@@ -379,17 +283,17 @@ const saveUserInfo = async () => {
       bio: userInfo.bio,
       updatedAt: new Date().toISOString()
     };
-    
+
     // 调用API更新用户信息
     const { updateProfileApi } = await import('@/api/user.js');
     await updateProfileApi(currentProfile.id, updatedData);
-    
+
     // 更新store中的用户信息
     userStore.setProfile(updatedData);
-    
+
     ElMessage.success('个人信息更新成功');
     editMode.value = false;
-    
+
     console.log('用户信息已保存:', updatedData);
   } catch (error) {
     console.error('保存用户信息失败:', error);
@@ -410,10 +314,10 @@ const resetForm = () => {
 const sendVerificationEmail = async () => {
   try {
     sendingEmail.value = true;
-    
+
     // 模拟发送邮件延迟
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
+
     ElMessage.success('验证邮件已发送，请检查您的邮箱');
     console.log('验证邮件已发送（模拟）');
   } catch (error) {
@@ -426,33 +330,38 @@ const sendVerificationEmail = async () => {
 
 const changePassword = async () => {
   if (!passwordFormRef.value) return;
-  
+
   try {
     await passwordFormRef.value.validate();
     changingPassword.value = true;
-    
-    // 模拟密码修改延迟
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    
-    // 简单验证当前密码（模拟）
-    if (passwordForm.oldPassword !== '123456') {
-      throw new Error('当前密码错误');
+
+    // 调用后端 API 直接更新用户密码（不再校验当前密码）
+    const currentProfile = userStore.profile;
+    if (!currentProfile) {
+      throw new Error('用户未登录');
     }
-    
+
+    const { updateProfileApi } = await import('@/api/user.js');
+    // 只 patch 密码字段，json-server 会持久化到 db.json
+    await updateProfileApi(currentProfile.id, { password: passwordForm.newPassword });
+
+    // 同步更新本地 store（保留其他字段）
+    const updatedProfile = { ...currentProfile, password: passwordForm.newPassword };
+    userStore.setProfile(updatedProfile);
+
     ElMessage.success('密码修改成功');
     showPasswordDialog.value = false;
-    
+
     // 清空表单
     Object.assign(passwordForm, {
-      oldPassword: '',
       newPassword: '',
       confirmPassword: ''
     });
-    
-    console.log('密码已修改（模拟）');
+
+    console.log('密码已修改并已同步到 json-server');
   } catch (error) {
     console.error('修改密码失败:', error);
-    ElMessage.error('修改密码失败，请检查当前密码是否正确');
+    ElMessage.error(error.message || '修改密码失败，请重试');
   } finally {
     changingPassword.value = false;
   }
@@ -465,7 +374,7 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .info-page {
   max-width: 1000px;
   margin: 0 auto;
@@ -475,16 +384,24 @@ onMounted(() => {
   margin-bottom: 24px;
 }
 
+.password-button {
+  position: absolute;
+  font-size: 12px;
+  top: 40px;
+  right: 40px;
+}
+
 .page-header h2 {
   margin: 0 0 8px 0;
   font-size: 24px;
   font-weight: 600;
-  color: #303133;
+  color: var(--color-gray-800);
 }
 
 .page-header p {
   margin: 0;
-  color: #606266;
+  color: var(--color-gray-800);
+
   font-size: 14px;
 }
 
@@ -504,18 +421,17 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   font-weight: 600;
-  color: #303133;
 }
 
 .card-header .el-icon {
   margin-right: 8px;
   font-size: 18px;
-  color: #409eff;
+  color: var(--color-primary-light-1);
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 24px;
   padding: 16px 0;
 }
@@ -530,7 +446,7 @@ onMounted(() => {
 .stat-value {
   font-size: 32px;
   font-weight: 700;
-  color: #409eff;
+  color: var(--color-primary-light-1);
   margin-bottom: 8px;
 }
 
@@ -581,30 +497,30 @@ onMounted(() => {
   .info-page {
     padding: 0;
   }
-  
+
   .page-header {
     margin-bottom: 16px;
   }
-  
+
   .page-header h2 {
     font-size: 20px;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
-  
+
   .stat-value {
     font-size: 24px;
   }
-  
+
   .security-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .security-item .el-button,
   .security-item .el-tag {
     align-self: flex-end;
@@ -615,7 +531,7 @@ onMounted(() => {
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .card-header {
     flex-direction: column;
     align-items: flex-start;

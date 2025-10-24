@@ -283,11 +283,11 @@
     },
     {
       "id": "ec9c",
-      "username": "123",
+      "username": "ddd",
       "nickname": "123",
-      "email": "123@qq.com",
-      "phone": "13544955423",
-      "password": "123456",
+      "email": "ddd@qq.com",
+      "phone": "17390448636",
+      "password": "admin123",
       "avatar": "/avatars/default.jpg",
       "role": "user",
       "banned": false,
@@ -296,14 +296,14 @@
       "level": 1,
       "bio": "",
       "city": "",
-      "gender": "other",
+      "gender": "female",
       "age": 0,
-      "profession": "",
+      "profession": "保密",
       "joinedDate": "2025-09-28",
       "createdAt": "2025-09-28T10:18:33.205Z",
       "lastLoginAt": "2025-09-28T10:18:33.205Z",
       "lastLoginIp": "",
-      "updatedAt": "2025-09-28T10:18:33.206Z",
+      "updatedAt": "2025-10-24T09:40:54.204Z",
       "unlockedBadges": [
         "badge_3",
         "badge_4",
@@ -1335,6 +1335,201 @@
       "status": "published",
       "updatedAt": "2025-10-21T10:30:42.120Z",
       "createdAt": "2025-10-21T07:52:35.360Z",
+      "userId": "ec9c",
+      "authorId": "ec9c",
+      "authorName": "123",
+      "author": "123",
+      "participants": 0,
+      "participantCount": 0,
+      "creatorId": "ec9c",
+      "responses": 0,
+      "rating": 0,
+      "thumbnail": "/images/default.jpg"
+    },
+    {
+      "id": "1761270207375",
+      "title": "sda",
+      "description": "dasd",
+      "category": "enterprise",
+      "duration": 10,
+      "tags": [],
+      "questions": 7,
+      "questionList": [
+        {
+          "type": "single",
+          "title": "1",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1",
+              "text": "2"
+            },
+            {
+              "id": "opt2",
+              "text": "3"
+            }
+          ],
+          "allowOther": false,
+          "id": 1761033339799.1675,
+          "order": 1,
+          "enableLogic": true,
+          "logicRules": [
+            {
+              "optionId": "opt1",
+              "targetQuestion": 2
+            },
+            {
+              "optionId": "opt2",
+              "targetQuestion": 3
+            }
+          ]
+        },
+        {
+          "type": "single",
+          "title": "2",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1761270052949_0.69678316085411",
+              "text": "4"
+            },
+            {
+              "id": "opt2_1761270052949_0.43169401894674",
+              "text": "5"
+            }
+          ],
+          "allowOther": false,
+          "id": 1761270052949.2275,
+          "order": 2,
+          "enableLogic": true,
+          "logicRules": [
+            {
+              "optionId": "opt1_1761270052949_0.69678316085411",
+              "targetQuestion": 4
+            },
+            {
+              "optionId": "opt2_1761270052949_0.43169401894674",
+              "targetQuestion": 5
+            }
+          ]
+        },
+        {
+          "type": "single",
+          "title": "3",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1761270053509_0.9255147496725037",
+              "text": "6"
+            },
+            {
+              "id": "opt2_1761270053509_0.31372133652026035",
+              "text": "7"
+            }
+          ],
+          "allowOther": false,
+          "id": 1761270053509.924,
+          "order": 3,
+          "enableLogic": true,
+          "logicRules": [
+            {
+              "optionId": "opt1_1761270053509_0.9255147496725037",
+              "targetQuestion": 6
+            },
+            {
+              "optionId": "opt2_1761270053509_0.31372133652026035",
+              "targetQuestion": 7
+            }
+          ]
+        },
+        {
+          "type": "single",
+          "title": "4",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1761270054173_0.5210026719675347",
+              "text": "具体语境人员"
+            },
+            {
+              "id": "opt2_1761270054173_0.310256027445163",
+              "text": "呃uyetuyeuy"
+            }
+          ],
+          "allowOther": false,
+          "id": 1761270054173.9832,
+          "order": 4
+        },
+        {
+          "type": "single",
+          "title": "5",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1761270109173_0.5017487776771354",
+              "text": "e他也同样"
+            },
+            {
+              "id": "opt2_1761270109173_0.4888578640501312",
+              "text": "7teyer他也同样"
+            }
+          ],
+          "allowOther": false,
+          "id": 1761270109173.0017,
+          "order": 5
+        },
+        {
+          "type": "single",
+          "title": "6",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1761270109869_0.9909665104773897",
+              "text": "一条鱼让"
+            },
+            {
+              "id": "opt2_1761270109869_0.6623257754192245",
+              "text": "他也也同样e"
+            }
+          ],
+          "allowOther": false,
+          "id": 1761270109869.0957,
+          "order": 6
+        },
+        {
+          "type": "single",
+          "title": "7",
+          "description": "",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1761270116821_0.33560436873523325",
+              "text": "液体也同样rt"
+            },
+            {
+              "id": "opt2_1761270116821_0.5859290671056243",
+              "text": "他也同样绕太阳ey"
+            }
+          ],
+          "allowOther": false,
+          "id": 1761270116821.5095,
+          "order": 7
+        }
+      ],
+      "settings": {
+        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
+        "showProgress": true,
+        "randomOrder": false
+      },
+      "status": "published",
+      "updatedAt": "2025-10-24T01:44:50.622Z",
+      "createdAt": "2025-10-24T01:43:27.386Z",
       "userId": "ec9c",
       "authorId": "ec9c",
       "authorName": "123",
@@ -2404,6 +2599,80 @@
           "question": "新的单选题 (副本)"
         }
       ]
+    },
+    {
+      "id": "9379",
+      "userId": "ec9c",
+      "surveyId": 1760948457095,
+      "surveyTitle": "eqeqwe",
+      "score": 65,
+      "result": "良好",
+      "submittedAt": "2025-10-24T01:39:57.821Z",
+      "duration": 12,
+      "answers": [
+        {
+          "questionId": "1760948437510.531",
+          "answer": "opt1",
+          "question": "新的单选题qeqwe"
+        },
+        {
+          "questionId": "1760948439134.6104",
+          "answer": "opt2_1760948439134_0.2630666430921047",
+          "question": "新的单选题 (副本)eqweqwe"
+        },
+        {
+          "questionId": "1760948439470.0989",
+          "answer": "opt1_1760948439470_0.712217560205572",
+          "question": "新的单选题 (副本)eqweqwe"
+        },
+        {
+          "questionId": "1760948439646.0881",
+          "answer": "opt2_1760948439646_0.24837080904137154",
+          "question": "新的单选题 (副本)eeeq"
+        },
+        {
+          "questionId": "1760948439814.0251",
+          "answer": "opt2_1760948439814_0.08265114229097092",
+          "question": "新的单选题 (副本)weqweq"
+        }
+      ]
+    },
+    {
+      "id": "184a",
+      "userId": "ec9c",
+      "surveyId": 1761270207375,
+      "surveyTitle": "sda",
+      "score": 88,
+      "result": "良好",
+      "submittedAt": "2025-10-24T01:45:20.460Z",
+      "duration": 13,
+      "answers": [
+        {
+          "questionId": "1761033339799.1675",
+          "answer": "opt1",
+          "question": "1"
+        },
+        {
+          "questionId": "1761270052949.2275",
+          "answer": "opt2_1761270052949_0.43169401894674",
+          "question": "2"
+        },
+        {
+          "questionId": "1761270109173.0017",
+          "answer": "opt2_1761270109173_0.4888578640501312",
+          "question": "5"
+        },
+        {
+          "questionId": "1761270109869.0957",
+          "answer": "opt1_1761270109869_0.9909665104773897",
+          "question": "6"
+        },
+        {
+          "questionId": "1761270116821.5095",
+          "answer": "opt2_1761270116821_0.5859290671056243",
+          "question": "7"
+        }
+      ]
     }
   ],
   "recycleBin": [
@@ -2518,12 +2787,6 @@
       "userId": 3,
       "surveyId": null,
       "createdAt": "2025-09-28T10:22:49.194Z"
-    },
-    {
-      "id": "8249",
-      "userId": null,
-      "surveyId": 3,
-      "createdAt": "2025-10-21T03:36:58.093Z"
     },
     {
       "id": "a0aa",

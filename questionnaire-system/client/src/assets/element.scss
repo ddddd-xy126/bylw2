@@ -1,0 +1,177 @@
+/* Element Plus - 主题覆盖（使用项目全局变量）
+   目的：将常用组件（button/tag/form/select 等）颜色调整为 `main.scss` 中的主色调
+   注意：该文件应在 `element-plus/dist/index.css` 之后、`main.scss` 之后被引入，以保证覆盖并能使用 CSS 变量。
+*/
+
+/* Buttons */
+.el-button--primary {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--text-inverse) !important;
+}
+.el-button--primary:hover {
+  background-color: var(--color-primary-dark-1) !important;
+  border-color: var(--color-primary-dark-1) !important;
+}
+.el-button--primary:active {
+  background-color: var(--color-primary-dark-2) !important;
+  border-color: var(--color-primary-dark-2) !important;
+}
+
+/* plain 主按钮（is-plain） */
+.el-button--primary.is-plain,
+.el-button--primary.is-plain:hover {
+  background-color: transparent !important;
+  color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+/* success / warning / danger 等也映射到项目变量（可按需扩展） */
+.el-button--success {
+  background-color: var(--color-primary-light-3) !important;
+  border-color: var(--color-primary-light-2) !important;
+  color: var(--color-white) !important;
+  font-weight: 300 !important;
+}
+.el-button--warning {
+  background-color: var(--color-warning) !important;
+  border-color: var(--color-warning) !important;
+  color: var(--text-inverse) !important;
+}
+.el-button--danger {
+  background-color: var(--color-error) !important;
+  border-color: var(--color-error) !important;
+  color: var(--text-inverse) !important;
+}
+
+/* Tag */
+.el-tag--primary {
+  background-color: var(--color-primary) !important;
+  color: var(--text-inverse) !important;
+  border-color: var(--color-primary) !important;
+}
+.el-tag--success {
+  background-color: var(--color-success-bg) !important;
+  color: var(--color-success) !important;
+  border-color: var(--color-success) !important;
+}
+.el-tag--info {
+  background-color: var(--color-info-bg) !important;
+  color: var(--color-info) !important;
+  border-color: var(--color-info) !important;
+}
+.el-tag--danger {
+  background-color: var(--color-error-bg) !important;
+  color: var(--color-error) !important;
+  border-color: var(--color-error) !important;
+}
+
+/* 表单输入（输入框 / 文本域 / 下拉选择） */
+.el-input__inner,
+.el-textarea__inner,
+.el-select .el-input__inner {
+  border-color: var(--border-light) !important;
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.el-input__inner:hover,
+.el-select .el-input__inner:hover {
+  border-color: var(--color-primary) !important;
+}
+
+.el-input__inner:focus,
+.el-select-focused .el-input__inner {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 4px var(--bg-primary-light) !important;
+}
+
+.el-form-item__label {
+  color: var(--text-primary) !important;
+}
+.el-form-item__error {
+  color: var(--color-error) !important;
+}
+
+/* Select 下拉项 */
+.el-select-dropdown .el-select-dropdown__item.hover,
+.el-select-dropdown .el-select-dropdown__item.selected {
+  background-color: var(--bg-primary-light) !important;
+  color: var(--text-primary) !important;
+}
+
+/* 下拉箭头/图标颜色 */
+.el-select .el-input__suffix .el-input__icon,
+.el-select .el-input__suffix i {
+  color: var(--color-primary) !important;
+}
+
+/* 下拉面板边框/阴影 */
+.el-select-dropdown {
+  border-color: var(--border-light) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* 辅助：为一些 Element 组件的状态提供一致的颜色（例如禁用/激活） */
+.is-disabled {
+  opacity: 0.6 !important;
+}
+
+/* 小幅度过渡，保持一致性 */
+.el-button,
+.el-input__inner,
+.el-tag,
+.el-select .el-input__inner {
+  transition: all 180ms ease-in-out !important;
+}
+
+/* 可选：根据需要再添加更多覆盖（如 Pagination、Checkbox、Switch 等）*/
+
+/* ============================================
+  实用工具类（来自 main.scss，放到 element.scss 以便与组件覆盖集中管理）
+  ============================================ */
+
+/* 文本颜色 */
+.text-primary {
+  color: var(--color-primary) !important;
+}
+.text-success {
+  color: var(--color-success) !important;
+}
+.text-warning {
+  color: var(--color-warning) !important;
+}
+.text-error {
+  color: var(--color-error) !important;
+}
+.text-info {
+  color: var(--color-info) !important;
+}
+.text-muted {
+  color: var(--text-secondary) !important;
+}
+
+/* 背景颜色 */
+.bg-primary {
+  background-color: var(--color-primary) !important;
+}
+.bg-primary-light {
+  background-color: var(--bg-primary-light) !important;
+}
+.bg-success {
+  background-color: var(--color-success-bg) !important;
+}
+.bg-warning {
+  background-color: var(--color-warning-bg) !important;
+}
+.bg-error {
+  background-color: var(--color-error-bg) !important;
+}
+.bg-info {
+  background-color: var(--color-info-bg) !important;
+}
+
+/* 边框 */
+.border-primary {
+  border-color: var(--border-primary) !important;
+}

@@ -26,11 +26,6 @@
           </el-button>
         </div>
       </div>
-      <div class="banner-decoration">
-        <div class="decoration-circle circle-1"></div>
-        <div class="decoration-circle circle-2"></div>
-        <div class="decoration-circle circle-3"></div>
-      </div>
     </div>
 
     <!-- 统计信息 -->
@@ -165,7 +160,7 @@ onMounted(() => {
 <style scoped>
 .home {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  /* background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); */
 }
 
 /* 欢迎横幅 */
@@ -176,7 +171,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #586abd 0%, #8c71a7 100%);
   color: white;
   margin-bottom: 40px;
 }
@@ -248,55 +243,6 @@ onMounted(() => {
   left: 100%;
 }
 
-/* 装饰元素 */
-.banner-decoration {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-}
-
-.decoration-circle {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  animation: float 6s ease-in-out infinite;
-}
-
-.circle-1 {
-  width: 100px;
-  height: 100px;
-  top: 10%;
-  left: 10%;
-  animation-delay: 0s;
-}
-
-.circle-2 {
-  width: 150px;
-  height: 150px;
-  top: 60%;
-  right: 15%;
-  animation-delay: -2s;
-}
-
-.circle-3 {
-  width: 80px;
-  height: 80px;
-  bottom: 20%;
-  left: 60%;
-  animation-delay: -4s;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
-}
 
 /* 内容区域 */
 .stats-wrapper,
@@ -318,7 +264,7 @@ onMounted(() => {
   box-shadow: 
     0 8px 32px rgba(102, 126, 234, 0.08),
     0 2px 8px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(182, 182, 182, 0.8);
   margin-bottom: 40px;
   position: relative;
   overflow: hidden;
@@ -330,14 +276,14 @@ onMounted(() => {
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  height: 5px;
+  background: linear-gradient(90deg, #586abd 0%, #8c71a7 100%);
 }
 
 .pagination-section {
   display: flex;
   justify-content: center;
-  margin-bottom: 60px;
+  margin-bottom: 10px;
   padding: 0 20px;
 }
 
