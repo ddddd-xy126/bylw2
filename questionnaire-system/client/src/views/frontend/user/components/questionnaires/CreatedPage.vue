@@ -321,6 +321,7 @@ import {
 } from "@element-plus/icons-vue";
 
 import { useUserStore } from "@/store/user";
+import { useListFilter } from "@/hooks/useListFilter";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -328,43 +329,31 @@ const userStore = useUserStore();
 // 响应式数据
 const loading = ref(false);
 const surveys = ref([]);
-const searchKeyword = ref("");
 const filterStatus = ref("");
-const filterCategory = ref("");
-const currentPage = ref(1);
-const pageSize = ref(10);
+
+// 使用 useListFilter 处理搜索/分类/分页（status 单独保留）
+const sourceForFilter = computed(() => {
+  return surveys.value.filter(s => !filterStatus.value || s.status === filterStatus.value);
+});
+
+const {
+  searchKeyword,
+  filterCategory,
+  dateRange,
+  currentPage,
+  pageSize,
+  filteredList: filteredSurveys,
+  totalItems: totalCount,
+  handleSearch,
+  handleFilter,
+  handlePageChange,
+} = useListFilter({ sourceList: sourceForFilter, searchFields: ["title"] });
 
 // 计算属性
-const totalCount = computed(() => surveys.value.length);
 const draftCount = computed(() => surveys.value.filter(s => s.status === 'draft').length);
 const pendingCount = computed(() => surveys.value.filter(s => s.status === 'pending').length);
 const rejectedCount = computed(() => surveys.value.filter(s => s.status === 'rejected').length);
 const publishedCount = computed(() => surveys.value.filter(s => s.status === 'published').length);
-
-const filteredSurveys = computed(() => {
-  let result = surveys.value;
-
-  // 关键词搜索
-  if (searchKeyword.value) {
-    result = result.filter((survey) =>
-      survey.title.includes(searchKeyword.value)
-    );
-  }
-
-  // 状态筛选
-  if (filterStatus.value) {
-    result = result.filter((survey) => survey.status === filterStatus.value);
-  }
-
-  // 分类筛选
-  if (filterCategory.value) {
-    result = result.filter((survey) => survey.category === filterCategory.value);
-  }
-
-  // 分页
-  const startIndex = (currentPage.value - 1) * pageSize.value;
-  return result.slice(startIndex, startIndex + pageSize.value);
-});
 
 // 方法
 const loadCreatedSurveys = async () => {
@@ -415,17 +404,7 @@ const loadCreatedSurveys = async () => {
   }
 };
 
-const handleSearch = () => {
-  currentPage.value = 1;
-};
-
-const handleFilter = () => {
-  currentPage.value = 1;
-};
-
-const handlePageChange = (page) => {
-  currentPage.value = page;
-};
+// handleSearch/handleFilter/handlePageChange 来自 useListFilter
 
 const refreshData = () => {
   loadCreatedSurveys();

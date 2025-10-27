@@ -17,7 +17,7 @@
       <div class="filter-content">
         <div class="search-bar">
           <el-input
-            v-model="searchQuery"
+            v-model="searchKeyword"
             placeholder="搜索模板名称或关键词..."
             size="large"
             @input="handleSearch"
@@ -30,10 +30,10 @@
         
         <div class="filter-controls">
           <el-select
-            v-model="selectedCategory"
+            v-model="filterCategory"
             placeholder="选择分类"
             size="large"
-            @change="handleCategoryChange"
+            @change="handleFilter"
             clearable
           >
             <el-option
@@ -48,7 +48,7 @@
             v-model="sortBy"
             placeholder="排序方式"
             size="large"
-            @change="handleSortChange"
+            @change="handleSort"
           >
             <el-option label="最受欢迎" value="popular" />
             <el-option label="最新创建" value="newest" />
@@ -67,15 +67,15 @@
           <el-tag
             v-for="category in popularCategories"
             :key="category.value"
-            :type="selectedCategory === category.value ? 'primary' : ''"
-            :effect="selectedCategory === category.value ? 'dark' : 'plain'"
+            :type="filterCategory === category.value ? 'primary' : ''"
+            :effect="filterCategory === category.value ? 'dark' : 'plain'"
             class="category-tag"
             @click="selectCategory(category.value)"
           >
             {{ category.label }}
           </el-tag>
           <el-tag
-            v-if="selectedCategory"
+            v-if="filterCategory"
             type="info"
             class="category-tag clear-tag"
             @click="clearCategory"
@@ -90,7 +90,7 @@
     <div class="templates-section">
       <div class="templates-header">
         <h2>
-          <span>共找到 {{ filteredTemplates.length }} 个模板</span>
+          <span>共找到 {{ filteredTotal }} 个模板</span>
         </h2>
       </div>
 
@@ -98,7 +98,7 @@
         <el-skeleton :rows="3" animated />
       </div>
 
-      <div v-else-if="filteredTemplates.length === 0" class="empty-section">
+      <div v-else-if="filteredTotal === 0" class="empty-section">
         <el-empty description="没有找到符合条件的模板">
           <el-button @click="clearFilters">清除筛选条件</el-button>
         </el-empty>
@@ -106,7 +106,7 @@
 
       <div v-else class="templates-grid">
         <div
-          v-for="template in paginatedTemplates"
+          v-for="template in filteredList"
           :key="template.id"
           class="template-card"
           @click="selectTemplate(template)"
@@ -192,12 +192,12 @@
       </div>
 
       <!-- 分页 -->
-      <div class="pagination-section" v-if="filteredTemplates.length > pageSize">
+      <div class="pagination-section" v-if="filteredTotal > pageSize">
         <el-pagination
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
           :page-sizes="[12, 24, 48]"
-          :total="filteredTemplates.length"
+          :total="filteredTotal"
           layout="total, sizes, prev, pager, next, jumper"
           @current-change="handlePageChange"
           @size-change="handleSizeChange"
@@ -268,6 +268,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useListFilter } from '@/hooks/useListFilter'
 import { useRouter } from 'vue-router'
 import { 
   ArrowLeft,
@@ -282,12 +283,9 @@ import { ElMessage } from 'element-plus'
 const router = useRouter()
 
 // 响应式数据
-const searchQuery = ref('')
-const selectedCategory = ref('')
 const sortBy = ref('popular')
-const currentPage = ref(1)
-const pageSize = ref(12)
 const loading = ref(false)
+// 原始模板数据（局部静态样例）
 const previewVisible = ref(false)
 const previewTemplate = ref(null)
 const userFavorites = ref([])
@@ -576,56 +574,54 @@ const templates = ref([
   }
 ])
 
-// 计算属性
-const filteredTemplates = computed(() => {
-  let result = templates.value
+// 将原始 templates 包装为 hook 的 sourceList：添加 category 与 searchText 字段以支持分类与 tags 搜索
+const sourceList = computed(() =>
+  templates.value.map((t) => ({
+    ...t,
+    // hook 默认按 item.category 做分类过滤；模板使用 categoryValue 字段，映射一份
+    category: t.categoryValue,
+    // 用于全文搜索（包括 tags）
+    searchText: `${t.title} ${t.description} ${t.tags?.join(' ')}`,
+  }))
+)
 
-  // 按分类筛选
-  if (selectedCategory.value) {
-    result = result.filter(template => 
-      template.categoryValue === selectedCategory.value
-    )
-  }
-
-  // 按搜索关键词筛选
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.toLowerCase().trim()
-    result = result.filter(template => 
-      template.title.toLowerCase().includes(query) ||
-      template.description.toLowerCase().includes(query) ||
-      template.tags.some(tag => tag.toLowerCase().includes(query))
-    )
-  }
-
-  // 排序
+// 自定义排序函数，基于外部的 sortBy
+const sortFn = (a, b) => {
   switch (sortBy.value) {
     case 'newest':
-      result = result.sort((a, b) => b.id - a.id)
-      break
+      return b.id - a.id
     case 'rating':
-      result = result.sort((a, b) => b.rating - a.rating)
-      break
+      return b.rating - a.rating
     case 'usage':
-      result = result.sort((a, b) => b.usageCount - a.usageCount)
-      break
+      return b.usageCount - a.usageCount
     case 'popular':
     default:
-      result = result.sort((a, b) => {
-        const scoreA = a.rating * 0.5 + (a.usageCount / 1000) * 0.3 + (a.isHot ? 0.2 : 0)
-        const scoreB = b.rating * 0.5 + (b.usageCount / 1000) * 0.3 + (b.isHot ? 0.2 : 0)
-        return scoreB - scoreA
-      })
-      break
+      const scoreA = a.rating * 0.5 + (a.usageCount / 1000) * 0.3 + (a.isHot ? 0.2 : 0)
+      const scoreB = b.rating * 0.5 + (b.usageCount / 1000) * 0.3 + (b.isHot ? 0.2 : 0)
+      return scoreB - scoreA
   }
+}
 
-  return result
-})
+// 使用通用 hook 管理搜索/筛选/分页
+const {
+  searchKeyword,
+  filterCategory,
+  currentPage,
+  pageSize,
+  filteredList,
+  filteredTotal,
+  handleSearch,
+  handleFilter,
+  handleSort,
+  handlePageChange,
+} = useListFilter({ sourceList, searchFields: ['searchText'], sortFn })
 
-const paginatedTemplates = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value
-  const end = start + pageSize.value
-  return filteredTemplates.value.slice(start, end)
-})
+// page size change
+
+const handleSizeChange = (size) => {
+  pageSize.value = size
+  currentPage.value = 1
+}
 
 // 生命周期
 onMounted(() => {
@@ -645,39 +641,19 @@ const goBack = () => {
   router.go(-1)
 }
 
-const handleSearch = () => {
-  currentPage.value = 1
-}
-
-const handleCategoryChange = () => {
-  currentPage.value = 1
-}
-
-const handleSortChange = () => {
-  currentPage.value = 1
-}
-
-const handlePageChange = () => {
-  // 页面变化处理
-}
-
-const handleSizeChange = () => {
-  currentPage.value = 1
-}
-
 const selectCategory = (category) => {
-  selectedCategory.value = selectedCategory.value === category ? '' : category
+  filterCategory.value = filterCategory.value === category ? '' : category
   currentPage.value = 1
 }
 
 const clearCategory = () => {
-  selectedCategory.value = ''
+  filterCategory.value = ''
   currentPage.value = 1
 }
 
 const clearFilters = () => {
-  searchQuery.value = ''
-  selectedCategory.value = ''
+  searchKeyword.value = ''
+  filterCategory.value = ''
   sortBy.value = 'popular'
   currentPage.value = 1
 }

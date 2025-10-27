@@ -237,10 +237,10 @@
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
           :page-sizes="[10, 20, 50, 100]"
-          :total="filteredList.length"
+          :total="filteredTotal"
           layout="total, sizes, prev, pager, next, jumper"
           @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
+          @current-change="handlePageChange"
         />
       </div>
     </el-card>
@@ -249,6 +249,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useListFilter } from '@/hooks/useListFilter'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
@@ -266,59 +267,38 @@ const router = useRouter()
 
 // 响应式数据
 const loading = ref(false)
-const searchKeyword = ref('')
 const filterStatus = ref('')
 const filterCategory = ref('')
 const viewMode = ref('card')
-const currentPage = ref(1)
-const pageSize = ref(20)
 const selectedItems = ref([])
 
 // 从 json-server 获取的问卷列表
 const questionnaireList = ref([])
 
 // 计算属性
-const filteredList = computed(() => {
+// 构造传入 hooks 的源数据（先按 status/category 预过滤）
+const sourceForFilter = computed(() => {
   let list = questionnaireList.value
-
-  // 关键词搜索
-  if (searchKeyword.value) {
-    const keyword = searchKeyword.value.toLowerCase()
-    list = list.filter(item => 
-      item.title.toLowerCase().includes(keyword) ||
-      (item.description && item.description.toLowerCase().includes(keyword))
-    )
-  }
-
-  // 状态筛选
-  if (filterStatus.value) {
-    list = list.filter(item => item.status === filterStatus.value)
-  }
-
-  // 分类筛选
-  if (filterCategory.value) {
-    list = list.filter(item => item.category === filterCategory.value)
-  }
-
+  if (filterStatus.value) list = list.filter(item => item.status === filterStatus.value)
+  if (filterCategory.value) list = list.filter(item => item.category === filterCategory.value)
   return list
 })
 
-const total = computed(() => filteredList.value.length)
+const {
+  searchKeyword,
+  currentPage,
+  pageSize,
+  filteredList: paginatedList,
+  filteredTotal,
+  handleSearch,
+  handleFilter,
+  handlePageChange
+} = useListFilter({ sourceList: sourceForFilter, searchFields: ['title', 'description'] })
 
-const paginatedList = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value
-  const end = start + pageSize.value
-  return filteredList.value.slice(start, end)
-})
+const total = computed(() => filteredTotal)
 
 // 方法
-const handleSearch = () => {
-  currentPage.value = 1
-}
-
-const handleFilter = () => {
-  currentPage.value = 1
-}
+// handleSearch / handleFilter 来自 useListFilter
 
 const resetFilters = () => {
   searchKeyword.value = ''
@@ -332,9 +312,7 @@ const handleSizeChange = (val) => {
   currentPage.value = 1
 }
 
-const handleCurrentChange = (val) => {
-  currentPage.value = val
-}
+// 使用 hook 提供的 handlePageChange
 
 const handleSelectionChange = (val) => {
   selectedItems.value = val

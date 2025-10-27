@@ -281,17 +281,15 @@ import {
   CircleCloseFilled
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/user'
+import { useListFilter } from '@/hooks/useListFilter'
 
 const userStore = useUserStore()
 
 // 响应式数据
 const loading = ref(false)
 const announcements = ref([])
-const searchKeyword = ref('')
 const filterType = ref('')
 const filterStatus = ref('')
-const currentPage = ref(1)
-const pageSize = ref(10)
 const dialogVisible = ref(false)
 const isEditing = ref(false)
 const formRef = ref(null)
@@ -331,13 +329,9 @@ const activeCount = computed(() => announcements.value.filter(a => isAnnouncemen
 const expiredCount = computed(() => announcements.value.filter(a => !isAnnouncementActive(a)).length)
 const totalViews = computed(() => announcements.value.reduce((sum, a) => sum + (a.views || 0), 0))
 
-const filteredAnnouncements = computed(() => {
+// 为保留按类型/状态的筛选，在传入 useListFilter 前先做预过滤
+const sourceForFilter = computed(() => {
   let list = announcements.value
-
-  if (searchKeyword.value) {
-    const keyword = searchKeyword.value.toLowerCase()
-    list = list.filter(item => item.title.toLowerCase().includes(keyword))
-  }
 
   if (filterType.value) {
     list = list.filter(item => item.type === filterType.value)
@@ -353,22 +347,22 @@ const filteredAnnouncements = computed(() => {
   return list
 })
 
+// 使用复用的 hooks 管理搜索/分页/通用筛选
+const {
+  searchKeyword,
+  currentPage,
+  pageSize,
+  filteredList: filteredAnnouncements,
+  totalItems,
+  handleSearch,
+  handleFilter,
+  handlePageChange
+} = useListFilter({ sourceList: sourceForFilter, searchFields: ['title'] })
+
 // 方法
-const handleSearch = () => {
-  currentPage.value = 1
-}
-
-const handleFilter = () => {
-  currentPage.value = 1
-}
-
 const handleSizeChange = (val) => {
   pageSize.value = val
   currentPage.value = 1
-}
-
-const handleCurrentChange = (val) => {
-  currentPage.value = val
 }
 
 const isAnnouncementActive = (announcement) => {

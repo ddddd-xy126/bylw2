@@ -59,7 +59,7 @@
         <el-skeleton :rows="5" animated />
       </div>
       
-      <div v-else-if="filteredCollections.length === 0" class="empty-container">
+  <div v-else-if="filteredTotal === 0" class="empty-container">
         <el-empty description="暂无收藏的问卷">
           <template #description>
             <p v-if="searchKeyword || categoryFilter">
@@ -73,7 +73,7 @@
       </div>
 
       <div v-else class="collections-list">
-        <div class="list-header">
+          <div class="list-header">
           <el-checkbox
             v-model="selectAll"
             :indeterminate="indeterminate"
@@ -81,7 +81,7 @@
           >
             全选
           </el-checkbox>
-          <span class="total-count">共 {{ filteredCollections.length }} 个收藏</span>
+          <span class="total-count">共 {{ filteredTotal }} 个收藏</span>
         </div>
 
         <div class="survey-grid">
@@ -170,14 +170,14 @@
         </div>
 
         <!-- 分页 -->
-        <div class="pagination-container" v-if="filteredCollections.length > pageSize">
+        <div class="pagination-container" v-if="filteredTotal > pageSize">
           <el-pagination
             v-model:current-page="currentPage"
             v-model:page-size="pageSize"
             :page-sizes="[12, 24, 48]"
-            :total="filteredCollections.length"
+            :total="filteredTotal"
             layout="total, sizes, prev, pager, next, jumper"
-            @current-change="handlePageChange"
+            @current-change="handlePageChangeLocal"
             @size-change="handleSizeChange"
           />
         </div>
@@ -193,6 +193,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { Search, Delete, View, User, Clock, Star } from '@element-plus/icons-vue';
 import { useUserStore } from '@/store/user';
 import { getFavoritesApi, removeFavoriteApi } from '@/api/user';
+import { useListFilter } from '@/hooks/useListFilter';
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -201,57 +202,47 @@ const userStore = useUserStore();
 const loading = ref(true);
 const collections = ref([]);
 const categories = ref([]);
-const searchKeyword = ref('');
 const categoryFilter = ref('');
 const sortBy = ref('newest');
-const currentPage = ref(1);
-const pageSize = ref(12);
 const selectedItems = ref([]);
 const removingItems = ref([]);
 
 // 计算属性
-const filteredCollections = computed(() => {
-  let filtered = [...collections.value];
-  
-  // 搜索过滤
-  if (searchKeyword.value) {
-    const keyword = searchKeyword.value.toLowerCase();
-    filtered = filtered.filter(item =>
-      item.title.toLowerCase().includes(keyword) ||
-      item.description.toLowerCase().includes(keyword) ||
-      item.author.toLowerCase().includes(keyword)
-    );
-  }
-  
-  // 分类过滤
+// 先按分类/状态对源数据做预过滤（categoryFilter 为组件本地控制）
+const sourceForFilter = computed(() => {
+  let list = [...collections.value];
   if (categoryFilter.value) {
-    filtered = filtered.filter(item => item.categoryId == categoryFilter.value);
+    list = list.filter(item => item.categoryId == categoryFilter.value);
   }
-  
-  // 排序
-  filtered.sort((a, b) => {
-    switch (sortBy.value) {
-      case 'newest':
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      case 'oldest':
-        return new Date(a.createdAt) - new Date(b.createdAt);
-      case 'title':
-        return a.title.localeCompare(b.title);
-      case 'participants':
-        return (b.participants || 0) - (a.participants || 0);
-      default:
-        return 0;
-    }
-  });
-  
-  return filtered;
+  return list;
 });
 
-const paginatedCollections = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return filteredCollections.value.slice(start, end);
-});
+// 根据 sortBy 返回比较函数（传入 hooks 使用）
+const sortFn = (a, b) => {
+  switch (sortBy.value) {
+    case 'newest':
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    case 'oldest':
+      return new Date(a.createdAt) - new Date(b.createdAt);
+    case 'title':
+      return a.title.localeCompare(b.title);
+    case 'participants':
+      return (b.participants || 0) - (a.participants || 0);
+    default:
+      return 0;
+  }
+};
+
+const {
+  searchKeyword,
+  currentPage,
+  pageSize,
+  filteredList: paginatedCollections,
+  filteredTotal,
+  handleSearch,
+  handleFilter,
+  handlePageChange
+} = useListFilter({ sourceList: sourceForFilter, searchFields: ['title', 'description', 'author'], sortFn });
 
 const selectAll = computed({
   get() {
@@ -376,26 +367,24 @@ const goToSurvey = (surveyId) => {
   router.push(`/surveys/${surveyId}`);
 };
 
-const handleSearch = () => {
-  currentPage.value = 1;
-};
-
 const handleCategoryChange = () => {
-  currentPage.value = 1;
+  // pre-filter changed, reset page
+  handleFilter();
 };
 
 const handleSortChange = () => {
+  // sortFn reads sortBy ref dynamically; just reset page
   currentPage.value = 1;
-};
-
-const handlePageChange = (page) => {
-  currentPage.value = page;
-  selectedItems.value = [];
 };
 
 const handleSizeChange = (size) => {
   pageSize.value = size;
   currentPage.value = 1;
+  selectedItems.value = [];
+};
+
+const handlePageChangeLocal = (page) => {
+  handlePageChange(page);
   selectedItems.value = [];
 };
 

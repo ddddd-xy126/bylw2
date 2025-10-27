@@ -156,10 +156,10 @@
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
           :page-sizes="[10, 20, 50]"
-          :total="filteredList.length"
+          :total="filteredTotal"
           layout="total, sizes, prev, pager, next"
           @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
+          @current-change="handlePageChange"
         />
       </div>
     </el-card>
@@ -273,6 +273,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useListFilter } from '@/hooks/useListFilter'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Search,
@@ -287,10 +288,7 @@ import { getSurveysApi, updateSurveyStatusApi, deleteAdminSurveyApi } from '@/ap
 
 // 响应式数据
 const loading = ref(false)
-const searchKeyword = ref('')
 const filterPriority = ref('')
-const currentPage = ref(1)
-const pageSize = ref(20)
 const selectedItems = ref([])
 const previewDialogVisible = ref(false)
 const reviewDialogVisible = ref(false)
@@ -306,50 +304,32 @@ const reviewForm = reactive({
 // 从 json-server 获取的待审核问卷列表
 const pendingList = ref([])
 
-// 计算属性
-const filteredList = computed(() => {
+// 预过滤 priority
+const sourceForFilter = computed(() => {
   let list = pendingList.value
-
-  if (searchKeyword.value) {
-    const keyword = searchKeyword.value.toLowerCase()
-    list = list.filter(item => 
-      item.title.toLowerCase().includes(keyword) ||
-      item.submitterName.toLowerCase().includes(keyword)
-    )
-  }
-
-  if (filterPriority.value) {
-    list = list.filter(item => item.priority === filterPriority.value)
-  }
-
+  if (filterPriority.value) list = list.filter(item => item.priority === filterPriority.value)
   return list
 })
 
-const total = computed(() => filteredList.value.length)
+const {
+  searchKeyword,
+  currentPage,
+  pageSize,
+  filteredList: paginatedList,
+  filteredTotal,
+  handleSearch,
+  handleFilter,
+  handlePageChange
+} = useListFilter({ sourceList: sourceForFilter, searchFields: ['title', 'submitterName'] })
+
+const total = computed(() => filteredTotal)
 const pendingCount = computed(() => pendingList.value.length)
 
-const paginatedList = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value
-  const end = start + pageSize.value
-  return filteredList.value.slice(start, end)
-})
-
 // 方法
-const handleSearch = () => {
-  currentPage.value = 1
-}
-
-const handleFilter = () => {
-  currentPage.value = 1
-}
-
+// 使用 hook 提供的 handleSearch/handleFilter/handlePageChange
 const handleSizeChange = (val) => {
   pageSize.value = val
   currentPage.value = 1
-}
-
-const handleCurrentChange = (val) => {
-  currentPage.value = val
 }
 
 const handleSelectionChange = (val) => {

@@ -168,7 +168,7 @@
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
           :page-sizes="[10, 20, 50]"
-          :total="filteredList.length"
+          :total="filteredTotal"
           layout="total, sizes, prev, pager, next, jumper"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
@@ -382,6 +382,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useListFilter } from '@/hooks/useListFilter'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Plus,
@@ -396,11 +397,8 @@ import {
 // 响应式数据
 const loading = ref(false)
 const submitLoading = ref(false)
-const searchKeyword = ref('')
 const filterType = ref('')
 const filterCategory = ref('')
-const currentPage = ref(1)
-const pageSize = ref(20)
 const selectedItems = ref([])
 const previewDialogVisible = ref(false)
 const questionDialogVisible = ref(false)
@@ -442,29 +440,6 @@ const questionRules = {
 }
 
 // 计算属性
-const filteredList = computed(() => {
-  let list = questionList.value
-
-  if (searchKeyword.value) {
-    const keyword = searchKeyword.value.toLowerCase()
-    list = list.filter(item => 
-      item.title.toLowerCase().includes(keyword) ||
-      (item.options && item.options.some(opt => opt.text && opt.text.toLowerCase().includes(keyword)))
-    )
-  }
-
-  if (filterType.value) {
-    list = list.filter(item => item.type === filterType.value)
-  }
-
-  if (filterCategory.value) {
-    list = list.filter(item => item.category === filterCategory.value)
-  }
-
-  return list
-})
-
-const total = computed(() => filteredList.value.length)
 const totalQuestions = computed(() => questionList.value.length)
 const totalCategories = computed(() => {
   const categories = new Set(questionList.value.map(q => q.category))
@@ -473,21 +448,28 @@ const totalCategories = computed(() => {
 const activeQuestions = computed(() => questionList.value.filter(q => q.usageCount && q.usageCount > 0).length)
 const templateCount = computed(() => questionList.value.filter(q => q.isTemplate).length)
 
-const paginatedList = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value
-  const end = start + pageSize.value
-  return filteredList.value.slice(start, end)
+// 为了让 useListFilter 支持在 options 中搜索，先构造一个包含 optionsText 的源列表，并预过滤 type/category
+const sourceForFilter = computed(() => {
+  return questionList.value
+    .map(q => ({ ...q, optionsText: (q.options || []).map(o => o.text).join(' ') }))
+    .filter(q => (filterType.value ? q.type === filterType.value : true))
+    .filter(q => (filterCategory.value ? q.category === filterCategory.value : true))
 })
 
+const {
+  searchKeyword,
+  currentPage,
+  pageSize,
+  filteredList: paginatedList,
+  filteredTotal,
+  handleSearch,
+  handleFilter,
+  handlePageChange
+} = useListFilter({ sourceList: sourceForFilter, searchFields: ['title', 'optionsText'] })
+
+const total = computed(() => filteredTotal)
+
 // 方法
-const handleSearch = () => {
-  currentPage.value = 1
-}
-
-const handleFilter = () => {
-  currentPage.value = 1
-}
-
 const resetFilters = () => {
   searchKeyword.value = ''
   filterType.value = ''
@@ -501,7 +483,7 @@ const handleSizeChange = (val) => {
 }
 
 const handleCurrentChange = (val) => {
-  currentPage.value = val
+  handlePageChange(val)
 }
 
 const handleSelectionChange = (val) => {

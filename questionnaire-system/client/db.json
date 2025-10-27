@@ -292,7 +292,7 @@
       "role": "user",
       "banned": false,
       "isActive": true,
-      "points": 360,
+      "points": 660,
       "level": 1,
       "bio": "",
       "city": "",
@@ -308,7 +308,8 @@
         "badge_3",
         "badge_4",
         "badge_6",
-        "badge_13"
+        "badge_13",
+        "badge_14"
       ]
     }
   ],
@@ -1527,8 +1528,8 @@
         "showProgress": true,
         "randomOrder": false
       },
-      "status": "published",
-      "updatedAt": "2025-10-24T01:44:50.622Z",
+      "status": "closed",
+      "updatedAt": "2025-10-27T01:28:26.579Z",
       "createdAt": "2025-10-24T01:43:27.386Z",
       "userId": "ec9c",
       "authorId": "ec9c",
@@ -1540,6 +1541,10 @@
       "responses": 0,
       "rating": 0,
       "thumbnail": "/images/default.jpg"
+    },
+    {
+      "id": "9fc2",
+      "updatedAt": "2025-10-27T01:52:55.259Z"
     }
   ],
   "questions": [
@@ -2308,74 +2313,6 @@
       ]
     },
     {
-      "id": "e658",
-      "userId": "ec9c",
-      "surveyId": 3,
-      "surveyTitle": "职业兴趣测试",
-      "score": 74,
-      "result": "良好",
-      "submittedAt": "2025-10-20T06:26:59.475Z",
-      "duration": 9,
-      "answers": [
-        {
-          "questionId": "1",
-          "answer": "red",
-          "question": "您最喜欢的颜色是什么？"
-        },
-        {
-          "questionId": "2",
-          "answer": [
-            "running"
-          ],
-          "question": "您喜欢的运动有哪些？"
-        },
-        {
-          "questionId": "3",
-          "answer": 4,
-          "question": "请为我们的服务打分"
-        },
-        {
-          "questionId": "4",
-          "answer": "大而全",
-          "question": "您还有什么建议或意见吗？"
-        }
-      ]
-    },
-    {
-      "id": "3316",
-      "userId": "ec9c",
-      "surveyId": 3,
-      "surveyTitle": "职业兴趣测试",
-      "score": 60,
-      "result": "良好",
-      "submittedAt": "2025-10-20T06:29:00.034Z",
-      "duration": 8,
-      "answers": [
-        {
-          "questionId": "1",
-          "answer": "red",
-          "question": "您最喜欢的颜色是什么？"
-        },
-        {
-          "questionId": "2",
-          "answer": [
-            "football"
-          ],
-          "question": "您喜欢的运动有哪些？"
-        },
-        {
-          "questionId": "3",
-          "answer": 4,
-          "question": "请为我们的服务打分"
-        },
-        {
-          "questionId": "4",
-          "answer": "qwe",
-          "question": "您还有什么建议或意见吗？"
-        }
-      ]
-    },
-    {
       "id": "6b87",
       "userId": "ec9c",
       "surveyId": 3,
@@ -2677,35 +2614,35 @@
   ],
   "recycleBin": [
     {
-      "id": "132a",
+      "id": "3316",
       "userId": "ec9c",
       "surveyId": 3,
       "surveyTitle": "职业兴趣测试",
-      "score": 77,
+      "score": 60,
       "result": "良好",
-      "submittedAt": "2025-10-20T07:36:35.254Z",
-      "duration": 9,
+      "submittedAt": "2025-10-20T06:29:00.034Z",
+      "duration": 8,
       "answers": [
         {
           "questionId": "1",
-          "answer": "blue",
+          "answer": "red",
           "question": "您最喜欢的颜色是什么？"
         },
         {
           "questionId": "2",
           "answer": [
-            "swimming"
+            "football"
           ],
           "question": "您喜欢的运动有哪些？"
         },
         {
           "questionId": "3",
-          "answer": 5,
+          "answer": 4,
           "question": "请为我们的服务打分"
         },
         {
           "questionId": "4",
-          "answer": "qeq",
+          "answer": "qwe",
           "question": "您还有什么建议或意见吗？"
         }
       ],
@@ -2737,8 +2674,72 @@
       },
       "title": "职业兴趣测试",
       "category": "职业发展",
-      "originalId": "132a",
-      "deletedAt": "2025-10-20T07:55:58.737Z"
+      "originalId": "3316",
+      "deletedAt": "2025-10-27T01:53:08.314Z"
+    },
+    {
+      "id": "e658",
+      "userId": "ec9c",
+      "surveyId": 3,
+      "surveyTitle": "职业兴趣测试",
+      "score": 74,
+      "result": "良好",
+      "submittedAt": "2025-10-20T06:26:59.475Z",
+      "duration": 9,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "running"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 4,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "大而全",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ],
+      "survey": {
+        "id": "3",
+        "title": "职业兴趣测试",
+        "description": "发现您的职业兴趣和潜在发展方向，为职业规划提供科学依据",
+        "category": "职业发展",
+        "categoryId": 3,
+        "author": "张规划师",
+        "authorId": 5,
+        "questions": 25,
+        "duration": 20,
+        "difficulty": "中等",
+        "status": "published",
+        "tags": [
+          "职业",
+          "兴趣",
+          "规划",
+          "发展"
+        ],
+        "thumbnail": "/images/career.jpg",
+        "rating": 4.7,
+        "participants": 2150,
+        "participantCount": 2150,
+        "createdAt": "2024-01-05T11:00:00Z",
+        "updatedAt": "2024-01-18T16:45:00Z",
+        "questionList": []
+      },
+      "title": "职业兴趣测试",
+      "category": "职业发展",
+      "originalId": "e658",
+      "deletedAt": "2025-10-27T01:53:14.986Z"
     }
   ],
   "comments": [

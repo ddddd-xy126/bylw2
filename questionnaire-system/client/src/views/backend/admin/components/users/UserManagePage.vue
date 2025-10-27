@@ -442,6 +442,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from "vue";
+import { useListFilter } from '@/hooks/useListFilter'
 import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
@@ -472,12 +473,8 @@ const router = useRouter();
 const loading = ref(false);
 const saving = ref(false);
 const users = ref([]);
-const searchKeyword = ref("");
 const roleFilter = ref("");
 const statusFilter = ref("");
-const currentPage = ref(1);
-const pageSize = ref(20);
-const total = ref(0);
 const selectedUsers = ref([]);
 
 const detailDialogVisible = ref(false);
@@ -504,38 +501,42 @@ const editRules = {
 const editFormRef = ref();
 
 // 计算属性
-const filteredUsers = computed(() => {
-  let result = users.value;
-
-  // 关键词搜索
-  if (searchKeyword.value) {
-    result = result.filter(
-      (user) =>
-        user.username.includes(searchKeyword.value) ||
-        user.email.includes(searchKeyword.value) ||
-        user.nickname?.includes(searchKeyword.value)
-    );
-  }
-
-  // 角色筛选
+// 将按角色/状态做为预过滤，交给 hook 处理搜索/分页
+const sourceList = computed(() => {
+  let list = users.value || [];
   if (roleFilter.value) {
-    result = result.filter((user) => user.role === roleFilter.value);
+    list = list.filter((u) => u.role === roleFilter.value);
   }
 
-  // 状态筛选
   if (statusFilter.value) {
     if (statusFilter.value === "active") {
-      result = result.filter((user) => !user.banned && user.isActive);
+      list = list.filter((u) => !u.banned && u.isActive);
     } else if (statusFilter.value === "banned") {
-      result = result.filter((user) => user.banned);
+      list = list.filter((u) => u.banned);
     } else if (statusFilter.value === "inactive") {
-      result = result.filter((user) => !user.isActive);
+      list = list.filter((u) => !u.isActive);
     }
   }
+  return list;
+})
 
-  total.value = result.length;
-  return result;
-});
+// 使用 hook 管理搜索/分页（客户端过滤）
+const {
+  searchKeyword,
+  currentPage,
+  pageSize,
+  filteredList,
+  filteredTotal,
+  handleSearch,
+  handleFilter,
+  handleSort,
+  handlePageChange,
+} = useListFilter({ sourceList, searchFields: ['username', 'email', 'nickname'] })
+
+const handleSizeChange = (size) => {
+  pageSize.value = size
+  currentPage.value = 1
+}
 
 const totalUsers = computed(() => users.value.length);
 const activeUsers = computed(
@@ -550,17 +551,11 @@ const adminUsers = computed(
 const loadUsers = async () => {
   loading.value = true;
   try {
-    // 从json-server加载用户数据
+    // 从 json-server 加载用户数据（一次性拉取以便在客户端使用 hook 做筛选/分页）
     const { getUsersApi } = await import('@/api/admin.js');
-    const response = await getUsersApi({
-      page: currentPage.value,
-      pageSize: pageSize.value,
-      search: searchKeyword.value,
-      status: statusFilter.value,
-      role: roleFilter.value
-    });
-    users.value = response.list;
-    total.value = response.total;
+    // 请求更大的 pageSize 以获得完整列表（简单实现，若后端支持可改为专门的列表接口）
+    const response = await getUsersApi({ page: 1, pageSize: 10000 });
+    users.value = response.list || response;
   } catch (error) {
     ElMessage.error("加载用户列表失败：" + error.message);
   } finally {
@@ -568,24 +563,12 @@ const loadUsers = async () => {
   }
 };
 
-const handleSearch = () => {
-  currentPage.value = 1;
-};
-
-const handleFilter = () => {
-  currentPage.value = 1;
-};
-
-const handlePageChange = (page) => {
-  currentPage.value = page;
-  loadUsers();
-};
-
-const handleSizeChange = (size) => {
-  pageSize.value = size;
-  currentPage.value = 1;
-  loadUsers();
-};
+// hook 已提供 handleSearch/handleFilter/handlePageChange
+// 将本地筛选控件的 change 事件指向 hook 的 handleFilter
+// page/size 改为由 hook 管理（handleSizeChange 自实现）
+const handlePageChangeLocal = (page) => {
+  handlePageChange(page)
+}
 
 const handleSelectionChange = (selection) => {
   selectedUsers.value = selection;
@@ -791,7 +774,7 @@ const batchDelete = async () => {
 
 const exportUsers = () => {
   // 导出用户数据
-  const csvContent = filteredUsers.value
+  const csvContent = filteredList.value
     .map((user) =>
       [
         user.id,

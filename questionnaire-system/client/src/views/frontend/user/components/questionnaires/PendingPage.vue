@@ -180,11 +180,11 @@
     </div>
 
     <!-- 分页 -->
-    <div class="pagination-wrapper" v-if="pendingSurveys.length > pageSize">
+    <div class="pagination-wrapper" v-if="totalItems > pageSize">
       <el-pagination
         v-model:current-page="currentPage"
         :page-size="pageSize"
-        :total="pendingSurveys.length"
+        :total="totalItems"
         layout="prev, pager, next, jumper, total"
         @current-change="handlePageChange"
       />
@@ -245,6 +245,7 @@ import {
   updateSurveyApi 
 } from "@/api/survey";
 import { useUserStore } from "@/store/user";
+import { useListFilter } from "@/hooks/useListFilter";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -252,41 +253,23 @@ const userStore = useUserStore();
 // 响应式数据
 const loading = ref(false);
 const pendingSurveys = ref([]);
-const searchKeyword = ref("");
-const filterCategory = ref("");
-const dateRange = ref([]);
-const currentPage = ref(1);
-const pageSize = ref(10);
+
+// 使用 useListFilter 管理搜索/分类/日期/分页
+const {
+  searchKeyword,
+  filterCategory,
+  dateRange,
+  currentPage,
+  pageSize,
+  filteredList: filteredSurveys,
+  totalItems,
+  handleSearch,
+  handleFilter,
+  handlePageChange,
+} = useListFilter({ sourceList: pendingSurveys, searchFields: ["title"] });
 
 // 计算属性
-const filteredSurveys = computed(() => {
-  let result = pendingSurveys.value;
-
-  // 关键词搜索
-  if (searchKeyword.value) {
-    result = result.filter((survey) =>
-      survey.title.includes(searchKeyword.value)
-    );
-  }
-
-  // 分类筛选
-  if (filterCategory.value) {
-    result = result.filter((survey) => survey.category === filterCategory.value);
-  }
-
-  // 日期筛选
-  if (dateRange.value && dateRange.value.length === 2) {
-    const [start, end] = dateRange.value;
-    result = result.filter((survey) => {
-      const date = survey.updatedAt.split("T")[0];
-      return date >= start && date <= end;
-    });
-  }
-
-  // 分页
-  const startIndex = (currentPage.value - 1) * pageSize.value;
-  return result.slice(startIndex, startIndex + pageSize.value);
-});
+// filteredSurveys 由 useListFilter 返回
 
 // 方法
 const loadPendingSurveys = async () => {
@@ -336,17 +319,7 @@ const loadPendingSurveys = async () => {
   }
 };
 
-const handleSearch = () => {
-  currentPage.value = 1;
-};
-
-const handleFilter = () => {
-  currentPage.value = 1;
-};
-
-const handlePageChange = (page) => {
-  currentPage.value = page;
-};
+// handleSearch/handleFilter/handlePageChange 来自 useListFilter
 
 const refreshData = () => {
   loadPendingSurveys();

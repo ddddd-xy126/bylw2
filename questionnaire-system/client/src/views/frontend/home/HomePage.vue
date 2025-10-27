@@ -70,62 +70,66 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject, watch } from "vue";
+import { ref, onMounted, inject, watch, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useHomeLogic } from "@/composables/useHomeLogic";
+import { useListFilter } from '@/hooks/useListFilter'
 import StatsCards from "./components/StatsCards.vue";
 import SurveyList from "./components/SurveyList.vue";
 
 const router = useRouter();
 const surveysSection = ref(null);
 
-// 使用业务逻辑组合函数
+// 使用业务逻辑组合函数（只取数据和必要方法）
 const {
-  // 数据
-  searchQuery,
-  selectedCategory,
-  sortBy,
-  currentPage,
-  pageSize,
-  loading,
-  
-  // 计算属性
   surveys,
   categories,
-  filteredSurveys,
-  totalSurveys,
   totalParticipants,
-  
-  // 方法
   loadData,
   getCategoryName,
   isFavorite,
   toggleFavorite,
-  
-  // 事件处理
+  loading,
+  userStore,
+} = useHomeLogic();
+
+// 把 surveys 交给 useListFilter 管理客户端搜索/分类/分页
+const sourceList = computed(() => (surveys.value || []).map(s => ({
+  ...s,
+  // 用于全文搜索
+  searchText: `${s.title || ''} ${s.description || ''} ${(s.tags || []).join(' ')}`
+})))
+
+const {
+  searchKeyword,
+  filterCategory,
+  sortBy,
+  currentPage,
+  pageSize,
+  filteredList,
+  filteredTotal,
   handleSearch,
-  handleCategoryChange,
-  handleSortChange,
+  handleFilter,
+  handleSort,
   handlePageChange,
   handleSizeChange,
-  
-  // Store
-  userStore
-} = useHomeLogic();
+} = useListFilter({ sourceList, searchFields: ['searchText'] })
+
+// 为模板保持兼容名称
+const filteredSurveys = filteredList
+const totalSurveys = filteredTotal
 
 // 从导航栏注入搜索和筛选
 const headerSearch = inject('headerSearch', null);
-
-// 监听导航栏的搜索和筛选变化
 if (headerSearch) {
   watch(() => headerSearch.searchQuery.value, (newVal) => {
-    searchQuery.value = newVal;
+    searchKeyword.value = newVal;
     handleSearch();
   });
-  
+
   watch(() => headerSearch.selectedCategory.value, (newVal) => {
-    selectedCategory.value = newVal;
-    handleCategoryChange();
+    filterCategory.value = newVal;
+    handleFilter();
   });
 }
 

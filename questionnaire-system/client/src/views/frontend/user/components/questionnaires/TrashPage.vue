@@ -242,11 +242,11 @@
     </div>
 
     <!-- 分页 -->
-    <div class="pagination-wrapper" v-if="trashedSurveys.length > pageSize">
+    <div class="pagination-wrapper" v-if="totalItems > pageSize">
       <el-pagination
         v-model:current-page="currentPage"
         :page-size="pageSize"
-        :total="trashedSurveys.length"
+        :total="totalItems"
         layout="prev, pager, next, jumper, total"
         @current-change="handlePageChange"
       />
@@ -303,6 +303,7 @@ import {
 } from "@element-plus/icons-vue";
 
 import { useUserStore } from "@/store/user";
+import { useListFilter } from "@/hooks/useListFilter";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -310,37 +311,29 @@ const userStore = useUserStore();
 // 响应式数据
 const loading = ref(false);
 const trashedSurveys = ref([]);
-const searchKeyword = ref("");
-const filterCategory = ref("");
-const currentPage = ref(1);
-const pageSize = ref(10);
 const selectedIds = ref([]);
 const selectAll = ref(false);
+
+// 使用 useListFilter 管理搜索/分类/分页
+const {
+  searchKeyword,
+  filterCategory,
+  dateRange,
+  currentPage,
+  pageSize,
+  filteredList: filteredSurveys,
+  totalItems,
+  handleSearch,
+  handleFilter,
+  handlePageChange,
+} = useListFilter({ sourceList: trashedSurveys, searchFields: ["title"] });
 
 // 计算属性
 const expiringSoonCount = computed(() => 
   trashedSurveys.value.filter(s => isExpiringSoon(s.deletedAt)).length
 );
 
-const filteredSurveys = computed(() => {
-  let result = trashedSurveys.value;
-
-  // 关键词搜索
-  if (searchKeyword.value) {
-    result = result.filter((survey) =>
-      survey.title.includes(searchKeyword.value)
-    );
-  }
-
-  // 分类筛选
-  if (filterCategory.value) {
-    result = result.filter((survey) => survey.category === filterCategory.value);
-  }
-
-  // 分页
-  const startIndex = (currentPage.value - 1) * pageSize.value;
-  return result.slice(startIndex, startIndex + pageSize.value);
-});
+// filteredSurveys / totalItems / handlers 由 useListFilter 提供
 
 // 方法
 const loadTrashedSurveys = async () => {
@@ -389,17 +382,7 @@ const loadTrashedSurveys = async () => {
   }
 };
 
-const handleSearch = () => {
-  currentPage.value = 1;
-};
-
-const handleFilter = () => {
-  currentPage.value = 1;
-};
-
-const handlePageChange = (page) => {
-  currentPage.value = page;
-};
+// handleSearch/handleFilter/handlePageChange 来自 useListFilter
 
 const refreshData = () => {
   selectedIds.value = [];

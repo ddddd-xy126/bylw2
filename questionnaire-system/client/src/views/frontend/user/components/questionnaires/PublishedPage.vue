@@ -18,7 +18,9 @@
         <el-card class="stat-card success-card">
           <div class="stat-content">
             <div class="stat-icon">
-              <el-icon size="24" color="#67C23A"><CircleCheck /></el-icon>
+              <el-icon size="24" color="#67C23A">
+                <CircleCheck />
+              </el-icon>
             </div>
             <div class="stat-info">
               <div class="stat-number">{{ totalViews }}</div>
@@ -31,7 +33,9 @@
         <el-card class="stat-card info-card">
           <div class="stat-content">
             <div class="stat-icon">
-              <el-icon size="24" color="#409EFF"><User /></el-icon>
+              <el-icon size="24" color="#409EFF">
+                <User />
+              </el-icon>
             </div>
             <div class="stat-info">
               <div class="stat-number">{{ totalParticipants }}</div>
@@ -44,7 +48,9 @@
         <el-card class="stat-card warning-card">
           <div class="stat-content">
             <div class="stat-icon">
-              <el-icon size="24" color="#E6A23C"><TrendCharts /></el-icon>
+              <el-icon size="24" color="#E6A23C">
+                <TrendCharts />
+              </el-icon>
             </div>
             <div class="stat-info">
               <div class="stat-number">{{ averageCompletion }}%</div>
@@ -57,7 +63,9 @@
         <el-card class="stat-card primary-card">
           <div class="stat-content">
             <div class="stat-icon">
-              <el-icon size="24" color="#F56C6C"><Star /></el-icon>
+              <el-icon size="24" color="#F56C6C">
+                <Star />
+              </el-icon>
             </div>
             <div class="stat-info">
               <div class="stat-number">{{ averageRating.toFixed(1) }}</div>
@@ -72,24 +80,16 @@
     <el-card class="filter-card" shadow="never">
       <el-row :gutter="16">
         <el-col :span="6">
-          <el-input
-            v-model="searchKeyword"
-            placeholder="搜索问卷标题"
-            clearable
-            @input="handleSearch"
-          >
+          <el-input v-model="searchKeyword" placeholder="搜索问卷标题" clearable @input="handleSearch">
             <template #prefix>
-              <el-icon><Search /></el-icon>
+              <el-icon>
+                <Search />
+              </el-icon>
             </template>
           </el-input>
         </el-col>
         <el-col :span="5">
-          <el-select
-            v-model="filterCategory"
-            placeholder="问卷分类"
-            clearable
-            @change="handleFilter"
-          >
+          <el-select v-model="filterCategory" placeholder="问卷分类" clearable @change="handleFilter">
             <el-option label="全部分类" value="" />
             <el-option label="心理健康" value="心理健康" />
             <el-option label="教育" value="教育" />
@@ -99,11 +99,7 @@
           </el-select>
         </el-col>
         <el-col :span="5">
-          <el-select
-            v-model="sortBy"
-            placeholder="排序方式"
-            @change="handleSort"
-          >
+          <el-select v-model="sortBy" placeholder="排序方式" @change="handleSort">
             <el-option label="发布时间" value="publishedAt" />
             <el-option label="回答数量" value="answerCount" />
             <el-option label="浏览量" value="views" />
@@ -111,21 +107,10 @@
           </el-select>
         </el-col>
         <el-col :span="4">
-          <el-date-picker
-            v-model="dateRange"
-            type="daterange"
-            range-separator="至"
-            start-placeholder="开始"
-            end-placeholder="结束"
-            size="default"
-            format="MM-DD"
-            value-format="YYYY-MM-DD"
-            @change="handleFilter"
-          />
-        </el-col>
-        <el-col :span="4">
           <el-button type="primary" @click="refreshData">
-            <el-icon><Refresh /></el-icon>
+            <el-icon>
+              <Refresh />
+            </el-icon>
             刷新
           </el-button>
         </el-col>
@@ -134,52 +119,53 @@
 
     <!-- 问卷列表 -->
     <div class="survey-list" v-loading="loading">
-      <div
-        v-for="survey in filteredSurveys"
-        :key="survey.id"
-        class="survey-item published-item"
-      >
+      <div v-for="survey in filteredSurveys" :key="survey.id" class="survey-item published-item">
         <div class="survey-main">
           <div class="survey-icon">
-            <el-icon size="24" color="#67C23A"><CircleCheck /></el-icon>
+            <el-icon size="24" color="#67C23A">
+              <CircleCheck />
+            </el-icon>
           </div>
-          
+
           <div class="survey-info">
             <div class="survey-header">
               <h3 class="survey-title">{{ survey.title }}</h3>
               <div class="survey-badges">
                 <el-tag size="small" type="primary">{{ survey.category }}</el-tag>
                 <el-tag size="small" type="success">已发布</el-tag>
-                <el-tag 
-                  v-if="survey.isHot" 
-                  size="small" 
-                  type="danger" 
-                  effect="dark"
-                >
+                <el-tag v-if="survey.isHot" size="small" type="danger" effect="dark">
                   热门
                 </el-tag>
               </div>
             </div>
-            
+
             <div class="survey-meta">
               <span class="meta-item">
-                <el-icon><Calendar /></el-icon>
+                <el-icon>
+                  <Calendar />
+                </el-icon>
                 发布时间：{{ formatDate(survey.publishedAt) }}
               </span>
               <span class="meta-item">
-                <el-icon><Document /></el-icon>
+                <el-icon>
+                  <Document />
+                </el-icon>
                 题目数：{{ survey.questions }}题
               </span>
               <span class="meta-item">
-                <el-icon><Timer /></el-icon>
+                <el-icon>
+                  <Timer />
+                </el-icon>
                 预计用时：{{ survey.duration }}分钟
               </span>
               <span class="meta-item">
-                <el-icon><View /></el-icon>
+                <el-icon>
+                  <View />
+                </el-icon>
                 浏览量：{{ survey.views }}
               </span>
             </div>
-            
+
             <div class="survey-description">
               {{ survey.description }}
             </div>
@@ -197,89 +183,62 @@
                 </div>
                 <div class="stat-item">
                   <span class="stat-label">平均分</span>
-                  <el-rate
-                    v-model="survey.rating"
-                    disabled
-                    show-score
-                    text-color="#ff9900"
-                    score-template="{value}"
-                    size="small"
-                  />
+                  <span class="stat-value highlight-normal">{{ (survey.rating ?? 0).toFixed(2) }}</span>
                 </div>
                 <div class="stat-item">
                   <span class="stat-label">收藏数</span>
-                  <span class="stat-value">{{ survey.favoriteCount }}</span>
+                  <span class="stat-value highlight-collect">{{ survey.favoriteCount }}</span>
                 </div>
               </div>
             </div>
 
             <!-- 状态提醒 -->
             <div class="survey-alerts" v-if="survey.needsAttention">
-              <el-alert
-                v-if="survey.answerCount === 0"
-                title="暂无人回答，建议检查问卷设置或推广方式"
-                type="warning"
-                size="small"
-                :closable="false"
-                show-icon
-              />
-              <el-alert
-                v-if="survey.completionRate < 50"
-                title="完成率较低，建议优化问卷内容或减少题目数量"
-                type="info"
-                size="small"
-                :closable="false"
-                show-icon
-              />
+              <el-alert v-if="survey.answerCount === 0" title="暂无人回答，建议检查问卷设置或推广方式" type="warning" size="small"
+                :closable="false" show-icon />
+              <el-alert v-if="survey.completionRate < 50" title="完成率较低，建议优化问卷内容或减少题目数量" type="info" size="small"
+                :closable="false" show-icon />
             </div>
           </div>
         </div>
 
         <div class="survey-actions">
           <el-button @click="viewResults(survey.id)">
-            <el-icon><DataAnalysis /></el-icon>
+            <el-icon>
+              <DataAnalysis />
+            </el-icon>
             查看数据
           </el-button>
           <el-button @click="shareSurvey(survey)">
-            <el-icon><Share /></el-icon>
+            <el-icon>
+              <Share />
+            </el-icon>
             分享
           </el-button>
           <el-dropdown @command="handleMoreAction">
             <el-button type="info">
-              更多 <el-icon><ArrowDown /></el-icon>
+              更多 <el-icon>
+                <ArrowDown />
+              </el-icon>
             </el-button>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item
-                  :command="{ action: 'edit', data: survey }"
-                >
+                <el-dropdown-item :command="{ action: 'edit', data: survey }">
                   编辑问卷
                 </el-dropdown-item>
-                <el-dropdown-item
-                  :command="{ action: 'copy', data: survey }"
-                >
+                <el-dropdown-item :command="{ action: 'copy', data: survey }">
                   复制问卷
                 </el-dropdown-item>
-                <el-dropdown-item
-                  :command="{ action: 'export', data: survey }"
-                  divided
-                >
+                <el-dropdown-item :command="{ action: 'export', data: survey }" divided>
                   导出数据
                 </el-dropdown-item>
-                <el-dropdown-item
-                  :command="{ action: 'settings', data: survey }"
-                >
+                <el-dropdown-item :command="{ action: 'settings', data: survey }">
                   问卷设置
                 </el-dropdown-item>
-                <el-dropdown-item
-                  :command="{ action: 'close', data: survey }"
-                  divided
-                >
+                <el-dropdown-item :command="{ action: 'close', data: survey }" divided>
                   <span style="color: #F56C6C">停止收集</span>
                 </el-dropdown-item>
-                <el-dropdown-item
-                  :command="{ action: 'delete', data: survey }"
-                >
+                <el-dropdown-item :command="{ action: 'delete', data: survey }">
                   <span style="color: #F56C6C">删除问卷</span>
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -289,11 +248,7 @@
       </div>
 
       <!-- 空状态 -->
-      <el-empty 
-        v-if="!loading && filteredSurveys.length === 0" 
-        description="暂无已发布的问卷"
-        class="empty-state"
-      >
+      <el-empty v-if="!loading && filteredSurveys.length === 0" description="暂无已发布的问卷" class="empty-state">
         <el-button type="primary" @click="goToCreated">
           创建新问卷
         </el-button>
@@ -302,13 +257,8 @@
 
     <!-- 分页 -->
     <div class="pagination-wrapper" v-if="publishedSurveys.length > pageSize">
-      <el-pagination
-        v-model:current-page="currentPage"
-        :page-size="pageSize"
-        :total="publishedSurveys.length"
-        layout="prev, pager, next, jumper, total"
-        @current-change="handlePageChange"
-      />
+      <el-pagination v-model:current-page="currentPage" :page-size="pageSize" :total="publishedSurveys.length"
+        layout="prev, pager, next, jumper, total" @current-change="handlePageChange" />
     </div>
 
     <!-- 分享对话框 -->
@@ -316,32 +266,23 @@
       <div class="share-content">
         <div class="share-item">
           <label>问卷链接：</label>
-          <el-input 
-            v-model="shareUrl" 
-            readonly
-            @click="selectText"
-          >
+          <el-input v-model="shareUrl" readonly @click="selectText">
             <template #append>
               <el-button @click="copyLink">复制</el-button>
             </template>
           </el-input>
         </div>
-        
+
         <div class="share-item">
           <label>二维码：</label>
           <div class="qr-code">
-            <el-image
-              :src="qrCodeUrl"
-              alt="问卷二维码"
-              style="width: 120px; height: 120px;"
-            />
+            <el-image :src="qrCodeUrl" alt="问卷二维码" style="width: 120px; height: 120px;" />
           </div>
         </div>
 
         <div class="share-item">
           <label>社交分享：</label>
           <div class="social-share">
-            <el-button @click="shareToWeChat">微信</el-button>
             <el-button @click="shareToQQ">QQ</el-button>
             <el-button @click="shareToWeibo">微博</el-button>
           </div>
@@ -352,7 +293,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
@@ -371,12 +312,14 @@ import {
   ArrowDown,
 } from "@element-plus/icons-vue";
 
-import { 
-  getUserSurveysApi, 
+
+import {
+  getUserSurveysApi,
   updateSurveyApi,
-  deleteSurveyApi 
+  deleteSurveyApi
 } from "@/api/survey";
 import { useUserStore } from "@/store/user";
+import { useListFilter } from "@/hooks/useListFilter";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -384,12 +327,24 @@ const userStore = useUserStore();
 // 响应式数据
 const loading = ref(false);
 const publishedSurveys = ref([]);
-const searchKeyword = ref("");
-const filterCategory = ref("");
+
+// 排序（保留在组件中）
 const sortBy = ref("publishedAt");
-const dateRange = ref([]);
-const currentPage = ref(1);
-const pageSize = ref(10);
+
+// 使用通用列表筛选 hooks
+const {
+  searchKeyword,
+  filterCategory,
+  dateRange,
+  currentPage,
+  pageSize,
+  filteredList: filteredSurveys,
+  totalItems,
+  handleSearch,
+  handleFilter,
+  handlePageChange,
+  handleSort,
+} = useListFilter({ sourceList: publishedSurveys, searchFields: ["title"] });
 
 // 分享相关
 const shareDialogVisible = ref(false);
@@ -422,32 +377,9 @@ const averageRating = computed(() => {
   return total / publishedSurveys.value.length;
 });
 
-const filteredSurveys = computed(() => {
-  let result = [...publishedSurveys.value];
-
-  // 关键词搜索
-  if (searchKeyword.value) {
-    result = result.filter((survey) =>
-      survey.title.includes(searchKeyword.value)
-    );
-  }
-
-  // 分类筛选
-  if (filterCategory.value) {
-    result = result.filter((survey) => survey.category === filterCategory.value);
-  }
-
-  // 日期筛选
-  if (dateRange.value && dateRange.value.length === 2) {
-    const [start, end] = dateRange.value;
-    result = result.filter((survey) => {
-      const date = survey.publishedAt.split("T")[0];
-      return date >= start && date <= end;
-    });
-  }
-
-  // 排序
-  result.sort((a, b) => {
+// 在组件层面对源数据排序，然后 useListFilter 会做搜索/筛选/分页
+const sortPublishedSurveys = () => {
+  publishedSurveys.value.sort((a, b) => {
     switch (sortBy.value) {
       case "answerCount":
         return b.answerCount - a.answerCount;
@@ -460,10 +392,12 @@ const filteredSurveys = computed(() => {
         return new Date(b.publishedAt) - new Date(a.publishedAt);
     }
   });
+};
 
-  // 分页
-  const startIndex = (currentPage.value - 1) * pageSize.value;
-  return result.slice(startIndex, startIndex + pageSize.value);
+// 当排序方式变更时，重新对源数据排序并重置到第一页
+watch(sortBy, () => {
+  sortPublishedSurveys();
+  currentPage.value = 1;
 });
 
 // 方法
@@ -475,7 +409,7 @@ const loadPublishedSurveys = async () => {
       ElMessage.error("请先登录");
       return;
     }
-    
+
     const data = await getUserSurveysApi(userId, 'published');
     // 为每个问卷添加统计数据和标记
     publishedSurveys.value = data.map(survey => ({
@@ -489,6 +423,8 @@ const loadPublishedSurveys = async () => {
       isHot: Math.random() > 0.7,
       needsAttention: Math.random() > 0.6
     }));
+    // 应用初始排序
+    sortPublishedSurveys();
   } catch (error) {
     ElMessage.error("加载已发布问卷失败：" + error.message);
   } finally {
@@ -496,21 +432,8 @@ const loadPublishedSurveys = async () => {
   }
 };
 
-const handleSearch = () => {
-  currentPage.value = 1;
-};
-
-const handleFilter = () => {
-  currentPage.value = 1;
-};
-
-const handleSort = () => {
-  currentPage.value = 1;
-};
-
-const handlePageChange = (page) => {
-  currentPage.value = page;
-};
+// handleSearch/handleFilter/handlePageChange 已由 useListFilter 返回并绑定到模板
+// 对于排序，我们在组件内更新 sortBy（模板绑定）并在 watcher 中处理排序与翻页重置
 
 const refreshData = () => {
   loadPublishedSurveys();
@@ -539,10 +462,6 @@ const copyLink = () => {
   navigator.clipboard.writeText(shareUrl.value).then(() => {
     ElMessage.success("链接已复制到剪贴板");
   });
-};
-
-const shareToWeChat = () => {
-  ElMessage.info("请使用微信扫描二维码分享");
 };
 
 const shareToQQ = () => {
@@ -588,7 +507,7 @@ const handleMoreAction = async ({ action, data }) => {
             type: 'warning'
           }
         );
-        
+
         await updateSurveyApi(data.id, { status: 'closed' });
         ElMessage.success("已停止收集问卷回答");
         loadPublishedSurveys();
@@ -610,7 +529,7 @@ const handleMoreAction = async ({ action, data }) => {
             type: 'error'
           }
         );
-        
+
         await deleteSurveyApi(data.id);
         ElMessage.success("问卷已删除");
         loadPublishedSurveys();
@@ -629,364 +548,368 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .published-page {
   padding: 20px;
-}
+  background: #f6f8fa;
 
-/* 页面头部 */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.header-info h2 {
-  margin: 0 0 8px 0;
-  color: #303133;
-  font-size: 24px;
-}
-
-.header-info p {
-  margin: 0;
-  color: #606266;
-  font-size: 14px;
-}
-
-.header-stats {
-  display: flex;
-  gap: 40px;
-  text-align: center;
-}
-
-/* 统计卡片 */
-.stats-cards {
-  margin-bottom: 20px;
-}
-
-.stat-card {
-  border-radius: 12px;
-  border: none;
-  overflow: hidden;
-}
-
-.success-card {
-  background: linear-gradient(135deg, #67C23A 0%, #85ce61 100%);
-  color: white;
-}
-
-.info-card {
-  background: linear-gradient(135deg, #409EFF 0%, #66b1ff 100%);
-  color: white;
-}
-
-.warning-card {
-  background: linear-gradient(135deg, #E6A23C 0%, #ebb563 100%);
-  color: white;
-}
-
-.primary-card {
-  background: linear-gradient(135deg, #F56C6C 0%, #f78989 100%);
-  color: white;
-}
-
-.stat-content {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 8px;
-}
-
-.stat-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-}
-
-.stat-info {
-  flex: 1;
-}
-
-.stat-number {
-  font-size: 24px;
-  font-weight: bold;
-  line-height: 1;
-}
-
-.stat-label {
-  font-size: 14px;
-  opacity: 0.9;
-  margin-top: 4px;
-}
-
-/* 筛选卡片 */
-.filter-card {
-  margin-bottom: 20px;
-  border-radius: 12px;
-}
-
-/* 问卷列表 */
-.survey-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.survey-item {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.survey-item:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
-}
-
-.published-item {
-  border-left: 4px solid #67C23A;
-}
-
-.survey-main {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  flex: 1;
-}
-
-.survey-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  background: #f0f9ff;
-  border-radius: 12px;
-  flex-shrink: 0;
-}
-
-.survey-info {
-  flex: 1;
-}
-
-.survey-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.survey-title {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #303133;
-}
-
-.survey-badges {
-  display: flex;
-  gap: 8px;
-}
-
-.survey-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 8px;
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 14px;
-  color: #606266;
-}
-
-.survey-description {
-  color: #909399;
-  font-size: 14px;
-  line-height: 1.5;
-  margin-bottom: 16px;
-}
-
-/* 数据统计 */
-.survey-stats {
-  background: #f8fafc;
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 12px;
-}
-
-.stats-row {
-  display: flex;
-  gap: 24px;
-  align-items: center;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.stat-label {
-  font-size: 14px;
-  color: #606266;
-}
-
-.stat-value {
-  font-weight: 600;
-  font-size: 16px;
-  color: #303133;
-}
-
-.highlight-success {
-  color: #67C23A;
-}
-
-.highlight-info {
-  color: #409EFF;
-}
-
-/* 状态提醒 */
-.survey-alerts {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.survey-actions {
-  display: flex;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-/* 空状态 */
-.empty-state {
-  margin: 40px 0;
-}
-
-/* 分页 */
-.pagination-wrapper {
-  display: flex;
-  justify-content: center;
-  padding: 20px 0;
-}
-
-/* 分享对话框 */
-.share-content {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.share-item {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.share-item label {
-  font-weight: 600;
-  color: #303133;
-}
-
-.qr-code {
-  display: flex;
-  justify-content: center;
-  padding: 16px;
-  background: #f8fafc;
-  border-radius: 8px;
-}
-
-.social-share {
-  display: flex;
-  gap: 12px;
-}
-
-/* 响应式设计 */
-@media (max-width: 1200px) {
-  .stats-cards .el-col {
-    margin-bottom: 16px;
-  }
-  
-  .stats-row {
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-}
-
-@media (max-width: 768px) {
-  .published-page {
-    padding: 16px;
-  }
-  
+  // 页面头部
   .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    .header-info {
+      h2 {
+        margin: 0 0 8px 0;
+        color: #303133;
+        font-size: 24px;
+      }
+
+      p {
+        margin: 0;
+        color: #606266;
+        font-size: 14px;
+      }
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 40px;
+      text-align: center;
+    }
+  }
+
+  // 统计卡片
+  .stats-cards {
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    border-radius: 12px;
+    border: none;
+    overflow: hidden;
+
+    .stat-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 8px;
+    }
+
+    .stat-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+    }
+
+    .stat-info {
+      flex: 1;
+    }
+
+    .stat-number {
+      font-size: 24px;
+      font-weight: bold;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      opacity: .9;
+      margin-top: 4px;
+    }
+  }
+
+  .success-card {
+    background: linear-gradient(135deg, #67C23A 0%, #85ce61 100%);
+    color: #fff;
+  }
+
+  .info-card {
+    background: linear-gradient(135deg, #409EFF 0%, #66b1ff 100%);
+    color: #fff;
+  }
+
+  .warning-card {
+    background: linear-gradient(135deg, #E6A23C 0%, #ebb563 100%);
+    color: #fff;
+  }
+
+  .primary-card {
+    background: linear-gradient(135deg, #F56C6C 0%, #f78989 100%);
+    color: #fff;
+  }
+
+  // 筛选区
+  .filter-card {
+    margin-bottom: 20px;
+    border-radius: 12px;
+  }
+
+  // 问卷列表
+  .survey-list {
+    display: flex;
     flex-direction: column;
     gap: 16px;
+    margin-bottom: 20px;
   }
-  
-  .header-stats {
+
+  .survey-item {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all .3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    &:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+    }
+
+    &.published-item {
+      border-left: 4px solid #67C23A;
+    }
+
+    .survey-main {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .survey-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: #f0f9ff;
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+
+    .survey-info {
+      flex: 1;
+    }
+
+    .survey-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .survey-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #303133;
+    }
+
+    .survey-badges {
+      display: flex;
+      gap: 8px;
+    }
+
+    .survey-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      color: #606266;
+    }
+
+    .survey-description {
+      color: #909399;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    // 数据统计
+    .survey-stats {
+      background: transparent;
+      border-radius: 8px;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #606266;
+    }
+
+    .stat-value {
+      font-weight: 500;
+      font-size: 16px;
+      color: #303133;
+    }
+
+    .highlight-success {
+      color: var(--color-accent-1);
+    }
+
+    .highlight-info {
+      color: var(--color-accent-2);
+    }
+
+    .highlight-normal {
+      color: var(--color-accent-4);
+    }
+
+    .highlight-collect {
+      color: var(--color-accent-3);
+    }
+
+
+    .survey-alerts {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+  }
+
+  .survey-actions {
+    display: flex;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .empty-state {
+    margin: 40px 0;
+  }
+
+  .pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+  }
+
+  .share-content {
+    display: flex;
+    flex-direction: column;
     gap: 20px;
   }
-  
-  .survey-item {
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  .survey-main {
-    width: 100%;
-  }
-  
-  .survey-actions {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .survey-meta {
+
+  .share-item {
+    display: flex;
     flex-direction: column;
     gap: 8px;
   }
-  
-  .stats-row {
-    flex-direction: column;
-    align-items: flex-start;
+
+  .share-item label {
+    font-weight: 600;
+    color: #303133;
+  }
+
+  .qr-code {
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+  }
+
+  .social-share {
+    display: flex;
     gap: 12px;
   }
-}
 
-@media (max-width: 480px) {
-  .survey-actions {
-    flex-direction: column;
-    width: 100%;
+  // 响应式
+  @media (max-width: 1200px) {
+    .stats-cards .el-col {
+      margin-bottom: 16px;
+    }
+
+    .stats-row {
+      flex-wrap: wrap;
+      gap: 16px;
+    }
   }
-  
-  .survey-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+
+    .page-header {
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .header-stats {
+      gap: 20px;
+    }
+
+    .survey-item {
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .survey-main {
+      width: 100%;
+    }
+
+    .survey-actions {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .survey-meta {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stats-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
   }
-  
-  .header-stats {
-    flex-direction: column;
-    gap: 16px;
+
+  @media (max-width: 480px) {
+    .survey-actions {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .survey-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .header-stats {
+      flex-direction: column;
+      gap: 16px;
+    }
   }
 }
 </style>
