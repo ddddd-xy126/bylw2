@@ -155,6 +155,12 @@ const scrollToSurveys = () => {
   }
 };
 
+// 在 SurveyList 发出 sort-change 时触发的处理器
+const handleSortChange = () => {
+  // 使用 useListFilter 提供的 handleSort 来重新排序过滤后的列表
+  handleSort();
+};
+
 // 生命周期
 onMounted(() => {
   loadData();

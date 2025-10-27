@@ -13,7 +13,7 @@
       </el-radio-group>
     </div>
 
-    <el-loading :loading="loading">
+    <div v-loading="loading">
       <!-- 所有排序都使用 Featured 卡片样式 -->
       <div class="featured-grid" v-if="surveys.length">
         <div 
@@ -89,7 +89,7 @@
       </div>
 
       <el-empty v-if="!loading && !surveys.length" description="暂无问卷数据" :image-size="100" />
-    </el-loading>
+    </div>
   </div>
 </template>
 
@@ -145,7 +145,8 @@ const formatParticipants = (num) => {
   }
   return num.toString();
 };
-</script><style scoped>
+</script>
+<style scoped>
 .survey-section {
   margin-bottom: 32px;
 }

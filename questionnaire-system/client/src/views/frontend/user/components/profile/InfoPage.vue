@@ -74,6 +74,24 @@
               show-word-limit />
           </el-form-item>
 
+          <el-form-item label="个人标签" prop="tags">
+            <el-select
+              v-model="userInfo.tags"
+              multiple
+              filterable
+              allow-create
+              placeholder="添加或选择个人标签"
+            >
+              <el-option
+                v-for="tag in tagOptions"
+                :key="tag"
+                :label="tag"
+                :value="tag"
+              />
+            </el-select>
+            <div class="el-form-item__tip" style="margin-top:6px; color:#909399; font-size:12px;">可选择已有标签或输入自定义标签（爱好 / 喜好 / 风格），默认会显示全部已选标签，只有在空间不足时才折叠。</div>
+          </el-form-item>
+
           <el-form-item v-if="editMode">
             <el-button type="primary" @click="saveUserInfo" :loading="saving">
               保存修改
@@ -162,6 +180,8 @@ const userInfo = reactive({
   birthday: '',
   occupation: '',
   bio: '',
+  // 个人标签，多选字符串数组
+  tags: []
 });
 
 // 用户统计 - 从API获取真实数据
@@ -171,6 +191,54 @@ const userStats = reactive({
   totalPoints: 0,
   totalCollections: 0
 });
+
+// 预设标签选项（表示个人爱好/喜好/风格），改为从后端加载
+const tagOptions = ref([]);
+
+// 从 json-server 加载现有标签（从 surveys 和 users 两个资源收集 tags 字段作为预设）
+const loadTagOptions = async () => {
+  try {
+    // 动态导入 api client，避免循环依赖
+    const apiClient = (await import('@/api/index.js')).default;
+
+    const [surveys, users] = await Promise.all([
+      apiClient.get('/surveys'),
+      apiClient.get('/users')
+    ]);
+
+    const set = new Set();
+
+    // 收集 surveys.tags
+    if (Array.isArray(surveys)) {
+      surveys.forEach(s => {
+        if (Array.isArray(s.tags)) {
+          s.tags.forEach(t => t && set.add(String(t)));
+        }
+      });
+    }
+
+    // 收集 users.tags
+    if (Array.isArray(users)) {
+      users.forEach(u => {
+        if (Array.isArray(u.tags)) {
+          u.tags.forEach(t => t && set.add(String(t)));
+        }
+      });
+    }
+
+    // 如果没有收集到任何标签，提供少量默认项作为兜底
+    if (set.size === 0) {
+      ['音乐', '电影', '阅读', '旅行', '摄影', '运动', '美食', '游戏'].forEach(t => set.add(t));
+    }
+
+    tagOptions.value = Array.from(set);
+    console.log('标签预设已加载:', tagOptions.value);
+  } catch (err) {
+    console.error('加载标签预设失败:', err);
+    // 兜底默认标签
+    tagOptions.value = ['音乐', '电影', '阅读', '旅行', '摄影', '运动', '美食', '游戏'];
+  }
+};
 
 // 密码修改表单
 const passwordForm = reactive({
@@ -230,6 +298,7 @@ const loadUserInfo = () => {
       birthday: profile.birthday || '',
       occupation: profile.profession || '',
       bio: profile.bio || '',
+      tags: profile.tags || []
     });
   }
   console.log('用户信息已加载:', userInfo);
@@ -281,6 +350,8 @@ const saveUserInfo = async () => {
       gender: userInfo.gender,
       profession: userInfo.occupation,
       bio: userInfo.bio,
+      // 将 tags 字段保存到 json-server
+      tags: Array.isArray(userInfo.tags) ? userInfo.tags : [],
       updatedAt: new Date().toISOString()
     };
 
@@ -371,6 +442,7 @@ const changePassword = async () => {
 onMounted(() => {
   loadUserInfo();
   loadUserStats();
+  loadTagOptions();
 });
 </script>
 

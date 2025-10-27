@@ -55,9 +55,31 @@ export function useListFilter(options = {}) {
     }
 
     // 排序（自定义）
-    if (sortFn) {
-      result.sort(sortFn);
-    }
+      // 排序：优先使用传入的自定义 sortFn；否则根据内部 sortBy 值使用默认规则
+      if (sortFn) {
+        result.sort(sortFn);
+      } else {
+        // 内置排序策略：latest（按 createdAt 降序）、hot（按 participants/participantCount 降序）、recommended（按 rating 降序）
+        if (sortBy.value === 'latest') {
+          result.sort((a, b) => {
+            const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return tb - ta;
+          });
+        } else if (sortBy.value === 'hot') {
+          result.sort((a, b) => {
+            const pa = Number(a.participants || a.participantCount || 0);
+            const pb = Number(b.participants || b.participantCount || 0);
+            return pb - pa;
+          });
+        } else if (sortBy.value === 'recommended') {
+          result.sort((a, b) => {
+            const ra = Number(a.rating || 0);
+            const rb = Number(b.rating || 0);
+            return rb - ra;
+          });
+        }
+      }
 
     // 记录过滤前的总数（用于展示“无结果”或分页总数）
     // 注意：totalItems 保持为源数据总数（未必等于过滤后数量）
