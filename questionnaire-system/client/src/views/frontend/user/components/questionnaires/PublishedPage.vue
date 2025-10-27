@@ -560,7 +560,7 @@ onMounted(() => {
     align-items: center;
     margin-bottom: 20px;
     padding: 20px;
-    background: #ffffff;
+    background: var(--text-inverse)ff;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
@@ -664,7 +664,7 @@ onMounted(() => {
   }
 
   .survey-item {
-    background: #ffffff;
+    background: var(--text-inverse)ff;
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);

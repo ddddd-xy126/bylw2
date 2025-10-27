@@ -41,17 +41,17 @@
     <!-- 问卷列表 -->
     <div class="surveys-section" ref="surveysSection">
       <SurveyList
-        v-model:sort-by="sortBy"
-        :surveys="filteredSurveys"
-        :loading="loading"
-        :get-category-name="getCategoryName"
-        :is-favorite="isFavorite"
-        :show-favorite="userStore.isLoggedIn"
-        @sort-change="handleSortChange"
-        @survey-click="goToSurvey"
-        @survey-start="goToSurvey"
-        @toggle-favorite="toggleFavorite"
-      />
+          v-model:sort-by="sortBy"
+          :surveys="topSurveys"
+          :loading="loading"
+          :get-category-name="getCategoryName"
+          :is-favorite="isFavorite"
+          :show-favorite="userStore.isLoggedIn"
+          @sort-change="handleSortChange"
+          @survey-click="goToSurvey"
+          @survey-start="goToSurvey"
+          @toggle-favorite="toggleFavorite"
+        />
     </div>
 
     <!-- 分页 -->
@@ -70,7 +70,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject, watch, computed } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useHomeLogic } from "@/composables/useHomeLogic";
 import { useListFilter } from '@/hooks/useListFilter'
@@ -92,6 +92,9 @@ const {
   loading,
   userStore,
 } = useHomeLogic();
+
+// 首页顶部展示的问卷限制为最多 20 条（最新/热门/推荐展示的预览）
+const topSurveys = computed(() => (filteredSurveys.value || []).slice(0, 20));
 
 // 把 surveys 交给 useListFilter 管理客户端搜索/分类/分页
 const sourceList = computed(() => (surveys.value || []).map(s => ({
@@ -115,23 +118,15 @@ const {
   handleSizeChange,
 } = useListFilter({ sourceList, searchFields: ['searchText'] })
 
+// 首页默认展示 推荐 排序
+sortBy.value = 'recommended';
+handleSort();
+
 // 为模板保持兼容名称
 const filteredSurveys = filteredList
 const totalSurveys = filteredTotal
 
-// 从导航栏注入搜索和筛选
-const headerSearch = inject('headerSearch', null);
-if (headerSearch) {
-  watch(() => headerSearch.searchQuery.value, (newVal) => {
-    searchKeyword.value = newVal;
-    handleSearch();
-  });
-
-  watch(() => headerSearch.selectedCategory.value, (newVal) => {
-    filterCategory.value = newVal;
-    handleFilter();
-  });
-}
+// 导航栏的全局搜索已移除；首页保持自身筛选逻辑
 
 // 路由跳转
 const goToSurvey = (surveyId) => {
@@ -198,7 +193,7 @@ onMounted(() => {
   font-weight: 800;
   margin-bottom: 1.2rem;
   text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  background: linear-gradient(135deg, #ffffff 0%, #e8f4fd 100%);
+  background: linear-gradient(135deg, var(--text-inverse)ff 0%, #e8f4fd 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -268,7 +263,7 @@ onMounted(() => {
 }
 
 .surveys-section {
-  background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+  background: linear-gradient(145deg, var(--text-inverse)ff 0%, #f8f9ff 100%);
   padding: 36px 32px;
   border-radius: 24px;
   box-shadow: 
@@ -298,7 +293,7 @@ onMounted(() => {
 }
 
 .pagination-section .el-pagination {
-  background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+  background: linear-gradient(145deg, var(--text-inverse)ff 0%, #f8f9ff 100%);
   padding: 24px 32px;
   border-radius: 20px;
   box-shadow: 

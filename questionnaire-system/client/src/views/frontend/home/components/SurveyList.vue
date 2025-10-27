@@ -2,15 +2,18 @@
   <div class="survey-section">
     <div class="section-header">
       <h2>问卷列表</h2>
-      <el-radio-group 
-        :model-value="sortBy" 
-        @update:model-value="$emit('update:sortBy', $event)"
-        @change="$emit('sortChange')"
-      >
-        <el-radio-button value="latest">最新</el-radio-button>
-        <el-radio-button value="hot">热门</el-radio-button>
-        <el-radio-button value="recommended">推荐</el-radio-button>
-      </el-radio-group>
+      <!-- 可选排序控件（首页需要，列表页可传 false 隐藏） -->
+      <div v-if="showSort" class="sort-group">
+        <el-radio-group
+          :model-value="sortBy"
+          @update:model-value="$emit('update:sortBy', $event)"
+          @change="$emit('sortChange')"
+        >
+          <el-radio-button value="recommended">推荐</el-radio-button>
+          <el-radio-button value="latest">最新</el-radio-button>
+          <el-radio-button value="hot">热门</el-radio-button>
+        </el-radio-group>
+      </div>
     </div>
 
     <div v-loading="loading">
@@ -104,6 +107,10 @@ defineProps({
   sortBy: {
     type: String,
     default: 'latest'
+  },
+  showSort: {
+    type: Boolean,
+    default: true
   },
   loading: {
     type: Boolean,

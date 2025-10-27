@@ -1,5 +1,6 @@
 import UserLayout from "@/layouts/UserLayout.vue";
 import HomePage from "@/views/frontend/home/HomePage.vue";
+import ListPage from "@/views/frontend/home/List.vue";
 import LoginPage from "@/views/frontend/auth/LoginPage.vue";
 import RegisterPage from "@/views/frontend/auth/RegisterPage.vue";
 import ResetPasswordPage from "@/views/frontend/auth/ResetPasswordPage.vue";
@@ -35,6 +36,7 @@ export default [
     children: [
       { path: "", redirect: "/home" },
       { path: "home", component: HomePage },
+  { path: "surveys", component: ListPage },
       { path: "surveys/:id", component: SurveyDetailPage },
       { path: "surveys/answer/:id", component: SurveyAnswerPage },
       { path: "surveys/result/:recordId", component: SurveyResultPage },

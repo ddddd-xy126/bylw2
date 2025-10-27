@@ -5,46 +5,14 @@
         <router-link to="/home" class="logo">智能问卷分析系统</router-link>
       </div>
       <div class="header-center">
-        <nav class="nav-center">
-          <router-link to="/home">首页</router-link>
-          <router-link v-if="isAuthed" to="/create">创建问卷</router-link>
-          <router-link to="/rankings/participation">问卷排行榜</router-link>
-          <router-link v-if="isAuthed" to="/profile">个人中心</router-link>
-          
-          <!-- 搜索框 -->
-          <div v-if="showSearchBar" class="header-search">
-            <el-input
-              v-model="searchQuery"
-              placeholder="搜索问卷..."
-              size="small"
-              clearable
-              @input="handleSearch"
-            >
-              <template #prefix>
-                <el-icon><Search /></el-icon>
-              </template>
-            </el-input>
+            <nav class="nav-center">
+              <router-link to="/home">首页</router-link>
+                <router-link to="/surveys">问卷列表</router-link>
+                <router-link v-if="isAuthed" to="/create">创建问卷</router-link>
+                <router-link to="/rankings/participation">问卷排行榜</router-link>
+                <router-link v-if="isAuthed" to="/profile">个人中心</router-link>
+            </nav>
           </div>
-          
-          <!-- 分类筛选 -->
-          <div v-if="showSearchBar" class="header-category">
-            <el-select
-              v-model="selectedCategory"
-              placeholder="分类"
-              size="small"
-              clearable
-              @change="handleCategoryChange"
-            >
-              <el-option
-                v-for="category in categories"
-                :key="category.id"
-                :label="category.name"
-                :value="category.id"
-              />
-            </el-select>
-          </div>
-        </nav>
-      </div>
       <div class="header-right">
         <!-- 公告通知图标 -->
         <el-badge v-if="isAuthed" :value="unreadAnnouncementCount" :hidden="!unreadAnnouncementCount" class="notification-badge">
@@ -88,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, computed, provide, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/store/user";
 import { useDataStore } from "@/store/data";
@@ -102,11 +70,6 @@ const { profile, token } = storeToRefs(userStore);
 const route = useRoute();
 const router = useRouter();
 
-// 搜索和筛选状态
-const searchQuery = ref("");
-const selectedCategory = ref(null);
-const showSearchBar = computed(() => route.path === '/home');
-
 // 从 dataStore 获取分类列表
 const categories = computed(() => dataStore.categories || []);
 
@@ -114,21 +77,7 @@ const categories = computed(() => dataStore.categories || []);
 const announcements = ref([]);
 const unreadAnnouncementCount = ref(0);
 
-// 提供给子组件
-provide('headerSearch', {
-  searchQuery,
-  selectedCategory,
-  handleSearch,
-  handleCategoryChange
-});
-
-function handleSearch() {
-  // 搜索会通过 provide/inject 传递给 HomePage
-}
-
-function handleCategoryChange() {
-  // 分类变化会通过 provide/inject 传递给 HomePage
-}
+// 不再在 header 提供搜索/分类，相关功能移至问卷列表页面 List.vue
 
 const isAuthed = computed(() => !!token.value);
 const nickname = computed(() => profile.value?.nickname);
@@ -281,7 +230,7 @@ onMounted(() => {
   align-items: center;
   padding: 0 32px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+  background: linear-gradient(135deg, var(--text-inverse)ff 0%, #f8f9ff 100%);
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
   position: sticky;
@@ -506,7 +455,7 @@ onMounted(() => {
 
 /* 下拉菜单样式 */
 :deep(.el-dropdown-menu) {
-  background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+  background: linear-gradient(145deg, var(--text-inverse)ff 0%, #f8f9ff 100%);
   border: 1px solid rgba(102, 126, 234, 0.1);
   border-radius: 12px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);

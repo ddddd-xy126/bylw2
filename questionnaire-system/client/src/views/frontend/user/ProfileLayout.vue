@@ -134,7 +134,7 @@ onMounted(() => {
 <style scoped>
 .profile-layout {
   min-height: 100vh;
-  background: #80e6a265;
+  background: var(--theme-background-color);
   padding: 20px;
 }
 

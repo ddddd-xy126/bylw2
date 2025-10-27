@@ -361,7 +361,7 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
+  background: var(--text-inverse)ff;
 }
 
 /* 顶部栏样式 */
@@ -369,7 +369,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   padding: 16px 32px;
-  background: #ffffff;
+  background: var(--text-inverse)ff;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
   backdrop-filter: blur(20px);
