@@ -11,16 +11,24 @@
 
 <script setup></script>
 
-<style scoped>
+<style lang="scss" scoped>
 .error {
   text-align: center;
   padding: 60px 16px;
-}
-h1 {
-  font-size: 64px;
-  margin: 0;
-}
-p {
-  color: #666;
+
+  h1 {
+    font-size: 64px;
+    margin: 0;
+  }
+
+  p {
+    color: #666;
+  }
+
+  a,
+  .router-link {
+    color: #409eff;
+    text-decoration: none;
+  }
 }
 </style>

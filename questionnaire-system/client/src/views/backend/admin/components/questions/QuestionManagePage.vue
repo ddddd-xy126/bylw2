@@ -779,228 +779,98 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .question-management-page {
   padding: 0;
-}
 
-/* 页面头部 */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.header-content h1 {
-  margin: 0 0 8px 0;
-  font-size: 28px;
-  font-weight: 600;
-  color: #1a202c;
-}
-
-.header-content p {
-  margin: 0;
-  color: #718096;
-  font-size: 16px;
-}
-
-.header-actions {
-  display: flex;
-  gap: 12px;
-}
-
-/* 统计卡片 */
-.stats-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
-.stat-card {
-  border-radius: 12px;
-  border: none;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-/* 筛选卡片 */
-.filter-card {
-  margin-bottom: 24px;
-  border-radius: 12px;
-  border: none;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-}
-
-.filter-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-}
-
-.filter-left {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.filter-right {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-/* 列表卡片 */
-.list-card {
-  border-radius: 12px;
-  border: none;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-}
-
-/* 表格样式 */
-.title-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.title-text {
-  font-weight: 500;
-  color: #409eff;
-  cursor: pointer;
-  line-height: 1.4;
-}
-
-.title-text:hover {
-  text-decoration: underline;
-}
-
-.title-tags {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.options-preview {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.option-tag {
-  background: #f0f2f5;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-size: 12px;
-  color: #666;
-}
-
-.more-tag {
-  background: #e6f7ff;
-  color: #1890ff;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-size: 12px;
-}
-
-.text-preview,
-.rating-preview {
-  font-size: 12px;
-  color: #999;
-}
-
-.danger-btn {
-  color: #f56c6c !important;
-}
-
-/* 分页 */
-.pagination-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid #f0f0f0;
-}
-
-/* 预览对话框 */
-.preview-content {
-  max-height: 600px;
-  overflow-y: auto;
-}
-
-.preview-header {
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #eee;
-}
-
-.preview-header h3 {
-  margin: 0 0 12px 0;
-  color: #1a202c;
-  font-size: 18px;
-}
-
-.preview-badges {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.preview-description p {
-  margin: 0;
-  color: #666;
-  line-height: 1.6;
-}
-
-.question-preview-content {
-  padding: 16px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  margin-bottom: 16px;
-}
-
-/* 表单样式 */
-.options-container {
-  width: 100%;
-}
-
-.option-item {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.form-tip {
-  margin-left: 8px;
-  color: #999;
-  font-size: 12px;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
+  /* 页面头部 */
   .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    .header-content {
+      h1 { margin: 0 0 8px 0; font-size: 28px; font-weight: 600; color: #1a202c; }
+      p { margin: 0; color: #718096; font-size: 16px; }
+    }
+
+    .header-actions { display: flex; gap: 12px; }
   }
 
-  .filter-content {
-    flex-direction: column;
-    align-items: stretch;
+  /* 统计卡片 */
+  .stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+
+    .stat-card {
+      border-radius: 12px; border: none; box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: all 0.3s ease;
+
+      &:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    }
   }
 
-  .filter-left,
-  .filter-right {
-    width: 100%;
+  /* 筛选卡片 */
+  .filter-card { margin-bottom: 24px; border-radius: 12px; border: none; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+
+  .filter-content { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .filter-left { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .filter-right { display: flex; gap: 12px; align-items: center; }
+
+  /* 列表卡片 */
+  .list-card { border-radius: 12px; border: none; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+
+  /* 表格样式 */
+  .title-cell { display: flex; flex-direction: column; gap: 8px; }
+
+  .title-text { font-weight: 500; color: #409eff; cursor: pointer; line-height: 1.4;
+    &:hover { text-decoration: underline; }
+  }
+
+  .title-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .options-preview { display: flex; gap: 4px; flex-wrap: wrap; }
+
+  .option-tag { background: #f0f2f5; padding: 2px 6px; border-radius: 3px; font-size: 12px; color: #666; }
+
+  .more-tag { background: #e6f7ff; color: #1890ff; padding: 2px 6px; border-radius: 3px; font-size: 12px; }
+
+  .text-preview, .rating-preview { font-size: 12px; color: #999; }
+
+  .danger-btn { color: #f56c6c !important; }
+
+  /* 分页 */
+  .pagination-wrapper { display: flex; justify-content: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid #f0f0f0; }
+
+  /* 预览对话框 */
+  .preview-content { max-height: 600px; overflow-y: auto; }
+
+  .preview-header { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #eee;
+    h3 { margin: 0 0 12px 0; color: #1a202c; font-size: 18px; }
+  }
+
+  .preview-badges { display: flex; gap: 8px; margin-bottom: 12px; }
+
+  .preview-description { p { margin: 0; color: #666; line-height: 1.6; } }
+
+  .question-preview-content { padding: 16px; background: #f8f9fa; border-radius: 8px; margin-bottom: 16px; }
+
+  /* 表单样式 */
+  .options-container { width: 100%; }
+
+  .option-item { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+
+  .form-tip { margin-left: 8px; color: #999; font-size: 12px; }
+
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    .page-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+
+    .filter-content { flex-direction: column; align-items: stretch; }
+
+    .filter-left, .filter-right { width: 100%; }
   }
 }
 </style>

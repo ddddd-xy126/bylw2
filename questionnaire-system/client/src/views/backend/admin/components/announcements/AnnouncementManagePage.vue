@@ -598,129 +598,114 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .announcement-manage-page {
   padding: 0;
-}
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
 
-.header-content h1 {
-  margin: 0 0 8px 0;
-  font-size: 28px;
-  font-weight: 600;
-  color: #1a202c;
-}
+    .header-content {
+      h1 {
+        margin: 0 0 8px 0;
+        font-size: 28px;
+        font-weight: 600;
+        color: #1a202c;
+      }
 
-.header-content p {
-  margin: 0;
-  color: #718096;
-  font-size: 16px;
-}
+      p {
+        margin: 0;
+        color: #718096;
+        font-size: 16px;
+      }
+    }
+  }
 
-.stats-section {
-  margin-bottom: 20px;
-}
+  .stats-section {
+    margin-bottom: 20px;
 
-.stat-card {
-  border-radius: 12px;
-  transition: all 0.3s ease;
-}
+    .stat-card {
+      border-radius: 12px;
+      transition: all 0.3s ease;
 
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-}
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      }
 
-.stat-content {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
+      .stat-content {
+        display: flex;
+        align-items: center;
+        gap: 16px;
 
-.stat-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
+        .stat-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
 
-.stat-icon.total {
-  background: linear-gradient(135deg, #409EFF, #66b1ff);
-}
+          &.total { background: linear-gradient(135deg, #409EFF, #66b1ff); }
+          &.active { background: linear-gradient(135deg, #67C23A, #85ce61); }
+          &.expired { background: linear-gradient(135deg, #909399, #b1b3b8); }
+          &.views { background: linear-gradient(135deg, #E6A23C, #ebb563); }
+        }
 
-.stat-icon.active {
-  background: linear-gradient(135deg, #67C23A, #85ce61);
-}
+        .stat-info { flex: 1; }
 
-.stat-icon.expired {
-  background: linear-gradient(135deg, #909399, #b1b3b8);
-}
+        .stat-number {
+          font-size: 24px;
+          font-weight: 700;
+          color: #303133;
+          line-height: 1;
+        }
 
-.stat-icon.views {
-  background: linear-gradient(135deg, #E6A23C, #ebb563);
-}
+        .stat-label {
+          font-size: 14px;
+          color: #606266;
+          margin-top: 4px;
+        }
+      }
+    }
+  }
 
-.stat-info {
-  flex: 1;
-}
+  .filter-card {
+    margin-bottom: 20px;
+    border-radius: 12px;
+  }
 
-.stat-number {
-  font-size: 24px;
-  font-weight: 700;
-  color: #303133;
-  line-height: 1;
-}
+  .list-card { border-radius: 12px; }
 
-.stat-label {
-  font-size: 14px;
-  color: #606266;
-  margin-top: 4px;
-}
+  .announcement-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
 
-.filter-card {
-  margin-bottom: 20px;
-  border-radius: 12px;
-}
+  .announcement-content {
+    color: #606266;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 
-.list-card {
-  border-radius: 12px;
-}
+  .danger-btn { color: #f56c6c !important; }
 
-.announcement-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-}
-
-.announcement-content {
-  color: #606266;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.danger-btn {
-  color: #f56c6c !important;
-}
-
-.pagination-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid #f0f0f0;
+  .pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+  }
 }
 </style>

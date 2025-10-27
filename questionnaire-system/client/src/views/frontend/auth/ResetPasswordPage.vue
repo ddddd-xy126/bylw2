@@ -20,14 +20,13 @@ import { reactive } from "vue";
 const form = reactive({ email: "", password: "" });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .page {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 60vh;
-}
-.card {
-  width: 360px;
+
+  .card { width: 360px; }
 }
 </style>

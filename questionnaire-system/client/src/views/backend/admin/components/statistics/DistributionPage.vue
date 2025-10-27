@@ -12,7 +12,8 @@
 
 <script setup></script>
 
-<style scoped>
+<style lang="scss" scoped>
+
 .admin-stats-distribution {
   padding: 16px;
 }

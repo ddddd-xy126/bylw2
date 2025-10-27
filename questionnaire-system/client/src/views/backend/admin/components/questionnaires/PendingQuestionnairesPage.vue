@@ -632,261 +632,159 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .pending-questionnaires-page {
   padding: 0;
-}
 
-/* 页面头部 */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.header-content h1 {
-  margin: 0 0 8px 0;
-  font-size: 28px;
-  font-weight: 600;
-  color: #1a202c;
-}
-
-.header-content p {
-  margin: 0;
-  color: #718096;
-  font-size: 16px;
-}
-
-/* 筛选卡片 */
-.filter-card {
-  margin-bottom: 24px;
-  border-radius: 12px;
-  border: none;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-}
-
-.filter-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.filter-left {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-/* 列表卡片 */
-.list-card {
-  border-radius: 12px;
-  border: none;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-}
-
-.list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 16px 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.list-info {
-  color: #666;
-  font-size: 14px;
-}
-
-/* 问卷信息 */
-.questionnaire-info {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.questionnaire-title {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #1a202c;
-  line-height: 1.4;
-}
-
-.questionnaire-description {
-  margin: 0;
-  font-size: 14px;
-  color: #666;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.info-meta {
-  display: flex;
-  gap: 8px;
-}
-
-/* 提交者信息 */
-.submitter-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.submitter-details {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.submitter-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: #1a202c;
-}
-
-.submitter-email {
-  font-size: 12px;
-  color: #666;
-}
-
-/* 时间信息 */
-.time-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.submit-time {
-  font-size: 14px;
-  color: #1a202c;
-}
-
-.time-ago {
-  font-size: 12px;
-  color: #666;
-}
-
-/* 操作按钮 */
-.action-buttons {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.success-btn {
-  color: #67c23a !important;
-}
-
-.success-btn:hover {
-  background-color: rgba(103, 194, 58, 0.1);
-}
-
-.danger-btn {
-  color: #f56c6c !important;
-}
-
-.danger-btn:hover {
-  background-color: rgba(245, 108, 108, 0.1);
-}
-
-/* 分页 */
-.pagination-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid #f0f0f0;
-}
-
-/* 预览对话框 */
-.preview-content {
-  max-height: 600px;
-  overflow-y: auto;
-}
-
-.preview-header {
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #eee;
-}
-
-.preview-header h2 {
-  margin: 0 0 8px 0;
-  color: #1a202c;
-}
-
-.preview-header p {
-  margin: 0;
-  color: #666;
-  line-height: 1.5;
-}
-
-.preview-questions {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.question-item {
-  padding: 16px;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.question-item h4 {
-  margin: 0 0 12px 0;
-  color: #1a202c;
-  font-weight: 500;
-}
-
-.question-options {
-  margin-left: 16px;
-}
-
-/* 表单提示 */
-.form-tip {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 8px;
-  color: #e6a23c;
-  font-size: 12px;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
+  /* 页面头部 */
   .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    .header-content {
+      h1 {
+        margin: 0 0 8px 0;
+        font-size: 28px;
+        font-weight: 600;
+        color: #1a202c;
+      }
+
+      p { margin: 0; color: #718096; font-size: 16px; }
+    }
   }
 
-  .filter-content {
-    flex-direction: column;
-    gap: 16px;
-    align-items: stretch;
+  /* 筛选卡片 */
+  .filter-card {
+    margin-bottom: 24px;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+
+    .filter-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .filter-left { display: flex; gap: 12px; align-items: center; }
+    }
   }
 
-  .filter-left {
-    justify-content: flex-start;
-    flex-wrap: wrap;
+  /* 列表卡片 */
+  .list-card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 16px 0;
+      border-bottom: 1px solid #f0f0f0;
+
+      .list-info { color: #666; font-size: 14px; }
+    }
   }
 
-  .action-buttons {
-    flex-direction: column;
-    gap: 4px;
+  /* 问卷信息 */
+  .questionnaire-info { display: flex; flex-direction: column; gap: 8px; }
+
+  .questionnaire-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a202c;
+    line-height: 1.4;
   }
 
-  .submitter-info {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+  .questionnaire-description {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .info-meta { display: flex; gap: 8px; }
+
+  /* 提交者信息 */
+  .submitter-info { display: flex; align-items: center; gap: 12px; }
+
+  .submitter-details { display: flex; flex-direction: column; gap: 2px; }
+
+  .submitter-name { font-size: 14px; font-weight: 500; color: #1a202c; }
+  .submitter-email { font-size: 12px; color: #666; }
+
+  /* 时间信息 */
+  .time-info { display: flex; flex-direction: column; gap: 4px; }
+  .submit-time { font-size: 14px; color: #1a202c; }
+  .time-ago { font-size: 12px; color: #666; }
+
+  /* 操作按钮 */
+  .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .success-btn { color: #67c23a !important;
+    &:hover { background-color: rgba(103, 194, 58, 0.1); }
+  }
+
+  .danger-btn { color: #f56c6c !important;
+    &:hover { background-color: rgba(245, 108, 108, 0.1); }
+  }
+
+  /* 分页 */
+  .pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  /* 预览对话框 */
+  .preview-content { max-height: 600px; overflow-y: auto; }
+
+  .preview-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+
+    h2 { margin: 0 0 8px 0; color: #1a202c; }
+    p { margin: 0; color: #666; line-height: 1.5; }
+  }
+
+  .preview-questions { display: flex; flex-direction: column; gap: 20px; }
+
+  .question-item {
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+
+    h4 { margin: 0 0 12px 0; color: #1a202c; font-weight: 500; }
+  }
+
+  .question-options { margin-left: 16px; }
+
+  /* 表单提示 */
+  .form-tip { display: flex; align-items: center; gap: 4px; margin-top: 8px; color: #e6a23c; font-size: 12px; }
+
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    .page-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+
+    .filter-content { flex-direction: column; gap: 16px; align-items: stretch; }
+
+    .filter-left { justify-content: flex-start; flex-wrap: wrap; }
+
+    .action-buttons { flex-direction: column; gap: 4px; }
+
+    .submitter-info { flex-direction: column; align-items: flex-start; gap: 8px; }
   }
 }
 </style>

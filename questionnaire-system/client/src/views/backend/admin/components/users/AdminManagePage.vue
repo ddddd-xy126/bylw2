@@ -120,7 +120,8 @@ const confirmDelete = async (row) => {
 onMounted(fetch);
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+
 .admin-admins {
   padding: 16px;
 }

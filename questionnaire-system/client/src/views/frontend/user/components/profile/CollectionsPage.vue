@@ -439,33 +439,56 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .collections-page {
   max-width: 1200px;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    padding: 0;
+  }
 }
 
 .page-header {
   margin-bottom: 24px;
-}
 
-.page-header h2 {
-  margin: 0 0 8px 0;
-  font-size: 24px;
-  font-weight: 600;
-  color: #303133;
-}
+  @media (max-width: 768px) {
+    margin-bottom: 16px;
+  }
 
-.page-header p {
-  margin: 0;
-  color: #606266;
-  font-size: 14px;
+  h2 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #303133;
+
+    @media (max-width: 768px) {
+      font-size: 20px;
+    }
+  }
+
+  p {
+    margin: 0;
+    color: #606266;
+    font-size: 14px;
+  }
 }
 
 .filter-card {
   margin-bottom: 24px;
   border: 1px solid #e4e7ed;
   border-radius: 8px;
+
+  @media (max-width: 768px) {
+    :deep(.el-row) {
+      flex-direction: column;
+    }
+
+    :deep(.el-col) {
+      width: 100%;
+      margin-bottom: 12px;
+    }
+  }
 }
 
 .collections-card {
@@ -480,15 +503,15 @@ onMounted(() => {
 .empty-container {
   padding: 48px 24px;
   text-align: center;
-}
 
-.empty-container a {
-  color: #409eff;
-  text-decoration: none;
-}
+  a {
+    color: #409eff;
+    text-decoration: none;
 
-.empty-container a:hover {
-  text-decoration: underline;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 .list-header {
@@ -498,11 +521,11 @@ onMounted(() => {
   padding: 16px 0;
   border-bottom: 1px solid #f0f2f5;
   margin-bottom: 24px;
-}
 
-.total-count {
-  color: #909399;
-  font-size: 14px;
+  .total-count {
+    color: #909399;
+    font-size: 14px;
+  }
 }
 
 .survey-grid {
@@ -519,240 +542,218 @@ onMounted(() => {
   border-radius: 8px;
   transition: all 0.3s ease;
   position: relative;
-}
 
-.survey-item:hover {
-  border-color: #409eff;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.1);
-}
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-.survey-item.selected {
-  border-color: #409eff;
-  background-color: #f0f9ff;
-}
+  &:hover {
+    border-color: #409eff;
+    box-shadow: 0 4px 12px rgba(64, 158, 255, 0.1);
+  }
 
-.item-checkbox {
-  margin-right: 16px;
-  margin-top: 8px;
-}
+  &.selected {
+    border-color: #409eff;
+    background-color: #f0f9ff;
+  }
 
-.survey-content {
-  display: flex;
-  flex: 1;
-  cursor: pointer;
-  min-width: 0;
-}
+  .item-checkbox {
+    margin-right: 16px;
+    margin-top: 8px;
 
-.survey-thumbnail {
-  width: 120px;
-  height: 80px;
-  border-radius: 6px;
-  overflow: hidden;
-  position: relative;
-  flex-shrink: 0;
-  margin-right: 16px;
-}
+    @media (max-width: 768px) {
+      align-self: flex-start;
+      margin: 0 0 12px 0;
+    }
+  }
 
-.survey-thumbnail img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+  .survey-content {
+    display: flex;
+    flex: 1;
+    cursor: pointer;
+    min-width: 0;
 
-.survey-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+  }
 
-.survey-thumbnail:hover .survey-overlay {
-  opacity: 1;
-}
+  .survey-thumbnail {
+    width: 120px;
+    height: 80px;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+    margin-right: 16px;
 
-.survey-overlay .el-icon {
-  color: white;
-  font-size: 24px;
-}
+    @media (max-width: 768px) {
+      width: 100%;
+      height: 120px;
+      margin: 0 0 12px 0;
+    }
 
-.survey-info {
-  flex: 1;
-  min-width: 0;
-}
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-.survey-title {
-  margin: 0 0 8px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #303133;
-  line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+    .survey-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
 
-.survey-description {
-  margin: 0 0 12px 0;
-  color: #606266;
-  font-size: 14px;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+      &:hover {
+        opacity: 1;
+      }
 
-.survey-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-  flex-wrap: wrap;
-}
+      .el-icon {
+        color: white;
+        font-size: 24px;
+      }
+    }
+  }
 
-.survey-author {
-  color: #909399;
-  font-size: 13px;
-}
+  .survey-info {
+    flex: 1;
+    min-width: 0;
 
-.survey-participants {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: #909399;
-  font-size: 13px;
-}
+    .survey-title {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #303133;
+      line-height: 1.4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
-.survey-stats {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
+    .survey-description {
+      margin: 0 0 12px 0;
+      color: #606266;
+      font-size: 14px;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
 
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: #909399;
-  font-size: 13px;
-}
+    .survey-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
 
-.stat-item.difficulty {
-  background: #f0f2f5;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-}
+      @media (max-width: 480px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
 
-.survey-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-  margin-left: 16px;
-}
+      .survey-author {
+        color: #909399;
+        font-size: 13px;
+      }
 
-.collected-time {
-  color: #909399;
-  font-size: 12px;
-  white-space: nowrap;
-}
+      .survey-participants {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #909399;
+        font-size: 13px;
+      }
+    }
 
-.action-buttons {
-  display: flex;
-  gap: 8px;
+    .survey-stats {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+
+      @media (max-width: 480px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #909399;
+        font-size: 13px;
+
+        &.difficulty {
+          background: #f0f2f5;
+          padding: 2px 8px;
+          border-radius: 12px;
+          font-size: 12px;
+        }
+      }
+    }
+  }
+
+  .survey-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    margin-left: 16px;
+
+    @media (max-width: 768px) {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      margin: 12px 0 0 0;
+    }
+
+    .collected-time {
+      color: #909399;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .el-button {
+        @media (max-width: 768px) {
+          font-size: 12px;
+          padding: 6px 12px;
+        }
+      }
+    }
+  }
 }
 
 .pagination-container {
   margin-top: 32px;
   text-align: center;
-}
 
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .collections-page {
-    padding: 0;
-  }
-  
-  .page-header {
-    margin-bottom: 16px;
-  }
-  
-  .page-header h2 {
-    font-size: 20px;
-  }
-  
-  .filter-card :deep(.el-row) {
-    flex-direction: column;
-  }
-  
-  .filter-card :deep(.el-col) {
-    width: 100%;
-    margin-bottom: 12px;
-  }
-  
-  .survey-item {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .item-checkbox {
-    align-self: flex-start;
-    margin: 0 0 12px 0;
-  }
-  
-  .survey-content {
-    flex-direction: column;
-  }
-  
-  .survey-thumbnail {
-    width: 100%;
-    height: 120px;
-    margin: 0 0 12px 0;
-  }
-  
-  .survey-actions {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin: 12px 0 0 0;
-  }
-  
-  .action-buttons {
-    flex-direction: column;
-    gap: 4px;
-  }
-  
-  .action-buttons .el-button {
-    font-size: 12px;
-    padding: 6px 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .survey-meta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .survey-stats {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .pagination-container :deep(.el-pagination) {
-    justify-content: center;
+  @media (max-width: 480px) {
+    :deep(.el-pagination) {
+      justify-content: center;
+    }
   }
 }
 </style>

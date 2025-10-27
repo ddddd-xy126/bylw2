@@ -12,7 +12,7 @@
 
 <script setup></script>
 
-<style scoped>
+<style scoped lang="scss">
 .admin-stats-completion {
   padding: 16px;
 }

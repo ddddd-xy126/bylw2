@@ -179,7 +179,7 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .participation-page {
   padding: 20px;
 }
@@ -195,23 +195,25 @@ onMounted(() => {
   align-items: center;
   gap: 20px;
   color: white;
-}
 
-.header-icon {
-  font-size: 48px;
-  line-height: 1;
-}
+  .header-icon {
+    font-size: 48px;
+    line-height: 1;
+  }
 
-.header-content h2 {
-  margin: 0 0 5px 0;
-  font-size: 28px;
-  font-weight: 700;
-}
+  .header-content {
+    h2 {
+      margin: 0 0 5px 0;
+      font-size: 28px;
+      font-weight: 700;
+    }
 
-.header-content p {
-  margin: 0;
-  font-size: 14px;
-  opacity: 0.9;
+    p {
+      margin: 0;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+  }
 }
 
 .rankings-card {
@@ -224,6 +226,10 @@ onMounted(() => {
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   margin-bottom: 40px;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .top-item {
@@ -231,39 +237,45 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 15px;
-}
 
-.medal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
-}
+  &.rank-1 {
+    .medal {
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    }
+  }
 
-.rank-1 .medal {
-  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-}
+  &.rank-2 {
+    .medal {
+      background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+    }
+  }
 
-.rank-2 .medal {
-  background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
-}
+  &.rank-3 {
+    .medal {
+      background: linear-gradient(135deg, #cd7f32 0%, #e6a87e 100%);
+    }
+  }
 
-.rank-3 .medal {
-  background: linear-gradient(135deg, #cd7f32 0%, #e6a87e 100%);
-}
+  .medal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
 
-.medal-icon {
-  font-size: 32px;
-  line-height: 1;
-}
+    .medal-icon {
+      font-size: 32px;
+      line-height: 1;
+    }
 
-.rank-number {
-  font-size: 20px;
-  font-weight: 700;
-  color: #333;
+    .rank-number {
+      font-size: 20px;
+      font-weight: 700;
+      color: #333;
+    }
+  }
 }
 
 .survey-card {
@@ -273,265 +285,269 @@ onMounted(() => {
   overflow: hidden;
   transition: all 0.3s ease;
   background: white;
-}
 
-.survey-card:hover {
-  border-color: #667eea;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
-  transform: translateY(-5px);
-}
+  &:hover {
+    border-color: #667eea;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+    transform: translateY(-5px);
+  }
 
-.survey-thumbnail {
-  width: 100%;
-  height: 150px;
-  overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
+  .survey-thumbnail {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 
-.survey-thumbnail img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-.thumbnail-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 48px;
-  color: white;
-}
+    .thumbnail-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      color: white;
+    }
+  }
 
-.survey-info {
-  padding: 15px;
-}
+  .survey-info {
+    padding: 15px;
 
-.survey-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #333;
-  margin: 0 0 10px 0;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+    .survey-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #333;
+      margin: 0 0 10px 0;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
 
-.survey-description {
-  font-size: 13px;
-  color: #666;
-  margin: 0 0 12px 0;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+    .survey-description {
+      font-size: 13px;
+      color: #666;
+      margin: 0 0 12px 0;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
 
-.survey-meta {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
+    .survey-meta {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
 
-.participation-stats {
-  display: flex;
-  gap: 15px;
-  padding-top: 12px;
-  border-top: 1px solid #e4e7ed;
-}
+    .participation-stats {
+      display: flex;
+      gap: 15px;
+      padding-top: 12px;
+      border-top: 1px solid #e4e7ed;
 
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 13px;
-  color: #666;
-}
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 13px;
+        color: #666;
 
-.stat-value {
-  font-weight: 700;
-  color: #333;
-}
+        .stat-value {
+          font-weight: 700;
+          color: #333;
+        }
 
-.stat-label {
-  font-size: 12px;
-}
+        .stat-label {
+          font-size: 12px;
+        }
+      }
+    }
+  }
 
-.participate-btn {
-  width: 100%;
-  height: 40px;
-  font-size: 15px;
-  font-weight: 600;
+  .participate-btn {
+    width: 100%;
+    height: 40px;
+    font-size: 15px;
+    font-weight: 600;
+  }
 }
 
 /* 4-10名列表 */
 .rankings-list {
   background: white;
-}
 
-.list-header {
-  display: grid;
-  grid-template-columns: 80px 1fr 150px 120px 150px;
-  gap: 15px;
-  padding: 15px 20px;
-  background: #f6f8fb;
-  border-radius: 8px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 10px;
-}
-
-.list-item {
-  display: grid;
-  grid-template-columns: 80px 1fr 150px 120px 150px;
-  gap: 15px;
-  padding: 15px 20px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  align-items: center;
-}
-
-.list-item:hover {
-  background: #f6f8fb;
-  transform: translateX(5px);
-}
-
-.col-rank {
-  text-align: center;
-}
-
-.rank-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  font-weight: 700;
-  font-size: 16px;
-}
-
-.survey-brief {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.brief-thumbnail {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  overflow: hidden;
-  flex-shrink: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.brief-thumbnail img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.thumbnail-placeholder-small {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  color: white;
-}
-
-.brief-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.brief-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 5px 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.brief-meta {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.brief-author {
-  font-size: 13px;
-  color: #909399;
-}
-
-.participants-count {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 18px;
-  font-weight: 700;
-  color: #667eea;
-}
-
-.count-number {
-  font-size: 20px;
-}
-
-.rating-display {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #fadb14;
-}
-
-.rating-number {
-  color: #333;
-}
-
-/* 响应式 */
-@media (max-width: 1200px) {
-  .top-three {
-    grid-template-columns: 1fr;
-  }
-  
-  .list-header,
-  .list-item {
-    grid-template-columns: 60px 1fr 120px 100px 120px;
-    gap: 10px;
-    padding: 12px 15px;
-  }
-}
-
-@media (max-width: 768px) {
   .list-header {
-    display: none;
+    display: grid;
+    grid-template-columns: 80px 1fr 150px 120px 150px;
+    gap: 15px;
+    padding: 15px 20px;
+    background: #f6f8fb;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+
+    @media (max-width: 1200px) {
+      grid-template-columns: 60px 1fr 120px 100px 120px;
+      gap: 10px;
+      padding: 12px 15px;
+    }
+
+    @media (max-width: 768px) {
+      display: none;
+    }
   }
-  
+
   .list-item {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  
-  .col-rank {
-    text-align: left;
-  }
-  
-  .participants-count,
-  .rating-display,
-  .col-action {
-    justify-content: flex-start;
+    display: grid;
+    grid-template-columns: 80px 1fr 150px 120px 150px;
+    gap: 15px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    align-items: center;
+
+    @media (max-width: 1200px) {
+      grid-template-columns: 60px 1fr 120px 100px 120px;
+      gap: 10px;
+      padding: 12px 15px;
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    &:hover {
+      background: #f6f8fb;
+      transform: translateX(5px);
+    }
+
+    .col-rank {
+      text-align: center;
+
+      @media (max-width: 768px) {
+        text-align: left;
+      }
+
+      .rank-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 700;
+        font-size: 16px;
+      }
+    }
+
+    .survey-brief {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+
+      .brief-thumbnail {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .thumbnail-placeholder-small {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 24px;
+          color: white;
+        }
+      }
+
+      .brief-info {
+        flex: 1;
+        min-width: 0;
+
+        .brief-title {
+          font-size: 15px;
+          font-weight: 600;
+          color: #333;
+          margin: 0 0 5px 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .brief-meta {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+
+          .brief-author {
+            font-size: 13px;
+            color: #909399;
+          }
+        }
+      }
+    }
+
+    .participants-count {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #667eea;
+
+      @media (max-width: 768px) {
+        justify-content: flex-start;
+      }
+
+      .count-number {
+        font-size: 20px;
+      }
+    }
+
+    .rating-display {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #fadb14;
+
+      @media (max-width: 768px) {
+        justify-content: flex-start;
+      }
+
+      .rating-number {
+        color: #333;
+      }
+    }
+
+    .col-action {
+      @media (max-width: 768px) {
+        justify-content: flex-start;
+      }
+    }
   }
 }
 </style>

@@ -398,9 +398,13 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .pending-page {
   padding: 20px;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 }
 
 /* 页面头部 */
@@ -413,39 +417,58 @@ onMounted(() => {
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
 
-.header-info h2 {
-  margin: 0 0 8px 0;
-  color: #303133;
-  font-size: 24px;
-}
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 16px;
+  }
 
-.header-info p {
-  margin: 0;
-  color: #606266;
-  font-size: 14px;
-}
+  .header-info {
+    h2 {
+      margin: 0 0 8px 0;
+      color: #303133;
+      font-size: 24px;
+    }
 
-.header-stats {
-  text-align: right;
+    p {
+      margin: 0;
+      color: #606266;
+      font-size: 14px;
+    }
+  }
+
+  .header-stats {
+    text-align: right;
+
+    @media (max-width: 768px) {
+      text-align: left;
+      width: 100%;
+    }
+  }
 }
 
 /* 流程卡片 */
 .process-card {
   margin-bottom: 20px;
   border-radius: 12px;
-}
+  padding: 16px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
-.process-card h3 {
-  margin: 0;
-  color: #303133;
+  h3 {
+    margin: 0;
+    color: #303133;
+    font-size: 18px;
+  }
 }
 
 /* 筛选卡片 */
 .filter-card {
   margin-bottom: 20px;
   border-radius: 12px;
+  padding: 16px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* 问卷列表 */
@@ -454,126 +477,157 @@ onMounted(() => {
   flex-direction: column;
   gap: 16px;
   margin-bottom: 20px;
-}
 
-.survey-item {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+  .survey-item {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-.survey-item:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
-}
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 16px;
+    }
 
-.pending-item {
-  border-left: 4px solid #E6A23C;
-}
+    &:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+    }
 
-.survey-main {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  flex: 1;
-}
+    &.pending-item {
+      border-left: 4px solid #E6A23C;
+    }
 
-.survey-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  background: #fdf6ec;
-  border-radius: 12px;
-  flex-shrink: 0;
-}
+    .survey-main {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      flex: 1;
 
-.survey-info {
-  flex: 1;
-}
+      @media (max-width: 768px) {
+        width: 100%;
+      }
 
-.survey-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
+      .survey-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        background: #fdf6ec;
+        border-radius: 12px;
+        flex-shrink: 0;
+      }
 
-.survey-title {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #303133;
-}
+      .survey-info {
+        flex: 1;
 
-.survey-badges {
-  display: flex;
-  gap: 8px;
-}
+        .survey-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
 
-.survey-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 8px;
-}
+          @media (max-width: 480px) {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+          }
 
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 14px;
-  color: #606266;
-}
+          .survey-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #303133;
+          }
 
-.survey-description {
-  color: #909399;
-  font-size: 14px;
-  line-height: 1.5;
-  margin-bottom: 16px;
-}
+          .survey-badges {
+            display: flex;
+            gap: 8px;
+          }
+        }
 
-/* 审核进度 */
-.review-progress {
-  background: #fdf6ec;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #f5dab1;
-}
+        .survey-meta {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 16px;
+          margin-bottom: 8px;
 
-.progress-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
+          @media (max-width: 768px) {
+            flex-direction: column;
+            gap: 8px;
+          }
 
-.progress-label {
-  font-weight: 600;
-  color: #E6A23C;
-  font-size: 14px;
-}
+          .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            color: #606266;
+          }
+        }
 
-.progress-status {
-  color: #606266;
-  font-size: 12px;
-}
+        .survey-description {
+          color: #909399;
+          font-size: 14px;
+          line-height: 1.5;
+          margin-bottom: 16px;
+        }
 
-.survey-actions {
-  display: flex;
-  gap: 12px;
-  flex-shrink: 0;
+        /* 审核进度 */
+        .review-progress {
+          background: #fdf6ec;
+          padding: 12px;
+          border-radius: 8px;
+          border: 1px solid #f5dab1;
+
+          .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+
+            .progress-label {
+              font-weight: 600;
+              color: #E6A23C;
+              font-size: 14px;
+            }
+
+            .progress-status {
+              color: #606266;
+              font-size: 12px;
+            }
+          }
+        }
+      }
+    }
+
+    .survey-actions {
+      display: flex;
+      gap: 12px;
+      flex-shrink: 0;
+
+      @media (max-width: 768px) {
+        width: 100%;
+        justify-content: center;
+      }
+
+      @media (max-width: 480px) {
+        flex-direction: column;
+        width: 100%;
+      }
+    }
+  }
 }
 
 /* 空状态 */
 .empty-state {
   margin: 40px 0;
+  text-align: center;
 }
 
 /* 分页 */
@@ -587,62 +641,25 @@ onMounted(() => {
 .notice-card {
   margin-top: 20px;
   border-radius: 12px;
-}
+  padding: 16px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
-.notice-card h3 {
-  margin: 0;
-  color: #303133;
-}
+  h3 {
+    margin: 0;
+    color: #303133;
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
 
-.notice-content .el-alert {
-  margin-bottom: 12px;
-}
+  .notice-content {
+    .el-alert {
+      margin-bottom: 12px;
 
-.notice-content .el-alert:last-child {
-  margin-bottom: 0;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .pending-page {
-    padding: 16px;
-  }
-  
-  .page-header {
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  .survey-item {
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  .survey-main {
-    width: 100%;
-  }
-  
-  .survey-actions {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .survey-meta {
-    flex-direction: column;
-    gap: 8px;
-  }
-}
-
-@media (max-width: 480px) {
-  .survey-actions {
-    flex-direction: column;
-    width: 100%;
-  }
-  
-  .survey-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
   }
 }
 </style>

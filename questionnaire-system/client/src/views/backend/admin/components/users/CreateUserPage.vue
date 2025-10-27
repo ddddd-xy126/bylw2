@@ -47,8 +47,9 @@ const submit = async () => {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+
 .admin-create-user {
   padding: 16px;
 }
-</style>
+</style>s

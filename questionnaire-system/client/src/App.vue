@@ -5,8 +5,11 @@
 <script setup>
 </script>
 
-<style>
-html, body, #app { height: 100%; margin: 0; }
+<style lang="scss">
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
 </style>
-
-

@@ -355,254 +355,247 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .achievements-page {
   padding: 20px;
+
+  @media (max-width: 768px) {
+    padding: 10px;
+  }
 }
 
 /* 统计卡片行 */
 .stats-row {
   margin-bottom: 30px;
-}
 
-.stat-card {
-  height: 100%;
-  transition: all 0.3s ease;
-}
+  .stat-card {
+    height: 100%;
+    transition: all 0.3s ease;
 
-.stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
 
-.stat-content {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 10px;
-}
+    .stat-content {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 10px;
 
-.stat-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 60px;
-  height: 60px;
-  border-radius: 12px;
-  font-size: 32px;
-  flex-shrink: 0;
-}
+      .stat-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        font-size: 32px;
+        flex-shrink: 0;
 
-.points-icon {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
+        @media (max-width: 768px) {
+          width: 50px;
+          height: 50px;
+          font-size: 28px;
+        }
 
-.completed-icon {
-  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-}
+        &.points-icon {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
 
-.badge-count-icon {
-  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-}
+        &.completed-icon {
+          background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
 
-.stat-info {
-  flex: 1;
-}
+        &.badge-count-icon {
+          background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+      }
 
-.stat-value {
-  font-size: 32px;
-  font-weight: bold;
-  color: #303133;
-  line-height: 1;
-  margin-bottom: 8px;
-}
+      .stat-info {
+        flex: 1;
 
-.stat-label {
-  font-size: 14px;
-  color: #909399;
+        .stat-value {
+          font-size: 32px;
+          font-weight: bold;
+          color: #303133;
+          line-height: 1;
+          margin-bottom: 8px;
+
+          @media (max-width: 768px) {
+            font-size: 24px;
+          }
+        }
+
+        .stat-label {
+          font-size: 14px;
+          color: #909399;
+        }
+      }
+    }
+  }
 }
 
 /* 徽章区域 */
 .badges-section {
   margin-top: 20px;
-}
 
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-.section-title {
-  font-size: 18px;
-  font-weight: bold;
-  color: #303133;
-}
-
-.badges-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.badge-item {
-  background: #fff;
-  border: 2px solid #e4e7ed;
-  border-radius: 12px;
-  padding: 15px;
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.badge-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.badge-item.locked {
-  background: #f5f7fa;
-}
-
-.badge-item.unlocked {
-  border-color: #67C23A;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-}
-
-.badge-image-wrapper {
-  position: relative;
-  width: 70px;
-  height: 70px;
-  margin: 0 auto 10px;
-}
-
-.badge-image {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.badge-image.locked-image {
-  background: #dcdfe6;
-  filter: grayscale(100%);
-}
-
-.badge-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.badge-icon-fallback {
-  font-size: 32px;
-}
-
-.lock-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-.badge-info {
-  margin-top: 5px;
-}
-
-.badge-name {
-  font-size: 14px;
-  font-weight: bold;
-  color: #303133;
-  margin: 0 0 5px 0;
-}
-
-.badge-description {
-  font-size: 12px;
-  color: #606266;
-  margin: 0 0 8px 0;
-  min-height: 32px;
-  line-height: 1.4;
-}
-
-.badge-progress {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #909399;
-  font-weight: 500;
-}
-
-.badge-reward {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 8px;
-  padding: 3px 10px;
-  background: #fff9e6;
-  border-radius: 20px;
-  color: #E6A23C;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-/* 响应式 */
-@media (max-width: 768px) {
-  .achievements-page {
-    padding: 10px;
-  }
-
-  .stat-value {
-    font-size: 24px;
-  }
-
-  .stat-icon {
-    width: 50px;
-    height: 50px;
-    font-size: 28px;
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #303133;
+    }
   }
 
   .badges-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+
+    @media (min-width: 1201px) and (max-width: 1600px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    @media (min-width: 769px) and (max-width: 1200px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
   }
 
-  .badge-image-wrapper {
-    width: 60px;
-    height: 60px;
-  }
+  .badge-item {
+    background: #fff;
+    border: 2px solid #e4e7ed;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
 
-  .badge-icon-fallback {
-    font-size: 28px;
-  }
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
 
-  .badge-name {
-    font-size: 13px;
-  }
+    &.locked {
+      background: #f5f7fa;
+    }
 
-  .badge-description {
-    font-size: 11px;
-  }
-}
+    &.unlocked {
+      border-color: #67C23A;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    }
 
-@media (min-width: 769px) and (max-width: 1200px) {
-  .badges-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
+    .badge-image-wrapper {
+      position: relative;
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 10px;
 
-@media (min-width: 1201px) and (max-width: 1600px) {
-  .badges-grid {
-    grid-template-columns: repeat(4, 1fr);
+      @media (max-width: 768px) {
+        width: 60px;
+        height: 60px;
+      }
+
+      .badge-image {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        overflow: hidden;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &.locked-image {
+          background: #dcdfe6;
+          filter: grayscale(100%);
+        }
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .badge-icon-fallback {
+          font-size: 32px;
+
+          @media (max-width: 768px) {
+            font-size: 28px;
+          }
+        }
+      }
+
+      .lock-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+      }
+    }
+
+    .badge-info {
+      margin-top: 5px;
+
+      .badge-name {
+        font-size: 14px;
+        font-weight: bold;
+        color: #303133;
+        margin: 0 0 5px 0;
+
+        @media (max-width: 768px) {
+          font-size: 13px;
+        }
+      }
+
+      .badge-description {
+        font-size: 12px;
+        color: #606266;
+        margin: 0 0 8px 0;
+        min-height: 32px;
+        line-height: 1.4;
+
+        @media (max-width: 768px) {
+          font-size: 11px;
+        }
+      }
+
+      .badge-progress {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #909399;
+        font-weight: 500;
+      }
+
+      .badge-reward {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 8px;
+        padding: 3px 10px;
+        background: #fff9e6;
+        border-radius: 20px;
+        color: #E6A23C;
+        font-size: 12px;
+        font-weight: 500;
+      }
+    }
   }
 }
 </style>

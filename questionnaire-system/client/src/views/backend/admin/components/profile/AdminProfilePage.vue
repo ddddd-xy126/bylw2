@@ -586,234 +586,195 @@ onMounted(async () => {
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .admin-profile-page {
   padding: 0;
   max-width: 1200px;
   margin: 0 auto;
-}
 
-/* 页面头部 */
-.page-header {
-  margin-bottom: 24px;
-}
+  /* 页面头部 */
+  .page-header { margin-bottom: 24px; }
 
-.header-content h1 {
-  margin: 0 0 8px 0;
-  font-size: 28px;
-  font-weight: 600;
-  color: #1a202c;
-}
+  .header-content {
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 28px;
+      font-weight: 600;
+      color: #1a202c;
+    }
 
-.header-content p {
-  margin: 0;
-  color: #718096;
-  font-size: 16px;
-}
-
-/* 卡片样式 */
-.profile-card,
-.avatar-card,
-
-.activity-card {
-  margin-bottom: 24px;
-  border-radius: 12px;
-  border: none;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-header h3 {
-  margin: 0;
-  color: #1a202c;
-  font-size: 18px;
-}
-
-/* 头像区域 */
-.avatar-section {
-  text-align: center;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.profile-avatar {
-  margin-bottom: 16px;
-  border: 3px solid #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.avatar-actions {
-  margin-top: 12px;
-}
-
-.profile-info {
-  text-align: center;
-  padding-top: 20px;
-}
-
-.profile-info h3 {
-  margin: 0 0 8px 0;
-  color: #1a202c;
-  font-size: 20px;
-}
-
-.role-badge {
-  margin: 8px 0;
-}
-
-.join-date {
-  margin: 8px 0 0 0;
-  color: #666;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-
-/* 内联头像区域 */
-.avatar-section-inline {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 0;
-}
-
-.avatar-container {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.avatar-info h3 {
-  margin: 0 0 8px 0;
-  color: #1a202c;
-  font-size: 20px;
-}
-
-.avatar-info .role-badge {
-  margin: 8px 0;
-}
-
-.avatar-info .join-date {
-  margin: 8px 0 0 0;
-  color: #666;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  justify-content: flex-start;
-}
-
-
-
-/* 活动时间线 */
-.activity-content {
-  padding-left: 8px;
-}
-
-.activity-title {
-  font-weight: 500;
-  color: #1a202c;
-  margin-bottom: 4px;
-}
-
-.activity-desc {
-  font-size: 12px;
-  color: #666;
-}
-
-/* 表单样式 */
-.input-tip {
-  font-size: 12px;
-  color: #999;
-}
-
-/* 头像上传 */
-.avatar-upload-section {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.current-avatar {
-  text-align: center;
-}
-
-.current-avatar h4 {
-  margin: 0 0 16px 0;
-  color: #1a202c;
-}
-
-.upload-area {
-  text-align: center;
-}
-
-.upload-tip {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #666;
-}
-
-.preset-avatars h4 {
-  margin: 0 0 16px 0;
-  color: #1a202c;
-}
-
-.avatars-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-}
-
-.preset-avatar {
-  padding: 8px;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.preset-avatar:hover,
-.preset-avatar.active {
-  border-color: #409eff;
-  background: rgba(64, 158, 255, 0.1);
-}
-
-/* 浮动按钮 */
-.floating-actions {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  z-index: 1000;
-}
-
-.floating-actions .el-button {
-  box-shadow: 0 4px 16px rgba(64, 158, 255, 0.3);
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .admin-profile-page {
-    padding: 16px;
+    p {
+      margin: 0;
+      color: #718096;
+      font-size: 16px;
+    }
   }
 
-  .stats-grid {
-    grid-template-columns: 1fr;
+  /* 卡片样式 */
+  .profile-card,
+  .avatar-card,
+  .activity-card {
+    margin-bottom: 24px;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   }
 
-  .avatars-grid {
-    grid-template-columns: repeat(3, 1fr);
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h3 {
+      margin: 0;
+      color: #1a202c;
+      font-size: 18px;
+    }
   }
 
+  /* 头像区域 */
+  .avatar-section {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .profile-avatar {
+    margin-bottom: 16px;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .avatar-actions { margin-top: 12px; }
+
+  .profile-info {
+    text-align: center;
+    padding-top: 20px;
+
+    h3 {
+      margin: 0 0 8px 0;
+      color: #1a202c;
+      font-size: 20px;
+    }
+  }
+
+  .role-badge { margin: 8px 0; }
+
+  .join-date {
+    margin: 8px 0 0 0;
+    color: #666;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  /* 内联头像区域 */
+  .avatar-section-inline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+  }
+
+  .avatar-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .avatar-info {
+    h3 {
+      margin: 0 0 8px 0;
+      color: #1a202c;
+      font-size: 20px;
+    }
+
+    .role-badge { margin: 8px 0; }
+
+    .join-date {
+      margin: 8px 0 0 0;
+      color: #666;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      justify-content: flex-start;
+    }
+  }
+
+  /* 活动时间线 */
+  .activity-content { padding-left: 8px; }
+
+  .activity-title {
+    font-weight: 500;
+    color: #1a202c;
+    margin-bottom: 4px;
+  }
+
+  .activity-desc { font-size: 12px; color: #666; }
+
+  /* 表单样式 */
+  .input-tip { font-size: 12px; color: #999; }
+
+  /* 头像上传 */
+  .avatar-upload-section {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .current-avatar { text-align: center;
+    h4 { margin: 0 0 16px 0; color: #1a202c; }
+  }
+
+  .upload-area { text-align: center; }
+
+  .upload-tip { margin-top: 8px; font-size: 12px; color: #666; }
+
+  .preset-avatars {
+    h4 { margin: 0 0 16px 0; color: #1a202c; }
+
+    .avatars-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .preset-avatar {
+      padding: 8px;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover, &.active {
+        border-color: #409eff;
+        background: rgba(64, 158, 255, 0.1);
+      }
+    }
+  }
+
+  /* 浮动按钮 */
   .floating-actions {
-    right: 16px;
-    bottom: 16px;
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1000;
+
+    .el-button { box-shadow: 0 4px 16px rgba(64, 158, 255, 0.3); }
+  }
+
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    padding: 16px;
+
+    .stats-grid { grid-template-columns: 1fr; }
+
+    .avatars-grid { grid-template-columns: repeat(3, 1fr); }
+
+    .floating-actions { right: 16px; bottom: 16px; }
   }
 }
 </style>

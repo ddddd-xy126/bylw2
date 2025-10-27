@@ -10,9 +10,7 @@
           <el-input v-model="form.password" type="password" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :loading="loading" @click="onSubmit"
-            >登录</el-button
-          >
+          <el-button type="primary" :loading="loading" @click="onSubmit">登录</el-button>
           <el-button type="text" @click="goToHome">返回首页</el-button>
         </el-form-item>
       </el-form>
@@ -37,10 +35,10 @@ async function onSubmit() {
     const response = await loginApi(form.value);
     // 处理不同的响应格式
     const { token, user } = response.data || response;
-    
+
     store.setToken(token);
     store.setProfile(user);
-    
+
     if (user.role !== "admin") {
       return router.replace("/403");
     }
@@ -58,14 +56,15 @@ function goToHome() {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .page {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 60vh;
-}
-.card {
-  width: 360px;
+
+  .card {
+    width: 360px;
+  }
 }
 </style>

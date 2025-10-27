@@ -6,18 +6,30 @@
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+</script>
 
-<style scoped>
+<style lang="scss" scoped>
 .error {
   text-align: center;
   padding: 60px 16px;
-}
-h1 {
-  font-size: 64px;
-  margin: 0;
-}
-p {
-  color: #666;
+
+  h1 {
+    font-size: 96px;
+    margin: 0;
+    color: #f56c6c;
+  }
+
+  p {
+    font-size: 18px;
+    color: #606266;
+    margin: 12px 0 24px 0;
+  }
+
+  a,
+  .router-link {
+    color: #409eff;
+    text-decoration: none;
+  }
 }
 </style>

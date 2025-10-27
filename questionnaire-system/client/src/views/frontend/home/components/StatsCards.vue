@@ -98,138 +98,102 @@ const formatNumber = (num) => {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .stats-section {
   margin-bottom: 32px;
-}
 
-.stats-card {
-  position: relative;
-  height: 120px;
-  padding: 24px;
-  border-radius: 20px;
-  color: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  overflow: hidden;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.stats-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-}
-
-.gradient-1 {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.gradient-2 {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-.gradient-3 {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
-
-.gradient-4 {
-  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-}
-
-.stats-icon {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  font-size: 2rem;
-  opacity: 0.3;
-}
-
-.stats-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 100%;
-  z-index: 2;
-  position: relative;
-}
-
-.stats-number {
-  font-size: 2.5rem;
-  font-weight: 700;
-  line-height: 1;
-  margin-bottom: 8px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.stats-label {
-  font-size: 0.9rem;
-  opacity: 0.9;
-  font-weight: 500;
-}
-
-.stats-decoration {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-}
-
-.decoration-dot {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  animation: pulse 3s ease-in-out infinite;
-}
-
-.dot-1 {
-  width: 60px;
-  height: 60px;
-  top: -20px;
-  right: -20px;
-  animation-delay: 0s;
-}
-
-.dot-2 {
-  width: 40px;
-  height: 40px;
-  bottom: -10px;
-  left: -10px;
-  animation-delay: -1.5s;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.1;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.2;
-  }
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
   .stats-card {
-    height: 100px;
-    padding: 20px;
-    margin-bottom: 16px;
+    position: relative;
+    height: 120px;
+    padding: 24px;
+    border-radius: 20px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(17, 24, 39, 0.06);
+
+    &:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 40px rgba(17, 24, 39, 0.08);
+    }
   }
-  
-  .stats-number {
-    font-size: 2rem;
-  }
-  
-  .stats-label {
-    font-size: 0.8rem;
-  }
-  
+
+  .gradient-1 { background: linear-gradient(135deg, var(--color-accent-3) 0%, var(--bg-primary-light) 100%); }
+  .gradient-2 { background: linear-gradient(135deg, var(--color-accent-1) 0%, var(--color-warning-bg) 100%); }
+  .gradient-3 { background: linear-gradient(135deg, var(--color-accent-2) 0%, var(--color-info-bg) 100%); }
+  .gradient-4 { background: linear-gradient(135deg, var(--color-accent-4) 0%, var(--color-success-bg) 100%); }
+
   .stats-icon {
-    font-size: 1.5rem;
-    top: 15px;
-    right: 15px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 2rem;
+    color: var(--text-primary);
+    opacity: 0.5;
+  }
+
+  .stats-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    z-index: 2;
+    position: relative;
+  }
+
+  .stats-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .stats-label { font-size: 0.9rem; opacity: 0.9; font-weight: 500; }
+
+  .stats-decoration {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+  }
+
+  .decoration-dot {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.22);
+    animation: pulse 3s ease-in-out infinite;
+  }
+
+  .dot-1 {
+    width: 60px;
+    height: 60px;
+    top: -20px;
+    right: -20px;
+    animation-delay: 0s;
+  }
+
+  .dot-2 {
+    width: 40px;
+    height: 40px;
+    bottom: -10px;
+    left: -10px;
+    animation-delay: -1.5s;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.1; }
+    50% { transform: scale(1.1); opacity: 0.2; }
+  }
+
+  @media (max-width: 768px) {
+    .stats-card { height: 100px; padding: 20px; margin-bottom: 16px; }
+    .stats-number { font-size: 2rem; }
+    .stats-label { font-size: 0.8rem; }
+    .stats-icon { font-size: 1.5rem; top: 15px; right: 15px; }
   }
 }
 </style>

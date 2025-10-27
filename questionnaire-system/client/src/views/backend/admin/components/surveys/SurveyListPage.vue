@@ -45,7 +45,8 @@ const remove = async (id) => {
 onMounted(fetch);
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+
 .admin-survey-list {
   padding: 16px;
 }

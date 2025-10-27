@@ -15,8 +15,8 @@
 <script setup>
 // 占位符页面
 </script>
+<style lang="scss" scoped>
 
-<style scoped>
 h2 {
   margin: 0;
   color: #303133;

@@ -28,20 +28,66 @@
 
 /* success / warning / danger 等也映射到项目变量（可按需扩展） */
 .el-button--success {
-  background-color: var(--color-primary-light-3) !important;
-  border-color: var(--color-primary-light-2) !important;
-  color: var(--color-white) !important;
-  font-weight: 300 !important;
+  background-color: var(--color-success) !important;
+  border-color: var(--color-success) !important;
+  color: var(--text-inverse) !important;
+  font-weight: 500 !important;
 }
+.el-button--success:hover {
+  background-color: var(--color-success-light) !important;
+  border-color: var(--color-success-light) !important;
+}
+.el-button--success:active {
+  background-color: var(--color-success-dark) !important;
+  border-color: var(--color-success-dark) !important;
+}
+
 .el-button--warning {
   background-color: var(--color-warning) !important;
   border-color: var(--color-warning) !important;
   color: var(--text-inverse) !important;
 }
+.el-button--warning:hover {
+  background-color: var(--color-warning-light) !important;
+  border-color: var(--color-warning-light) !important;
+}
+.el-button--warning:active {
+  background-color: var(--color-warning-dark) !important;
+  border-color: var(--color-warning-dark) !important;
+}
+
 .el-button--danger {
   background-color: var(--color-error) !important;
   border-color: var(--color-error) !important;
   color: var(--text-inverse) !important;
+}
+.el-button--danger:hover {
+  background-color: var(--color-error-light) !important;
+  border-color: var(--color-error-light) !important;
+}
+.el-button--danger:active {
+  background-color: var(--color-error-dark) !important;
+  border-color: var(--color-error-dark) !important;
+}
+
+/* plain 变体的语义映射，保持与 primary.is-plain 一致的风格 */
+.el-button--success.is-plain,
+.el-button--success.is-plain:hover {
+  background-color: transparent !important;
+  color: var(--color-success) !important;
+  border-color: var(--color-success) !important;
+}
+.el-button--warning.is-plain,
+.el-button--warning.is-plain:hover {
+  background-color: transparent !important;
+  color: var(--color-warning) !important;
+  border-color: var(--color-warning) !important;
+}
+.el-button--danger.is-plain,
+.el-button--danger.is-plain:hover {
+  background-color: transparent !important;
+  color: var(--color-error) !important;
+  border-color: var(--color-error) !important;
 }
 
 /* Tag */
@@ -174,4 +220,38 @@
 /* 边框 */
 .border-primary {
   border-color: var(--border-primary) !important;
+}
+
+.el-radio-button.is-active .el-radio-button__original-radio:not(:disabled) + .el-radio-button__inner {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--text-inverse) !important;
+  box-shadow: none !important;
+}
+
+/* Radio Button - hover / focus / disabled 小效果 */
+/* 只在未激活（非 is-active）状态下应用 hover 效果，避免覆盖激活样式 */
+.el-radio-button:not(.is-active) .el-radio-button__original-radio:not(:disabled):hover + .el-radio-button__inner,
+.el-radio-button:not(.is-active):hover .el-radio-button__inner {
+  background-color: var(--color-primary-dark-1) !important;
+  border-color: var(--color-primary-dark-1) !important;
+  color: var(--text-inverse) !important;
+}
+
+/* 平滑过渡（如果需要可调整时长/曲线） */
+.el-radio-button__inner {
+  transition: all 180ms ease-in-out !important;
+}
+
+/* focus 可见性，便于键盘操作 */
+.el-radio-button .el-radio-button__original-radio:not(:disabled):focus + .el-radio-button__inner {
+  box-shadow: 0 0 0 4px var(--bg-primary-light) !important;
+  border-color: var(--color-primary) !important;
+}
+
+/* 禁用样式 */
+.el-radio-button.is-disabled .el-radio-button__inner,
+.el-radio-button .el-radio-button__original-radio:disabled + .el-radio-button__inner {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
 }

@@ -1,9 +1,6 @@
 <template>
   <div class="admin-users">
-    <el-page-header
-      content="用户管理"
-      @back="$router.push('/admin/dashboard')"
-    />
+    <el-page-header content="用户管理" @back="$router.push('/admin/dashboard')" />
 
     <div class="users-content">
       <!-- 筛选和操作栏 -->
@@ -12,25 +9,17 @@
           <el-col :span="12">
             <el-row :gutter="12">
               <el-col :span="8">
-                <el-input
-                  v-model="searchKeyword"
-                  placeholder="搜索用户名或邮箱"
-                  clearable
-                  @input="handleSearch"
-                >
+                <el-input v-model="searchKeyword" placeholder="搜索用户名或邮箱" clearable @input="handleSearch">
                   <template #prefix>
-                    <el-icon><Search /></el-icon>
+                    <el-icon>
+                      <Search />
+                    </el-icon>
                   </template>
                 </el-input>
               </el-col>
 
               <el-col :span="6">
-                <el-select
-                  v-model="roleFilter"
-                  placeholder="角色筛选"
-                  clearable
-                  @change="handleFilter"
-                >
+                <el-select v-model="roleFilter" placeholder="角色筛选" clearable @change="handleFilter">
                   <el-option label="全部角色" value="" />
                   <el-option label="管理员" value="admin" />
                   <el-option label="普通用户" value="user" />
@@ -38,12 +27,7 @@
               </el-col>
 
               <el-col :span="6">
-                <el-select
-                  v-model="statusFilter"
-                  placeholder="状态筛选"
-                  clearable
-                  @change="handleFilter"
-                >
+                <el-select v-model="statusFilter" placeholder="状态筛选" clearable @change="handleFilter">
                   <el-option label="全部状态" value="" />
                   <el-option label="正常" value="active" />
                   <el-option label="已封禁" value="banned" />
@@ -55,15 +39,21 @@
 
           <el-col :span="12" class="toolbar-actions">
             <el-button type="primary" @click="createUser">
-              <el-icon><Plus /></el-icon>
+              <el-icon>
+                <Plus />
+              </el-icon>
               添加用户
             </el-button>
             <el-button @click="exportUsers">
-              <el-icon><Download /></el-icon>
+              <el-icon>
+                <Download />
+              </el-icon>
               导出数据
             </el-button>
             <el-button @click="refreshData">
-              <el-icon><Refresh /></el-icon>
+              <el-icon>
+                <Refresh />
+              </el-icon>
               刷新
             </el-button>
           </el-col>
@@ -75,7 +65,9 @@
         <el-col :span="6">
           <el-card class="stats-card">
             <div class="stats-item">
-              <el-icon size="24" color="#409EFF"><User /></el-icon>
+              <el-icon size="24" color="#409EFF">
+                <User />
+              </el-icon>
               <div class="stats-content">
                 <div class="stats-number">{{ totalUsers }}</div>
                 <div class="stats-label">总用户数</div>
@@ -87,7 +79,9 @@
         <el-col :span="6">
           <el-card class="stats-card">
             <div class="stats-item">
-              <el-icon size="24" color="#67C23A"><UserFilled /></el-icon>
+              <el-icon size="24" color="#67C23A">
+                <UserFilled />
+              </el-icon>
               <div class="stats-content">
                 <div class="stats-number">{{ activeUsers }}</div>
                 <div class="stats-label">活跃用户</div>
@@ -99,7 +93,9 @@
         <el-col :span="6">
           <el-card class="stats-card">
             <div class="stats-item">
-              <el-icon size="24" color="#E6A23C"><Warning /></el-icon>
+              <el-icon size="24" color="#E6A23C">
+                <Warning />
+              </el-icon>
               <div class="stats-content">
                 <div class="stats-number">{{ bannedUsers }}</div>
                 <div class="stats-label">已封禁</div>
@@ -111,7 +107,9 @@
         <el-col :span="6">
           <el-card class="stats-card">
             <div class="stats-item">
-              <el-icon size="24" color="#F56C6C"><Avatar /></el-icon>
+              <el-icon size="24" color="#F56C6C">
+                <Avatar />
+              </el-icon>
               <div class="stats-content">
                 <div class="stats-number">{{ adminUsers }}</div>
                 <div class="stats-label">管理员</div>
@@ -123,12 +121,7 @@
 
       <!-- 用户列表 -->
       <el-card class="users-table-card">
-        <el-table
-          :data="filteredUsers"
-          v-loading="loading"
-          stripe
-          @selection-change="handleSelectionChange"
-        >
+        <el-table :data="filteredUsers" v-loading="loading" stripe @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" />
 
           <el-table-column prop="id" label="ID" width="80" />
@@ -161,10 +154,7 @@
 
           <el-table-column prop="role" label="角色" width="100">
             <template #default="{ row }">
-              <el-tag
-                :type="row.role === 'admin' ? 'danger' : 'primary'"
-                size="small"
-              >
+              <el-tag :type="row.role === 'admin' ? 'danger' : 'primary'" size="small">
                 {{ row.role === "admin" ? "管理员" : "普通用户" }}
               </el-tag>
             </template>
@@ -210,36 +200,29 @@
           <el-table-column label="操作" width="200" fixed="right">
             <template #default="{ row }">
               <div class="action-buttons">
-                <el-button
-                  type="primary"
-                  size="small"
-                  @click="viewUserDetail(row)"
-                >
+                <el-button type="primary" size="small" @click="viewUserDetail(row)">
                   查看
                 </el-button>
 
                 <el-dropdown @command="(cmd) => handleAction(cmd, row)">
                   <el-button type="info" size="small">
-                    更多 <el-icon><ArrowDown /></el-icon>
+                    更多 <el-icon>
+                      <ArrowDown />
+                    </el-icon>
                   </el-button>
                   <template #dropdown>
                     <el-dropdown-menu>
                       <el-dropdown-item command="edit">
                         编辑信息
                       </el-dropdown-item>
-                      <el-dropdown-item
-                        :command="row.role === 'admin' ? 'demote' : 'promote'"
-                      >
+                      <el-dropdown-item :command="row.role === 'admin' ? 'demote' : 'promote'">
                         {{ row.role === "admin" ? "降为用户" : "提升管理员" }}
                       </el-dropdown-item>
                       <el-dropdown-item command="resetPassword">
                         重置密码
                       </el-dropdown-item>
-                      <el-dropdown-item
-                        :command="row.banned ? 'unban' : 'ban'"
-                        :class="row.banned ? '' : 'danger-item'"
-                        divided
-                      >
+                      <el-dropdown-item :command="row.banned ? 'unban' : 'ban'" :class="row.banned ? '' : 'danger-item'"
+                        divided>
                         {{ row.banned ? "解除封禁" : "封禁用户" }}
                       </el-dropdown-item>
                       <el-dropdown-item command="delete" class="danger-item">
@@ -263,10 +246,7 @@
 
           <el-button type="success" @click="batchUnban"> 批量解封 </el-button>
 
-          <el-popconfirm
-            title="确定要删除选中的用户吗？"
-            @confirm="batchDelete"
-          >
+          <el-popconfirm title="确定要删除选中的用户吗？" @confirm="batchDelete">
             <template #reference>
               <el-button type="danger">批量删除</el-button>
             </template>
@@ -276,25 +256,14 @@
 
       <!-- 分页 -->
       <div class="pagination-wrapper" v-if="total > pageSize">
-        <el-pagination
-          v-model:current-page="currentPage"
-          :page-size="pageSize"
-          :total="total"
-          layout="prev, pager, next, jumper, total, sizes"
-          :page-sizes="[10, 20, 50, 100]"
-          @current-change="handlePageChange"
-          @size-change="handleSizeChange"
-        />
+        <el-pagination v-model:current-page="currentPage" :page-size="pageSize" :total="total"
+          layout="prev, pager, next, jumper, total, sizes" :page-sizes="[10, 20, 50, 100]"
+          @current-change="handlePageChange" @size-change="handleSizeChange" />
       </div>
     </div>
 
     <!-- 用户详情对话框 -->
-    <el-dialog
-      v-model="detailDialogVisible"
-      title="用户详情"
-      width="60%"
-      :destroy-on-close="true"
-    >
+    <el-dialog v-model="detailDialogVisible" title="用户详情" width="60%" :destroy-on-close="true">
       <div v-if="selectedUser" class="user-detail">
         <el-descriptions :column="2" border>
           <el-descriptions-item label="用户名">
@@ -310,9 +279,7 @@
             {{ selectedUser.phone || "未绑定" }}
           </el-descriptions-item>
           <el-descriptions-item label="角色">
-            <el-tag
-              :type="selectedUser.role === 'admin' ? 'danger' : 'primary'"
-            >
+            <el-tag :type="selectedUser.role === 'admin' ? 'danger' : 'primary'">
               {{ selectedUser.role === "admin" ? "管理员" : "普通用户" }}
             </el-tag>
           </el-descriptions-item>
@@ -390,18 +357,8 @@
     </el-dialog>
 
     <!-- 编辑用户对话框 -->
-    <el-dialog
-      v-model="editDialogVisible"
-      title="编辑用户"
-      width="50%"
-      :destroy-on-close="true"
-    >
-      <el-form
-        :model="editForm"
-        :rules="editRules"
-        ref="editFormRef"
-        label-width="80px"
-      >
+    <el-dialog v-model="editDialogVisible" title="编辑用户" width="50%" :destroy-on-close="true">
+      <el-form :model="editForm" :rules="editRules" ref="editFormRef" label-width="80px">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="editForm.username" />
         </el-form-item>
@@ -422,11 +379,7 @@
         </el-form-item>
 
         <el-form-item label="状态" prop="banned">
-          <el-switch
-            v-model="editForm.banned"
-            active-text="已封禁"
-            inactive-text="正常"
-          />
+          <el-switch v-model="editForm.banned" active-text="已封禁" inactive-text="正常" />
         </el-form-item>
       </el-form>
 
@@ -807,202 +760,202 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .admin-users {
   padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
-}
 
-.users-content {
-  margin-top: 20px;
-}
+  .users-content {
+    margin-top: 20px;
+  }
 
-.toolbar-card {
-  margin-bottom: 20px;
-}
-
-.toolbar-actions {
-  text-align: right;
-}
-
-.stats-section {
-  margin-bottom: 20px;
-}
-
-.stats-card {
-  height: 80px;
-}
-
-.stats-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  height: 100%;
-}
-
-.stats-content {
-  flex: 1;
-}
-
-.stats-number {
-  font-size: 20px;
-  font-weight: bold;
-  color: #333;
-}
-
-.stats-label {
-  font-size: 12px;
-  color: #666;
-  margin-top: 2px;
-}
-
-.users-table-card {
-  margin-bottom: 20px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.user-details h4 {
-  margin: 0 0 4px 0;
-  font-size: 14px;
-  color: #333;
-}
-
-.user-details p {
-  margin: 0 0 2px 0;
-  font-size: 12px;
-  color: #666;
-}
-
-.user-id {
-  font-size: 11px;
-  color: #999;
-}
-
-.location-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.city {
-  font-size: 12px;
-  color: #333;
-  font-weight: 500;
-}
-
-.profession {
-  font-size: 11px;
-  color: #666;
-}
-
-.user-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-item {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-}
-
-.stat-label {
-  color: #666;
-}
-
-.stat-value {
-  color: #333;
-  font-weight: bold;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-.batch-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  margin-top: 16px;
-  background-color: #f5f7fa;
-  border-radius: 4px;
-}
-
-.selected-info {
-  font-size: 14px;
-  color: #666;
-}
-
-.pagination-wrapper {
-  display: flex;
-  justify-content: center;
-  padding: 20px 0;
-}
-
-.user-detail {
-  max-height: 60vh;
-  overflow-y: auto;
-}
-
-.activity-stats {
-  margin-top: 20px;
-}
-
-.activity-stats h4 {
-  margin: 0 0 16px 0;
-  color: #333;
-}
-
-.activity-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px;
-  background-color: #f8f9fa;
-  border-radius: 6px;
-}
-
-.activity-label {
-  color: #666;
-}
-
-.activity-value {
-  font-weight: bold;
-  color: #333;
-}
-
-.danger-item {
-  color: #f56c6c;
-}
-
-@media (max-width: 768px) {
-  .admin-users {
-    padding: 16px;
+  .toolbar-card {
+    margin-bottom: 20px;
   }
 
   .toolbar-actions {
-    text-align: left;
-    margin-top: 12px;
+    text-align: right;
+  }
+
+  .stats-section {
+    margin-bottom: 20px;
+  }
+
+  .stats-card {
+    height: 80px;
+  }
+
+  .stats-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 100%;
+
+    .stats-content {
+      flex: 1;
+    }
+
+    .stats-number {
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .stats-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 2px;
+    }
+  }
+
+  .users-table-card {
+    margin-bottom: 20px;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .user-details {
+    h4 {
+      margin: 0 0 4px 0;
+      font-size: 14px;
+      color: #333;
+    }
+
+    p {
+      margin: 0 0 2px 0;
+      font-size: 12px;
+      color: #666;
+    }
+  }
+
+  .user-id {
+    font-size: 11px;
+    color: #999;
+  }
+
+  .location-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .city {
+    font-size: 12px;
+    color: #333;
+    font-weight: 500;
+  }
+
+  .profession {
+    font-size: 11px;
+    color: #666;
+  }
+
+  .user-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+
+  .stat-label {
+    color: #666;
+  }
+
+  .stat-value {
+    color: #333;
+    font-weight: bold;
   }
 
   .action-buttons {
-    flex-direction: column;
+    display: flex;
+    gap: 8px;
   }
 
   .batch-actions {
-    flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    margin-top: 16px;
+    background-color: #f5f7fa;
+    border-radius: 4px;
+
+    .selected-info {
+      font-size: 14px;
+      color: #666;
+    }
   }
 
-  .stats-section .el-col {
-    margin-bottom: 12px;
+  .pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+  }
+
+  .user-detail {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  .activity-stats {
+    margin-top: 20px;
+  }
+
+  .activity-stats h4 {
+    margin: 0 0 16px 0;
+    color: #333;
+  }
+
+  .activity-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+  }
+
+  .activity-label {
+    color: #666;
+  }
+
+  .activity-value {
+    font-weight: bold;
+    color: #333;
+  }
+
+  .danger-item {
+    color: #f56c6c;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+
+    .toolbar-actions {
+      text-align: left;
+      margin-top: 12px;
+    }
+
+    .action-buttons {
+      flex-direction: column;
+    }
+
+    .batch-actions {
+      flex-wrap: wrap;
+    }
+
+    .stats-section .el-col {
+      margin-bottom: 12px;
+    }
   }
 }
 </style>

@@ -3,18 +3,10 @@
     <el-card class="card">
       <h3>用户注册</h3>
       <el-form :model="form" @submit.prevent>
-        <el-form-item label="邮箱"
-          ><el-input v-model="form.email"
-        /></el-form-item>
-        <el-form-item label="昵称"
-          ><el-input v-model="form.nickname"
-        /></el-form-item>
-        <el-form-item label="密码"
-          ><el-input v-model="form.password" type="password"
-        /></el-form-item>
-        <el-button type="primary" :loading="loading" @click="onSubmit"
-          >注册</el-button
-        >
+        <el-form-item label="邮箱"><el-input v-model="form.email" /></el-form-item>
+        <el-form-item label="昵称"><el-input v-model="form.nickname" /></el-form-item>
+        <el-form-item label="密码"><el-input v-model="form.password" type="password" /></el-form-item>
+        <el-button type="primary" :loading="loading" @click="onSubmit">注册</el-button>
       </el-form>
     </el-card>
   </div>
@@ -40,14 +32,15 @@ async function onSubmit() {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .page {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 60vh;
-}
-.card {
-  width: 360px;
+
+  .card {
+    width: 360px;
+  }
 }
 </style>

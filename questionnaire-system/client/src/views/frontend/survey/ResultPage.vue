@@ -9,7 +9,8 @@
 
 <script setup></script>
 
-<style scoped>
+<style lang="scss" scoped>
+
 .survey-result {
   padding: 16px;
 }

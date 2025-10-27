@@ -13,49 +13,37 @@
 
         <el-row :gutter="16">
           <el-col :span="6">
-            <el-button
-              type="primary"
-              size="large"
-              class="quick-btn"
-              @click="$router.push('/admin/surveys')"
-            >
-              <el-icon><Document /></el-icon>
+            <el-button type="primary" size="large" class="quick-btn" @click="$router.push('/admin/surveys')">
+              <el-icon>
+                <Document />
+              </el-icon>
               管理问卷
             </el-button>
           </el-col>
 
           <el-col :span="6">
-            <el-button
-              type="success"
-              size="large"
-              class="quick-btn"
-              @click="$router.push('/admin/users')"
-            >
-              <el-icon><User /></el-icon>
+            <el-button type="success" size="large" class="quick-btn" @click="$router.push('/admin/users')">
+              <el-icon>
+                <User />
+              </el-icon>
               用户管理
             </el-button>
           </el-col>
 
           <el-col :span="6">
-            <el-button
-              type="warning"
-              size="large"
-              class="quick-btn"
-              @click="$router.push('/admin/analytics')"
-            >
-              <el-icon><DataAnalysis /></el-icon>
+            <el-button type="warning" size="large" class="quick-btn" @click="$router.push('/admin/analytics')">
+              <el-icon>
+                <DataAnalysis />
+              </el-icon>
               数据分析
             </el-button>
           </el-col>
 
           <el-col :span="6">
-            <el-button
-              type="info"
-              size="large"
-              class="quick-btn"
-              @click="$router.push('/admin/settings')"
-            >
-              <el-icon><Setting /></el-icon>
+            <el-button type="info" size="large" class="quick-btn" @click="$router.push('/admin/settings')">
+              <el-icon>
+                <Setting />
+              </el-icon>
               系统设置
             </el-button>
           </el-col>
@@ -68,7 +56,9 @@
           <el-card class="stats-card">
             <div class="stats-item">
               <div class="stats-icon">
-                <el-icon size="40" color="#409EFF"><Document /></el-icon>
+                <el-icon size="40" color="#409EFF">
+                  <Document />
+                </el-icon>
               </div>
               <div class="stats-content">
                 <div class="stats-number">
@@ -89,7 +79,9 @@
           <el-card class="stats-card">
             <div class="stats-item">
               <div class="stats-icon">
-                <el-icon size="40" color="#67C23A"><User /></el-icon>
+                <el-icon size="40" color="#67C23A">
+                  <User />
+                </el-icon>
               </div>
               <div class="stats-content">
                 <div class="stats-number">
@@ -110,7 +102,9 @@
           <el-card class="stats-card">
             <div class="stats-item">
               <div class="stats-icon">
-                <el-icon size="40" color="#E6A23C"><Edit /></el-icon>
+                <el-icon size="40" color="#E6A23C">
+                  <Edit />
+                </el-icon>
               </div>
               <div class="stats-content">
                 <div class="stats-number">
@@ -131,7 +125,9 @@
           <el-card class="stats-card">
             <div class="stats-item">
               <div class="stats-icon">
-                <el-icon size="40" color="#F56C6C"><TrendCharts /></el-icon>
+                <el-icon size="40" color="#F56C6C">
+                  <TrendCharts />
+                </el-icon>
               </div>
               <div class="stats-content">
                 <div class="stats-number">
@@ -160,11 +156,7 @@
               </div>
             </template>
 
-            <div
-              id="activityChart"
-              class="chart-container"
-              v-loading="chartsLoading"
-            ></div>
+            <div id="activityChart" class="chart-container" v-loading="chartsLoading"></div>
           </el-card>
         </el-col>
 
@@ -177,11 +169,7 @@
               </div>
             </template>
 
-            <div
-              id="categoryChart"
-              class="chart-container"
-              v-loading="chartsLoading"
-            ></div>
+            <div id="categoryChart" class="chart-container" v-loading="chartsLoading"></div>
           </el-card>
         </el-col>
       </el-row>
@@ -200,20 +188,12 @@
             </template>
 
             <div class="recent-list" v-loading="loading">
-              <div
-                v-for="survey in recentSurveys"
-                :key="survey.id"
-                class="recent-item"
-                @click="viewSurvey(survey.id)"
-              >
+              <div v-for="survey in recentSurveys" :key="survey.id" class="recent-item" @click="viewSurvey(survey.id)">
                 <div class="item-content">
                   <h4>{{ survey.title }}</h4>
                   <p>{{ survey.description }}</p>
                   <div class="item-meta">
-                    <el-tag
-                      size="small"
-                      :type="survey.status === 'active' ? 'success' : 'info'"
-                    >
+                    <el-tag size="small" :type="survey.status === 'active' ? 'success' : 'info'">
                       {{ survey.status === "active" ? "进行中" : "已停止" }}
                     </el-tag>
                     <span class="meta-date">{{
@@ -240,11 +220,7 @@
             </template>
 
             <div class="recent-list" v-loading="loading">
-              <div
-                v-for="user in recentUsers"
-                :key="user.id"
-                class="recent-item"
-              >
+              <div v-for="user in recentUsers" :key="user.id" class="recent-item">
                 <div class="item-content">
                   <div class="user-info">
                     <el-avatar :size="32">{{
@@ -256,10 +232,7 @@
                     </div>
                   </div>
                   <div class="item-meta">
-                    <el-tag
-                      size="small"
-                      :type="user.isActive ? 'success' : 'info'"
-                    >
+                    <el-tag size="small" :type="user.isActive ? 'success' : 'info'">
                       {{ user.isActive ? "活跃" : "未激活" }}
                     </el-tag>
                     <span class="meta-date">{{
@@ -280,9 +253,7 @@
         <template #header>
           <div class="card-header">
             <span>系统状态</span>
-            <el-tag
-              :type="systemStatus.overall === 'healthy' ? 'success' : 'warning'"
-            >
+            <el-tag :type="systemStatus.overall === 'healthy' ? 'success' : 'warning'">
               {{ systemStatus.overall === "healthy" ? "正常" : "警告" }}
             </el-tag>
           </div>
@@ -503,211 +474,213 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .admin-dashboard {
   padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
-}
 
-.dashboard-content {
-  margin-top: 20px;
-}
+  .dashboard-content {
+    margin-top: 20px;
+  }
 
-.quick-actions-card {
-  margin-bottom: 20px;
-}
-
-.quick-btn {
-  width: 100%;
-  height: 60px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stats-overview {
-  margin-bottom: 20px;
-}
-
-.stats-card {
-  height: 120px;
-}
-
-.stats-item {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  height: 100%;
-  padding: 16px;
-}
-
-.stats-icon {
-  flex-shrink: 0;
-}
-
-.stats-content {
-  flex: 1;
-}
-
-.stats-number {
-  font-size: 28px;
-  font-weight: bold;
-  color: #333;
-  line-height: 1;
-}
-
-.stats-label {
-  font-size: 14px;
-  color: #666;
-  margin: 4px 0;
-}
-
-.stats-trend {
-  font-size: 12px;
-}
-
-.trend-up {
-  color: #67c23a;
-}
-
-.trend-down {
-  color: #f56c6c;
-}
-
-.trend-stable {
-  color: #909399;
-}
-
-.charts-section {
-  margin-bottom: 20px;
-}
-
-.chart-card {
-  height: 300px;
-}
-
-.chart-container {
-  height: 200px;
-  width: 100%;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.recent-card {
-  height: 400px;
-  margin-bottom: 20px;
-}
-
-.recent-list {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.recent-item {
-  padding: 12px;
-  border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.recent-item:hover {
-  background-color: #f8f9fa;
-}
-
-.recent-item:last-child {
-  border-bottom: none;
-}
-
-.item-content h4 {
-  margin: 0 0 4px 0;
-  font-size: 14px;
-  color: #333;
-}
-
-.item-content p {
-  margin: 0 0 8px 0;
-  font-size: 12px;
-  color: #666;
-  line-height: 1.4;
-}
-
-.item-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.meta-date {
-  font-size: 12px;
-  color: #999;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-
-.user-details h4 {
-  margin: 0 0 2px 0;
-  font-size: 14px;
-}
-
-.user-details p {
-  margin: 0;
-  font-size: 12px;
-  color: #666;
-}
-
-.system-status-card {
-  margin-bottom: 20px;
-}
-
-.status-item {
-  text-align: center;
-  padding: 16px;
-}
-
-.status-label {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
-}
-
-.status-time {
-  font-size: 12px;
-  color: #999;
-}
-
-@media (max-width: 1200px) {
-  .charts-section .el-col {
+  .quick-actions-card {
     margin-bottom: 20px;
   }
-}
 
-@media (max-width: 768px) {
-  .admin-dashboard {
-    padding: 16px;
+  .quick-btn {
+    width: 100%;
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
 
-  .stats-overview .el-col {
-    margin-bottom: 12px;
+  .stats-overview {
+    margin-bottom: 20px;
   }
 
-  .quick-actions-card .el-col {
-    margin-bottom: 12px;
+  .stats-card {
+    height: 120px;
   }
 
   .stats-item {
-    flex-direction: column;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 100%;
+    padding: 16px;
+
+    .stats-icon {
+      flex-shrink: 0;
+    }
+
+    .stats-content {
+      flex: 1;
+    }
+
+    .stats-number {
+      font-size: 28px;
+      font-weight: bold;
+      color: #333;
+      line-height: 1;
+    }
+
+    .stats-label {
+      font-size: 14px;
+      color: #666;
+      margin: 4px 0;
+    }
+
+    .stats-trend {
+      font-size: 12px;
+    }
+  }
+
+  .trend-up {
+    color: #67c23a;
+  }
+
+  .trend-down {
+    color: #f56c6c;
+  }
+
+  .trend-stable {
+    color: #909399;
+  }
+
+  .charts-section {
+    margin-bottom: 20px;
+  }
+
+  .chart-card {
+    height: 300px;
+  }
+
+  .chart-container {
+    height: 200px;
+    width: 100%;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .recent-card {
+    height: 400px;
+    margin-bottom: 20px;
+  }
+
+  .recent-list {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .recent-item {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #f8f9fa;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .item-content {
+      h4 {
+        margin: 0 0 4px 0;
+        font-size: 14px;
+        color: #333;
+      }
+
+      p {
+        margin: 0 0 8px 0;
+        font-size: 12px;
+        color: #666;
+        line-height: 1.4;
+      }
+
+      .item-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .meta-date {
+        font-size: 12px;
+        color: #999;
+      }
+    }
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .user-details {
+    h4 {
+      margin: 0 0 2px 0;
+      font-size: 14px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 12px;
+      color: #666;
+    }
+  }
+
+  .system-status-card {
+    margin-bottom: 20px;
+  }
+
+  .status-item {
     text-align: center;
-    gap: 8px;
+    padding: 16px;
+  }
+
+  .status-label {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+  }
+
+  .status-time {
+    font-size: 12px;
+    color: #999;
+  }
+
+  @media (max-width: 1200px) {
+    .charts-section .el-col {
+      margin-bottom: 20px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+
+    .stats-overview .el-col {
+      margin-bottom: 12px;
+    }
+
+    .quick-actions-card .el-col {
+      margin-bottom: 12px;
+    }
+
+    .stats-item {
+      flex-direction: column;
+      text-align: center;
+      gap: 8px;
+    }
   }
 }
 </style>

@@ -43,7 +43,8 @@ async function save() {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+
 .admin-survey-editor {
   padding: 16px;
 }

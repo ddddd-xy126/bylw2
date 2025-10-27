@@ -9,7 +9,8 @@
 
 <script setup></script>
 
-<style scoped>
+<style lang="scss" scoped>
+
 .admin-survey-review {
   padding: 16px;
 }

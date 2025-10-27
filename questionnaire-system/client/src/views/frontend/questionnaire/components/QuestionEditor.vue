@@ -657,7 +657,7 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .question-editor {
   max-height: 70vh;
   overflow-y: auto;
@@ -670,11 +670,11 @@ onBeforeUnmount(() => {
   justify-content: center;
   padding: 40px;
   color: #666;
-}
 
-.loading-state .el-icon {
-  font-size: 24px;
-  margin-bottom: 8px;
+  .el-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
 }
 
 .section-header {
@@ -713,6 +713,12 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 8px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
 }
 
 .option-prefix {
@@ -732,6 +738,10 @@ onBeforeUnmount(() => {
 .option-actions {
   display: flex;
   gap: 4px;
+
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
 }
 
 .option-settings {
@@ -815,6 +825,11 @@ onBeforeUnmount(() => {
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 8px;
+  }
 }
 
 .likert-vertical {
@@ -838,27 +853,9 @@ onBeforeUnmount(() => {
 
 .danger-btn {
   color: #f56c6c;
-}
 
-.danger-btn:hover {
-  color: #f78989;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .option-item {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-  
-  .option-actions {
-    justify-content: center;
-  }
-  
-  .likert-horizontal {
-    flex-direction: column;
-    gap: 8px;
+  &:hover {
+    color: #f78989;
   }
 }
 </style>

@@ -9,19 +9,10 @@
           <el-button type="primary" size="large" @click="scrollToSurveys">
             浏览问卷
           </el-button>
-          <el-button 
-            v-if="userStore.isLoggedIn" 
-            type="success" 
-            size="large" 
-            @click="goToProfile"
-          >
+          <el-button v-if="userStore.isLoggedIn" type="success" size="large" @click="goToProfile">
             我的中心
           </el-button>
-          <el-button 
-            v-else 
-            size="large" 
-            @click="goToLogin"
-          >
+          <el-button v-else size="large" @click="goToLogin">
             立即登录
           </el-button>
         </div>
@@ -30,42 +21,18 @@
 
     <!-- 统计信息 -->
     <div class="stats-wrapper">
-      <StatsCards
-        :total-surveys="surveys.length"
-        :total-participants="totalParticipants"
-        :user-favorites="userStore.favorites.length"
-        :user-points="userStore.achievements?.points || 0"
-      />
+      <StatsCards :total-surveys="surveys.length" :total-participants="totalParticipants"
+        :user-favorites="userStore.favorites.length" :user-points="userStore.achievements?.points || 0" />
     </div>
 
     <!-- 问卷列表 -->
     <div class="surveys-section" ref="surveysSection">
-      <SurveyList
-          v-model:sort-by="sortBy"
-          :surveys="topSurveys"
-          :loading="loading"
-          :get-category-name="getCategoryName"
-          :is-favorite="isFavorite"
-          :show-favorite="userStore.isLoggedIn"
-          @sort-change="handleSortChange"
-          @survey-click="goToSurvey"
-          @survey-start="goToSurvey"
-          @toggle-favorite="toggleFavorite"
-        />
+      <SurveyList v-model:sort-by="sortBy" :surveys="topSurveys" :loading="loading" :get-category-name="getCategoryName"
+        :is-favorite="isFavorite" :show-favorite="userStore.isLoggedIn" @sort-change="handleSortChange"
+        @survey-click="goToSurvey" @survey-start="goToSurvey" @toggle-favorite="toggleFavorite" />
     </div>
 
-    <!-- 分页 -->
-    <div class="pagination-section" v-if="filteredSurveys.length">
-      <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :page-sizes="[9, 18, 36]"
-        :total="totalSurveys"
-        layout="total, sizes, prev, pager, next, jumper"
-        @current-change="handlePageChange"
-        @size-change="handleSizeChange"
-      />
-    </div>
+    <!-- 已移除分页：展示上限由 topSurveys 控制（最多 20 条），surveys 区域启用滚动条 -->
   </div>
 </template>
 
@@ -107,24 +74,18 @@ const {
   searchKeyword,
   filterCategory,
   sortBy,
-  currentPage,
-  pageSize,
   filteredList,
-  filteredTotal,
   handleSearch,
   handleFilter,
   handleSort,
-  handlePageChange,
-  handleSizeChange,
 } = useListFilter({ sourceList, searchFields: ['searchText'] })
 
 // 首页默认展示 推荐 排序
 sortBy.value = 'recommended';
 handleSort();
 
-// 为模板保持兼容名称
+// 为模板保持兼容名称（只需要 filteredSurveys；展示上限由 topSurveys 控制）
 const filteredSurveys = filteredList
-const totalSurveys = filteredTotal
 
 // 导航栏的全局搜索已移除；首页保持自身筛选逻辑
 
@@ -143,7 +104,7 @@ const goToLogin = () => {
 
 const scrollToSurveys = () => {
   if (surveysSection.value) {
-    surveysSection.value.scrollIntoView({ 
+    surveysSection.value.scrollIntoView({
       behavior: 'smooth',
       block: 'start'
     });
@@ -162,238 +123,208 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .home {
+  font-family: "Segoe UI", "PingFang SC", sans-serif;
+  background: var(--theme-background-color);
+  color: var(--text-primary);
   min-height: 100vh;
-  /* background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); */
-}
-
-/* 欢迎横幅 */
-.welcome-banner {
-  position: relative;
-  min-height: 480px;
+  overflow-x: hidden;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background: linear-gradient(135deg, #586abd 0%, #8c71a7 100%);
-  color: white;
-  margin-bottom: 40px;
+
+  /* ======================
+     顶部欢迎横幅
+  ====================== */
+  .welcome-banner {
+    position: relative;
+    width: 100%;
+    height: 70vh;
+    background: radial-gradient(circle at 30% 30%,
+        rgba(85, 214, 145, 0.932),
+        rgba(9, 145, 27, 0.05)),
+      linear-gradient(135deg, #f3fff7, #e0f8ea);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+
+    .banner-content {
+      z-index: 2;
+      max-width: 800px;
+      padding: 0 20px;
+
+      .banner-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: var(--color-primary-dark-2);
+        margin-bottom: 0.5rem;
+        letter-spacing: 1px;
+        animation: fadeInDown 1s ease;
+      }
+
+      .banner-subtitle {
+        font-size: 1.25rem;
+        color: var(--color-gray-700);
+        margin-bottom: 2rem;
+        font-weight: 400;
+        animation: fadeInUp 1.2s ease;
+      }
+
+      .banner-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+
+        .el-button {
+          border-radius: var(--radius-full);
+          padding: 0.8rem 2.2rem;
+          font-weight: 400;
+          font-size: 1rem;
+          box-shadow: 0 4px 14px rgba(9, 145, 27, 0.25);
+          transition: all 0.25s ease;
+          background: linear-gradient(135deg,
+              var(--color-primary-light-2),
+              var(--color-primary-dark-1));
+          border: none;
+          color: #fff;
+
+          &:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 18px rgba(9, 145, 27, 0.35);
+          }
+        }
+
+        .el-button[type="success"] {
+          background: linear-gradient(135deg,
+              var(--color-accent-4),
+              var(--color-primary-dark-2));
+        }
+
+        .el-button:not([type]) {
+          background: linear-gradient(135deg, #fff, #f0f0f0);
+          color: var(--color-primary-dark-2);
+          border: 1px solid var(--border-light);
+          box-shadow: var(--shadow-base);
+
+          &:hover {
+            background: #fff;
+            transform: translateY(-3px);
+          }
+        }
+      }
+    }
+
+    /* 光斑背景 */
+    &::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle,
+          rgba(9, 145, 27, 0.1),
+          transparent 70%);
+      animation: rotateLight 10s linear infinite;
+      z-index: 1;
+    }
+  }
+
+  /* ======================
+   统计信息区域
+====================== */
+  .stats-wrapper {
+    position: relative;
+    width: 90%;
+    max-width: 1200px;
+    background: #ffffff;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    padding: 2.5rem 2rem;
+    margin-top: 3rem;
+    z-index: 3;
+    animation: fadeIn 1.2s ease;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-xl);
+    }
+  }
+
+
+  /* ======================
+     问卷展示区
+  ====================== */
+  .surveys-section {
+    width: 100%;
+    padding: 4rem 2rem 6rem;
+    display: flex;
+    justify-content: center;
+
+    >* {
+      width: 90%;
+      max-width: 1200px;
+      animation: fadeInUp 1.5s ease;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: var(--color-primary-light-3);
+      border-radius: 10px;
+    }
+  }
 }
 
-.banner-content {
-  text-align: center;
-  z-index: 2;
-  max-width: 600px;
-  padding: 0 20px;
-}
-
-.banner-title {
-  font-size: 3.2rem;
-  font-weight: 800;
-  margin-bottom: 1.2rem;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  background: linear-gradient(135deg, var(--text-inverse)ff 0%, #e8f4fd 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.02em;
-}
-
-.banner-subtitle {
-  font-size: 1.3rem;
-  margin-bottom: 2.5rem;
-  opacity: 0.95;
-  line-height: 1.7;
-  font-weight: 400;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.banner-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.banner-actions .el-button {
-  padding: 14px 36px;
-  font-size: 1.05rem;
-  border-radius: 50px;
-  border: none;
-  font-weight: 600;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  position: relative;
-  overflow: hidden;
-}
-
-.banner-actions .el-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.6s;
-}
-
-.banner-actions .el-button:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
-}
-
-.banner-actions .el-button:hover::before {
-  left: 100%;
-}
-
-
-/* 内容区域 */
-.stats-wrapper,
-.surveys-section {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.stats-wrapper {
-  margin-bottom: 32px;
-  transform: translateY(-20px);
-}
-
-.surveys-section {
-  background: linear-gradient(145deg, var(--text-inverse)ff 0%, #f8f9ff 100%);
-  padding: 36px 32px;
-  border-radius: 24px;
-  box-shadow: 
-    0 8px 32px rgba(102, 126, 234, 0.08),
-    0 2px 8px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(182, 182, 182, 0.8);
-  margin-bottom: 40px;
-  position: relative;
-  overflow: hidden;
-}
-
-.surveys-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 5px;
-  background: linear-gradient(90deg, #586abd 0%, #8c71a7 100%);
-}
-
-.pagination-section {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
-  padding: 0 20px;
-}
-
-.pagination-section .el-pagination {
-  background: linear-gradient(145deg, var(--text-inverse)ff 0%, #f8f9ff 100%);
-  padding: 24px 32px;
-  border-radius: 20px;
-  box-shadow: 
-    0 8px 32px rgba(102, 126, 234, 0.08),
-    0 2px 8px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-}
-
-/* 添加滚动动画 */
-.stats-wrapper,
-.surveys-section {
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.surveys-section {
-  animation-delay: 0.1s;
-}
-
-@keyframes fadeInUp {
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(30px);
   }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* 悬停效果 */
-.surveys-section:hover {
-  transform: translateY(-4px);
-  box-shadow: 
-    0 16px 48px rgba(102, 126, 234, 0.16),
-    0 4px 16px rgba(0, 0, 0, 0.08);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .banner-title {
-    font-size: 2.4rem;
-  }
-  
-  .banner-subtitle {
-    font-size: 1.15rem;
-  }
-  
-  .banner-actions {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .banner-actions .el-button {
-    width: 200px;
-  }
-  
-  .surveys-section {
-    margin: 0 15px 24px;
-    padding: 24px 20px;
-    border-radius: 20px;
-  }
-  
-  .stats-wrapper {
-    padding: 0 15px;
-  }
-  
-  .decoration-circle {
-    display: none;
-  }
-  
-  .banner-actions .el-button {
-    padding: 12px 28px;
-    font-size: 1rem;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@media (max-width: 480px) {
-  .banner-title {
-    font-size: 2rem;
-    letter-spacing: -0.01em;
+@keyframes rotateLight {
+  from {
+    transform: rotate(0deg);
   }
-  
-  .banner-subtitle {
-    font-size: 1.1rem;
-  }
-  
-  .surveys-section {
-    margin: 0 10px 20px;
-    padding: 20px 16px;
-    border-radius: 16px;
-  }
-  
-  .banner-actions .el-button {
-    padding: 10px 24px;
-    font-size: 0.95rem;
-  }
-  
-  .welcome-banner {
-    min-height: 400px;
+
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

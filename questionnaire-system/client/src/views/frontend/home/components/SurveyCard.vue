@@ -72,67 +72,64 @@ defineProps({
 defineEmits(['click', 'start', 'toggleFavorite']);
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .survey-card {
   cursor: pointer;
   transition: all 0.3s ease;
   height: 200px;
-}
 
-.survey-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
 
-.survey-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
-}
+  .survey-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
 
-.survey-header h3 {
-  margin: 0;
-  font-size: 16px;
-  color: #333;
-  flex: 1;
-  margin-right: 8px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      color: #333;
+      flex: 1;
+      margin-right: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
 
-.survey-description {
-  color: #666;
-  font-size: 14px;
-  margin: 0 0 16px 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.4;
-}
+  .survey-description {
+    color: #666;
+    font-size: 14px;
+    margin: 0 0 16px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+  }
 
-.survey-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
+  .survey-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
 
-.survey-stats {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: #666;
-  font-size: 12px;
-}
+  .survey-stats {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #666;
+    font-size: 12px;
+  }
 
-.survey-actions {
-  display: flex;
-  gap: 8px;
+  .survey-actions { display: flex; gap: 8px; }
 }
 </style>
