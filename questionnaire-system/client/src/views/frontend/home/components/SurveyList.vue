@@ -178,7 +178,7 @@ const formatParticipants = (num) => {
     &:hover {
       transform: translateY(-4px);
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-      border-color: #409eff;
+      border-color: var(--color-primary-light-1);
     }
 
     .card-badge {

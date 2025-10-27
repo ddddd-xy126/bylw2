@@ -151,7 +151,7 @@ watch(
 );
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .tree-growth-container {
   display: flex;
   justify-content: center;
@@ -160,9 +160,10 @@ watch(
   border-radius: 16px;
   box-shadow: 0 0 25px rgba(0, 255, 100, 0.25);
   padding: 10px;
-}
-canvas {
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: 16px;
+
+  canvas {
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 16px;
+  }
 }
 </style>

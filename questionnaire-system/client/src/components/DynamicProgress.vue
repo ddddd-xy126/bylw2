@@ -153,70 +153,88 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .dynamic-progress {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
   height: 100%;
-}
 
-/* 🔵 圆形进度条 */
-.circle-container {
-  width: 200px;
-  height: 200px;
-}
+  /* 圆形进度条 */
+  .circle-container {
+    width: 200px;
+    height: 200px;
 
-.circle-svg {
-  width: 100%;
-  height: 100%;
-}
+    @media (max-width: 768px) {
+      width: 150px;
+      height: 150px;
+    }
 
-.circle-progress {
-  stroke-dasharray: 502.65;
-  transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: rotate(-90deg);
-  transform-origin: center;
-}
+    .circle-svg {
+      width: 100%;
+      height: 100%;
+    }
 
-.circle-text {
-  font-size: 36px;
-  font-weight: 700;
-  fill: #667eea;
-  transition: all 0.3s ease;
-}
+    .circle-progress {
+      stroke-dasharray: 502.65;
+      transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: rotate(-90deg);
+      transform-origin: center;
+    }
 
-.circle-label {
-  font-size: 14px;
-  fill: #999;
-  font-weight: 500;
-}
+    .circle-text {
+      font-size: 36px;
+      font-weight: 700;
+      fill: #667eea;
+      transition: all 0.3s ease;
 
-/* 💧 液体填充 */
-.liquid-container {
-  width: 200px;
-  height: 200px;
-}
+      @media (max-width: 768px) {
+        font-size: 28px;
+      }
+    }
 
-.liquid-svg {
-  width: 100%;
-  height: 100%;
-}
+    .circle-label {
+      font-size: 14px;
+      fill: #999;
+      font-weight: 500;
+    }
+  }
 
-.liquid-fill {
-  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
+  /* 💧 液体填充 */
+  .liquid-container {
+    width: 200px;
+    height: 200px;
 
-.liquid-wave {
-  animation: wave-move 2s ease-in-out infinite;
-}
+    @media (max-width: 768px) {
+      width: 150px;
+      height: 150px;
+    }
 
-.liquid-text {
-  font-size: 28px;
-  font-weight: 700;
-  fill: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    .liquid-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .liquid-fill {
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .liquid-wave {
+      animation: wave-move 2s ease-in-out infinite;
+    }
+
+    .liquid-text {
+      font-size: 28px;
+      font-weight: 700;
+      fill: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+      @media (max-width: 768px) {
+        font-size: 22px;
+      }
+    }
+  }
 }
 
 @keyframes wave-move {
@@ -225,23 +243,6 @@ onBeforeUnmount(() => {
   }
   50% {
     transform: translateX(3px);
-  }
-}
-
-/* 响应式 */
-@media (max-width: 768px) {
-  .circle-container,
-  .liquid-container {
-    width: 150px;
-    height: 150px;
-  }
-  
-  .circle-text {
-    font-size: 28px;
-  }
-  
-  .liquid-text {
-    font-size: 22px;
   }
 }
 </style>

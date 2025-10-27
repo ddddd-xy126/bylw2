@@ -185,17 +185,17 @@ watch(() => props.modelValue, (v) => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .liquid-container {
-    width: 320px;
-    aspect-ratio: 1;
-}
-
-.liquid-canvas {
+  width: 320px;
+  aspect-ratio: 1;
+  
+  .liquid-canvas {
     width: 100%;
     height: 100%;
     display: block;
     border-radius: 50%;
     overflow: hidden;
+  }
 }
 </style>
