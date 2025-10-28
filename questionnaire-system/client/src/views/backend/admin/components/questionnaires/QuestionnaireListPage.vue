@@ -540,7 +540,7 @@ onMounted(() => {
   .questionnaire-card {
     border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s ease; background: #fff;
 
-    &:hover { border-color: #409eff; box-shadow: 0 4px 20px rgba(64, 158, 255, 0.15); transform: translateY(-2px); }
+    &:hover { border-color: var(--color-primary-light-3); box-shadow: 0 4px 20px rgba(64, 158, 255, 0.15); transform: translateY(-2px); }
 
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .card-content { margin-bottom: 16px; }
@@ -556,7 +556,7 @@ onMounted(() => {
 
   /* 表格视图 */
   .title-cell { display: flex; flex-direction: column; gap: 4px; }
-  .title-text { font-weight: 500; color: #409eff; cursor: pointer; &:hover { text-decoration: underline; } }
+  .title-text { font-weight: 500; color: var(--color-primary-light-3); cursor: pointer; &:hover { text-decoration: underline; } }
   .title-description { font-size: 12px; color: #999; line-height: 1.4; }
 
   .success-btn { color: #67c23a !important; &:hover { background-color: rgba(103, 194, 58, 0.1); } }

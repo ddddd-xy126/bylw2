@@ -65,7 +65,7 @@
         <el-col :span="6">
           <el-card class="stats-card">
             <div class="stats-item">
-              <el-icon size="24" color="#409EFF">
+              <el-icon size="24" color="var(--color-primary-light-3)">
                 <User />
               </el-icon>
               <div class="stats-content">

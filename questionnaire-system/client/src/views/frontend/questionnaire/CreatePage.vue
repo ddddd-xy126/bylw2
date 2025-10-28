@@ -468,11 +468,11 @@ const handleQuestionnaireAction = (command) => {
       &:hover {
         transform: translateY(-8px);
         box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
-        border-color: #409eff;
+        border-color: var(--color-primary-light-3);
       }
 
       .card-icon {
-        color: #409eff;
+        color: var(--color-primary-light-3);
         margin-bottom: 24px;
       }
 

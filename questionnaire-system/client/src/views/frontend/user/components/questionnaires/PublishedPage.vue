@@ -33,7 +33,7 @@
         <el-card class="stat-card info-card">
           <div class="stat-content">
             <div class="stat-icon">
-              <el-icon size="24" color="#409EFF">
+              <el-icon size="24" color="#67d474d5">
                 <User />
               </el-icon>
             </div>
@@ -635,7 +635,7 @@ onMounted(() => {
   }
 
   .info-card {
-    background: linear-gradient(135deg, #409EFF 0%, #66b1ff 100%);
+    background: linear-gradient(135deg, var(--color-primary-light-3) 0%, #66b1ff 100%);
     color: #fff;
   }
 

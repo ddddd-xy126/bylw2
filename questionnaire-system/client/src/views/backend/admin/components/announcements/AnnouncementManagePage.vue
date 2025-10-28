@@ -373,12 +373,12 @@ const isAnnouncementActive = (announcement) => {
 
 const getTypeColor = (type) => {
   const colorMap = {
-    info: '#409EFF',
+    info: '#67d474d5',
     success: '#67C23A',
     warning: '#E6A23C',
     error: '#F56C6C'
   }
-  return colorMap[type] || '#409EFF'
+  return colorMap[type] || '#67d474d5'
 }
 
 const getTypeIcon = (type) => {
@@ -650,7 +650,7 @@ onMounted(() => {
           justify-content: center;
           color: white;
 
-          &.total { background: linear-gradient(135deg, #409EFF, #66b1ff); }
+          &.total { background: linear-gradient(135deg, #67d474d5, #66b1ff); }
           &.active { background: linear-gradient(135deg, #67C23A, #85ce61); }
           &.expired { background: linear-gradient(135deg, #909399, #b1b3b8); }
           &.views { background: linear-gradient(135deg, #E6A23C, #ebb563); }

@@ -505,7 +505,7 @@ onMounted(() => {
   text-align: center;
 
   a {
-    color: #409eff;
+    color: var(--color-primary-light-3);
     text-decoration: none;
 
     &:hover {
@@ -549,12 +549,12 @@ onMounted(() => {
   }
 
   &:hover {
-    border-color: #409eff;
+    border-color: var(--color-primary-light-3);
     box-shadow: 0 4px 12px rgba(64, 158, 255, 0.1);
   }
 
   &.selected {
-    border-color: #409eff;
+    border-color: var(--color-primary-light-3);
     background-color: #f0f9ff;
   }
 

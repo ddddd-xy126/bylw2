@@ -1129,7 +1129,7 @@ onUnmounted(() => {
     }
 
     &.selected {
-      border-left-color: #409EFF;
+      border-left-color: var(--color-primary-light-3);
       background: #f0f9ff;
     }
 

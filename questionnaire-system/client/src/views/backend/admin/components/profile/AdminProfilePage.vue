@@ -750,7 +750,7 @@ onMounted(async () => {
       transition: all 0.3s ease;
 
       &:hover, &.active {
-        border-color: #409eff;
+        border-color: var(--color-primary-light-3);
         background: rgba(64, 158, 255, 0.1);
       }
     }

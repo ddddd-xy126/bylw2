@@ -56,7 +56,7 @@
           <el-card class="stats-card">
             <div class="stats-item">
               <div class="stats-icon">
-                <el-icon size="40" color="#409EFF">
+                <el-icon size="40" color="#67d474d5">
                   <Document />
                 </el-icon>
               </div>

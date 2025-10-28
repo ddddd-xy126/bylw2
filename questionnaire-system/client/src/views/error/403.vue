@@ -27,7 +27,7 @@
 
   a,
   .router-link {
-    color: #409eff;
+    color: var(--color-primary-light-3);
     text-decoration: none;
   }
 }

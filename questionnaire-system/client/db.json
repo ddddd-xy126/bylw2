@@ -285,7 +285,7 @@
       "id": "ec9c",
       "username": "ddd",
       "nickname": "123",
-      "email": "ddd@qq.com",
+      "email": "dddd@qq.com",
       "phone": "",
       "password": "admin123",
       "avatar": "/avatars/default.jpg",
@@ -303,7 +303,7 @@
       "createdAt": "2025-09-28T10:18:33.205Z",
       "lastLoginAt": "2025-09-28T10:18:33.205Z",
       "lastLoginIp": "",
-      "updatedAt": "2025-10-27T03:00:58.701Z",
+      "updatedAt": "2025-10-28T02:22:50.475Z",
       "unlockedBadges": [
         "badge_3",
         "badge_4",
@@ -311,12 +311,7 @@
         "badge_13",
         "badge_14"
       ],
-      "tags": [
-        "音乐",
-        "电影",
-        "旅行",
-        "运动"
-      ]
+      "tags": []
     }
   ],
   "categories": [
@@ -2616,6 +2611,487 @@
           "question": "7"
         }
       ]
+    },
+    {
+      "id": "134f",
+      "userId": "ec9c",
+      "surveyId": 1761025276907,
+      "surveyTitle": "额为全额全额aa",
+      "score": 66,
+      "result": "良好",
+      "submittedAt": "2025-10-27T10:26:00.247Z",
+      "duration": 26,
+      "answers": [
+        {
+          "questionId": "1761025242579.8027",
+          "answer": "opt2",
+          "question": "新的单选题驱蚊器恶气"
+        },
+        {
+          "questionId": "1761025247011.0173",
+          "answer": "opt2_1761025247011_0.7153776356766121",
+          "question": "新的单选题驱蚊器恶气 (副本)"
+        },
+        {
+          "questionId": "1761025247379.3018",
+          "answer": "opt1_1761025247379_0.14174602840769557",
+          "question": "新的单选题驱蚊器恶气 (副本)"
+        },
+        {
+          "questionId": "1761025247611.2097",
+          "answer": "opt2_1761025247611_0.6013241616707159",
+          "question": "新的单选题驱蚊器恶气 (副本)"
+        },
+        {
+          "questionId": "1761025247819.019",
+          "answer": "opt2_1761025247819_0.4626024121938742",
+          "question": "新的单选题驱蚊器恶气 (副本)"
+        },
+        {
+          "questionId": "1761025262059.976",
+          "answer": [
+            "opt2"
+          ],
+          "question": "新的多选题"
+        },
+        {
+          "questionId": "1761025264475.2634",
+          "answer": "的去啊恶气额为",
+          "question": "新的文本题"
+        },
+        {
+          "questionId": "1761025266819.131",
+          "answer": 0,
+          "question": "新的评分题"
+        }
+      ]
+    },
+    {
+      "id": "758c",
+      "userId": "ec9c",
+      "surveyId": 2,
+      "surveyTitle": "问卷",
+      "score": 99,
+      "result": "良好",
+      "submittedAt": "2025-10-28T03:05:53.138Z",
+      "duration": 300,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "yellow"
+        },
+        {
+          "questionId": "3",
+          "answer": 4
+        }
+      ]
+    },
+    {
+      "id": "9ca2",
+      "userId": "ec9c",
+      "surveyId": 2,
+      "surveyTitle": "学习方式偏好调查",
+      "score": 97,
+      "result": "良好",
+      "submittedAt": "2025-10-28T03:15:48.984Z",
+      "duration": 118,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "football",
+            "running",
+            "swimming",
+            "tennis"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 5,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "无",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "767a",
+      "userId": "ec9c",
+      "surveyId": 1761033155346,
+      "surveyTitle": "asdad",
+      "score": 77,
+      "result": "良好",
+      "submittedAt": "2025-10-28T03:21:57.102Z",
+      "duration": 9,
+      "answers": [
+        {
+          "questionId": "1761032914989.239",
+          "answer": "opt1",
+          "question": "新的单选题"
+        },
+        {
+          "questionId": "1761032933901.0586",
+          "answer": "opt1",
+          "question": "新的单选题asda"
+        },
+        {
+          "questionId": "1761032937053.24",
+          "answer": "opt2_1761032937053_0.8842710654149365",
+          "question": "新的单选题 (副本)"
+        },
+        {
+          "questionId": "1761032937253.0024",
+          "answer": "opt2_1761032937253_0.8722986825993186",
+          "question": "新的单选题 (副本)"
+        }
+      ]
+    },
+    {
+      "id": "c76e",
+      "userId": "ec9c",
+      "surveyId": 1761033155346,
+      "surveyTitle": "asdad",
+      "score": 91,
+      "result": "良好",
+      "submittedAt": "2025-10-28T03:38:21.564Z",
+      "duration": 57,
+      "answers": [
+        {
+          "questionId": "1761032914989.239",
+          "answer": "opt2",
+          "question": "新的单选题"
+        },
+        {
+          "questionId": "1761032935469.3125",
+          "answer": [
+            "opt2",
+            "opt3",
+            "opt1"
+          ],
+          "question": "新的多选题"
+        },
+        {
+          "questionId": "1761032937053.24",
+          "answer": "opt2_1761032937053_0.8842710654149365",
+          "question": "新的单选题 (副本)"
+        },
+        {
+          "questionId": "1761032937253.0024",
+          "answer": "opt1_1761032937253_0.4174912609686606",
+          "question": "新的单选题 (副本)"
+        }
+      ]
+    },
+    {
+      "id": "b7d6",
+      "userId": "ec9c",
+      "surveyId": 1761033155346,
+      "surveyTitle": "asdad",
+      "score": 72,
+      "result": "良好",
+      "submittedAt": "2025-10-28T03:38:27.434Z",
+      "duration": 4,
+      "answers": [
+        {
+          "questionId": "1761032914989.239",
+          "answer": "opt1",
+          "question": "新的单选题"
+        },
+        {
+          "questionId": "1761032933901.0586",
+          "answer": "opt2",
+          "question": "新的单选题asda"
+        },
+        {
+          "questionId": "1761032937253.0024",
+          "answer": "opt2_1761032937253_0.8722986825993186",
+          "question": "新的单选题 (副本)"
+        }
+      ]
+    },
+    {
+      "id": "af12",
+      "userId": "ec9c",
+      "surveyId": 1761033155346,
+      "surveyTitle": "asdad",
+      "score": 89,
+      "result": "良好",
+      "submittedAt": "2025-10-28T03:38:48.297Z",
+      "duration": 18,
+      "answers": [
+        {
+          "questionId": "1761032914989.239",
+          "answer": "opt1",
+          "question": "新的单选题"
+        },
+        {
+          "questionId": "1761032933901.0586",
+          "answer": "opt1",
+          "question": "新的单选题asda"
+        },
+        {
+          "questionId": "1761032937053.24",
+          "answer": "opt2_1761032937053_0.8842710654149365",
+          "question": "新的单选题 (副本)"
+        },
+        {
+          "questionId": "1761032937253.0024",
+          "answer": "opt1_1761032937253_0.4174912609686606",
+          "question": "新的单选题 (副本)"
+        }
+      ]
+    },
+    {
+      "id": "2a77",
+      "userId": "ec9c",
+      "surveyId": 1761033155346,
+      "surveyTitle": "asdad",
+      "score": 74,
+      "result": "良好",
+      "submittedAt": "2025-10-28T03:47:03.637Z",
+      "duration": 5,
+      "answers": [
+        {
+          "questionId": "1761032914989.239",
+          "answer": "opt1",
+          "question": "新的单选题"
+        },
+        {
+          "questionId": "1761032933901.0586",
+          "answer": "opt2",
+          "question": "新的单选题asda"
+        },
+        {
+          "questionId": "1761032937253.0024",
+          "answer": "opt1_1761032937253_0.4174912609686606",
+          "question": "新的单选题 (副本)"
+        }
+      ]
+    },
+    {
+      "id": "bb48",
+      "userId": "ec9c",
+      "surveyId": 1761033155346,
+      "surveyTitle": "asdad",
+      "score": 96,
+      "result": "良好",
+      "submittedAt": "2025-10-28T03:52:00.427Z",
+      "duration": 95,
+      "answers": [
+        {
+          "questionId": "1761032914989.239",
+          "answer": "opt1",
+          "question": "新的单选题"
+        },
+        {
+          "questionId": "1761032933901.0586",
+          "answer": "opt1",
+          "question": "新的单选题asda"
+        },
+        {
+          "questionId": "1761032937053.24",
+          "answer": "opt1_1761032937053_0.5403791632287117",
+          "question": "新的单选题 (副本)"
+        },
+        {
+          "questionId": "1761032937253.0024",
+          "answer": "opt2_1761032937253_0.8722986825993186",
+          "question": "新的单选题 (副本)"
+        }
+      ]
+    },
+    {
+      "id": "569d",
+      "userId": "ec9c",
+      "surveyId": 14,
+      "surveyTitle": "品牌认知度调查",
+      "score": 91,
+      "result": "良好",
+      "submittedAt": "2025-10-28T03:52:21.755Z",
+      "duration": 7,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "football"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 5,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "qaweq",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "8139",
+      "userId": "ec9c",
+      "surveyId": 14,
+      "surveyTitle": "品牌认知度调查",
+      "score": 76,
+      "result": "良好",
+      "submittedAt": "2025-10-28T05:36:02.297Z",
+      "duration": 12,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "red",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "football",
+            "swimming"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 5,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "gqaqaag",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "b302",
+      "userId": "ec9c",
+      "surveyId": 1761033155346,
+      "surveyTitle": "asdad",
+      "score": 61,
+      "result": "良好",
+      "submittedAt": "2025-10-28T05:36:16.896Z",
+      "duration": 7,
+      "answers": [
+        {
+          "questionId": "1761032914989.239",
+          "answer": "opt1",
+          "question": "新的单选题"
+        },
+        {
+          "questionId": "1761032933901.0586",
+          "answer": "opt2",
+          "question": "新的单选题asda"
+        },
+        {
+          "questionId": "1761032937253.0024",
+          "answer": "opt2_1761032937253_0.8722986825993186",
+          "question": "新的单选题 (副本)"
+        }
+      ]
+    },
+    {
+      "id": "30c3",
+      "userId": "ec9c",
+      "surveyId": 14,
+      "surveyTitle": "品牌认知度调查",
+      "score": 75,
+      "result": "良好",
+      "submittedAt": "2025-10-28T05:36:33.243Z",
+      "duration": 9,
+      "answers": [
+        {
+          "questionId": "1",
+          "answer": "green",
+          "question": "您最喜欢的颜色是什么？"
+        },
+        {
+          "questionId": "2",
+          "answer": [
+            "swimming"
+          ],
+          "question": "您喜欢的运动有哪些？"
+        },
+        {
+          "questionId": "3",
+          "answer": 5,
+          "question": "请为我们的服务打分"
+        },
+        {
+          "questionId": "4",
+          "answer": "ghwrw",
+          "question": "您还有什么建议或意见吗？"
+        }
+      ]
+    },
+    {
+      "id": "9daf",
+      "userId": "ec9c",
+      "surveyId": 1761025276907,
+      "surveyTitle": "额为全额全额aa",
+      "score": 91,
+      "result": "良好",
+      "submittedAt": "2025-10-28T05:37:01.331Z",
+      "duration": 15,
+      "answers": [
+        {
+          "questionId": "1761025242579.8027",
+          "answer": "opt2",
+          "question": "新的单选题驱蚊器恶气"
+        },
+        {
+          "questionId": "1761025247011.0173",
+          "answer": "opt2_1761025247011_0.7153776356766121",
+          "question": "新的单选题驱蚊器恶气 (副本)"
+        },
+        {
+          "questionId": "1761025247379.3018",
+          "answer": "opt1_1761025247379_0.14174602840769557",
+          "question": "新的单选题驱蚊器恶气 (副本)"
+        },
+        {
+          "questionId": "1761025247611.2097",
+          "answer": "opt1_1761025247611_0.000256395159591305",
+          "question": "新的单选题驱蚊器恶气 (副本)"
+        },
+        {
+          "questionId": "1761025247819.019",
+          "answer": "opt2_1761025247819_0.4626024121938742",
+          "question": "新的单选题驱蚊器恶气 (副本)"
+        },
+        {
+          "questionId": "1761025262059.976",
+          "answer": [
+            "opt2"
+          ],
+          "question": "新的多选题"
+        },
+        {
+          "questionId": "1761025264475.2634",
+          "answer": "hhs",
+          "question": "新的文本题"
+        },
+        {
+          "questionId": "1761025266819.131",
+          "answer": 4,
+          "question": "新的评分题"
+        }
+      ]
     }
   ],
   "recycleBin": [
@@ -2796,10 +3272,22 @@
       "createdAt": "2025-09-28T10:22:49.194Z"
     },
     {
-      "id": "a0aa",
+      "id": "1d55",
       "userId": null,
       "surveyId": 12,
-      "createdAt": "2025-10-21T03:44:15.852Z"
+      "createdAt": "2025-10-28T05:37:25.723Z"
+    },
+    {
+      "id": "5140",
+      "userId": null,
+      "surveyId": 3,
+      "createdAt": "2025-10-28T05:37:26.543Z"
+    },
+    {
+      "id": "321c",
+      "userId": null,
+      "surveyId": 8,
+      "createdAt": "2025-10-28T05:37:27.743Z"
     }
   ],
   "achievements": [

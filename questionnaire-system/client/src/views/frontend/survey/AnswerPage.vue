@@ -17,7 +17,30 @@
     </div>
 
     <div class="answer-container">
-      <!-- 左侧答题区域 -->
+      <!-- 左侧统计区域 -->
+      <div class="stats-area">
+        <el-card class="stats-card" shadow="hover">
+          <template #header>
+            <h4>答题统计</h4>
+          </template>
+          <div class="stats-content">
+            <div class="stat-item">
+              <div class="stat-label">已答题数</div>
+              <div class="stat-value">{{ answeredCount }}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">剩余题数</div>
+              <div class="stat-value">{{ totalQuestions - answeredCount }}</div>
+            </div>
+            <div class="stat-item elapsed">
+              <div class="stat-label">用时</div>
+              <div class="stat-value elapsed-value">{{ formatTime(elapsedTime) }}</div>
+            </div>
+          </div>
+        </el-card>
+      </div>
+
+      <!-- 中间题目区域 -->
       <div class="question-area">
         <el-card class="question-card" shadow="hover" v-loading="loading">
           <template v-if="!loading && currentQuestion">
@@ -87,7 +110,7 @@
                   placeholder="请在此输入您的答案..."
                   maxlength="500"
                   show-word-limit
-                  @input="handleAnswerChange"
+                  @blur="handleTextCommit"
                 />
               </template>
 
@@ -162,83 +185,24 @@
 
       <!-- 右侧进度区域 -->
       <div class="progress-area">
-        <!-- 进度卡片 -->
-        <el-card class="progress-card" shadow="hover">
-          <template #header>
-            <div class="progress-header">
-              <h4>答题进度</h4>
-              <span class="progress-text">{{ Math.round(progressPercentage) }}%</span>
-            </div>
-          </template>
-
-          <!-- 动态进度条组件 -->
-          <div class="dynamic-progress-container">
-            <!-- 圆形进度条 -->
-            <div class="progress-item">
-              <DynamicProgress type="circle" :percent="Math.round(progressPercentage)" />
-            </div>
-
-            <!-- 树木生长动画 -->
-            <div class="progress-item tree-growth-item">
-              <TreeGrowth :progress="Math.round(progressPercentage)" />
-            </div>
-
-            <!-- 液体填充百分比 -->
-            <div class="progress-item">
-              <LiquidFill :model-value="Math.round(progressPercentage)" />
-            </div>
-          </div>
-
-
-
-          <!-- 问题导航 -->
-          <div class="question-nav">
-            <h5>题目导航</h5>
-            <div class="nav-grid">
-              <div
-                v-for="(question, index) in questionnaire.questions"
-                :key="question.id"
-                class="nav-item"
-                :class="{
-                  'current': index === currentQuestionIndex,
-                  'answered': answers[question.id] !== undefined,
-                  'required': question.required
-                }"
-                @click="goToQuestion(index)"
-              >
-                {{ index + 1 }}
-              </div>
-            </div>
-          </div>
-        </el-card>
-
-        <!-- 统计信息 -->
-        <el-card class="stats-card" shadow="hover">
-          <template #header>
-            <h4>答题统计</h4>
-          </template>
-          <div class="stats-content">
-            <div class="stat-item">
-              <div class="stat-label">已答题数</div>
-              <div class="stat-value">{{ answeredCount }}</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-label">剩余题数</div>
-              <div class="stat-value">{{ totalQuestions - answeredCount }}</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-label">用时</div>
-              <div class="stat-value">{{ formatTime(elapsedTime) }}</div>
-            </div>
-          </div>
-        </el-card>
+        <!-- 进度卡片（封装） -->
+        <ProgressCard
+          :questionnaire="questionnaire"
+          :answers="answers"
+          :current-question-index="currentQuestionIndex"
+          :progress-percentage="Math.round(progressPercentage)"
+          :answered-count="answeredCount"
+          :elapsed-time="elapsedTime"
+          :format-time="formatTime"
+          @go-to-question="goToQuestion"
+        ></ProgressCard>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
@@ -249,9 +213,7 @@ import {
 
 import { getSurveyDetail, submitSurveyApi } from "@/api/survey";
 import { useUserStore } from "@/store/user";
-import DynamicProgress from "@/components/DynamicProgress.vue";
-import TreeGrowth from "@/components/TreeGrowth.vue";
-import LiquidFill from "@/components/LiquidFill.vue";
+import ProgressCard from './components/ProgressCard.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -266,7 +228,11 @@ const questionnaire = reactive({
   estimatedTime: 5
 });
 const answers = reactive({});
+// committedAnswers 存储用户明确确认提交的答案（点击选项或文本失焦时写入）
+const committedAnswers = reactive({});
 const currentQuestionIndex = ref(0);
+// 跟踪用户实际遇到的题目（用于某些展示/调试）
+const visitedQuestions = ref(new Set());
 const isCompleted = ref(false);
 const startTime = ref(Date.now());
 const elapsedTime = ref(0);
@@ -316,13 +282,67 @@ const isAnswered = computed(() => {
   return answer !== null && answer !== undefined && answer !== '';
 });
 
+// 已确认的答题数量（只有点击/失焦后计入）
 const answeredCount = computed(() => {
-  return Object.keys(answers).length;
+  return Object.keys(committedAnswers).length;
 });
 
+// 根据当前已知答案模拟一条 "预期路径"，用于动态进度计算
+const computeExpectedPath = () => {
+  const questions = getOrderedQuestions();
+  const path = [];
+  const seen = new Set();
+  let idx = 0;
+
+  while (idx >= 0 && idx < questions.length) {
+    const q = questions[idx];
+    if (!q || seen.has(String(q.id))) break; // 防止循环
+    path.push(String(q.id));
+    seen.add(String(q.id));
+
+    // 如果该题启用了跳转逻辑并且已有答案，按规则跳转
+    if (q && q.enableLogic && q.logicRules && q.logicRules.length > 0) {
+      // 这里只使用已确认的答案来判断是否匹配跳转规则
+      const userAnswer = committedAnswers[q.id];
+      let matchedRule = null;
+
+      if (q.type === 'single') {
+        matchedRule = q.logicRules.find(rule => rule.optionId === userAnswer);
+      } else if (q.type === 'multiple') {
+        if (Array.isArray(userAnswer)) {
+          matchedRule = q.logicRules.find(rule => userAnswer.includes(rule.optionId));
+        }
+      }
+
+      if (matchedRule) {
+        const targetIndex = matchedRule.targetQuestion - 1;
+        if (targetIndex >= 0 && targetIndex < questions.length) {
+          idx = targetIndex;
+          continue;
+        } else {
+          break;
+        }
+      } else {
+        // 启用了跳转但没有匹配规则，按业务逻辑认为问卷结束
+        break;
+      }
+    }
+
+    // 默认顺序推进
+    idx++;
+  }
+
+  return path;
+};
+
+const expectedPath = computed(() => computeExpectedPath());
+
 const progressPercentage = computed(() => {
-  if (totalQuestions.value === 0) return 0;
-  return (answeredCount.value / totalQuestions.value) * 100;
+  const path = expectedPath.value;
+  if (!path || path.length === 0) return 0;
+  // 进度只基于已确认答案
+  const answeredOnPath = path.filter(id => committedAnswers[id] !== undefined).length;
+  return (answeredOnPath / path.length) * 100;
 });
 
 // 方法
@@ -333,6 +353,13 @@ const getOrderedQuestions = () => {
     return orderA - orderB;
   });
 };
+
+// 当当前题目变更时，把它标记为已遇到（用于动态路径进度）
+watch(currentQuestion, (q) => {
+  if (q && q.id !== undefined && q.id !== null) {
+    visitedQuestions.value.add(String(q.id));
+  }
+});
 
 const getQuestionTypeName = (type) => {
   const nameMap = {
@@ -360,8 +387,25 @@ const formatTime = (seconds) => {
   return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-const handleAnswerChange = () => {
-  // 答案改变时的处理
+// 当用户通过点击选项（单选/多选/评分）确认答案时调用
+const handleAnswerChange = (value) => {
+  if (!currentQuestion.value) return;
+  const qid = currentQuestion.value.id;
+  // answers 已由 v-model 更新，这里将其写入 committedAnswers 表示已确认
+  committedAnswers[qid] = answers[qid];
+  // 标记为已访问
+  visitedQuestions.value.add(String(qid));
+};
+
+// 文本题失焦时才提交为已确认答案
+const handleTextCommit = () => {
+  if (!currentQuestion.value) return;
+  const qid = currentQuestion.value.id;
+  const val = answers[qid];
+  if (val !== undefined && val !== null && String(val).trim() !== '') {
+    committedAnswers[qid] = val;
+    visitedQuestions.value.add(String(qid));
+  }
 };
 
 const nextQuestion = async () => {
@@ -503,6 +547,8 @@ const restartSurvey = async () => {
     
     // 重新开始计时器
     startTimer();
+      // 重置已访问集合（确保进度从头计算）
+      visitedQuestions.value.clear();
     
     ElMessage.success('已重新开始答题');
   } catch (error) {
@@ -575,7 +621,7 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .answer-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: var(--theme-background-color);
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -600,7 +646,7 @@ onUnmounted(() => {
 .answer-header {
   background: white;
   border-bottom: 1px solid #e4e7ed;
-  padding: 16px 0;
+  padding: 8px 0;
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -637,7 +683,7 @@ onUnmounted(() => {
   margin: 0 auto;
   padding: 20px;
   display: grid;
-  grid-template-columns: 1fr 350px;
+  grid-template-columns: 300px 1fr 320px;
   gap: 20px;
   align-items: start;
 
@@ -680,7 +726,7 @@ onUnmounted(() => {
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #409eff, #67c23a);
+        background: linear-gradient(135deg, var(--color-primary-light-3), #67c23a);
         color: white;
         display: flex;
         align-items: center;
@@ -734,7 +780,7 @@ onUnmounted(() => {
       padding: 12px 16px;
       background: #f8f9fa;
       border-radius: 8px;
-      border-left: 4px solid #409eff;
+      border-left: 4px solid var(--color-primary-light-3);
 
       p {
         margin: 0;
@@ -767,14 +813,14 @@ onUnmounted(() => {
       }
 
       &:hover {
-        border-color: #409eff;
+        border-color: var(--color-primary-light-3);
         background: #f0f9ff;
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(64, 158, 255, 0.1);
       }
 
       &.is-checked {
-        border-color: #409eff;
+        border-color: var(--color-primary-light-3);
         background: linear-gradient(135deg, #f0f9ff, #e1f3ff);
       }
 
@@ -966,15 +1012,15 @@ onUnmounted(() => {
     }
 
     &:hover {
-      border-color: #409eff;
+      border-color: var(--color-primary-light-3);
       background: #f0f9ff;
-      color: #409eff;
+      color: var(--color-primary-light-3);
     }
 
     &.current {
-      background: #409eff;
+      background: var(--color-primary-light-3);
       color: white;
-      border-color: #409eff;
+      border-color: var(--color-primary-light-3);
     }
 
     &.answered {
@@ -1019,6 +1065,17 @@ onUnmounted(() => {
       }
     }
   }
+}
+
+/* 左侧统计区域（非粘性） */
+.stats-area {
+  position: static;
+}
+
+.stat-item.elapsed .elapsed-value {
+  font-size: 22px;
+  color: var(--color-primary-light-3);
+  font-weight: 700;
 }
 
 /* 加载动画 */

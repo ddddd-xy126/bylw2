@@ -43,7 +43,7 @@
       <div v-for="answer in filteredAnswers" :key="answer.id" class="survey-item">
         <div class="survey-main">
           <div class="survey-icon">
-            <el-icon size="24" color="#409EFF">
+            <el-icon size="24" color="#67d474d5">
               <Document />
             </el-icon>
           </div>

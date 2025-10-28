@@ -4,7 +4,9 @@
     <div class="header-section">
       <div class="header-content">
         <el-button @click="goBack" type="text" size="large" class="back-button">
-          <el-icon><ArrowLeft /></el-icon>
+          <el-icon>
+            <ArrowLeft />
+          </el-icon>
           返回
         </el-button>
         <h1>
@@ -12,10 +14,10 @@
         </h1>
         <p>
           {{
-            isEditMode 
-              ? '修改问卷内容和设置' 
-              : isTemplateMode 
-                ? '基于专业模板快速创建问卷' 
+            isEditMode
+              ? '修改问卷内容和设置'
+              : isTemplateMode
+                ? '基于专业模板快速创建问卷'
                 : '从零开始设计您的问卷，完全自定义问题类型、逻辑和样式'
           }}
         </p>
@@ -31,87 +33,45 @@
             <el-tag type="info" size="small">必填</el-tag>
           </div>
         </template>
-        
+
         <el-form :model="questionnaireForm" :rules="formRules" ref="formRef" label-width="120px">
           <el-form-item label="问卷标题" prop="title">
-            <el-input
-              v-model="questionnaireForm.title"
-              placeholder="请输入问卷标题"
-              size="large"
-              maxlength="100"
-              show-word-limit
-            />
+            <el-input v-model="questionnaireForm.title" placeholder="请输入问卷标题" size="large" maxlength="100"
+              show-word-limit />
           </el-form-item>
-          
+
           <el-form-item label="问卷描述" prop="description">
-            <el-input
-              v-model="questionnaireForm.description"
-              type="textarea"
-              placeholder="请描述问卷的目的、内容简介等"
-              :rows="3"
-              maxlength="500"
-              show-word-limit
-            />
+            <el-input v-model="questionnaireForm.description" type="textarea" placeholder="请描述问卷的目的、内容简介等" :rows="3"
+              maxlength="500" show-word-limit />
           </el-form-item>
-          
+
           <el-row :gutter="24">
             <el-col :span="12">
               <el-form-item label="问卷分类" prop="category">
-                <el-select
-                  v-model="questionnaireForm.category"
-                  placeholder="请选择分类"
-                  size="large"
-                  style="width: 100%"
-                >
-                  <el-option
-                    v-for="category in categories"
-                    :key="category.value"
-                    :label="category.label"
-                    :value="category.value"
-                  />
+                <el-select v-model="questionnaireForm.category" placeholder="请选择分类" size="large" style="width: 100%">
+                  <el-option v-for="category in categories" :key="category.value" :label="category.label"
+                    :value="category.value" />
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="预估时长" prop="duration">
-                <el-input-number
-                  v-model="questionnaireForm.duration"
-                  :min="1"
-                  :max="120"
-                  size="large"
-                  style="width: 100%"
-                />
+                <el-input-number v-model="questionnaireForm.duration" :min="1" :max="120" size="large"
+                  style="width: 100%" />
                 <span class="input-suffix">分钟</span>
               </el-form-item>
             </el-col>
           </el-row>
-          
+
           <el-form-item label="问卷标签">
             <div class="tags-input">
-              <el-tag
-                v-for="tag in questionnaireForm.tags"
-                :key="tag"
-                closable
-                @close="removeTag(tag)"
-                class="tag-item"
-              >
+              <el-tag v-for="tag in questionnaireForm.tags" :key="tag" closable @close="removeTag(tag)"
+                class="tag-item">
                 {{ tag }}
               </el-tag>
-              <el-input
-                v-if="tagInputVisible"
-                ref="tagInputRef"
-                v-model="tagInputValue"
-                size="small"
-                @keyup.enter="handleTagInputConfirm"
-                @blur="handleTagInputConfirm"
-                class="tag-input"
-              />
-              <el-button
-                v-else
-                size="small"
-                @click="showTagInput"
-                class="add-tag-btn"
-              >
+              <el-input v-if="tagInputVisible" ref="tagInputRef" v-model="tagInputValue" size="small"
+                @keyup.enter="handleTagInputConfirm" @blur="handleTagInputConfirm" class="tag-input" />
+              <el-button v-else size="small" @click="showTagInput" class="add-tag-btn">
                 + 添加标签
               </el-button>
             </div>
@@ -129,9 +89,13 @@
             <div class="header-actions">
               <el-dropdown @command="handleAddQuestion" trigger="click">
                 <el-button type="primary" size="small">
-                  <el-icon><Plus /></el-icon>
+                  <el-icon>
+                    <Plus />
+                  </el-icon>
                   添加问题
-                  <el-icon class="el-icon--right"><ArrowDown /></el-icon>
+                  <el-icon class="el-icon--right">
+                    <ArrowDown />
+                  </el-icon>
                 </el-button>
                 <template #dropdown>
                   <el-dropdown-menu>
@@ -140,15 +104,21 @@
                       单选题
                     </el-dropdown-item>
                     <el-dropdown-item command="multiple">
-                      <el-icon><Finished /></el-icon>
+                      <el-icon>
+                        <Finished />
+                      </el-icon>
                       多选题
                     </el-dropdown-item>
                     <el-dropdown-item command="text">
-                      <el-icon><Edit /></el-icon>
+                      <el-icon>
+                        <Edit />
+                      </el-icon>
                       文本题
                     </el-dropdown-item>
                     <el-dropdown-item command="rating">
-                      <el-icon><Star /></el-icon>
+                      <el-icon>
+                        <Star />
+                      </el-icon>
                       评分题
                     </el-dropdown-item>
                   </el-dropdown-menu>
@@ -161,7 +131,9 @@
         <div v-if="questions.length === 0" class="empty-questions">
           <el-empty description="暂无问题，点击上方按钮添加问题">
             <el-button type="primary" size="large" @click="handleAddQuestion('single')">
-              <el-icon><Plus /></el-icon>
+              <el-icon>
+                <Plus />
+              </el-icon>
               添加第一个问题
             </el-button>
           </el-empty>
@@ -169,213 +141,138 @@
 
         <div v-else class="questions-list">
           <!-- 直接显示问题列表 -->
-          <div
-            v-for="(question, index) in questions"
-            :key="question.id"
-            class="question-item"
-            :class="{ 'active': activeQuestionId === question.id }"
-          >
+          <div v-for="(question, index) in questions" :key="question.id" class="question-item"
+            :class="{ 'active': activeQuestionId === question.id }">
             <div class="question-header">
               <div class="question-info">
                 <span class="drag-handle">
-                  <el-icon><Sort /></el-icon>
+                  <el-icon>
+                    <Sort />
+                  </el-icon>
                 </span>
                 <span class="question-number">{{ index + 1 }}.</span>
                 <span class="question-type-badge">{{ getQuestionTypeText(question.type) }}</span>
               </div>
               <div class="question-actions">
-                <el-checkbox 
-                  :model-value="question.required" 
-                  @change="toggleQuestionRequired(question.id)"
-                  size="small"
-                >
+                <el-checkbox :model-value="question.required" @change="toggleQuestionRequired(question.id)"
+                  size="small">
                   必填
                 </el-checkbox>
-                <el-button
-                  size="small"
-                  type="text"
-                  @click="copyQuestion(question)"
-                >
+                <el-button size="small" type="text" @click="copyQuestion(question)">
                   复制
                 </el-button>
-                <el-button
-                  size="small"
-                  type="text"
-                  @click="deleteQuestion(question.id)"
-                  class="danger-btn"
-                >
+                <el-button size="small" type="text" @click="deleteQuestion(question.id)" class="danger-btn">
                   删除
                 </el-button>
               </div>
             </div>
-            
+
             <div class="question-content">
               <!-- 可编辑的问题标题 -->
               <div class="question-title-editor">
-                <el-input
-                  :model-value="question.title"
-                  @input="updateQuestionTitle(question.id, $event)"
-                  placeholder="请输入问题标题"
-                  size="large"
-                  maxlength="200"
-                  show-word-limit
-                />
+                <el-input :model-value="question.title" @input="updateQuestionTitle(question.id, $event)"
+                  placeholder="请输入问题标题" size="large" maxlength="200" show-word-limit />
                 <span v-if="question.required" class="required-mark">*</span>
               </div>
-              
+
               <!-- 可编辑的问题描述 -->
               <div class="question-description-editor" style="margin-top: 8px;">
-                <el-input
-                  :model-value="question.description"
-                  @input="updateQuestionDescription(question.id, $event)"
-                  placeholder="问题描述（可选）"
-                  type="textarea"
-                  :rows="2"
-                  maxlength="500"
-                  show-word-limit
-                />
+                <el-input :model-value="question.description" @input="updateQuestionDescription(question.id, $event)"
+                  placeholder="问题描述（可选）" type="textarea" :rows="2" maxlength="500" show-word-limit />
               </div>
-              
+
               <!-- 选择题选项编辑 -->
-              <div v-if="question.type === 'single' || question.type === 'multiple'" class="options-editor" style="margin-top: 12px;">
+              <div v-if="question.type === 'single' || question.type === 'multiple'" class="options-editor"
+                style="margin-top: 12px;">
                 <div class="options-header">
                   <span>选项设置</span>
                   <el-button size="small" @click="addOption(question.id)">
-                    <el-icon><Plus /></el-icon>
+                    <el-icon>
+                      <Plus />
+                    </el-icon>
                     添加选项
                   </el-button>
                 </div>
                 <div class="options-list">
-                  <div
-                    v-for="(option, optIndex) in question.options"
-                    :key="optIndex"
-                    class="option-editor-item"
-                  >
+                  <div v-for="(option, optIndex) in question.options" :key="optIndex" class="option-editor-item">
                     <span class="option-label">{{ String.fromCharCode(65 + optIndex) }}.</span>
-                    <el-input
-                      :model-value="option.text"
-                      @input="updateOptionText(question.id, optIndex, $event)"
-                      :placeholder="`选项${optIndex + 1}`"
-                      size="small"
-                    />
-                    <el-button
-                      size="small"
-                      type="text"
-                      @click="removeOption(question.id, optIndex)"
-                      :disabled="question.options.length <= 2"
-                      class="danger-btn"
-                    >
-                      <el-icon><Delete /></el-icon>
+                    <el-input :model-value="option.text" @input="updateOptionText(question.id, optIndex, $event)"
+                      :placeholder="`选项${optIndex + 1}`" size="small" />
+                    <el-button size="small" type="text" @click="removeOption(question.id, optIndex)"
+                      :disabled="question.options.length <= 2" class="danger-btn">
+                      <el-icon>
+                        <Delete />
+                      </el-icon>
                     </el-button>
                   </div>
                 </div>
-                
+
                 <!-- 跳转逻辑配置 -->
                 <div class="logic-config" style="margin-top: 12px;">
                   <div class="logic-header">
-                    <el-checkbox 
-                      :model-value="question.enableLogic" 
-                      @change="toggleQuestionLogic(question.id)"
-                      size="small"
-                    >
+                    <el-checkbox :model-value="question.enableLogic" @change="toggleQuestionLogic(question.id)"
+                      size="small">
                       启用跳转逻辑
                     </el-checkbox>
                     <el-tooltip content="根据用户选择的选项跳转到不同题目。注意：如果用户的答案不匹配任何跳转规则，问卷将直接结束。" placement="top">
-                      <el-icon style="margin-left: 4px; color: #909399;"><QuestionFilled /></el-icon>
+                      <el-icon style="margin-left: 4px; color: #909399;">
+                        <QuestionFilled />
+                      </el-icon>
                     </el-tooltip>
                   </div>
-                  
-                  <el-alert 
-                    v-if="question.enableLogic"
-                    title="跳转逻辑说明"
-                    type="info"
-                    :closable="false"
-                    style="margin-top: 8px; font-size: 12px;"
-                  >
+
+                  <el-alert v-if="question.enableLogic" title="跳转逻辑说明" type="info" :closable="false"
+                    style="margin-top: 8px; font-size: 12px;">
                     当启用跳转逻辑后，如果用户的答案不匹配任何跳转规则，问卷将直接结束（不会继续显示后续题目）。请确保为所有可能的答案设置跳转规则，或者明确希望某些答案直接结束问卷。
                   </el-alert>
-                  
-                  <div v-if="question.enableLogic" class="logic-rules" style="margin-top: 8px; padding: 12px; background: #f5f7fa; border-radius: 4px;">
-                    <div 
-                      v-for="(rule, ruleIndex) in (question.logicRules || [])"
-                      :key="ruleIndex"
-                      class="logic-rule-item"
-                      style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;"
-                    >
+
+                  <div v-if="question.enableLogic" class="logic-rules"
+                    style="margin-top: 8px; padding: 12px; background: #f5f7fa; border-radius: 4px;">
+                    <div v-for="(rule, ruleIndex) in (question.logicRules || [])" :key="ruleIndex"
+                      class="logic-rule-item" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                       <span style="font-size: 12px; color: #606266;">当选择</span>
-                      <el-select 
-                        :model-value="rule.optionId"
-                        @change="updateLogicRuleOption(question.id, ruleIndex, $event)"
-                        size="small"
-                        style="width: 150px;"
-                        placeholder="选择选项"
-                      >
-                        <el-option 
-                          v-for="(opt, optIdx) in question.options" 
-                          :key="optIdx"
-                          :label="`${String.fromCharCode(65 + optIdx)}. ${opt.text}`"
-                          :value="opt.id"
-                        />
+                      <el-select :model-value="rule.optionId"
+                        @change="updateLogicRuleOption(question.id, ruleIndex, $event)" size="small"
+                        style="width: 150px;" placeholder="选择选项">
+                        <el-option v-for="(opt, optIdx) in question.options" :key="optIdx"
+                          :label="`${String.fromCharCode(65 + optIdx)}. ${opt.text}`" :value="opt.id" />
                       </el-select>
                       <span style="font-size: 12px; color: #606266;">时，跳转到第</span>
-                      <el-input-number
-                        :model-value="rule.targetQuestion"
-                        @change="updateLogicRuleTarget(question.id, ruleIndex, $event)"
-                        :min="1"
-                        :max="questions.length"
-                        size="small"
-                        style="width: 100px;"
-                      />
+                      <el-input-number :model-value="rule.targetQuestion"
+                        @change="updateLogicRuleTarget(question.id, ruleIndex, $event)" :min="1" :max="questions.length"
+                        size="small" style="width: 100px;" />
                       <span style="font-size: 12px; color: #606266;">题</span>
-                      <el-button
-                        size="small"
-                        type="text"
-                        @click="removeLogicRule(question.id, ruleIndex)"
-                        class="danger-btn"
-                      >
-                        <el-icon><Delete /></el-icon>
+                      <el-button size="small" type="text" @click="removeLogicRule(question.id, ruleIndex)"
+                        class="danger-btn">
+                        <el-icon>
+                          <Delete />
+                        </el-icon>
                       </el-button>
                     </div>
-                    <el-button 
-                      size="small" 
-                      @click="addLogicRule(question.id)"
-                      style="width: 100%;"
-                    >
-                      <el-icon><Plus /></el-icon>
+                    <el-button size="small" @click="addLogicRule(question.id)" style="width: 100%;">
+                      <el-icon>
+                        <Plus />
+                      </el-icon>
                       添加跳转规则
                     </el-button>
                   </div>
                 </div>
               </div>
-              
+
               <!-- 文本题设置 -->
               <div v-else-if="question.type === 'text'" class="text-settings" style="margin-top: 12px;">
-                <el-input
-                  :model-value="question.placeholder"
-                  @input="(val) => question.placeholder = val"
-                  placeholder="设置占位符文本"
-                  size="small"
-                  style="margin-bottom: 8px;"
-                />
+                <el-input :model-value="question.placeholder" @input="(val) => question.placeholder = val"
+                  placeholder="设置占位符文本" size="small" style="margin-bottom: 8px;" />
                 <div class="text-demo">
-                  <el-input
-                    :type="question.textType || 'text'"
-                    :placeholder="question.placeholder || '请输入...'"
-                    readonly
-                    size="small"
-                  />
+                  <el-input :type="question.textType || 'text'" :placeholder="question.placeholder || '请输入...'" readonly
+                    size="small" />
                 </div>
               </div>
-              
+
               <!-- 评分题预览 -->
               <div v-else-if="question.type === 'rating'" class="rating-preview" style="margin-top: 12px;">
                 <div class="rating-demo">
-                  <el-rate
-                    :model-value="0"
-                    :max="question.maxRating || 5"
-                    disabled
-                    show-score
-                  />
+                  <el-rate :model-value="0" :max="question.maxRating || 5" disabled show-score />
                 </div>
               </div>
             </div>
@@ -392,21 +289,16 @@
             <span>问卷设置</span>
           </div>
         </template>
-        
+
         <el-form :model="settingsForm" label-width="140px">
           <el-form-item label="提交后显示">
-            <el-input
-              v-model="settingsForm.thankMessage"
-              type="textarea"
-              :rows="2"
-              placeholder="感谢您的参与！您的回答已经成功提交。"
-            />
+            <el-input v-model="settingsForm.thankMessage" type="textarea" :rows="2" placeholder="感谢您的参与！您的回答已经成功提交。" />
           </el-form-item>
-          
+
           <el-form-item label="显示进度条">
             <el-switch v-model="settingsForm.showProgress" />
           </el-form-item>
-          
+
           <el-form-item label="问题随机排序">
             <el-switch v-model="settingsForm.randomOrder" />
           </el-form-item>
@@ -418,11 +310,15 @@
     <div class="footer-actions">
       <!-- 预览按钮已移除 -->
       <el-button @click="saveAsDraft">
-        <el-icon><DocumentCopy /></el-icon>
+        <el-icon>
+          <DocumentCopy />
+        </el-icon>
         保存草稿
       </el-button>
       <el-button type="primary" @click="publishQuestionnaire">
-        <el-icon><Promotion /></el-icon>
+        <el-icon>
+          <Promotion />
+        </el-icon>
         {{ isEditMode ? '提交审核' : '发布问卷' }}
       </el-button>
     </div>
@@ -481,10 +377,10 @@ onMounted(() => {
     // 检查是否有本地草稿
     checkLocalDraft()
   }
-  
+
   // 启动自动保存
   startAutoSave()
-  
+
   // 监听页面刷新/关闭事件
   window.addEventListener('beforeunload', handleBeforeUnload)
 })
@@ -579,7 +475,7 @@ const loadTemplate = async (templateId) => {
         ]
       }
     }
-    
+
     const templateData = templates[templateId]
     if (templateData) {
       loadQuestionnaireData(templateData)
@@ -607,7 +503,7 @@ const startAutoSave = () => {
   autoSaveTimer.value = setInterval(() => {
     const currentData = buildQuestionnaireData('draft')
     const dataStr = JSON.stringify(currentData)
-    
+
     // 只有数据发生变化时才保存
     if (dataStr !== lastSavedData.value) {
       saveToLocalStorage(currentData)
@@ -619,7 +515,7 @@ const startAutoSave = () => {
 // 本地存储管理
 const saveToLocalStorage = (data) => {
   try {
-    const key = isEditMode.value 
+    const key = isEditMode.value
       ? `edit_questionnaire_${currentQuestionnaireId.value}`
       : 'new_questionnaire_draft'
     localStorage.setItem(key, JSON.stringify(data))
@@ -630,7 +526,7 @@ const saveToLocalStorage = (data) => {
 
 const loadFromLocalStorage = () => {
   try {
-    const key = isEditMode.value 
+    const key = isEditMode.value
       ? `edit_questionnaire_${currentQuestionnaireId.value}`
       : 'new_questionnaire_draft'
     const data = localStorage.getItem(key)
@@ -643,7 +539,7 @@ const loadFromLocalStorage = () => {
 
 const clearLocalStorage = () => {
   try {
-    const key = isEditMode.value 
+    const key = isEditMode.value
       ? `edit_questionnaire_${currentQuestionnaireId.value}`
       : 'new_questionnaire_draft'
     localStorage.removeItem(key)
@@ -656,11 +552,11 @@ const clearLocalStorage = () => {
 const loadQuestionnaireForEdit = async (id) => {
   try {
     console.log('[编辑模式] 开始加载问卷，ID:', id)
-    
+
     // 首先尝试从本地存储加载（可能有未保存的编辑）
     const localData = loadFromLocalStorage()
     console.log('[编辑模式] 本地存储数据:', localData)
-    
+
     if (localData) {
       const shouldLoadLocal = await ElMessageBox.confirm(
         '检测到有未保存的编辑内容，是否继续编辑？',
@@ -671,7 +567,7 @@ const loadQuestionnaireForEdit = async (id) => {
           type: 'info'
         }
       ).catch(() => false)
-      
+
       if (shouldLoadLocal) {
         console.log('[编辑模式] 用户选择加载本地数据')
         loadQuestionnaireData(localData)
@@ -681,23 +577,23 @@ const loadQuestionnaireForEdit = async (id) => {
         clearLocalStorage()
       }
     }
-    
+
     // 从服务器加载问卷数据
     console.log('[编辑模式] 从服务器加载数据...')
     const response = await fetch(`http://localhost:3002/surveys/${id}`)
     console.log('[编辑模式] 服务器响应状态:', response.status)
-    
+
     if (!response.ok) {
       throw new Error('问卷不存在或加载失败')
     }
-    
+
     const questionnaireData = await response.json()
     console.log('[编辑模式] 服务器返回的数据:', questionnaireData)
-    
+
     // 保存原始数据
     originalQuestionnaireData.value = questionnaireData
     loadQuestionnaireData(questionnaireData)
-    
+
     console.log('[编辑模式] 数据加载完成')
   } catch (error) {
     console.error('[编辑模式] 加载问卷失败:', error)
@@ -709,14 +605,14 @@ const loadQuestionnaireForEdit = async (id) => {
 // 将问卷数据加载到表单
 const loadQuestionnaireData = (data) => {
   console.log('[加载数据] 开始加载问卷数据:', data)
-  
+
   // 加载基本信息
   questionnaireForm.title = data.title || ''
   questionnaireForm.description = data.description || ''
   questionnaireForm.category = data.category || ''
   questionnaireForm.duration = data.duration || 10
   questionnaireForm.tags = data.tags || []
-  
+
   console.log('[加载数据] 基本信息已加载:', {
     title: questionnaireForm.title,
     description: questionnaireForm.description,
@@ -724,24 +620,24 @@ const loadQuestionnaireData = (data) => {
     duration: questionnaireForm.duration,
     tags: questionnaireForm.tags
   })
-  
+
   // 加载问题 - 支持 questions 和 questionList 两种字段名
   const questionData = data.questionList || data.questions || []
   console.log('[加载数据] 原始问题数据:', questionData)
   console.log('[加载数据] 问题数据类型:', Array.isArray(questionData) ? '数组' : typeof questionData)
-  
+
   // 确保问题数据是数组
   questions.value = Array.isArray(questionData) ? questionData : []
-  
+
   console.log('[加载数据] 加载后的问题列表:', questions.value)
   console.log('[加载数据] 问题数量:', questions.value.length)
-  
+
   // 加载设置
   if (data.settings) {
     Object.assign(settingsForm, data.settings)
     console.log('[加载数据] 设置已加载:', settingsForm)
   }
-  
+
   console.log('[加载数据] 数据加载完成，当前编辑模式:', isEditMode.value)
 }
 
@@ -838,12 +734,12 @@ const hasUnsavedChanges = () => {
 // 添加问题的统一处理函数
 const handleAddQuestion = (type) => {
   console.log('Adding question of type:', type)
-  
+
   if (!type) {
     ElMessage.warning('请选择问题类型')
     return
   }
-  
+
   const questionTypes = {
     'single': {
       type: 'single',
@@ -851,7 +747,7 @@ const handleAddQuestion = (type) => {
       description: '',
       required: false,
       options: [
-        { id: 'opt1', text: '选项1' }, 
+        { id: 'opt1', text: '选项1' },
         { id: 'opt2', text: '选项2' }
       ],
       allowOther: false
@@ -862,8 +758,8 @@ const handleAddQuestion = (type) => {
       description: '',
       required: false,
       options: [
-        { id: 'opt1', text: '选项1' }, 
-        { id: 'opt2', text: '选项2' }, 
+        { id: 'opt1', text: '选项1' },
+        { id: 'opt2', text: '选项2' },
         { id: 'opt3', text: '选项3' }
       ],
       allowOther: false,
@@ -890,24 +786,24 @@ const handleAddQuestion = (type) => {
       ratingLabels: { low: '很差', high: '很好' }
     }
   }
-  
+
   const questionTemplate = questionTypes[type]
-  
+
   if (!questionTemplate) {
     ElMessage.error('未知的问题类型')
     return
   }
-  
+
   const newQuestion = {
     ...questionTemplate,
     id: Date.now() + Math.random() // 确保唯一ID
   }
-  
+
   questions.value.push(newQuestion)
   activeQuestionId.value = newQuestion.id
-  
+
   ElMessage.success(`已添加${getQuestionTypeText(type)}`)
-  
+
   console.log('Question added:', newQuestion)
   console.log('Total questions:', questions.value.length)
 }
@@ -923,8 +819,8 @@ const addSampleQuestions = () => {
       description: '',
       required: true,
       options: [
-        { id: 'male', text: '男' }, 
-        { id: 'female', text: '女' }, 
+        { id: 'male', text: '男' },
+        { id: 'female', text: '女' },
         { id: 'other', text: '其他' }
       ],
       allowOther: false
@@ -936,10 +832,10 @@ const addSampleQuestions = () => {
       description: '可以选择多个选项',
       required: false,
       options: [
-        { id: 'run', text: '跑步' }, 
-        { id: 'swim', text: '游泳' }, 
-        { id: 'gym', text: '健身' }, 
-        { id: 'yoga', text: '瑜伽' }, 
+        { id: 'run', text: '跑步' },
+        { id: 'swim', text: '游泳' },
+        { id: 'gym', text: '健身' },
+        { id: 'yoga', text: '瑜伽' },
         { id: 'basketball', text: '篮球' }
       ],
       allowOther: true,
@@ -968,7 +864,7 @@ const addSampleQuestions = () => {
       ratingLabels: { low: '很差', high: '很好' }
     }
   ]
-  
+
   questions.value = [...sampleQuestions]
   ElMessage.success('已添加示例问题')
 }
@@ -1004,9 +900,9 @@ const addOption = (questionId) => {
   const question = questions.value.find(q => q.id === questionId)
   if (question && (question.type === 'single' || question.type === 'multiple')) {
     const optionIndex = question.options.length + 1
-    const newOption = { 
-      id: `opt${optionIndex}_${Date.now()}`, 
-      text: `选项${optionIndex}` 
+    const newOption = {
+      id: `opt${optionIndex}_${Date.now()}`,
+      text: `选项${optionIndex}`
     }
     question.options.push(newOption)
     ElMessage.success('已添加选项')
@@ -1085,11 +981,11 @@ const updateLogicRuleTarget = (questionId, ruleIndex, target) => {
 const copyQuestion = (question) => {
   // 深拷贝问题对象
   const copiedQuestion = JSON.parse(JSON.stringify(question))
-  
+
   // 更新 ID 和标题
   copiedQuestion.id = Date.now() + Math.random()
   copiedQuestion.title = question.title + ' (副本)'
-  
+
   // 如果有选项，也更新选项的 ID
   if (copiedQuestion.options && Array.isArray(copiedQuestion.options)) {
     copiedQuestion.options = copiedQuestion.options.map((opt, index) => ({
@@ -1097,7 +993,7 @@ const copyQuestion = (question) => {
       id: `opt${index + 1}_${Date.now()}_${Math.random()}`
     }))
   }
-  
+
   questions.value.push(copiedQuestion)
   activeQuestionId.value = copiedQuestion.id
   ElMessage.success('问题复制成功')
@@ -1173,13 +1069,13 @@ const removeTag = (tag) => {
 // 问卷操作
 const saveAsDraft = async () => {
   if (!validateBasicInfo()) return
-  
+
   try {
     const questionnaireData = buildQuestionnaireData('draft')
-    
+
     // 导入 API
     const { createQuestionnaire, updateQuestionnaire } = await import('@/api/questionnaire')
-    
+
     if (isEditMode.value && currentQuestionnaireId.value) {
       // 编辑模式：更新现有问卷
       await updateQuestionnaire(currentQuestionnaireId.value, questionnaireData)
@@ -1189,10 +1085,10 @@ const saveAsDraft = async () => {
       await createQuestionnaire(questionnaireData)
       ElMessage.success('草稿保存成功')
     }
-    
+
     // 清除本地存储
     clearLocalStorage()
-    
+
     // 跳转到草稿列表页面
     router.push('/profile/questionnaires/created')
   } catch (error) {
@@ -1203,10 +1099,10 @@ const saveAsDraft = async () => {
 
 const publishQuestionnaire = async () => {
   if (!validateForm()) return
-  
+
   try {
     await ElMessageBox.confirm(
-      isEditMode.value 
+      isEditMode.value
         ? '确定要提交此问卷进行审核吗？提交后需等待管理员审核。'
         : '确定要提交此问卷进行审核吗？',
       '确认提交',
@@ -1216,12 +1112,12 @@ const publishQuestionnaire = async () => {
         type: 'warning'
       }
     )
-    
+
     const questionnaireData = buildQuestionnaireData('pending')
-    
+
     // 导入 API
     const { createQuestionnaire, updateQuestionnaire } = await import('@/api/questionnaire')
-    
+
     if (isEditMode.value && currentQuestionnaireId.value) {
       // 编辑模式：更新现有问卷为待审核状态
       await updateQuestionnaire(currentQuestionnaireId.value, questionnaireData)
@@ -1231,10 +1127,10 @@ const publishQuestionnaire = async () => {
       const result = await createQuestionnaire(questionnaireData)
       ElMessage.success('问卷已提交审核！')
     }
-    
+
     // 清除本地草稿
     clearLocalStorage()
-    
+
     router.push('/profile/questionnaires/created')
   } catch (error) {
     if (error !== 'cancel') {
@@ -1246,19 +1142,19 @@ const publishQuestionnaire = async () => {
 
 const updateQuestionnaire = async () => {
   if (!validateForm()) return
-  
+
   try {
     const questionnaireData = buildQuestionnaireData('draft')
-    
+
     // 导入 API
     const { updateQuestionnaire: updateQuestionnaireApi } = await import('@/api/questionnaire')
-    
+
     // 调用 API 更新问卷
     await updateQuestionnaireApi(currentQuestionnaireId.value, questionnaireData)
-    
+
     // 清除本地草稿
     clearLocalStorage()
-    
+
     ElMessage.success('问卷修改已保存！')
     router.push('/profile/questionnaires/created')
   } catch (error) {
@@ -1272,13 +1168,13 @@ const updateQuestionnaire = async () => {
 const buildQuestionnaireData = (status = 'draft') => {
   const userId = userStore.profile?.id || 1
   const userName = userStore.profile?.nickname || userStore.profile?.username || '匿名用户'
-  
+
   // 格式化问题列表
   const formattedQuestions = questions.value.map((q, index) => ({
     ...q,
     order: index + 1
   }))
-  
+
   const baseData = {
     title: questionnaireForm.title,
     description: questionnaireForm.description,
@@ -1295,7 +1191,7 @@ const buildQuestionnaireData = (status = 'draft') => {
     status: status,
     updatedAt: new Date().toISOString()
   }
-  
+
   // 如果是编辑模式，保留原始数据的某些字段
   if (isEditMode.value && originalQuestionnaireData.value) {
     return {
@@ -1311,7 +1207,7 @@ const buildQuestionnaireData = (status = 'draft') => {
       participantCount: originalQuestionnaireData.value.participantCount || originalQuestionnaireData.value.participants || 0
     }
   }
-  
+
   // 新建模式
   return {
     ...baseData,
@@ -1341,43 +1237,43 @@ const validateForm = () => {
   console.log('Basic info valid:', validateBasicInfo())
   console.log('Questions count:', questions.value.length)
   console.log('Questions data:', questions.value)
-  
+
   if (!validateBasicInfo()) return false
-  
+
   if (!questionnaireForm.description.trim()) {
     ElMessage.error('请输入问卷描述')
     return false
   }
-  
+
   if (!questionnaireForm.category) {
     ElMessage.error('请选择问卷分类')
     return false
   }
-  
+
   if (questions.value.length === 0) {
     ElMessage.error('请至少添加一个问题')
     return false
   }
-  
+
   // 验证问题
   for (let i = 0; i < questions.value.length; i++) {
     const question = questions.value[i]
     console.log(`Validating question ${i + 1}:`, question)
-    
+
     if (!question.title || !question.title.trim()) {
       ElMessage.error(`第${i + 1}个问题的标题不能为空`)
       return false
     }
-    
-    if ((question.type === 'single' || question.type === 'multiple') && 
-        (!question.options || question.options.length < 2)) {
+
+    if ((question.type === 'single' || question.type === 'multiple') &&
+      (!question.options || question.options.length < 2)) {
       ElMessage.error(`第${i + 1}个问题至少需要2个选项`)
       return false
     }
-    
+
     // 验证选项内容
     if (question.type === 'single' || question.type === 'multiple') {
-      const validOptions = question.options.filter(opt => 
+      const validOptions = question.options.filter(opt =>
         opt && opt.text && opt.text.trim()
       )
       if (validOptions.length < 2) {
@@ -1386,7 +1282,7 @@ const validateForm = () => {
       }
     }
   }
-  
+
   console.log('Form validation passed!')
   return true
 }
@@ -1394,9 +1290,11 @@ const validateForm = () => {
 
 <style scoped lang="scss">
 .custom-create {
-  max-width: 1200px;
+  min-height: 100vh;
+  background: var(--theme-background-color);
+  padding: 30px 285px;
   margin: 0 auto;
-  padding: 24px;
+
 
   @media (max-width: 768px) {
     padding: 16px;
@@ -1495,7 +1393,7 @@ const validateForm = () => {
 
     &:hover,
     &.active {
-      border-color: #409eff;
+      border-color: var(--color-primary-light-3);
       box-shadow: 0 4px 12px rgba(64, 158, 255, 0.1);
     }
 
@@ -1523,7 +1421,7 @@ const validateForm = () => {
 
         .question-number {
           font-weight: 600;
-          color: #409eff;
+          color: var(--color-primary-light-3);
         }
 
         .question-type-badge {
@@ -1695,13 +1593,15 @@ const validateForm = () => {
   }
 }
 
-.text-settings, .rating-preview {
+.text-settings,
+.rating-preview {
   border: 1px solid #e1e5e9;
   border-radius: 6px;
   padding: 12px;
   background: #fafbfc;
 
-  .text-demo, .rating-demo {
+  .text-demo,
+  .rating-demo {
     margin-top: 8px;
   }
 }

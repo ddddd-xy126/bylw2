@@ -825,7 +825,7 @@ onMounted(() => {
   /* 表格样式 */
   .title-cell { display: flex; flex-direction: column; gap: 8px; }
 
-  .title-text { font-weight: 500; color: #409eff; cursor: pointer; line-height: 1.4;
+  .title-text { font-weight: 500; color: var(--color-primary-light-3); cursor: pointer; line-height: 1.4;
     &:hover { text-decoration: underline; }
   }
 

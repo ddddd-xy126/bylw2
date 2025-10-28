@@ -4,7 +4,9 @@
     <div class="header-section">
       <div class="header-content">
         <el-button @click="goBack" type="text" size="large" class="back-button">
-          <el-icon><ArrowLeft /></el-icon>
+          <el-icon>
+            <ArrowLeft />
+          </el-icon>
           返回
         </el-button>
         <h1>选择问卷模板</h1>
@@ -16,40 +18,22 @@
     <div class="filter-section">
       <div class="filter-content">
         <div class="search-bar">
-          <el-input
-            v-model="searchKeyword"
-            placeholder="搜索模板名称或关键词..."
-            size="large"
-            @input="handleSearch"
-          >
+          <el-input v-model="searchKeyword" placeholder="搜索模板名称或关键词..." size="large" @input="handleSearch">
             <template #prefix>
-              <el-icon><Search /></el-icon>
+              <el-icon>
+                <Search />
+              </el-icon>
             </template>
           </el-input>
         </div>
-        
+
         <div class="filter-controls">
-          <el-select
-            v-model="filterCategory"
-            placeholder="选择分类"
-            size="large"
-            @change="handleFilter"
-            clearable
-          >
-            <el-option
-              v-for="category in categories"
-              :key="category.value"
-              :label="category.label"
-              :value="category.value"
-            />
+          <el-select v-model="filterCategory" placeholder="选择分类" size="large" @change="handleFilter" clearable>
+            <el-option v-for="category in categories" :key="category.value" :label="category.label"
+              :value="category.value" />
           </el-select>
-          
-          <el-select
-            v-model="sortBy"
-            placeholder="排序方式"
-            size="large"
-            @change="handleSort"
-          >
+
+          <el-select v-model="sortBy" placeholder="排序方式" size="large" @change="handleSort">
             <el-option label="最受欢迎" value="popular" />
             <el-option label="最新创建" value="newest" />
             <el-option label="评分最高" value="rating" />
@@ -64,22 +48,13 @@
       <div class="nav-content">
         <div class="nav-label">热门分类：</div>
         <div class="nav-tags">
-          <el-tag
-            v-for="category in popularCategories"
-            :key="category.value"
+          <el-tag v-for="category in popularCategories" :key="category.value"
             :type="filterCategory === category.value ? 'primary' : ''"
-            :effect="filterCategory === category.value ? 'dark' : 'plain'"
-            class="category-tag"
-            @click="selectCategory(category.value)"
-          >
+            :effect="filterCategory === category.value ? 'dark' : 'plain'" class="category-tag"
+            @click="selectCategory(category.value)">
             {{ category.label }}
           </el-tag>
-          <el-tag
-            v-if="filterCategory"
-            type="info"
-            class="category-tag clear-tag"
-            @click="clearCategory"
-          >
+          <el-tag v-if="filterCategory" type="info" class="category-tag clear-tag" @click="clearCategory">
             清除筛选
           </el-tag>
         </div>
@@ -105,12 +80,8 @@
       </div>
 
       <div v-else class="templates-grid">
-        <div
-          v-for="template in filteredList"
-          :key="template.id"
-          class="template-card"
-          @click="selectTemplate(template)"
-        >
+        <div v-for="template in filteredList" :key="template.id" class="template-card"
+          @click="selectTemplate(template)">
           <!-- 模板标签 -->
           <div class="template-badges">
             <span v-if="template.isHot" class="badge hot-badge">🔥 热门</span>
@@ -121,7 +92,9 @@
           <!-- 模板内容 -->
           <div class="template-header">
             <div class="template-icon">
-              <el-icon size="32"><Document /></el-icon>
+              <el-icon size="32">
+                <Document />
+              </el-icon>
             </div>
             <div class="template-category">{{ template.category }}</div>
           </div>
@@ -133,59 +106,41 @@
             <div class="template-stats">
               <div class="stat-group">
                 <div class="stat-item">
-                  <el-icon><Document /></el-icon>
+                  <el-icon>
+                    <Document />
+                  </el-icon>
                   <span>{{ template.questions }}题</span>
                 </div>
                 <div class="stat-item">
-                  <el-icon><Clock /></el-icon>
+                  <el-icon>
+                    <Clock />
+                  </el-icon>
                   <span>{{ template.duration }}分钟</span>
                 </div>
               </div>
-              
+
               <div class="rating-group">
-                <el-rate 
-                  v-model="template.rating" 
-                  disabled 
-                  size="small"
-                  show-score
-                  text-color="#ff9900"
-                />
+                <el-rate v-model="template.rating" disabled size="small" show-score text-color="#ff9900" />
                 <span class="usage-count">{{ template.usageCount }}人使用</span>
               </div>
             </div>
 
             <div class="template-tags">
-              <el-tag
-                v-for="tag in template.tags.slice(0, 4)"
-                :key="tag"
-                size="small"
-                type="info"
-                effect="plain"
-              >
+              <el-tag v-for="tag in template.tags.slice(0, 4)" :key="tag" size="small" type="info" effect="plain">
                 {{ tag }}
               </el-tag>
             </div>
           </div>
 
           <div class="template-footer">
-            <el-button 
-              type="primary" 
-              size="small"
-              @click.stop="useTemplate(template)"
-            >
+            <el-button type="primary" size="small" @click.stop="useTemplate(template)">
               使用模板
             </el-button>
-            <el-button 
-              size="small"
-              @click.stop="showPreview(template)"
-            >
+            <el-button size="small" @click.stop="showPreview(template)">
               预览
             </el-button>
-            <el-button 
-              size="small"
-              :icon="isFavorite(template.id) ? 'StarFilled' : 'Star'"
-              @click.stop="toggleFavorite(template.id)"
-            >
+            <el-button size="small" :icon="isFavorite(template.id) ? 'StarFilled' : 'Star'"
+              @click.stop="toggleFavorite(template.id)">
             </el-button>
           </div>
         </div>
@@ -193,25 +148,14 @@
 
       <!-- 分页 -->
       <div class="pagination-section" v-if="filteredTotal > pageSize">
-        <el-pagination
-          v-model:current-page="currentPage"
-          v-model:page-size="pageSize"
-          :page-sizes="[12, 24, 48]"
-          :total="filteredTotal"
-          layout="total, sizes, prev, pager, next, jumper"
-          @current-change="handlePageChange"
-          @size-change="handleSizeChange"
-        />
+        <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[12, 24, 48]"
+          :total="filteredTotal" layout="total, sizes, prev, pager, next, jumper" @current-change="handlePageChange"
+          @size-change="handleSizeChange" />
       </div>
     </div>
 
     <!-- 预览对话框 -->
-    <el-dialog
-      v-model="previewVisible"
-      :title="previewTemplate?.title"
-      width="80%"
-      class="preview-dialog"
-    >
+    <el-dialog v-model="previewVisible" :title="previewTemplate?.title" width="80%" class="preview-dialog">
       <div v-if="previewTemplate" class="template-preview">
         <div class="preview-info">
           <div class="info-row">
@@ -234,17 +178,9 @@
         </div>
 
         <div class="preview-sections">
-          <div
-            v-for="(section, index) in previewTemplate.template.sections"
-            :key="index"
-            class="preview-section"
-          >
+          <div v-for="(section, index) in previewTemplate.template.sections" :key="index" class="preview-section">
             <h4>{{ section.title }}</h4>
-            <div
-              v-for="(question, qIndex) in section.questions"
-              :key="qIndex"
-              class="preview-question"
-            >
+            <div v-for="(question, qIndex) in section.questions" :key="qIndex" class="preview-question">
               <div class="question-header">
                 <span class="question-number">{{ qIndex + 1 }}.</span>
                 <span class="question-title">{{ question.title }}</span>
@@ -270,7 +206,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useListFilter } from '@/hooks/useListFilter'
 import { useRouter } from 'vue-router'
-import { 
+import {
   ArrowLeft,
   Search,
   Document,
@@ -707,9 +643,9 @@ const getQuestionTypeText = (type) => {
 </script>
 <style scoped lang="scss">
 .template-selection {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 24px;
+  min-height: 100vh;
+  background: var(--theme-background-color);
+  padding: 30px 285px;
 }
 
 .header-section {
@@ -864,7 +800,7 @@ const getQuestionTypeText = (type) => {
   background: white;
 
   &:hover {
-    border-color: #409eff;
+    border-color: var(--color-primary-light-3);
     transform: translateY(-4px);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
   }
@@ -907,7 +843,7 @@ const getQuestionTypeText = (type) => {
     margin-bottom: 16px;
 
     .template-icon {
-      color: #409eff;
+      color: var(--color-primary-light-3);
     }
 
     .template-category {
@@ -1058,7 +994,7 @@ const getQuestionTypeText = (type) => {
 
         .question-number {
           font-weight: 600;
-          color: #409eff;
+          color: var(--color-primary-light-3);
         }
 
         .question-title {

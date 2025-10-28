@@ -698,7 +698,7 @@ onMounted(() => {
         }
 
         &.total {
-          background: linear-gradient(135deg, #409EFF, #66b1ff);
+          background: linear-gradient(135deg, var(--color-primary-light-3), #66b1ff);
         }
       }
 
