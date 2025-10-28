@@ -24,10 +24,6 @@
             <span class="rank-number">#{{ index + 1 }}</span>
           </div>
           <div class="survey-card">
-            <div class="survey-thumbnail">
-              <img v-if="survey.thumbnail" :src="survey.thumbnail" :alt="survey.title" />
-              <div v-else class="thumbnail-placeholder">📋</div>
-            </div>
             <div class="survey-info">
               <h3 class="survey-title">{{ survey.title }}</h3>
               <p class="survey-description">{{ survey.description }}</p>
@@ -80,10 +76,6 @@
           </div>
           <div class="col-survey">
             <div class="survey-brief">
-              <div class="brief-thumbnail">
-                <img v-if="survey.thumbnail" :src="survey.thumbnail" :alt="survey.title" />
-                <div v-else class="thumbnail-placeholder-small">📋</div>
-              </div>
               <div class="brief-info">
                 <h4 class="brief-title">{{ survey.title }}</h4>
                 <div class="brief-meta">
@@ -186,7 +178,7 @@ onMounted(() => {
 
 .header-card {
   margin-bottom: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #011a8b 0%, #764ba2 100%);
   border: none;
 }
 
@@ -292,30 +284,7 @@ onMounted(() => {
     transform: translateY(-5px);
   }
 
-  .survey-thumbnail {
-    width: 100%;
-    height: 150px;
-    overflow: hidden;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .thumbnail-placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 48px;
-      color: white;
-    }
-  }
-
-  .survey-info {
+    .survey-info {
     padding: 15px;
 
     .survey-title {
@@ -457,30 +426,7 @@ onMounted(() => {
       gap: 12px;
       align-items: center;
 
-      .brief-thumbnail {
-        width: 60px;
-        height: 60px;
-        border-radius: 8px;
-        overflow: hidden;
-        flex-shrink: 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .thumbnail-placeholder-small {
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 24px;
-          color: white;
-        }
-      }
+      /* thumbnails removed: layout uses brief-info only */
 
       .brief-info {
         flex: 1;

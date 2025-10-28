@@ -1,7 +1,7 @@
 <template>
   <div class="rankings-layout">
     <div class="rankings-header">
-      <h1 class="rankings-title">用户排行榜</h1>
+      <h1 class="rankings-title">排行榜</h1>
       <p class="rankings-subtitle">查看各类排行榜数据</p>
     </div>
 
