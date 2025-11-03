@@ -110,31 +110,6 @@ export const deleteAdminSurveyApi = async (id) => {
   return { success: true, message: "问卷删除成功" };
 };
 
-// 题目管理
-export const listQuestionsApi = async () => {
-  const questions = await apiClient.get('/questions');
-  return {
-    list: questions,
-    total: questions.length
-  };
-};
-
-export const createQuestionApi = async (data) => {
-  const newQuestion = {
-    ...data,
-    usageCount: 0,
-    createdAt: new Date().toISOString()
-  };
-  
-  const question = await apiClient.post('/questions', newQuestion);
-  return question;
-};
-
-export const deleteQuestionApi = async (id) => {
-  await apiClient.delete(`/questions/${id}`);
-  return { success: true, message: "题目删除成功" };
-};
-
 // Dashboard 相关API
 export const getDashboardStatsApi = async () => {
   const stats = await apiClient.get('/adminStats');
@@ -249,14 +224,14 @@ export const resetPasswordApi = async (id) => {
   const user = await apiClient.get(`/users/${id}`);
   await apiClient.put(`/users/${id}`, {
     ...user,
-    password: "123456",
+    password: "admin123",
     updatedAt: new Date().toISOString()
   });
   
   return { 
     success: true, 
     message: "密码重置成功",
-    newPassword: "123456"
+    newPassword: "admin123"
   };
 };
 

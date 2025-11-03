@@ -9,9 +9,9 @@ import SurveyEditorPage from "@/views/backend/admin/components/surveys/SurveyEdi
 import SurveyReviewPage from "@/views/backend/admin/components/surveys/SurveyReviewPage.vue";
 import CompletionPage from "@/views/backend/admin/components/statistics/CompletionPage.vue";
 import DistributionPage from "@/views/backend/admin/components/statistics/DistributionPage.vue";
-import QuestionManagePage from "@/views/backend/admin/components/questions/QuestionManagePage.vue";
 import QuestionnaireListPage from "@/views/backend/admin/components/questionnaires/QuestionnaireListPage.vue";
 import PendingQuestionnairesPage from "@/views/backend/admin/components/questionnaires/PendingQuestionnairesPage.vue";
+import QuestionnaireEditorPage from "@/views/backend/admin/components/questionnaires/QuestionnaireEditorPage.vue";
 import AnnouncementManagePage from "@/views/backend/admin/components/announcements/AnnouncementManagePage.vue";
 import AdminProfilePage from "@/views/backend/admin/components/profile/AdminProfilePage.vue";
 
@@ -31,8 +31,9 @@ export default [
       { path: "surveys/create", component: SurveyEditorPage },
       { path: "surveys/edit/:id", component: SurveyEditorPage },
       { path: "surveys/review", component: SurveyReviewPage },
-      { path: "questions", component: QuestionManagePage },
       { path: "questionnaires/list", component: QuestionnaireListPage },
+      { path: "questionnaires/create", component: QuestionnaireEditorPage },
+      { path: "questionnaires/edit/:id", component: QuestionnaireEditorPage },
       { path: "questionnaires/pending", component: PendingQuestionnairesPage },
       { path: "announcements", component: AnnouncementManagePage },
       { path: "profile", component: AdminProfilePage },

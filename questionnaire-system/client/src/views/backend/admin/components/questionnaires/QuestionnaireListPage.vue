@@ -38,12 +38,14 @@
             <el-option label="已停止" value="stopped" />
           </el-select>
           
-          <el-select v-model="filterCategory" placeholder="分类筛选" style="width: 120px" @change="handleFilter">
+          <el-select v-model="filterCategory" placeholder="分类筛选" style="width: 140px" @change="handleFilter">
             <el-option label="全部" value="" />
-            <el-option label="满意度调查" value="satisfaction" />
-            <el-option label="市场调研" value="market" />
-            <el-option label="产品反馈" value="feedback" />
-            <el-option label="学术研究" value="academic" />
+            <el-option 
+              v-for="cat in categories" 
+              :key="cat.slug" 
+              :label="cat.name" 
+              :value="cat.slug" 
+            />
           </el-select>
 
           <el-button @click="resetFilters">重置</el-button>
@@ -84,7 +86,6 @@
             v-for="questionnaire in paginatedList"
             :key="questionnaire.id"
             class="questionnaire-card"
-            @click="viewQuestionnaire(questionnaire.id)"
           >
             <div class="card-header">
               <div class="card-status">
@@ -193,38 +194,38 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="操作" width="200" fixed="right">
+          <el-table-column label="操作" width="280" fixed="right">
             <template #default="{row}">
-              <el-button type="text" size="small" @click="editQuestionnaire(row.id)">
-                编辑
-              </el-button>
-              <el-button type="text" size="small" @click="viewStatistics(row.id)">
-                统计
-              </el-button>
-              <el-button type="text" size="small" @click="copyQuestionnaire(row.id)">
-                复制
-              </el-button>
-              <el-button 
-                v-if="row.status === 'published'" 
-                type="text" 
-                size="small" 
-                @click="offlineQuestionnaire(row.id)" 
-                class="warning-btn"
-              >
-                下架
-              </el-button>
-              <el-button 
-                v-if="row.status === 'stopped'" 
-                type="text" 
-                size="small" 
-                @click="onlineQuestionnaire(row.id)" 
-                class="success-btn"
-              >
-                上架
-              </el-button>
-              <el-button type="text" size="small" @click="deleteQuestionnaire(row.id)" class="danger-btn">
-                删除
-              </el-button>
+              <div class="table-actions">
+                <el-button type="primary" size="small" @click="editQuestionnaire(row.id)">
+                  编辑
+                </el-button>
+                <el-button type="info" size="small" @click="viewStatistics(row.id)">
+                  统计
+                </el-button>
+                <el-button type="success" size="small" @click="copyQuestionnaire(row.id)">
+                  复制
+                </el-button>
+                <el-button 
+                  v-if="row.status === 'published'" 
+                  type="warning" 
+                  size="small" 
+                  @click="offlineQuestionnaire(row.id)"
+                >
+                  下架
+                </el-button>
+                <el-button 
+                  v-if="row.status === 'stopped'" 
+                  type="success" 
+                  size="small" 
+                  @click="onlineQuestionnaire(row.id)"
+                >
+                  上架
+                </el-button>
+                <el-button type="danger" size="small" @click="deleteQuestionnaire(row.id)">
+                  删除
+                </el-button>
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -235,7 +236,7 @@
         <el-pagination
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
-          :page-sizes="[10, 20, 50, 100]"
+          :page-sizes="[12, 24, 36, 48]"
           :total="filteredTotal"
           layout="total, sizes, prev, pager, next, jumper"
           @size-change="handleSizeChange"
@@ -243,6 +244,59 @@
         />
       </div>
     </el-card>
+
+    <!-- 统计弹窗 -->
+    <el-dialog
+      v-model="statisticsDialogVisible"
+      title="问卷统计"
+      width="800px"
+      :destroy-on-close="true"
+    >
+      <div v-loading="loadingStatistics" class="statistics-content">
+        <el-row :gutter="20" class="stats-overview">
+          <el-col :span="8">
+            <div class="stat-card">
+              <div class="stat-label">总参与人数</div>
+              <div class="stat-value">{{ currentStats.participants || 0 }}</div>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="stat-card">
+              <div class="stat-label">平均评分</div>
+              <div class="stat-value">{{ (currentStats.rating || 0).toFixed(1) }}</div>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="stat-card">
+              <div class="stat-label">完成率</div>
+              <div class="stat-value">{{ ((currentStats.responses / currentStats.participants * 100) || 0).toFixed(0) }}%</div>
+            </div>
+          </el-col>
+        </el-row>
+
+        <el-divider />
+
+        <div class="stats-details">
+          <h4>详细信息</h4>
+          <el-descriptions :column="2" border>
+            <el-descriptions-item label="问卷标题">{{ currentStats.title }}</el-descriptions-item>
+            <el-descriptions-item label="问卷状态">
+              <el-tag :type="getStatusType(currentStats.status)">
+                {{ getStatusText(currentStats.status) }}
+              </el-tag>
+            </el-descriptions-item>
+            <el-descriptions-item label="创建时间">{{ formatDateTime(currentStats.createdAt) }}</el-descriptions-item>
+            <el-descriptions-item label="更新时间">{{ formatDateTime(currentStats.updatedAt) }}</el-descriptions-item>
+            <el-descriptions-item label="问题数量">{{ currentStats.questions?.length || 0 }}</el-descriptions-item>
+            <el-descriptions-item label="预估时长">{{ currentStats.duration || 0 }} 分钟</el-descriptions-item>
+          </el-descriptions>
+        </div>
+      </div>
+
+      <template #footer>
+        <el-button @click="statisticsDialogVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -272,6 +326,10 @@ const filterStatus = ref('')
 const filterCategory = ref('')
 const viewMode = ref('card')
 const selectedItems = ref([])
+const statisticsDialogVisible = ref(false)
+const loadingStatistics = ref(false)
+const currentStats = ref({})
+const categories = ref([])
 
 // 从 json-server 获取的问卷列表
 const questionnaireList = ref([])
@@ -294,7 +352,11 @@ const {
   handleSearch,
   handleFilter,
   handlePageChange
-} = useListFilter({ sourceList: sourceForFilter, searchFields: ['title', 'description'] })
+} = useListFilter({ 
+  sourceList: sourceForFilter, 
+  searchFields: ['title', 'description'],
+  initialPageSize: 12  // 默认每页12条
+})
 
 const total = computed(() => filteredTotal)
 
@@ -360,25 +422,34 @@ const formatDateTime = (dateString) => {
 }
 
 const createQuestionnaire = () => {
-  // 管理员创建问卷,跳转到自定义创建页面
-  // 管理员创建的问卷会自动设置为published状态
-  router.push('/questionnaire/create/custom?admin=true')
-}
-
-const viewQuestionnaire = (id) => {
-  ElMessage.info(`查看问卷 ${id}`)
-  // router.push(`/admin/questionnaires/${id}`)
+  // 跳转到管理员专用的创建页面
+  router.push('/admin/questionnaires/create')
 }
 
 const editQuestionnaire = (id) => {
-  // 跳转到自定义编辑页面,带admin参数
-  router.push(`/questionnaire/create/edit/${id}?admin=true`)
+  // 跳转到管理员专用的编辑页面
+  router.push(`/admin/questionnaires/edit/${id}`)
 }
 
-const viewStatistics = (id) => {
-  // 跳转到问卷结果页面查看统计
-  router.push(`/survey/${id}/result`)
+const viewStatistics = async (id) => {
+  // 显示统计弹窗而不是跳转
+  try {
+    statisticsDialogVisible.value = true
+    loadingStatistics.value = true
+    
+    // 从 db.json 获取问卷详情
+    const response = await fetch(`http://localhost:3002/surveys/${id}`)
+    const survey = await response.json()
+    
+    currentStats.value = survey
+  } catch (error) {
+    ElMessage.error('获取统计数据失败：' + error.message)
+  } finally {
+    loadingStatistics.value = false
+  }
 }
+
+const showStatisticsDialog = viewStatistics
 
 const copyQuestionnaire = async (id) => {
   try {
@@ -548,7 +619,12 @@ const loadQuestionnaires = async () => {
   loading.value = true
   try {
     const response = await getSurveysApi()
-    questionnaireList.value = response.list || response || []
+    let list = response.list || response || []
+    
+    // 按创建时间倒序排列
+    list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    
+    questionnaireList.value = list
   } catch (error) {
     ElMessage.error('加载问卷列表失败：' + error.message)
     questionnaireList.value = []
@@ -557,9 +633,21 @@ const loadQuestionnaires = async () => {
   }
 }
 
+// 加载分类列表
+const loadCategories = async () => {
+  try {
+    const response = await fetch('http://localhost:3002/categories')
+    categories.value = await response.json()
+  } catch (error) {
+    console.error('加载分类失败:', error)
+    categories.value = []
+  }
+}
+
 onMounted(() => {
   // 从 json-server 加载数据
   loadQuestionnaires()
+  loadCategories()
 })
 </script>
 
@@ -598,6 +686,66 @@ onMounted(() => {
     display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 16px 0; border-bottom: 1px solid #f0f0f0;
 
     .list-info { color: #666; font-size: 14px; }
+  }
+
+  /* 表格操作按钮竖排显示 */
+  .table-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+
+    .el-button {
+      width: 100%;
+      margin: 0;
+    }
+
+    .el-button--small {
+      padding: 5px 12px;
+      font-size: 12px;
+    }
+  }
+
+  /* 统计弹窗样式 */
+  .statistics-content {
+    .stats-overview {
+      margin-bottom: 24px;
+
+      .stat-card {
+        text-align: center;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        color: #fff;
+
+        .stat-label {
+          font-size: 14px;
+          margin-bottom: 8px;
+          opacity: 0.9;
+        }
+
+        .stat-value {
+          font-size: 32px;
+          font-weight: bold;
+        }
+      }
+    }
+
+    .stats-details {
+      h4 {
+        margin: 0 0 16px 0;
+        font-size: 16px;
+        color: #333;
+      }
+    }
+  }
+
+  :deep(.el-col:nth-child(2) .stat-card) {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  }
+
+  :deep(.el-col:nth-child(3) .stat-card) {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   }
 
   /* 卡片视图 */

@@ -6,19 +6,21 @@ import { ref, computed } from "vue";
  * @param {Ref} options.sourceList - 源数据列表 ref
  * @param {Array<string>} [options.searchFields=['title']] - 搜索匹配字段
  * @param {Function} [options.sortFn] - 自定义排序函数
+ * @param {number} [options.initialPageSize=10] - 初始每页大小
  */
 export function useListFilter(options = {}) {
   const {
     sourceList,
     searchFields = ["title"],
     sortFn = null,
+    initialPageSize = 10,
   } = options;
 
   const searchKeyword = ref("");
   const filterCategory = ref("");
   const dateRange = ref([]);
   const currentPage = ref(1);
-  const pageSize = ref(10);
+  const pageSize = ref(initialPageSize);
   const sortBy = ref("default");
 
   const handleSearch = () => (currentPage.value = 1);

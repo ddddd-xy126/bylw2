@@ -121,7 +121,7 @@
 
       <!-- 用户列表 -->
       <el-card class="users-table-card">
-        <el-table :data="filteredUsers" v-loading="loading" stripe @selection-change="handleSelectionChange">
+        <el-table :data="filteredList" v-loading="loading" stripe @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" />
 
           <el-table-column prop="id" label="ID" width="80" />
@@ -255,8 +255,8 @@
       </el-card>
 
       <!-- 分页 -->
-      <div class="pagination-wrapper" v-if="total > pageSize">
-        <el-pagination v-model:current-page="currentPage" :page-size="pageSize" :total="total"
+      <div class="pagination-wrapper" v-if="filteredTotal > pageSize">
+        <el-pagination v-model:current-page="currentPage" :page-size="pageSize" :total="filteredTotal"
           layout="prev, pager, next, jumper, total, sizes" :page-sizes="[10, 20, 50, 100]"
           @current-change="handlePageChange" @size-change="handleSizeChange" />
       </div>
@@ -680,8 +680,8 @@ const handleAction = async (command, user) => {
         await ElMessageBox.confirm("确定要重置该用户的密码吗？", "确认重置", {
           type: "warning",
         });
-        const newPassword = await resetPasswordApi(user.id);
-        ElMessage.success(`密码已重置为：${newPassword}`);
+        const result = await resetPasswordApi(user.id);
+        ElMessage.success(`密码已重置为：${result.newPassword}`);
       } catch (error) {
         if (error !== "cancel") {
           ElMessage.error("重置密码失败：" + error.message);

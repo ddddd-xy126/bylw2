@@ -15,15 +15,12 @@
     <el-card class="filter-card" shadow="never">
       <div class="filter-content">
         <div class="filter-left">
-          <el-input
-            v-model="searchKeyword"
-            placeholder="搜索问卷标题或提交者"
-            style="width: 300px"
-            clearable
-            @input="handleSearch"
-          >
+          <el-input v-model="searchKeyword" placeholder="搜索问卷标题或提交者" style="width: 300px" clearable
+            @input="handleSearch">
             <template #prefix>
-              <el-icon><Search /></el-icon>
+              <el-icon>
+                <Search />
+              </el-icon>
             </template>
           </el-input>
 
@@ -38,11 +35,15 @@
         <div class="filter-right">
           <el-button-group>
             <el-button @click="batchApprove" :disabled="!selectedItems.length">
-              <el-icon><Check /></el-icon>
+              <el-icon>
+                <Check />
+              </el-icon>
               批量通过
             </el-button>
             <el-button @click="batchReject" :disabled="!selectedItems.length">
-              <el-icon><Close /></el-icon>
+              <el-icon>
+                <Close />
+              </el-icon>
               批量拒绝
             </el-button>
           </el-button-group>
@@ -58,16 +59,11 @@
         </div>
       </div>
 
-      <el-table 
-        :data="paginatedList" 
-        v-loading="loading"
-        @selection-change="handleSelectionChange"
-        row-key="id"
-      >
+      <el-table :data="paginatedList" v-loading="loading" @selection-change="handleSelectionChange" row-key="id">
         <el-table-column type="selection" width="55" />
-        
+
         <el-table-column prop="title" label="问卷信息" min-width="250">
-          <template #default="{row}">
+          <template #default="{ row }">
             <div class="questionnaire-info">
               <div class="info-main">
                 <h4 class="questionnaire-title">{{ row.title }}</h4>
@@ -84,7 +80,7 @@
         </el-table-column>
 
         <el-table-column prop="submitter" label="提交者" width="150">
-          <template #default="{row}">
+          <template #default="{ row }">
             <div class="submitter-info">
               <el-avatar :size="32" :src="row.submitterAvatar">
                 {{ row.submitterName.charAt(0) }}
@@ -98,7 +94,7 @@
         </el-table-column>
 
         <el-table-column prop="submittedAt" label="提交时间" width="180">
-          <template #default="{row}">
+          <template #default="{ row }">
             <div class="time-info">
               <div class="submit-time">{{ formatDateTime(row.submittedAt) }}</div>
               <div class="time-ago">{{ getTimeAgo(row.submittedAt) }}</div>
@@ -107,38 +103,42 @@
         </el-table-column>
 
         <el-table-column prop="questionCount" label="题目数量" width="100">
-          <template #default="{row}">
+          <template #default="{ row }">
             <el-tag type="info" size="small">{{ row.questionCount }} 题</el-tag>
           </template>
         </el-table-column>
 
         <el-table-column label="审核状态" width="120">
-          <template #default="{row}">
+          <template #default="{ row }">
             <el-tag type="warning" size="small">
-              <el-icon><Clock /></el-icon>
+              <el-icon>
+                <Clock />
+              </el-icon>
               待审核
             </el-tag>
           </template>
         </el-table-column>
 
         <el-table-column label="操作" width="220" fixed="right">
-          <template #default="{row}">
+          <template #default="{ row }">
             <div class="action-buttons">
               <el-button type="text" size="small" @click="previewQuestionnaire(row)">
-                <el-icon><View /></el-icon>
+                <el-icon>
+                  <View />
+                </el-icon>
                 预览
               </el-button>
               <el-button type="text" size="small" @click="approveQuestionnaire(row)" class="success-btn">
-                <el-icon><Check /></el-icon>
+                <el-icon>
+                  <Check />
+                </el-icon>
                 通过
               </el-button>
               <el-button type="text" size="small" @click="rejectQuestionnaire(row)" class="danger-btn">
-                <el-icon><Close /></el-icon>
+                <el-icon>
+                  <Close />
+                </el-icon>
                 拒绝
-              </el-button>
-              <el-button type="text" size="small" @click="showReviewDialog(row)">
-                <el-icon><ChatDotRound /></el-icon>
-                评论
               </el-button>
             </div>
           </template>
@@ -152,56 +152,33 @@
 
       <!-- 分页 -->
       <div class="pagination-wrapper" v-if="total > 0">
-        <el-pagination
-          v-model:current-page="currentPage"
-          v-model:page-size="pageSize"
-          :page-sizes="[10, 20, 50]"
-          :total="filteredTotal"
-          layout="total, sizes, prev, pager, next"
-          @size-change="handleSizeChange"
-          @current-change="handlePageChange"
-        />
+        <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[10, 20, 50]"
+          :total="filteredTotal" layout="total, sizes, prev, pager, next" @size-change="handleSizeChange"
+          @current-change="handlePageChange" />
       </div>
     </el-card>
 
     <!-- 预览对话框 -->
-    <el-dialog
-      v-model="previewDialogVisible"
-      title="问卷预览"
-      width="800px"
-      :before-close="closePreviewDialog"
-    >
+    <el-dialog v-model="previewDialogVisible" title="问卷预览" width="800px" :before-close="closePreviewDialog">
       <div v-if="currentQuestionnaire" class="preview-content">
         <div class="preview-header">
           <h2>{{ currentQuestionnaire.title }}</h2>
           <p>{{ currentQuestionnaire.description }}</p>
         </div>
-        
+
         <div class="preview-questions">
-          <div 
-            v-for="(question, index) in currentQuestionnaire.questions" 
-            :key="index"
-            class="question-item"
-          >
+          <div v-for="(question, index) in currentQuestionnaire.questions" :key="index" class="question-item">
             <h4>{{ index + 1 }}. {{ question.title }}</h4>
             <div v-if="question.type === 'single'" class="question-options">
               <el-radio-group disabled>
-                <el-radio 
-                  v-for="option in question.options" 
-                  :key="option.id"
-                  :label="option.id"
-                >
+                <el-radio v-for="option in question.options" :key="option.id" :label="option.id">
                   {{ option.text }}
                 </el-radio>
               </el-radio-group>
             </div>
             <div v-else-if="question.type === 'multiple'" class="question-options">
               <el-checkbox-group disabled>
-                <el-checkbox 
-                  v-for="option in question.options" 
-                  :key="option.id"
-                  :label="option.id"
-                >
+                <el-checkbox v-for="option in question.options" :key="option.id" :label="option.id">
                   {{ option.text }}
                 </el-checkbox>
               </el-checkbox-group>
@@ -212,16 +189,20 @@
           </div>
         </div>
       </div>
-      
+
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="closePreviewDialog">关闭</el-button>
           <el-button type="success" @click="approveFromPreview">
-            <el-icon><Check /></el-icon>
+            <el-icon>
+              <Check />
+            </el-icon>
             通过审核
           </el-button>
           <el-button type="danger" @click="rejectFromPreview">
-            <el-icon><Close /></el-icon>
+            <el-icon>
+              <Close />
+            </el-icon>
             拒绝审核
           </el-button>
         </span>
@@ -229,11 +210,7 @@
     </el-dialog>
 
     <!-- 审核评论对话框 -->
-    <el-dialog
-      v-model="reviewDialogVisible"
-      title="审核评论"
-      width="600px"
-    >
+    <el-dialog v-model="reviewDialogVisible" title="审核评论" width="600px">
       <el-form :model="reviewForm" label-width="100px" ref="reviewFormRef" :rules="reviewRules">
         <el-form-item label="审核结果" prop="result">
           <el-radio-group v-model="reviewForm.result">
@@ -242,25 +219,20 @@
             <el-radio label="request_changes">需要修改</el-radio>
           </el-radio-group>
         </el-form-item>
-        
-        <el-form-item 
-          label="审核意见" 
-          prop="comment"
-          :rules="reviewForm.result === 'reject' ? [{ required: true, message: '拒绝审核必须填写原因', trigger: 'blur' }] : []"
-        >
-          <el-input
-            v-model="reviewForm.comment"
-            type="textarea"
-            :rows="4"
-            :placeholder="reviewForm.result === 'reject' ? '请填写拒绝原因，将发送给问卷提交者' : '请输入审核意见，将发送给问卷提交者'"
-          />
+
+        <el-form-item label="审核意见" prop="comment"
+          :rules="reviewForm.result === 'reject' ? [{ required: true, message: '拒绝审核必须填写原因', trigger: 'blur' }] : []">
+          <el-input v-model="reviewForm.comment" type="textarea" :rows="4"
+            :placeholder="reviewForm.result === 'reject' ? '请填写拒绝原因，将发送给问卷提交者' : '请输入审核意见，将发送给问卷提交者'" />
           <div v-if="reviewForm.result === 'reject'" class="form-tip">
-            <el-icon><WarningFilled /></el-icon>
+            <el-icon>
+              <WarningFilled />
+            </el-icon>
             拒绝审核必须填写具体原因
           </div>
         </el-form-item>
       </el-form>
-      
+
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="reviewDialogVisible = false">取消</el-button>
@@ -443,13 +415,6 @@ const rejectFromPreview = () => {
   }
 }
 
-const showReviewDialog = (questionnaire) => {
-  currentQuestionnaire.value = questionnaire
-  reviewForm.result = 'approve'
-  reviewForm.comment = ''
-  reviewDialogVisible.value = true
-}
-
 const submitReview = async () => {
   // 验证表单
   if (reviewForm.result === 'reject' && !reviewForm.comment.trim()) {
@@ -457,23 +422,44 @@ const submitReview = async () => {
     return
   }
 
-  if (reviewForm.result !== 'approve' && !reviewForm.comment.trim()) {
-    ElMessage.warning('请输入审核意见')
+  if (reviewForm.result === 'request_changes' && !reviewForm.comment.trim()) {
+    ElMessage.warning('要求修改时必须填写具体修改意见')
     return
   }
 
   try {
+    const loading = ElMessage({
+      message: '正在处理审核...',
+      type: 'info',
+      duration: 0
+    })
+
     // 根据审核结果调用不同的 API
     if (reviewForm.result === 'approve') {
       // 审核通过 - 状态改为 published
       await updateSurveyStatusApi(currentQuestionnaire.value.id, 'published')
+
+      // 记录审核活动
+      const { recordAdminActivity } = await import('@/api/admin')
+      const { useUserStore } = await import('@/store/user')
+      const userStore = useUserStore()
+
+      await recordAdminActivity({
+        adminId: userStore.profile.id,
+        adminName: userStore.profile.nickname || userStore.profile.username,
+        title: '审核通过问卷',
+        description: `审核通过问卷"${currentQuestionnaire.value.title}"${reviewForm.comment ? '，意见：' + reviewForm.comment : ''}`,
+        type: 'questionnaire_approve'
+      })
+
+      loading.close()
       ElMessage.success('审核通过，问卷已发布')
       removeFromPendingList(currentQuestionnaire.value.id)
     } else if (reviewForm.result === 'reject') {
       // 审核拒绝 - 状态改为 rejected，并记录拒绝原因
       const response = await fetch(`http://localhost:3002/surveys/${currentQuestionnaire.value.id}`)
       const survey = await response.json()
-      
+
       await fetch(`http://localhost:3002/surveys/${currentQuestionnaire.value.id}`, {
         method: 'PUT',
         headers: {
@@ -487,14 +473,58 @@ const submitReview = async () => {
           updatedAt: new Date().toISOString()
         })
       })
-      
+
+      // 记录审核活动
+      const { recordAdminActivity } = await import('@/api/admin')
+      const { useUserStore } = await import('@/store/user')
+      const userStore = useUserStore()
+
+      await recordAdminActivity({
+        adminId: userStore.profile.id,
+        adminName: userStore.profile.nickname || userStore.profile.username,
+        title: '拒绝问卷审核',
+        description: `拒绝问卷"${currentQuestionnaire.value.title}"，原因：${reviewForm.comment}`,
+        type: 'questionnaire_reject'
+      })
+
+      loading.close()
       ElMessage.success('已拒绝审核，问卷已退回给作者')
       removeFromPendingList(currentQuestionnaire.value.id)
-    } else {
-      // 要求修改 - 保持 pending 状态，只是添加审核意见
-      ElMessage.success('已要求作者修改')
+    } else if (reviewForm.result === 'request_changes') {
+      // 要求修改 - 更新问卷添加修改意见，保持 pending 状态
+      const response = await fetch(`http://localhost:3002/surveys/${currentQuestionnaire.value.id}`)
+      const survey = await response.json()
+
+      await fetch(`http://localhost:3002/surveys/${currentQuestionnaire.value.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...survey,
+          reviewComment: reviewForm.comment,
+          reviewedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        })
+      })
+
+      // 记录审核活动
+      const { recordAdminActivity } = await import('@/api/admin')
+      const { useUserStore } = await import('@/store/user')
+      const userStore = useUserStore()
+
+      await recordAdminActivity({
+        adminId: userStore.profile.id,
+        adminName: userStore.profile.nickname || userStore.profile.username,
+        title: '要求问卷修改',
+        description: `要求修改问卷"${currentQuestionnaire.value.title}"，意见：${reviewForm.comment}`,
+        type: 'questionnaire_request_changes'
+      })
+
+      loading.close()
+      ElMessage.success('已要求作者修改，审核意见已发送')
     }
-    
+
     reviewDialogVisible.value = false
     currentQuestionnaire.value = null
   } catch (error) {
@@ -518,14 +548,35 @@ const batchApprove = async () => {
     }
   ).then(async () => {
     try {
+      const loading = ElMessage({
+        message: `正在批量审核 ${selectedItems.value.length} 个问卷...`,
+        type: 'info',
+        duration: 0
+      })
+
       // 批量调用审核 API
-      const promises = selectedItems.value.map(item => 
+      const promises = selectedItems.value.map(item =>
         updateSurveyStatusApi(item.id, 'published')
       )
       await Promise.all(promises)
-      
+
+      // 记录批量审核活动
+      const { recordAdminActivity } = await import('@/api/admin')
+      const { useUserStore } = await import('@/store/user')
+      const userStore = useUserStore()
+
+      const titles = selectedItems.value.map(item => item.title).join('、')
+      await recordAdminActivity({
+        adminId: userStore.profile.id,
+        adminName: userStore.profile.nickname || userStore.profile.username,
+        title: '批量审核通过',
+        description: `批量通过 ${selectedItems.value.length} 个问卷：${titles}`,
+        type: 'questionnaire_batch_approve'
+      })
+
+      loading.close()
       ElMessage.success(`已批量通过 ${selectedItems.value.length} 个问卷`)
-      
+
       // 从列表中移除
       selectedItems.value.forEach(item => {
         removeFromPendingList(item.id)
@@ -555,11 +606,17 @@ const batchReject = async () => {
     }
   ).then(async () => {
     try {
+      const loading = ElMessage({
+        message: `正在批量拒绝 ${selectedItems.value.length} 个问卷...`,
+        type: 'info',
+        duration: 0
+      })
+
       // 批量调用审核 API，将状态改为 rejected
       const promises = selectedItems.value.map(async item => {
         const response = await fetch(`http://localhost:3002/surveys/${item.id}`)
         const survey = await response.json()
-        
+
         return fetch(`http://localhost:3002/surveys/${item.id}`, {
           method: 'PUT',
           headers: {
@@ -575,9 +632,24 @@ const batchReject = async () => {
         })
       })
       await Promise.all(promises)
-      
+
+      // 记录批量拒绝活动
+      const { recordAdminActivity } = await import('@/api/admin')
+      const { useUserStore } = await import('@/store/user')
+      const userStore = useUserStore()
+
+      const titles = selectedItems.value.map(item => item.title).join('、')
+      await recordAdminActivity({
+        adminId: userStore.profile.id,
+        adminName: userStore.profile.nickname || userStore.profile.username,
+        title: '批量拒绝审核',
+        description: `批量拒绝 ${selectedItems.value.length} 个问卷：${titles}`,
+        type: 'questionnaire_batch_reject'
+      })
+
+      loading.close()
       ElMessage.success(`已批量拒绝 ${selectedItems.value.length} 个问卷`)
-      
+
       // 从列表中移除
       selectedItems.value.forEach(item => {
         removeFromPendingList(item.id)
@@ -604,7 +676,7 @@ const loadPendingQuestionnaires = async () => {
   try {
     const response = await getSurveysApi({ status: 'pending' })
     const surveys = response.list || response || []
-    
+
     // 转换数据格式以适配现有模板
     pendingList.value = surveys.map(survey => ({
       id: survey.id,
@@ -651,7 +723,11 @@ onMounted(() => {
         color: #1a202c;
       }
 
-      p { margin: 0; color: #718096; font-size: 16px; }
+      p {
+        margin: 0;
+        color: #718096;
+        font-size: 16px;
+      }
     }
   }
 
@@ -667,7 +743,11 @@ onMounted(() => {
       justify-content: space-between;
       align-items: center;
 
-      .filter-left { display: flex; gap: 12px; align-items: center; }
+      .filter-left {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
     }
   }
 
@@ -685,12 +765,19 @@ onMounted(() => {
       padding: 16px 0;
       border-bottom: 1px solid #f0f0f0;
 
-      .list-info { color: #666; font-size: 14px; }
+      .list-info {
+        color: #666;
+        font-size: 14px;
+      }
     }
   }
 
   /* 问卷信息 */
-  .questionnaire-info { display: flex; flex-direction: column; gap: 8px; }
+  .questionnaire-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
 
   .questionnaire-title {
     margin: 0;
@@ -712,30 +799,73 @@ onMounted(() => {
     overflow: hidden;
   }
 
-  .info-meta { display: flex; gap: 8px; }
-
-  /* 提交者信息 */
-  .submitter-info { display: flex; align-items: center; gap: 12px; }
-
-  .submitter-details { display: flex; flex-direction: column; gap: 2px; }
-
-  .submitter-name { font-size: 14px; font-weight: 500; color: #1a202c; }
-  .submitter-email { font-size: 12px; color: #666; }
-
-  /* 时间信息 */
-  .time-info { display: flex; flex-direction: column; gap: 4px; }
-  .submit-time { font-size: 14px; color: #1a202c; }
-  .time-ago { font-size: 12px; color: #666; }
-
-  /* 操作按钮 */
-  .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-
-  .success-btn { color: #67c23a !important;
-    &:hover { background-color: rgba(103, 194, 58, 0.1); }
+  .info-meta {
+    display: flex;
+    gap: 8px;
   }
 
-  .danger-btn { color: #f56c6c !important;
-    &:hover { background-color: rgba(245, 108, 108, 0.1); }
+  /* 提交者信息 */
+  .submitter-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .submitter-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .submitter-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a202c;
+  }
+
+  .submitter-email {
+    font-size: 12px;
+    color: #666;
+  }
+
+  /* 时间信息 */
+  .time-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .submit-time {
+    font-size: 14px;
+    color: #1a202c;
+  }
+
+  .time-ago {
+    font-size: 12px;
+    color: #666;
+  }
+
+  /* 操作按钮 */
+  .action-buttons {
+    display: flex;
+    gap: 2px;
+    flex-wrap: nowrap;
+  }
+
+  .success-btn {
+    color: #67c23a !important;
+
+    &:hover {
+      background-color: rgba(103, 194, 58, 0.1);
+    }
+  }
+
+  .danger-btn {
+    color: #f56c6c !important;
+
+    &:hover {
+      background-color: rgba(245, 108, 108, 0.1);
+    }
   }
 
   /* 分页 */
@@ -748,43 +878,89 @@ onMounted(() => {
   }
 
   /* 预览对话框 */
-  .preview-content { max-height: 600px; overflow-y: auto; }
+  .preview-content {
+    max-height: 600px;
+    overflow-y: auto;
+  }
 
   .preview-header {
     margin-bottom: 24px;
     padding-bottom: 16px;
     border-bottom: 1px solid #eee;
 
-    h2 { margin: 0 0 8px 0; color: #1a202c; }
-    p { margin: 0; color: #666; line-height: 1.5; }
+    h2 {
+      margin: 0 0 8px 0;
+      color: #1a202c;
+    }
+
+    p {
+      margin: 0;
+      color: #666;
+      line-height: 1.5;
+    }
   }
 
-  .preview-questions { display: flex; flex-direction: column; gap: 20px; }
+  .preview-questions {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
 
   .question-item {
     padding: 16px;
     background: #f8f9fa;
     border-radius: 8px;
 
-    h4 { margin: 0 0 12px 0; color: #1a202c; font-weight: 500; }
+    h4 {
+      margin: 0 0 12px 0;
+      color: #1a202c;
+      font-weight: 500;
+    }
   }
 
-  .question-options { margin-left: 16px; }
+  .question-options {
+    margin-left: 16px;
+  }
 
   /* 表单提示 */
-  .form-tip { display: flex; align-items: center; gap: 4px; margin-top: 8px; color: #e6a23c; font-size: 12px; }
+  .form-tip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    color: #e6a23c;
+    font-size: 12px;
+  }
 
   /* 响应式设计 */
   @media (max-width: 768px) {
-    .page-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
 
-    .filter-content { flex-direction: column; gap: 16px; align-items: stretch; }
+    .filter-content {
+      flex-direction: column;
+      gap: 16px;
+      align-items: stretch;
+    }
 
-    .filter-left { justify-content: flex-start; flex-wrap: wrap; }
+    .filter-left {
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
 
-    .action-buttons { flex-direction: column; gap: 4px; }
+    .action-buttons {
+      flex-direction: column;
+      gap: 4px;
+    }
 
-    .submitter-info { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .submitter-info {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
   }
 }
 </style>

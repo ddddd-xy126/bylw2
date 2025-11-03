@@ -37,16 +37,16 @@
           <span>问卷管理</span>
         </el-menu-item>
 
+        <!-- 创建、编辑问卷 -->
+        <el-menu-item index="/admin/questionnaires/create">
+          <el-icon><Plus /></el-icon>
+          <span>创建、编辑问卷</span>
+        </el-menu-item>
+
         <!-- 待审核问卷 -->
         <el-menu-item index="/admin/questionnaires/pending">
           <el-icon><Clock /></el-icon>
           <span>待审核问卷</span>
-        </el-menu-item>
-
-        <!-- 题目管理 -->
-        <el-menu-item index="/admin/questions">
-          <el-icon><EditPen /></el-icon>
-          <span>题目管理</span>
         </el-menu-item>
 
         <!-- 人员管理 -->
@@ -115,7 +115,8 @@ import {
   SwitchButton,
   Bell,
   ArrowDown,
-  User
+  User,
+  Plus
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/user'
 
@@ -140,12 +141,18 @@ const currentPageTitle = computed(() => {
   const pathTitleMap = {
     '/admin/dashboard': '仪表盘',
     '/admin/questionnaires/list': '问卷管理',
+    '/admin/questionnaires/create': '创建、编辑问卷',
     '/admin/questionnaires/pending': '待审核问卷',
-    '/admin/questions': '题目管理',
     '/admin/users': '人员管理',
     '/admin/announcements': '公告管理',
     '/admin/profile': '个人资料'
   }
+  
+  // 检查是否为编辑问卷页面
+  if (route.path.startsWith('/admin/questionnaires/edit/')) {
+    return '创建、编辑问卷'
+  }
+  
   return pathTitleMap[route.path] || ''
 })
 

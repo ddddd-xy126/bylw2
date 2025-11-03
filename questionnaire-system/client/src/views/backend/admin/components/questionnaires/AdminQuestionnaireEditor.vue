@@ -1,25 +1,13 @@
 <template>
   <div class="custom-create">
-    <!-- 头部区域 -->
+    <!-- 头部区域 - 移除返回按钮 -->
     <div class="header-section">
       <div class="header-content">
-        <el-button @click="goBack" type="text" size="large" class="back-button">
-          <el-icon>
-            <ArrowLeft />
-          </el-icon>
-          返回
-        </el-button>
         <h1>
-          {{ isEditMode ? '编辑问卷' : isTemplateMode ? '基于模板创建' : '自定义创建问卷' }}
+          {{ isEditMode ? '编辑问卷' : '创建问卷' }}
         </h1>
-        <p>
-          {{
-            isEditMode
-              ? '修改问卷内容和设置'
-              : isTemplateMode
-                ? '基于专业模板快速创建问卷'
-                : '从零开始设计您的问卷，完全自定义问题类型、逻辑和样式'
-          }}
+        <p v-if="!isEditMode">
+          管理员创建的问卷将直接发布，无需审核
         </p>
       </div>
     </div>
@@ -306,9 +294,8 @@
       </el-card>
     </div>
 
-    <!-- 底部操作栏 -->
+    <!-- 底部操作栏 - 移除取消按钮 -->
     <div class="footer-actions">
-      <!-- 预览按钮已移除 -->
       <el-button @click="saveAsDraft">
         <el-icon>
           <DocumentCopy />
@@ -319,7 +306,7 @@
         <el-icon>
           <Promotion />
         </el-icon>
-        {{ isEditMode ? '提交审核' : '发布问卷' }}
+        {{ isEditMode ? '更新问卷' : '发布问卷' }}
       </el-button>
     </div>
   </div>
@@ -330,7 +317,6 @@ import { ref, reactive, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
-  ArrowLeft,
   Plus,
   ArrowDown,
   Select,
@@ -706,27 +692,6 @@ const formRules = {
   ]
 }
 
-// 方法
-const goBack = () => {
-  if (hasUnsavedChanges()) {
-    ElMessageBox.confirm(
-      '您有未保存的更改，确定要离开吗？',
-      '提示',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    ).then(() => {
-      router.go(-1)
-    }).catch(() => {
-      // 用户取消
-    })
-  } else {
-    router.go(-1)
-  }
-}
-
 const hasUnsavedChanges = () => {
   return questionnaireForm.title || questionnaireForm.description || questions.value.length > 0
 }
@@ -1073,24 +1038,33 @@ const saveAsDraft = async () => {
   try {
     const questionnaireData = buildQuestionnaireData('draft')
 
-    // 导入 API
-    const { createQuestionnaire, updateQuestionnaire } = await import('@/api/questionnaire')
-
     if (isEditMode.value && currentQuestionnaireId.value) {
       // 编辑模式：更新现有问卷
-      await updateQuestionnaire(currentQuestionnaireId.value, questionnaireData)
+      const response = await fetch(`http://localhost:3002/surveys/${currentQuestionnaireId.value}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(questionnaireData)
+      })
+      
+      if (!response.ok) throw new Error('保存失败')
       ElMessage.success('草稿更新成功')
     } else {
       // 创建模式：创建新问卷
-      await createQuestionnaire(questionnaireData)
+      const response = await fetch('http://localhost:3002/surveys', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(questionnaireData)
+      })
+      
+      if (!response.ok) throw new Error('保存失败')
       ElMessage.success('草稿保存成功')
     }
 
     // 清除本地存储
     clearLocalStorage()
 
-    // 跳转到草稿列表页面
-    router.push('/profile/questionnaires/created')
+    // 返回管理页面
+    router.push('/admin/questionnaires/list')
   } catch (error) {
     console.error('保存草稿失败:', error)
     ElMessage.error('保存失败：' + error.message)
@@ -1101,111 +1075,79 @@ const publishQuestionnaire = async () => {
   if (!validateForm()) return
 
   try {
-    // 检查是否为管理员创建
-    const isAdmin = route.query.admin === 'true'
-    const statusToSet = isAdmin ? 'published' : 'pending'
-    const confirmMessage = isAdmin
-      ? '确定要发布此问卷吗？管理员创建的问卷将直接发布上线。'
-      : isEditMode.value
-        ? '确定要提交此问卷进行审核吗？提交后需等待管理员审核。'
-        : '确定要提交此问卷进行审核吗？'
-
+    // 管理员创建的问卷直接发布，无需审核
     await ElMessageBox.confirm(
-      confirmMessage,
-      isAdmin ? '确认发布' : '确认提交',
+      isEditMode.value 
+        ? '确定要更新此问卷吗？更新后将立即生效。'
+        : '确定要发布此问卷吗？发布后将立即上线。',
+      isEditMode.value ? '确认更新' : '确认发布',
       {
-        confirmButtonText: isAdmin ? '确定发布' : '确定提交',
+        confirmButtonText: isEditMode.value ? '确定更新' : '确定发布',
         cancelButtonText: '取消',
         type: 'warning'
       }
     )
 
-    const questionnaireData = buildQuestionnaireData(statusToSet)
-
-    // 导入 API
-    const { createQuestionnaire, updateQuestionnaire } = await import('@/api/questionnaire')
+    // 管理员创建的问卷状态直接设为 published
+    const questionnaireData = buildQuestionnaireData('published')
 
     if (isEditMode.value && currentQuestionnaireId.value) {
-      // 编辑模式：更新现有问卷
-      await updateQuestionnaire(currentQuestionnaireId.value, questionnaireData)
-      ElMessage.success(isAdmin ? '问卷已成功发布！' : '问卷已重新提交审核！')
+      // 编辑模式：直接更新到 db.json
+      const response = await fetch(`http://localhost:3002/surveys/${currentQuestionnaireId.value}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(questionnaireData)
+      })
+      
+      if (!response.ok) throw new Error('更新失败')
+      
+      ElMessage.success('问卷更新成功！')
 
-      // 如果是管理员编辑，记录操作
-      if (isAdmin) {
-        const { recordAdminActivity } = await import('@/api/admin')
-        const { useUserStore } = await import('@/store/user')
-        const userStore = useUserStore()
-
-        await recordAdminActivity({
-          adminId: userStore.profile.id,
-          adminName: userStore.profile.nickname || userStore.profile.username,
-          title: '编辑问卷',
-          description: `编辑了问卷"${questionnaireData.title}"`,
-          type: 'questionnaire_edit'
-        })
-      }
+      // 记录管理员操作
+      const { recordAdminActivity } = await import('@/api/admin')
+      await recordAdminActivity({
+        adminId: userStore.profile.id,
+        adminName: userStore.profile.nickname || userStore.profile.username,
+        title: '编辑问卷',
+        description: `编辑了问卷"${questionnaireData.title}"`,
+        type: 'questionnaire_edit'
+      })
     } else {
-      // 创建模式：创建新问卷
-      const result = await createQuestionnaire(questionnaireData)
-      ElMessage.success(isAdmin ? '问卷已成功发布！' : '问卷已提交审核！')
+      // 创建模式：直接保存到 db.json
+      const response = await fetch('http://localhost:3002/surveys', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(questionnaireData)
+      })
+      
+      if (!response.ok) throw new Error('发布失败')
+      
+      ElMessage.success('问卷发布成功！')
 
-      // 如果是管理员创建，记录操作
-      if (isAdmin) {
-        const { recordAdminActivity } = await import('@/api/admin')
-        const { useUserStore } = await import('@/store/user')
-        const userStore = useUserStore()
-
-        await recordAdminActivity({
-          adminId: userStore.profile.id,
-          adminName: userStore.profile.nickname || userStore.profile.username,
-          title: '创建问卷',
-          description: `创建了新问卷"${questionnaireData.title}"`,
-          type: 'questionnaire_create'
-        })
-      }
+      // 记录管理员操作
+      const { recordAdminActivity } = await import('@/api/admin')
+      await recordAdminActivity({
+        adminId: userStore.profile.id,
+        adminName: userStore.profile.nickname || userStore.profile.username,
+        title: '创建问卷',
+        description: `创建了新问卷"${questionnaireData.title}"`,
+        type: 'questionnaire_create'
+      })
     }
 
     // 清除本地草稿
     clearLocalStorage()
 
-    // 管理员创建后返回管理页面，普通用户返回个人中心
-    if (isAdmin) {
-      router.push('/admin/questionnaires/list')
-    } else {
-      router.push('/profile/questionnaires/created')
-    }
+    // 返回管理页面
+    router.push('/admin/questionnaires/list')
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('发布失败:', error)
-      ElMessage.error('发布失败：' + error.message)
+      console.error('操作失败:', error)
+      ElMessage.error('操作失败：' + error.message)
     }
   }
 }
 
-const updateQuestionnaire = async () => {
-  if (!validateForm()) return
-
-  try {
-    const questionnaireData = buildQuestionnaireData('draft')
-
-    // 导入 API
-    const { updateQuestionnaire: updateQuestionnaireApi } = await import('@/api/questionnaire')
-
-    // 调用 API 更新问卷
-    await updateQuestionnaireApi(currentQuestionnaireId.value, questionnaireData)
-
-    // 清除本地草稿
-    clearLocalStorage()
-
-    ElMessage.success('问卷修改已保存！')
-    router.push('/profile/questionnaires/created')
-  } catch (error) {
-    console.error('更新失败:', error)
-    ElMessage.error('更新失败：' + error.message)
-  }
-}
-
-// 构建问卷数据
 // 构建问卷数据
 const buildQuestionnaireData = (status = 'draft') => {
   const userId = userStore.profile?.id || 1
@@ -1333,10 +1275,8 @@ const validateForm = () => {
 <style scoped lang="scss">
 .custom-create {
   min-height: 100vh;
-  background: var(--theme-background-color);
   padding: 30px 285px;
   margin: 0 auto;
-
 
   @media (max-width: 768px) {
     padding: 16px;
@@ -1348,13 +1288,6 @@ const validateForm = () => {
 
   .header-content {
     position: relative;
-
-    .back-button {
-      position: absolute;
-      left: 0;
-      top: 0;
-      z-index: 1;
-    }
 
     h1 {
       font-size: 2.5rem;
@@ -1558,38 +1491,15 @@ const validateForm = () => {
 }
 
 .footer-actions {
-  position: sticky;
-  bottom: 0;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px 0;
   background: white;
   border-top: 1px solid #e5e7eb;
-  padding: 16px 0;
-  margin: 32px -24px -24px;
+  position: sticky;
+  bottom: 0;
   z-index: 10;
-
-  .actions-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    @media (max-width: 768px) {
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .actions-left,
-    .actions-right {
-      display: flex;
-      gap: 12px;
-
-      @media (max-width: 768px) {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-  }
 }
 
 /* 新增的编辑器样式 */
