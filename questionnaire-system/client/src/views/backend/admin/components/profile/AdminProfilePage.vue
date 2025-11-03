@@ -312,8 +312,8 @@ import {
   updateAdminProfileApi,
   changeAdminPasswordApi,
   updateAdminAvatarApi,
-
-  getAdminActivitiesApi
+  getAdminActivitiesApi,
+  recordAdminActivity
 } from '@/api/admin'
 import { useUserStore } from '@/store/user'
 
@@ -353,32 +353,7 @@ const passwordForm = reactive({
 
 
 // 最近活动
-const recentActivities = ref([
-  {
-    id: 1,
-    title: '审核问卷',
-    description: '审核通过了"用户满意度调查问卷"',
-    timestamp: '2024-01-25T10:30:00Z'
-  },
-  {
-    id: 2,
-    title: '用户管理',
-    description: '封禁了违规用户 "spam_user"',
-    timestamp: '2024-01-25T09:15:00Z'
-  },
-  {
-    id: 3,
-    title: '系统维护',
-    description: '更新了系统配置',
-    timestamp: '2024-01-24T16:45:00Z'
-  },
-  {
-    id: 4,
-    title: '数据导出',
-    description: '导出了用户数据报表',
-    timestamp: '2024-01-24T14:20:00Z'
-  }
-])
+const recentActivities = ref([])
 
 // 预设头像
 const presetAvatars = ref([
@@ -471,8 +446,21 @@ const saveProfile = async () => {
     saving.value = true
     
     const result = await updateAdminProfileApi(profileForm)
+    
+    // 记录操作
+    await recordAdminActivity({
+      adminId: profileForm.id,
+      adminName: profileForm.nickname || profileForm.username,
+      title: '更新个人资料',
+      description: '修改了个人资料信息',
+      type: 'profile_update'
+    })
+    
     ElMessage.success(result.message || '个人资料更新成功')
     editMode.value = false
+    
+    // 重新加载活动记录
+    await loadActivitiesData()
   } catch (error) {
     ElMessage.error(error.message || '保存失败，请检查输入信息')
   } finally {
@@ -490,6 +478,16 @@ const changePassword = async () => {
     changingPassword.value = true
     
     const result = await changeAdminPasswordApi(passwordForm)
+    
+    // 记录操作
+    await recordAdminActivity({
+      adminId: profileForm.id,
+      adminName: profileForm.nickname || profileForm.username,
+      title: '修改密码',
+      description: '更新了登录密码',
+      type: 'password_change'
+    })
+    
     ElMessage.success(result.message || '密码修改成功')
     passwordDialogVisible.value = false
     
@@ -497,6 +495,9 @@ const changePassword = async () => {
     passwordForm.currentPassword = ''
     passwordForm.newPassword = ''
     passwordForm.confirmPassword = ''
+    
+    // 重新加载活动记录
+    await loadActivitiesData()
   } catch (error) {
     ElMessage.error(error.message || '密码修改失败')
   } finally {
@@ -546,7 +547,11 @@ const saveAvatar = async () => {
   try {
     savingAvatar.value = true
     
-    const result = await updateAdminAvatarApi({ avatar: selectedAvatar.value })
+    // 传入用户ID
+    const result = await updateAdminAvatarApi(
+      { avatar: selectedAvatar.value },
+      profileForm.id || userStore.profile.id
+    )
     profileForm.avatar = selectedAvatar.value
     
     // 同步更新 userStore 中的头像
@@ -556,7 +561,11 @@ const saveAvatar = async () => {
     
     ElMessage.success(result.message || '头像更新成功')
     avatarDialogVisible.value = false
+    
+    // 重新加载活动记录
+    await loadActivitiesData()
   } catch (error) {
+    console.error('头像更新错误:', error)
     ElMessage.error(error.message || '头像更新失败')
   } finally {
     savingAvatar.value = false
@@ -578,8 +587,17 @@ const loadProfileData = async () => {
 
 const loadActivitiesData = async () => {
   try {
-    const result = await getAdminActivitiesApi(4)
-    recentActivities.value = result.list
+    // 获取当前用户ID，优先使用 profileForm.id，其次使用 userStore
+    const userId = profileForm.id || userStore.profile?.id
+    if (!userId) {
+      console.warn('无法获取用户ID，跳过加载活动记录')
+      return
+    }
+    
+    // 只加载当前管理员的活动记录，传入字符串类型的ID
+    const result = await getAdminActivitiesApi(10, String(userId))
+    recentActivities.value = result.list || []
+    console.log('加载的活动记录:', result)
   } catch (error) {
     console.error('加载活动数据失败:', error)
   }

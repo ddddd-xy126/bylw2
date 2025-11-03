@@ -63,7 +63,7 @@
       "nickname": "系统管理员",
       "email": "admin@example.com",
       "phone": "13800000000",
-      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=admin2",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=admin3",
       "role": "admin",
       "banned": false,
       "isActive": true,
@@ -87,7 +87,7 @@
         "badge_6",
         "badge_2"
       ],
-      "updatedAt": "2025-11-03T06:35:24.728Z"
+      "updatedAt": "2025-11-03T07:20:47.264Z"
     },
     {
       "id": "4",
@@ -2390,6 +2390,44 @@
       "surveys": 2,
       "answers": 112,
       "id": "f870"
+    }
+  ],
+  "adminActivities": [
+    {
+      "id": "act_1",
+      "adminId": "3",
+      "adminName": "系统管理员",
+      "title": "更新个人资料",
+      "description": "修改了个人资料信息",
+      "type": "profile_update",
+      "timestamp": "2025-11-03T06:35:24.728Z"
+    },
+    {
+      "id": "act_2",
+      "adminId": "3",
+      "adminName": "系统管理员",
+      "title": "审核问卷",
+      "description": "审核通过了问卷 #1",
+      "type": "questionnaire_review",
+      "timestamp": "2025-11-02T10:30:00Z"
+    },
+    {
+      "id": "act_3",
+      "adminId": "3",
+      "adminName": "系统管理员",
+      "title": "创建问卷",
+      "description": "创建了新问卷\"职业发展调查\"",
+      "type": "questionnaire_create",
+      "timestamp": "2025-11-01T14:20:00Z"
+    },
+    {
+      "id": "act_1762154447281",
+      "adminId": "3",
+      "adminName": "系统管理员",
+      "title": "更换头像",
+      "description": "更新了个人头像",
+      "type": "avatar_update",
+      "timestamp": "2025-11-03T07:20:47.281Z"
     }
   ],
   "badges": [

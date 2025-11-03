@@ -202,7 +202,9 @@
                   :type="getActionType(action.type)"
                 >
                   <div class="action-content">
-                    <div class="action-title">{{ action.title }}</div>
+                    <div class="action-title">
+                      <span class="admin-name">{{ action.adminName }}</span> - {{ action.title }}
+                    </div>
                     <div class="action-desc">{{ action.description }}</div>
                   </div>
                 </el-timeline-item>
@@ -261,6 +263,7 @@ import {
 import {
   getDashboardStatsApi,
   getSystemStatusApi,
+  getAdminActivitiesApi,
 } from "@/api/admin";
 
 const router = useRouter();
@@ -364,37 +367,9 @@ const calculateGrowthTrends = (users, surveys) => {
 
 const loadAdminActions = async () => {
   try {
-    // 模拟操作记录 - 实际应该从数据库读取
-    adminActions.value = [
-      {
-        id: 1,
-        type: 'create',
-        title: '创建新问卷',
-        description: '创建了问卷"用户满意度调查"',
-        timestamp: new Date(Date.now() - 3600000).toISOString()
-      },
-      {
-        id: 2,
-        type: 'approve',
-        title: '审核问卷',
-        description: '审核通过了问卷"市场调研问卷"',
-        timestamp: new Date(Date.now() - 7200000).toISOString()
-      },
-      {
-        id: 3,
-        type: 'edit',
-        title: '编辑用户',
-        description: '修改了用户"张三"的权限',
-        timestamp: new Date(Date.now() - 10800000).toISOString()
-      },
-      {
-        id: 4,
-        type: 'delete',
-        title: '删除问卷',
-        description: '删除了过期问卷"测试问卷001"',
-        timestamp: new Date(Date.now() - 14400000).toISOString()
-      }
-    ];
+    // 从 db.json 获取全量管理员操作记录
+    const result = await getAdminActivitiesApi(20, null); // null 表示不过滤管理员ID，获取全量
+    adminActions.value = result.list;
   } catch (error) {
     console.error('加载操作记录失败:', error);
   }
@@ -739,6 +714,27 @@ onUnmounted(() => {
     .survey-stats {
       display: flex;
       gap: 8px;
+    }
+  }
+
+  .action-timeline {
+    .action-content {
+      .action-title {
+        font-weight: 500;
+        margin-bottom: 4px;
+        color: #333;
+
+        .admin-name {
+          color: #259234;
+          font-weight: 600;
+          margin-right: 4px;
+        }
+      }
+
+      .action-desc {
+        font-size: 14px;
+        color: #666;
+      }
     }
   }
 

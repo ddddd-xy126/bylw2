@@ -260,9 +260,11 @@ import {
   View,
   EditPen
 } from '@element-plus/icons-vue'
-import { getSurveysApi, deleteAdminSurveyApi, updateSurveyStatusApi } from '@/api/admin'
+import { getSurveysApi, deleteAdminSurveyApi, updateSurveyStatusApi, recordAdminActivity } from '@/api/admin'
+import { useUserStore } from '@/store/user'
 
 const router = useRouter()
+const userStore = useUserStore()
 
 // 响应式数据
 const loading = ref(false)
@@ -414,6 +416,15 @@ const copyQuestionnaire = async (id) => {
       body: JSON.stringify(newSurvey)
     })
     
+    // 记录管理员操作
+    await recordAdminActivity({
+      adminId: userStore.profile.id,
+      adminName: userStore.profile.nickname || userStore.profile.username,
+      title: '复制问卷',
+      description: `复制了问卷"${originalSurvey.title}"`,
+      type: 'questionnaire_copy'
+    })
+    
     ElMessage.success('问卷复制成功')
     await loadQuestionnaires()
   } catch (error) {
@@ -480,7 +491,21 @@ const deleteQuestionnaire = async (id) => {
     }
   ).then(async () => {
     try {
+      // 先获取问卷信息用于记录
+      const response = await fetch(`http://localhost:3002/surveys/${id}`)
+      const survey = await response.json()
+      
       await deleteAdminSurveyApi(id)
+      
+      // 记录管理员操作
+      await recordAdminActivity({
+        adminId: userStore.profile.id,
+        adminName: userStore.profile.nickname || userStore.profile.username,
+        title: '删除问卷',
+        description: `删除了问卷"${survey.title}"`,
+        type: 'questionnaire_delete'
+      })
+      
       ElMessage.success('删除成功')
       // 重新加载数据
       await loadQuestionnaires()

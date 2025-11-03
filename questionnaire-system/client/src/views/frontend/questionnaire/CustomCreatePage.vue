@@ -1129,10 +1129,40 @@ const publishQuestionnaire = async () => {
       // 编辑模式：更新现有问卷
       await updateQuestionnaire(currentQuestionnaireId.value, questionnaireData)
       ElMessage.success(isAdmin ? '问卷已成功发布！' : '问卷已重新提交审核！')
+      
+      // 如果是管理员编辑，记录操作
+      if (isAdmin) {
+        const { recordAdminActivity } = await import('@/api/admin')
+        const { useUserStore } = await import('@/store/user')
+        const userStore = useUserStore()
+        
+        await recordAdminActivity({
+          adminId: userStore.profile.id,
+          adminName: userStore.profile.nickname || userStore.profile.username,
+          title: '编辑问卷',
+          description: `编辑了问卷"${questionnaireData.title}"`,
+          type: 'questionnaire_edit'
+        })
+      }
     } else {
       // 创建模式：创建新问卷
       const result = await createQuestionnaire(questionnaireData)
       ElMessage.success(isAdmin ? '问卷已成功发布！' : '问卷已提交审核！')
+      
+      // 如果是管理员创建，记录操作
+      if (isAdmin) {
+        const { recordAdminActivity } = await import('@/api/admin')
+        const { useUserStore } = await import('@/store/user')
+        const userStore = useUserStore()
+        
+        await recordAdminActivity({
+          adminId: userStore.profile.id,
+          adminName: userStore.profile.nickname || userStore.profile.username,
+          title: '创建问卷',
+          description: `创建了新问卷"${questionnaireData.title}"`,
+          type: 'questionnaire_create'
+        })
+      }
     }
 
     // 清除本地草稿

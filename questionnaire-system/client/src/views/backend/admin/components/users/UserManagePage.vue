@@ -432,9 +432,12 @@ import {
   unbanUserApi,
   deleteUserApi,
   resetPasswordApi,
+  recordAdminActivity,
 } from "@/api/admin";
+import { useUserStore } from '@/store/user';
 
 const router = useRouter();
+const userStore = useUserStore();
 
 // 响应式数据
 const loading = ref(false);
@@ -612,14 +615,35 @@ const saveUser = async () => {
     await editFormRef.value.validate();
     saving.value = true;
 
+    const isCreate = !editForm.id;
+    const userName = editForm.nickname || editForm.username;
+
     if (editForm.id) {
       // 更新用户
       await updateUserApi(editForm.id, editForm);
       ElMessage.success("用户信息更新成功");
+      
+      // 记录管理员操作
+      await recordAdminActivity({
+        adminId: userStore.profile.id,
+        adminName: userStore.profile.nickname || userStore.profile.username,
+        title: '编辑用户',
+        description: `修改了用户"${userName}"的信息`,
+        type: 'user_edit'
+      });
     } else {
       // 创建用户
       await createUserApi(editForm);
       ElMessage.success("用户创建成功");
+      
+      // 记录管理员操作
+      await recordAdminActivity({
+        adminId: userStore.profile.id,
+        adminName: userStore.profile.nickname || userStore.profile.username,
+        title: '创建用户',
+        description: `创建了新用户"${userName}"`,
+        type: 'user_create'
+      });
     }
 
     editDialogVisible.value = false;
@@ -670,6 +694,15 @@ const handleAction = async (command, user) => {
         await banUserApi(user.id);
         user.banned = true;
         ElMessage.success("用户已封禁");
+        
+        // 记录管理员操作
+        await recordAdminActivity({
+          adminId: userStore.profile.id,
+          adminName: userStore.profile.nickname || userStore.profile.username,
+          title: '封禁用户',
+          description: `封禁了用户"${user.nickname || user.username}"`,
+          type: 'user_ban'
+        });
       } catch (error) {
         ElMessage.error("封禁失败：" + error.message);
       }
@@ -680,6 +713,15 @@ const handleAction = async (command, user) => {
         await unbanUserApi(user.id);
         user.banned = false;
         ElMessage.success("用户已解封");
+        
+        // 记录管理员操作
+        await recordAdminActivity({
+          adminId: userStore.profile.id,
+          adminName: userStore.profile.nickname || userStore.profile.username,
+          title: '解封用户',
+          description: `解封了用户"${user.nickname || user.username}"`,
+          type: 'user_unban'
+        });
       } catch (error) {
         ElMessage.error("解封失败：" + error.message);
       }
@@ -694,8 +736,19 @@ const handleAction = async (command, user) => {
             type: "warning",
           }
         );
+        const userName = user.nickname || user.username;
         await deleteUserApi(user.id);
         ElMessage.success("删除成功");
+        
+        // 记录管理员操作
+        await recordAdminActivity({
+          adminId: userStore.profile.id,
+          adminName: userStore.profile.nickname || userStore.profile.username,
+          title: '删除用户',
+          description: `删除了用户"${userName}"`,
+          type: 'user_delete'
+        });
+        
         refreshData();
       } catch (error) {
         if (error !== "cancel") {

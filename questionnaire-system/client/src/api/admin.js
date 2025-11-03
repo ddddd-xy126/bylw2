@@ -411,30 +411,40 @@ export const changeAdminPasswordApi = async (passwordData) => {
   };
 };
 
-export const updateAdminAvatarApi = async (avatarData) => {
-  // 从 localStorage 获取当前登录用户信息
-  const profileStr = localStorage.getItem('userProfile');
-  if (!profileStr) {
-    throw new Error('请先登录');
+export const updateAdminAvatarApi = async (avatarData, userId) => {
+  try {
+    if (!userId) {
+      throw new Error('用户ID不能为空');
+    }
+    
+    // 先获取数据库中的完整用户信息
+    const existingUser = await apiClient.get(`/users/${userId}`);
+    
+    // 更新头像到 db.json
+    const updatedUser = await apiClient.put(`/users/${userId}`, {
+      ...existingUser,
+      avatar: avatarData.avatar,
+      updatedAt: new Date().toISOString()
+    });
+    
+    // 记录管理员操作
+    await recordAdminActivity({
+      adminId: userId,
+      adminName: existingUser.nickname || existingUser.username,
+      title: '更换头像',
+      description: '更新了个人头像',
+      type: 'avatar_update'
+    });
+    
+    return {
+      success: true,
+      message: '头像更新成功',
+      user: updatedUser
+    };
+  } catch (error) {
+    console.error('更新头像失败:', error);
+    throw error;
   }
-  
-  const currentUser = JSON.parse(profileStr);
-  
-  // 先获取数据库中的完整用户信息
-  const existingUser = await apiClient.get(`/users/${currentUser.id}`);
-  
-  // 更新头像到 db.json
-  const updatedUser = await apiClient.put(`/users/${currentUser.id}`, {
-    ...existingUser,
-    avatar: avatarData.avatar,
-    updatedAt: new Date().toISOString()
-  });
-  
-  return {
-    success: true,
-    message: '头像更新成功',
-    user: updatedUser
-  };
 };
 
 export const getAdminStatsApi = async () => {
@@ -443,49 +453,63 @@ export const getAdminStatsApi = async () => {
   return stats;
 };
 
-export const getAdminActivitiesApi = async (limit = 10) => {
-  // 这里可以从日志表或活动记录表获取数据
-  // 目前返回模拟数据，实际可以从数据库获取
-  const activities = [
-    {
-      id: 1,
-      title: '审核问卷',
-      description: '审核通过了"用户满意度调查问卷"',
-      type: 'review',
-      timestamp: '2024-01-25T10:30:00Z'
-    },
-    {
-      id: 2,
-      title: '用户管理',
-      description: '封禁了违规用户 "spam_user"',
-      type: 'user_action',
-      timestamp: '2024-01-25T09:15:00Z'
-    },
-    {
-      id: 3,
-      title: '系统维护',
-      description: '更新了系统配置',
-      type: 'system',
-      timestamp: '2024-01-24T16:45:00Z'
-    },
-    {
-      id: 4,
-      title: '数据导出',
-      description: '导出了用户数据报表',
-      type: 'export',
-      timestamp: '2024-01-24T14:20:00Z'
-    },
-    {
-      id: 5,
-      title: '问卷下架',
-      description: '下架了过期的"市场调研问卷"',
-      type: 'survey_action',
-      timestamp: '2024-01-24T11:30:00Z'
+export const getAdminActivitiesApi = async (limit = 10, adminId = null) => {
+  try {
+    // 从 db.json 获取管理员活动记录
+    let activities = await apiClient.get('/adminActivities');
+    
+    if (!Array.isArray(activities)) {
+      console.warn('adminActivities 不是数组:', activities);
+      return { list: [], total: 0 };
     }
-  ];
-  
-  return {
-    list: activities.slice(0, limit),
-    total: activities.length
-  };
+    
+    // 按时间倒序排列
+    activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    // 如果指定了 adminId，则过滤该管理员的活动（转换为字符串比较）
+    if (adminId) {
+      const adminIdStr = String(adminId);
+      activities = activities.filter(act => String(act.adminId) === adminIdStr);
+      console.log(`过滤管理员 ${adminIdStr} 的活动，找到 ${activities.length} 条`);
+    }
+    
+    return {
+      list: limit ? activities.slice(0, limit) : activities,
+      total: activities.length
+    };
+  } catch (error) {
+    console.error('获取管理员活动记录失败:', error);
+    return { list: [], total: 0 };
+  }
+};
+
+// 记录管理员操作
+export const recordAdminActivity = async (activityData) => {
+  try {
+    // 生成唯一ID
+    const activityId = `act_${Date.now()}`;
+    
+    const newActivity = {
+      id: activityId,
+      adminId: String(activityData.adminId), // 确保是字符串
+      adminName: activityData.adminName,
+      title: activityData.title,
+      description: activityData.description,
+      type: activityData.type,
+      timestamp: new Date().toISOString()
+    };
+    
+    console.log('记录管理员操作:', newActivity);
+    
+    // 添加到 adminActivities
+    await apiClient.post('/adminActivities', newActivity);
+    
+    return {
+      success: true,
+      activity: newActivity
+    };
+  } catch (error) {
+    console.error('记录管理员操作失败:', error);
+    return { success: false };
+  }
 };
