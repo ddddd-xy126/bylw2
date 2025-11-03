@@ -13,14 +13,14 @@
           <el-col :span="6">
             <el-button type="primary" size="large" class="quick-btn" @click="$router.push('/admin/questionnaires/list')">
               <el-icon><DocumentAdd /></el-icon>
-              新增问卷
+              问卷管理
             </el-button>
           </el-col>
 
           <el-col :span="6">
             <el-button type="success" size="large" class="quick-btn" @click="$router.push('/admin/users')">
               <el-icon><UserFilled /></el-icon>
-              新增用户
+              人员管理
             </el-button>
           </el-col>
 
@@ -254,6 +254,7 @@ import { ElMessage } from "element-plus";
 import {
   DocumentAdd,
   UserFilled,
+  Document,
   Clock,
   User,
   Edit,
