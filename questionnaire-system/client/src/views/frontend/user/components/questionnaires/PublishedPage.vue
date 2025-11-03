@@ -119,12 +119,8 @@
 
     <!-- 问卷列表 -->
     <div class="survey-list" v-loading="loading">
-      <div 
-        v-for="survey in filteredSurveys" 
-        :key="survey.id" 
-        class="survey-item published-item"
-        :class="{ 'status-stopped': survey.isCollecting === false }"
-      >
+      <div v-for="survey in filteredSurveys" :key="survey.id" class="survey-item published-item"
+        :class="{ 'status-stopped': survey.isCollecting === false }">
         <div class="survey-main">
           <div class="survey-icon">
             <el-icon size="24" color="#67C23A">
@@ -196,14 +192,6 @@
                 </div>
               </div>
             </div>
-
-            <!-- 状态提醒 -->
-            <div class="survey-alerts" v-if="survey.needsAttention">
-              <el-alert v-if="survey.answerCount === 0" title="暂无人回答，建议检查问卷设置或推广方式" type="warning" size="small"
-                :closable="false" show-icon />
-              <el-alert v-if="survey.completionRate < 50" title="完成率较低，建议优化问卷内容或减少题目数量" type="info" size="small"
-                :closable="false" show-icon />
-            </div>
           </div>
         </div>
 
@@ -231,18 +219,11 @@
                 <el-dropdown-item :command="{ action: 'edit', data: survey }">
                   编辑问卷
                 </el-dropdown-item>
-                <el-dropdown-item 
-                  v-if="survey.isCollecting !== false"
-                  :command="{ action: 'stopCollecting', data: survey }" 
-                  divided
-                >
+                <el-dropdown-item v-if="survey.isCollecting !== false"
+                  :command="{ action: 'stopCollecting', data: survey }" divided>
                   <span style="color: #E6A23C">停止收集</span>
                 </el-dropdown-item>
-                <el-dropdown-item 
-                  v-else
-                  :command="{ action: 'resumeCollecting', data: survey }" 
-                  divided
-                >
+                <el-dropdown-item v-else :command="{ action: 'resumeCollecting', data: survey }" divided>
                   <span style="color: #67C23A">继续收集</span>
                 </el-dropdown-item>
                 <el-dropdown-item :command="{ action: 'delete', data: survey }">
@@ -269,14 +250,8 @@
     </div>
 
     <!-- 分享对话框 -->
-    <el-dialog 
-      v-model="shareDialogVisible" 
-      title="分享问卷" 
-      width="500px"
-      :append-to-body="true"
-      :destroy-on-close="true"
-      :z-index="3000"
-    >
+    <el-dialog v-model="shareDialogVisible" title="分享问卷" width="500px" :append-to-body="true" :destroy-on-close="true"
+      :z-index="3000">
       <div class="share-content">
         <div class="share-item">
           <label>问卷链接：</label>
@@ -305,20 +280,11 @@
     </el-dialog>
 
     <!-- 数据统计对话框 -->
-    <el-dialog
-      v-model="statsDialogVisible"
-      :title="`${currentSurveyStats?.title} - 数据统计`"
-      width="800px"
-      class="stats-dialog"
-    >
+    <el-dialog v-model="statsDialogVisible" :title="`${currentSurveyStats?.title} - 数据统计`" width="800px"
+      class="stats-dialog">
       <div class="stats-container" v-if="currentSurveyStats">
-        <el-alert
-          title="数据说明"
-          description="以下数据展示了每个问题各选项的选择情况，包括选择次数和占比"
-          type="info"
-          :closable="false"
-          style="margin-bottom: 20px"
-        />
+        <el-alert title="数据说明" description="以下数据展示了每个问题各选项的选择情况，包括选择次数和占比" type="info" :closable="false"
+          style="margin-bottom: 20px" />
 
         <div class="question-stats" v-for="(question, qIndex) in currentSurveyStats.questionList" :key="question.id">
           <div class="question-header">
@@ -332,14 +298,15 @@
                 <span class="option-text">{{ option.text }}</span>
                 <div class="option-stats-numbers">
                   <span class="count">{{ option.selectedCount || 0 }}次</span>
-                  <span class="percentage">{{ calculatePercentage(option.selectedCount, currentSurveyStats.participantCount) }}</span>
+                  <span class="percentage">{{ calculatePercentage(option.selectedCount,
+                    currentSurveyStats.participantCount)
+                    }}</span>
                 </div>
               </div>
               <el-progress
                 :percentage="parseFloat(calculatePercentage(option.selectedCount, currentSurveyStats.participantCount))"
                 :stroke-width="12"
-                :color="getProgressColor(parseFloat(calculatePercentage(option.selectedCount, currentSurveyStats.participantCount)))"
-              />
+                :color="getProgressColor(parseFloat(calculatePercentage(option.selectedCount, currentSurveyStats.participantCount)))" />
             </div>
           </div>
 
@@ -477,17 +444,19 @@ const loadPublishedSurveys = async () => {
     }
 
     const data = await getUserSurveysApi(userId, 'published');
-    // 为每个问卷添加统计数据和标记
+    // 直接使用 db.json 中的真实数据
     publishedSurveys.value = data.map(survey => ({
       ...survey,
-      answerCount: Math.floor(Math.random() * 500) + 10,
-      views: Math.floor(Math.random() * 2000) + 50,
-      participantCount: Math.floor(Math.random() * 300) + 8,
-      completionRate: Math.floor(Math.random() * 40) + 60,
-      rating: Math.random() * 2 + 3,
-      favoriteCount: Math.floor(Math.random() * 50),
-      isHot: Math.random() > 0.7,
-      needsAttention: Math.random() > 0.6
+      // 确保必要字段存在，使用 db.json 中的真实值
+      answerCount: survey.answerCount || 0,
+      views: survey.views || 0,
+      participantCount: survey.participantCount || 0,
+      completionRate: survey.completionRate || 0,
+      rating: survey.rating || 0,
+      favoriteCount: survey.favoriteCount || 0,
+      // 根据真实数据判断
+      isHot: (survey.answerCount || 0) > 100 || (survey.views || 0) > 500,
+      needsAttention: (survey.answerCount || 0) === 0 || (survey.completionRate || 0) < 50
     }));
     // 应用初始排序
     sortPublishedSurveys();
@@ -841,15 +810,15 @@ onMounted(() => {
       opacity: 0.6;
       background: #f5f7fa;
       border-left-color: #c0c4cc;
-      
+
       .survey-title {
         color: #909399;
       }
-      
+
       .survey-badges .el-tag {
         opacity: 0.7;
       }
-      
+
       &:hover {
         transform: none;
       }
@@ -963,12 +932,6 @@ onMounted(() => {
       color: var(--color-accent-3);
     }
 
-
-    .survey-alerts {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
   }
 
   .survey-actions {

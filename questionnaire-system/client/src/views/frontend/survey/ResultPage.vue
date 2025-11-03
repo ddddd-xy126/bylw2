@@ -420,6 +420,7 @@ const updateSurveyAverageRating = async (surveyId) => {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
+        rating: parseFloat(averageRating),
         averageRating: parseFloat(averageRating),
         ratingCount: comments.length
       })

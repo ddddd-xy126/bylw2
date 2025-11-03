@@ -114,6 +114,19 @@ export const addFavoriteApi = async (userId, surveyId) => {
   };
   
   const favorite = await apiClient.post('/favorites', newFavorite);
+  
+  // 更新问卷的收藏数
+  try {
+    const survey = await apiClient.get(`/surveys/${surveyId}`);
+    if (survey) {
+      await apiClient.patch(`/surveys/${surveyId}`, {
+        favoriteCount: (survey.favoriteCount || 0) + 1
+      });
+    }
+  } catch (error) {
+    console.error('更新收藏数失败:', error);
+  }
+  
   return { success: true, message: "收藏成功" };
 };
 
@@ -121,6 +134,18 @@ export const removeFavoriteApi = async (userId, surveyId) => {
   const favorites = await apiClient.get(`/favorites?userId=${userId}&surveyId=${surveyId}`);
   if (favorites.length > 0) {
     await apiClient.delete(`/favorites/${favorites[0].id}`);
+    
+    // 更新问卷的收藏数
+    try {
+      const survey = await apiClient.get(`/surveys/${surveyId}`);
+      if (survey && survey.favoriteCount > 0) {
+        await apiClient.patch(`/surveys/${surveyId}`, {
+          favoriteCount: survey.favoriteCount - 1
+        });
+      }
+    } catch (error) {
+      console.error('更新收藏数失败:', error);
+    }
   }
   return { success: true, message: "取消收藏成功" };
 };

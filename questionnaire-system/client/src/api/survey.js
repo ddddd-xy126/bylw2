@@ -80,6 +80,7 @@ export async function getSurveyDetail(id) {
 
 // 答题相关
 export async function submitSurveyApi(id, data) {
+  // 1. 创建答案记录
   const newAnswer = {
     userId: data.userId || 1,
     surveyId: parseInt(id),
@@ -92,6 +93,60 @@ export async function submitSurveyApi(id, data) {
   };
   
   const answer = await apiClient.post('/answers', newAnswer);
+  
+  // 2. 更新问卷的选项统计数据
+  try {
+    // 获取问卷完整数据
+    const survey = await apiClient.get(`/surveys/${id}`);
+    
+    if (survey && survey.questionList && Array.isArray(survey.questionList)) {
+      // 遍历用户的答案，更新对应选项的 selectedCount
+      const updatedQuestionList = survey.questionList.map(question => {
+        // 找到这道题的答案
+        const userAnswer = data.answers.find(a => a.questionId == question.id);
+        
+        if (userAnswer && question.options && Array.isArray(question.options)) {
+          // 更新选项的统计
+          const updatedOptions = question.options.map(option => {
+            let newCount = option.selectedCount || 0;
+            
+            // 单选题：答案是字符串
+            if (question.type === 'single' && userAnswer.answer === option.id) {
+              newCount++;
+            }
+            // 多选题：答案是数组
+            else if (question.type === 'multiple' && Array.isArray(userAnswer.answer) && userAnswer.answer.includes(option.id)) {
+              newCount++;
+            }
+            
+            return {
+              ...option,
+              selectedCount: newCount
+            };
+          });
+          
+          return {
+            ...question,
+            options: updatedOptions
+          };
+        }
+        
+        return question;
+      });
+      
+      // 更新问卷数据
+      await apiClient.patch(`/surveys/${id}`, {
+        questionList: updatedQuestionList,
+        participantCount: (survey.participantCount || 0) + 1,
+        participants: (survey.participants || 0) + 1,
+        answerCount: (survey.answerCount || 0) + 1,
+        updatedAt: new Date().toISOString()
+      });
+    }
+  } catch (error) {
+    console.error('更新选项统计失败:', error);
+    // 不影响答题提交，只记录错误
+  }
   
   return {
     answerId: answer.id,
@@ -113,9 +168,9 @@ export async function getSurveyCommentsApi(id) {
 export async function createCommentApi(id, data) {
   const newComment = {
     surveyId: parseInt(id),
-    userId: data.userId || 1,
-    username: data.username || "匿名用户",
-    avatar: data.avatar || "/avatars/default.jpg",
+    userId: data.userId,
+    username: data.username,
+    avatar: data.avatar,
     content: data.content,
     rating: data.rating || 5,
     createdAt: new Date().toISOString()
