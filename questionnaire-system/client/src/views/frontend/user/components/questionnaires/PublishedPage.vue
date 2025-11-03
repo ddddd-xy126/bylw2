@@ -231,15 +231,6 @@
                 <el-dropdown-item :command="{ action: 'edit', data: survey }">
                   编辑问卷
                 </el-dropdown-item>
-                <el-dropdown-item :command="{ action: 'copy', data: survey }">
-                  复制问卷
-                </el-dropdown-item>
-                <el-dropdown-item :command="{ action: 'export', data: survey }" divided>
-                  导出数据
-                </el-dropdown-item>
-                <el-dropdown-item :command="{ action: 'settings', data: survey }">
-                  问卷设置
-                </el-dropdown-item>
                 <el-dropdown-item 
                   v-if="survey.isCollecting !== false"
                   :command="{ action: 'stopCollecting', data: survey }" 
@@ -312,6 +303,54 @@
         </div>
       </div>
     </el-dialog>
+
+    <!-- 数据统计对话框 -->
+    <el-dialog
+      v-model="statsDialogVisible"
+      :title="`${currentSurveyStats?.title} - 数据统计`"
+      width="800px"
+      class="stats-dialog"
+    >
+      <div class="stats-container" v-if="currentSurveyStats">
+        <el-alert
+          title="数据说明"
+          description="以下数据展示了每个问题各选项的选择情况，包括选择次数和占比"
+          type="info"
+          :closable="false"
+          style="margin-bottom: 20px"
+        />
+
+        <div class="question-stats" v-for="(question, qIndex) in currentSurveyStats.questionList" :key="question.id">
+          <div class="question-header">
+            <h4>{{ qIndex + 1 }}. {{ question.title }}</h4>
+            <el-tag size="small">{{ getQuestionTypeLabel(question.type) }}</el-tag>
+          </div>
+
+          <div class="options-stats" v-if="question.options && question.options.length > 0">
+            <div class="option-item" v-for="option in question.options" :key="option.id">
+              <div class="option-info">
+                <span class="option-text">{{ option.text }}</span>
+                <div class="option-stats-numbers">
+                  <span class="count">{{ option.selectedCount || 0 }}次</span>
+                  <span class="percentage">{{ calculatePercentage(option.selectedCount, currentSurveyStats.participantCount) }}</span>
+                </div>
+              </div>
+              <el-progress
+                :percentage="parseFloat(calculatePercentage(option.selectedCount, currentSurveyStats.participantCount))"
+                :stroke-width="12"
+                :color="getProgressColor(parseFloat(calculatePercentage(option.selectedCount, currentSurveyStats.participantCount)))"
+              />
+            </div>
+          </div>
+
+          <el-divider v-if="qIndex < currentSurveyStats.questionList.length - 1" />
+        </div>
+
+        <div v-if="!currentSurveyStats.questionList || currentSurveyStats.questionList.length === 0" class="no-data">
+          <el-empty description="该问卷暂无问题数据" />
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -374,6 +413,10 @@ const shareDialogVisible = ref(false);
 const shareUrl = ref("");
 const qrCodeUrl = ref("");
 const currentSurvey = ref(null);
+
+// 数据统计相关
+const statsDialogVisible = ref(false);
+const currentSurveyStats = ref(null);
 
 // 计算属性
 const totalAnswers = computed(() => {
@@ -466,8 +509,22 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString("zh-CN");
 };
 
-const viewResults = (id) => {
-  router.push(`/surveys/${id}/results`);
+const viewResults = async (id) => {
+  try {
+    loading.value = true;
+    // 获取问卷详细数据
+    const response = await fetch(`http://localhost:3002/surveys/${id}`);
+    if (!response.ok) {
+      throw new Error('获取问卷数据失败');
+    }
+    const surveyData = await response.json();
+    currentSurveyStats.value = surveyData;
+    statsDialogVisible.value = true;
+  } catch (error) {
+    ElMessage.error('加载数据失败：' + error.message);
+  } finally {
+    loading.value = false;
+  }
 };
 
 const shareSurvey = (survey) => {
@@ -497,6 +554,30 @@ const shareToWeibo = () => {
   window.open(url, '_blank');
 };
 
+// 统计相关辅助函数
+const calculatePercentage = (count, total) => {
+  if (!total || total === 0) return '0%';
+  const percentage = ((count || 0) / total * 100).toFixed(1);
+  return `${percentage}%`;
+};
+
+const getQuestionTypeLabel = (type) => {
+  const typeMap = {
+    'single': '单选题',
+    'multiple': '多选题',
+    'text': '文本题',
+    'rating': '评分题',
+    'dropdown': '下拉题'
+  };
+  return typeMap[type] || type;
+};
+
+const getProgressColor = (percentage) => {
+  if (percentage >= 60) return '#67C23A';
+  if (percentage >= 30) return '#E6A23C';
+  return '#F56C6C';
+};
+
 const goToCreated = () => {
   router.push("/profile/questionnaires/created");
 };
@@ -504,19 +585,20 @@ const goToCreated = () => {
 const handleMoreAction = async ({ action, data }) => {
   switch (action) {
     case "edit":
-      router.push(`/questionnaires/edit/${data.id}`);
-      break;
-
-    case "copy":
-      ElMessage.info("复制功能开发中...");
-      break;
-
-    case "export":
-      ElMessage.info("数据导出功能开发中...");
-      break;
-
-    case "settings":
-      ElMessage.info("问卷设置功能开发中...");
+      try {
+        await ElMessageBox.confirm(
+          '编辑已发布的问卷后需要重新提交审核，审核通过后才会重新发布。确定要编辑吗？',
+          '编辑提示',
+          {
+            confirmButtonText: '继续编辑',
+            cancelButtonText: '取消',
+            type: 'info'
+          }
+        );
+        router.push(`/questionnaires/edit/${data.id}`);
+      } catch (error) {
+        // 用户取消
+      }
       break;
 
     case "stopCollecting":
@@ -1001,6 +1083,77 @@ onMounted(() => {
       flex-direction: column;
       gap: 16px;
     }
+  }
+}
+
+/* 数据统计对话框样式 */
+.stats-dialog {
+  .stats-container {
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .question-stats {
+    margin-bottom: 24px;
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+
+      h4 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #303133;
+      }
+    }
+
+    .options-stats {
+      .option-item {
+        margin-bottom: 16px;
+        padding: 12px;
+        background: #f5f7fa;
+        border-radius: 8px;
+
+        .option-info {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+
+          .option-text {
+            font-size: 14px;
+            color: #606266;
+            flex: 1;
+          }
+
+          .option-stats-numbers {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+
+            .count {
+              font-size: 14px;
+              font-weight: 600;
+              color: var(--color-primary);
+            }
+
+            .percentage {
+              font-size: 14px;
+              font-weight: 600;
+              color: #909399;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .no-data {
+    padding: 40px 0;
+    text-align: center;
   }
 }
 </style>

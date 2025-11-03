@@ -357,19 +357,23 @@
           "options": [
             {
               "id": "a",
-              "text": "很好，每天都能充足睡眠"
+              "text": "很好，每天都能充足睡眠",
+              "selectedCount": 0
             },
             {
               "id": "b",
-              "text": "一般，偶尔失眠"
+              "text": "一般，偶尔失眠",
+              "selectedCount": 0
             },
             {
               "id": "c",
-              "text": "较差，经常失眠"
+              "text": "较差，经常失眠",
+              "selectedCount": 0
             },
             {
               "id": "d",
-              "text": "很差，严重失眠"
+              "text": "很差，严重失眠",
+              "selectedCount": 0
             }
           ],
           "required": true,
@@ -382,23 +386,28 @@
           "options": [
             {
               "id": "a",
-              "text": "非常满意"
+              "text": "非常满意",
+              "selectedCount": 0
             },
             {
               "id": "b",
-              "text": "比较满意"
+              "text": "比较满意",
+              "selectedCount": 0
             },
             {
               "id": "c",
-              "text": "一般"
+              "text": "一般",
+              "selectedCount": 0
             },
             {
               "id": "d",
-              "text": "不太满意"
+              "text": "不太满意",
+              "selectedCount": 0
             },
             {
               "id": "e",
-              "text": "很不满意"
+              "text": "很不满意",
+              "selectedCount": 0
             }
           ],
           "required": true,
@@ -501,19 +510,23 @@
           "options": [
             {
               "id": "a",
-              "text": "非常满意"
+              "text": "非常满意",
+              "selectedCount": 0
             },
             {
               "id": "b",
-              "text": "满意"
+              "text": "满意",
+              "selectedCount": 0
             },
             {
               "id": "c",
-              "text": "一般"
+              "text": "一般",
+              "selectedCount": 0
             },
             {
               "id": "d",
-              "text": "不满意"
+              "text": "不满意",
+              "selectedCount": 0
             }
           ],
           "required": true,
@@ -554,19 +567,23 @@
           "options": [
             {
               "id": "a",
-              "text": "不到1个月"
+              "text": "不到1个月",
+              "selectedCount": 0
             },
             {
               "id": "b",
-              "text": "1-3个月"
+              "text": "1-3个月",
+              "selectedCount": 0
             },
             {
               "id": "c",
-              "text": "3-6个月"
+              "text": "3-6个月",
+              "selectedCount": 0
             },
             {
               "id": "d",
-              "text": "6个月以上"
+              "text": "6个月以上",
+              "selectedCount": 0
             }
           ],
           "required": true,
@@ -615,23 +632,28 @@
           "options": [
             {
               "id": "a",
-              "text": "非常满意"
+              "text": "非常满意",
+              "selectedCount": 0
             },
             {
               "id": "b",
-              "text": "满意"
+              "text": "满意",
+              "selectedCount": 0
             },
             {
               "id": "c",
-              "text": "一般"
+              "text": "一般",
+              "selectedCount": 0
             },
             {
               "id": "d",
-              "text": "不满意"
+              "text": "不满意",
+              "selectedCount": 0
             },
             {
               "id": "e",
-              "text": "非常不满意"
+              "text": "非常不满意",
+              "selectedCount": 0
             }
           ],
           "required": true,
@@ -644,23 +666,28 @@
           "options": [
             {
               "id": "salary",
-              "text": "薪资待遇"
+              "text": "薪资待遇",
+              "selectedCount": 0
             },
             {
               "id": "benefit",
-              "text": "福利保障"
+              "text": "福利保障",
+              "selectedCount": 0
             },
             {
               "id": "environment",
-              "text": "办公环境"
+              "text": "办公环境",
+              "selectedCount": 0
             },
             {
               "id": "culture",
-              "text": "企业文化"
+              "text": "企业文化",
+              "selectedCount": 0
             },
             {
               "id": "training",
-              "text": "培训机会"
+              "text": "培训机会",
+              "selectedCount": 0
             }
           ],
           "required": false,
@@ -708,11 +735,13 @@
           "options": [
             {
               "id": "opt1",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -727,11 +756,13 @@
           "options": [
             {
               "id": "opt1_1760948439134_0.17673769171953824",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1760948439134_0.2630666430921047",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -746,11 +777,13 @@
           "options": [
             {
               "id": "opt1_1760948439470_0.712217560205572",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1760948439470_0.23641593172543007",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -765,11 +798,13 @@
           "options": [
             {
               "id": "opt1_1760948439646_0.44544700911197044",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1760948439646_0.24837080904137154",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -784,11 +819,13 @@
           "options": [
             {
               "id": "opt1_1760948439814_0.10852207345938747",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1760948439814_0.08265114229097092",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1033,11 +1070,13 @@
           "options": [
             {
               "id": "opt1",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1052,11 +1091,13 @@
           "options": [
             {
               "id": "opt1_1761025247011_0.2404844707827104",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1761025247011_0.7153776356766121",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1071,11 +1112,13 @@
           "options": [
             {
               "id": "opt1_1761025247379_0.14174602840769557",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1761025247379_0.9757759053071425",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1090,11 +1133,13 @@
           "options": [
             {
               "id": "opt1_1761025247611_0.000256395159591305",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1761025247611_0.6013241616707159",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1109,11 +1154,13 @@
           "options": [
             {
               "id": "opt1_1761025247819_0.22267861858403915",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1761025247819_0.4626024121938742",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1128,15 +1175,18 @@
           "options": [
             {
               "id": "opt1",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             },
             {
               "id": "opt3",
-              "text": "选项3"
+              "text": "选项3",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1195,11 +1245,13 @@
           "options": [
             {
               "id": "opt1",
-              "text": "2"
+              "text": "2",
+              "selectedCount": 0
             },
             {
               "id": "opt2",
-              "text": "3"
+              "text": "3",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1225,11 +1277,13 @@
           "options": [
             {
               "id": "opt1_1761270052949_0.69678316085411",
-              "text": "4"
+              "text": "4",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1761270052949_0.43169401894674",
-              "text": "5"
+              "text": "5",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1255,11 +1309,13 @@
           "options": [
             {
               "id": "opt1_1761270053509_0.9255147496725037",
-              "text": "6"
+              "text": "6",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1761270053509_0.31372133652026035",
-              "text": "7"
+              "text": "7",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1285,11 +1341,13 @@
           "options": [
             {
               "id": "opt1_1761270054173_0.5210026719675347",
-              "text": "具体语境人员"
+              "text": "具体语境人员",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1761270054173_0.310256027445163",
-              "text": "呃uyetuyeuy"
+              "text": "呃uyetuyeuy",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1304,11 +1362,13 @@
           "options": [
             {
               "id": "opt1_1761270109173_0.5017487776771354",
-              "text": "e他也同样"
+              "text": "e他也同样",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1761270109173_0.4888578640501312",
-              "text": "7teyer他也同样"
+              "text": "7teyer他也同样",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1323,11 +1383,13 @@
           "options": [
             {
               "id": "opt1_1761270109869_0.9909665104773897",
-              "text": "一条鱼让"
+              "text": "一条鱼让",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1761270109869_0.6623257754192245",
-              "text": "他也也同样e"
+              "text": "他也也同样e",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1342,11 +1404,13 @@
           "options": [
             {
               "id": "opt1_1761270116821_0.33560436873523325",
-              "text": "液体也同样rt"
+              "text": "液体也同样rt",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1761270116821_0.5859290671056243",
-              "text": "他也同样绕太阳ey"
+              "text": "他也同样绕太阳ey",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1411,11 +1475,13 @@
           "options": [
             {
               "id": "opt1",
-              "text": "2"
+              "text": "2",
+              "selectedCount": 0
             },
             {
               "id": "opt2",
-              "text": "3"
+              "text": "3",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1441,11 +1507,13 @@
           "options": [
             {
               "id": "opt1",
-              "text": "4"
+              "text": "4",
+              "selectedCount": 0
             },
             {
               "id": "opt2",
-              "text": "5"
+              "text": "5",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1471,15 +1539,18 @@
           "options": [
             {
               "id": "opt1",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             },
             {
               "id": "opt3",
-              "text": "选项3"
+              "text": "选项3",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1497,11 +1568,13 @@
           "options": [
             {
               "id": "opt1_1761032937053_0.5403791632287117",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1761032937053_0.8842710654149365",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1527,11 +1600,13 @@
           "options": [
             {
               "id": "opt1_1761032937253_0.4174912609686606",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1761032937253_0.8722986825993186",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1552,7 +1627,7 @@
         "randomOrder": false
       },
       "status": "published",
-      "updatedAt": "2025-11-03T03:37:35.583Z",
+      "updatedAt": "2025-11-03T09:13:44.105Z",
       "createdAt": "2025-10-21T07:52:35.360Z",
       "userId": "ec9c",
       "authorId": "ec9c",
@@ -1588,19 +1663,24 @@
           "required": true,
           "options": [
             {
-              "text": "技术部"
+              "text": "技术部",
+              "selectedCount": 0
             },
             {
-              "text": "市场部"
+              "text": "市场部",
+              "selectedCount": 0
             },
             {
-              "text": "人事部"
+              "text": "人事部",
+              "selectedCount": 0
             },
             {
-              "text": "财务部"
+              "text": "财务部",
+              "selectedCount": 0
             },
             {
-              "text": "其他"
+              "text": "其他",
+              "selectedCount": 0
             }
           ],
           "order": 1
@@ -1620,8 +1700,8 @@
         "showProgress": true,
         "randomOrder": false
       },
-      "status": "draft",
-      "updatedAt": "2025-11-03T03:08:52.095Z",
+      "status": "pending",
+      "updatedAt": "2025-11-03T09:24:45.574Z",
       "createdAt": "2025-11-03T03:08:52.095Z",
       "userId": "ec9c",
       "authorId": "ec9c",
@@ -1669,19 +1749,23 @@
           "options": [
             {
               "id": "a",
-              "text": "很好，每天都能充足睡眠"
+              "text": "很好，每天都能充足睡眠",
+              "selectedCount": 0
             },
             {
               "id": "b",
-              "text": "一般，偶尔失眠"
+              "text": "一般，偶尔失眠",
+              "selectedCount": 0
             },
             {
               "id": "c",
-              "text": "较差，经常失眠"
+              "text": "较差，经常失眠",
+              "selectedCount": 0
             },
             {
               "id": "d",
-              "text": "很差，严重失眠"
+              "text": "很差，严重失眠",
+              "selectedCount": 0
             }
           ],
           "required": true,
@@ -1694,23 +1778,28 @@
           "options": [
             {
               "id": "a",
-              "text": "非常满意"
+              "text": "非常满意",
+              "selectedCount": 0
             },
             {
               "id": "b",
-              "text": "比较满意"
+              "text": "比较满意",
+              "selectedCount": 0
             },
             {
               "id": "c",
-              "text": "一般"
+              "text": "一般",
+              "selectedCount": 0
             },
             {
               "id": "d",
-              "text": "不太满意"
+              "text": "不太满意",
+              "selectedCount": 0
             },
             {
               "id": "e",
-              "text": "很不满意"
+              "text": "很不满意",
+              "selectedCount": 0
             }
           ],
           "required": true,
@@ -1762,19 +1851,23 @@
           "options": [
             {
               "id": "a",
-              "text": "很好，每天都能充足睡眠"
+              "text": "很好，每天都能充足睡眠",
+              "selectedCount": 0
             },
             {
               "id": "b",
-              "text": "一般，偶尔失眠"
+              "text": "一般，偶尔失眠",
+              "selectedCount": 0
             },
             {
               "id": "c",
-              "text": "较差，经常失眠"
+              "text": "较差，经常失眠",
+              "selectedCount": 0
             },
             {
               "id": "d",
-              "text": "很差，严重失眠"
+              "text": "很差，严重失眠",
+              "selectedCount": 0
             }
           ],
           "required": true,
@@ -1787,23 +1880,28 @@
           "options": [
             {
               "id": "a",
-              "text": "非常满意"
+              "text": "非常满意",
+              "selectedCount": 0
             },
             {
               "id": "b",
-              "text": "比较满意"
+              "text": "比较满意",
+              "selectedCount": 0
             },
             {
               "id": "c",
-              "text": "一般"
+              "text": "一般",
+              "selectedCount": 0
             },
             {
               "id": "d",
-              "text": "不太满意"
+              "text": "不太满意",
+              "selectedCount": 0
             },
             {
               "id": "e",
-              "text": "很不满意"
+              "text": "很不满意",
+              "selectedCount": 0
             }
           ],
           "required": true,
@@ -1855,19 +1953,23 @@
           "options": [
             {
               "id": "a",
-              "text": "很好，每天都能充足睡眠"
+              "text": "很好，每天都能充足睡眠",
+              "selectedCount": 0
             },
             {
               "id": "b",
-              "text": "一般，偶尔失眠"
+              "text": "一般，偶尔失眠",
+              "selectedCount": 0
             },
             {
               "id": "c",
-              "text": "较差，经常失眠"
+              "text": "较差，经常失眠",
+              "selectedCount": 0
             },
             {
               "id": "d",
-              "text": "很差，严重失眠"
+              "text": "很差，严重失眠",
+              "selectedCount": 0
             }
           ],
           "required": true,
@@ -1880,23 +1982,28 @@
           "options": [
             {
               "id": "a",
-              "text": "非常满意"
+              "text": "非常满意",
+              "selectedCount": 0
             },
             {
               "id": "b",
-              "text": "比较满意"
+              "text": "比较满意",
+              "selectedCount": 0
             },
             {
               "id": "c",
-              "text": "一般"
+              "text": "一般",
+              "selectedCount": 0
             },
             {
               "id": "d",
-              "text": "不太满意"
+              "text": "不太满意",
+              "selectedCount": 0
             },
             {
               "id": "e",
-              "text": "很不满意"
+              "text": "很不满意",
+              "selectedCount": 0
             }
           ],
           "required": true,
@@ -1932,11 +2039,13 @@
           "options": [
             {
               "id": "opt1",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1951,11 +2060,13 @@
           "options": [
             {
               "id": "opt1",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -1999,15 +2110,18 @@
           "options": [
             {
               "id": "opt1",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             },
             {
               "id": "opt3_1762158397423",
-              "text": "选项3"
+              "text": "选项3",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -2022,11 +2136,13 @@
           "options": [
             {
               "id": "opt1",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -2066,11 +2182,13 @@
           "options": [
             {
               "id": "opt1",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -2085,11 +2203,13 @@
           "options": [
             {
               "id": "opt1_1762158522623_0.9936671810747991",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2_1762158522623_0.13554659931255475",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -2102,8 +2222,8 @@
         "showProgress": true,
         "randomOrder": false
       },
-      "status": "pending",
-      "updatedAt": "2025-11-03T08:41:39.016Z",
+      "status": "published",
+      "updatedAt": "2025-11-03T09:13:44.106Z",
       "createdAt": "2025-11-03T08:28:51.731Z",
       "userId": "ec9c",
       "authorId": "ec9c",
@@ -2135,11 +2255,13 @@
           "options": [
             {
               "id": "opt1",
-              "text": "选项1"
+              "text": "选项1",
+              "selectedCount": 0
             },
             {
               "id": "opt2",
-              "text": "选项2"
+              "text": "选项2",
+              "selectedCount": 0
             }
           ],
           "allowOther": false,
@@ -2657,7 +2779,210 @@
       ]
     }
   ],
-  "recycleBin": [],
+  "recycleBin": [
+    {
+      "id": 1762162833517,
+      "surveyId": null,
+      "title": "asdad - 副本",
+      "description": "sdada",
+      "category": "psychology",
+      "originalStatus": "draft",
+      "questions": 5,
+      "deletedAt": "2025-11-03T09:40:33.517Z",
+      "userId": "ec9c",
+      "authorId": "ec9c",
+      "surveyData": {
+        "id": "1762162826856",
+        "title": "asdad - 副本",
+        "description": "sdada",
+        "category": "psychology",
+        "duration": 10,
+        "tags": [
+          "dsadasd"
+        ],
+        "questions": 5,
+        "questionList": [
+          {
+            "type": "single",
+            "title": "新的单选题",
+            "description": "",
+            "required": false,
+            "options": [
+              {
+                "id": "opt1",
+                "text": "2",
+                "selectedCount": 0
+              },
+              {
+                "id": "opt2",
+                "text": "3",
+                "selectedCount": 0
+              }
+            ],
+            "allowOther": false,
+            "id": 1761032914989.239,
+            "enableLogic": true,
+            "logicRules": [
+              {
+                "optionId": "opt1",
+                "targetQuestion": 2
+              },
+              {
+                "optionId": "opt2",
+                "targetQuestion": 3
+              }
+            ],
+            "order": 1
+          },
+          {
+            "type": "single",
+            "title": "新的单选题asda",
+            "description": "",
+            "required": false,
+            "options": [
+              {
+                "id": "opt1",
+                "text": "4",
+                "selectedCount": 0
+              },
+              {
+                "id": "opt2",
+                "text": "5",
+                "selectedCount": 0
+              }
+            ],
+            "allowOther": false,
+            "id": 1761032933901.0586,
+            "enableLogic": true,
+            "logicRules": [
+              {
+                "optionId": "opt1",
+                "targetQuestion": 4
+              },
+              {
+                "optionId": "opt2",
+                "targetQuestion": 5
+              }
+            ],
+            "order": 2
+          },
+          {
+            "type": "multiple",
+            "title": "新的多选题",
+            "description": "",
+            "required": false,
+            "options": [
+              {
+                "id": "opt1",
+                "text": "选项1",
+                "selectedCount": 0
+              },
+              {
+                "id": "opt2",
+                "text": "选项2",
+                "selectedCount": 0
+              },
+              {
+                "id": "opt3",
+                "text": "选项3",
+                "selectedCount": 0
+              }
+            ],
+            "allowOther": false,
+            "randomOrder": false,
+            "id": 1761032935469.3125,
+            "enableLogic": false,
+            "logicRules": [],
+            "order": 3
+          },
+          {
+            "type": "single",
+            "title": "新的单选题 (副本)",
+            "description": "",
+            "required": false,
+            "options": [
+              {
+                "id": "opt1_1761032937053_0.5403791632287117",
+                "text": "选项1",
+                "selectedCount": 0
+              },
+              {
+                "id": "opt2_1761032937053_0.8842710654149365",
+                "text": "选项2",
+                "selectedCount": 0
+              }
+            ],
+            "allowOther": false,
+            "id": 1761032937053.24,
+            "enableLogic": false,
+            "logicRules": [
+              {
+                "optionId": "opt1",
+                "targetQuestion": 2
+              },
+              {
+                "optionId": "opt1",
+                "targetQuestion": 2
+              }
+            ],
+            "order": 4
+          },
+          {
+            "type": "single",
+            "title": "新的单选题 (副本)",
+            "description": "",
+            "required": false,
+            "options": [
+              {
+                "id": "opt1_1761032937253_0.4174912609686606",
+                "text": "选项1",
+                "selectedCount": 0
+              },
+              {
+                "id": "opt2_1761032937253_0.8722986825993186",
+                "text": "选项2",
+                "selectedCount": 0
+              }
+            ],
+            "allowOther": false,
+            "id": 1761032937253.0024,
+            "enableLogic": false,
+            "logicRules": [
+              {
+                "optionId": "opt2_1761032937253_0.8722986825993186",
+                "targetQuestion": 2
+              }
+            ],
+            "order": 5
+          }
+        ],
+        "settings": {
+          "thankMessage": "感谢您的参与！您的回答已经成功提交。",
+          "showProgress": true,
+          "randomOrder": false
+        },
+        "status": "draft",
+        "updatedAt": "2025-11-03T09:40:26.856Z",
+        "createdAt": "2025-11-03T09:40:26.856Z",
+        "userId": "ec9c",
+        "authorId": "ec9c",
+        "authorName": "123",
+        "author": "123",
+        "participants": 0,
+        "participantCount": 0,
+        "creatorId": "ec9c",
+        "responses": 0,
+        "rating": 0,
+        "thumbnail": "/images/default.jpg",
+        "isCollecting": true,
+        "averageRating": 0,
+        "ratingCount": 0,
+        "views": 0,
+        "answerCount": 0,
+        "completionRate": 0
+      }
+    }
+  ],
   "comments": [
     {
       "id": "1",
@@ -2982,6 +3307,15 @@
       "description": "创建了新问卷\"aaaaaaa\"",
       "type": "questionnaire_create",
       "timestamp": "2025-11-03T08:43:19.831Z"
+    },
+    {
+      "id": "act_1762161224134",
+      "adminId": "3",
+      "adminName": "系统管理员",
+      "title": "批量审核通过",
+      "description": "批量通过 2 个问卷：asdad、qqqqqqqqqqq",
+      "type": "questionnaire_batch_approve",
+      "timestamp": "2025-11-03T09:13:44.134Z"
     }
   ],
   "badges": [

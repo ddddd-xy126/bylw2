@@ -419,22 +419,42 @@ const loadTemplate = async (templateId) => {
         tags: ['员工', '满意度', '企业管理'],
         questions: [
           {
-            id: 1,
+            id: Date.now() + 1,
             type: 'single',
             title: '您的工作部门是？',
             required: true,
             options: [
-              { text: '技术部' },
-              { text: '市场部' },
-              { text: '人事部' },
-              { text: '财务部' },
-              { text: '其他' }
+              { id: 'opt1', text: '技术部' },
+              { id: 'opt2', text: '市场部' },
+              { id: 'opt3', text: '人事部' },
+              { id: 'opt4', text: '财务部' },
+              { id: 'opt5', text: '其他' }
             ]
           },
           {
-            id: 2,
+            id: Date.now() + 2,
+            type: 'single',
+            title: '您的工作年限是？',
+            required: true,
+            options: [
+              { id: 'opt1', text: '1年以下' },
+              { id: 'opt2', text: '1-3年' },
+              { id: 'opt3', text: '3-5年' },
+              { id: 'opt4', text: '5年以上' }
+            ]
+          },
+          {
+            id: Date.now() + 3,
             type: 'rating',
             title: '您对当前工作内容的满意度',
+            required: true,
+            maxRating: 5,
+            ratingStyle: 'star'
+          },
+          {
+            id: Date.now() + 4,
+            type: 'rating',
+            title: '您对工作环境的满意度',
             required: true,
             maxRating: 5,
             ratingStyle: 'star'
@@ -449,28 +469,271 @@ const loadTemplate = async (templateId) => {
         tags: ['用户体验', '产品', '反馈'],
         questions: [
           {
-            id: 1,
+            id: Date.now() + 1,
             type: 'single',
             title: '您的年龄段是？',
             required: true,
             options: [
-              { text: '18-25岁' },
-              { text: '26-35岁' },
-              { text: '36-45岁' },
-              { text: '46岁以上' }
+              { id: 'opt1', text: '18-25岁' },
+              { id: 'opt2', text: '26-35岁' },
+              { id: 'opt3', text: '36-45岁' },
+              { id: 'opt4', text: '46岁以上' }
             ]
           },
           {
-            id: 2,
+            id: Date.now() + 2,
             type: 'multiple',
             title: '您最喜欢的功能有哪些？',
             required: false,
             options: [
-              { text: '界面设计' },
-              { text: '功能丰富' },
-              { text: '响应速度' },
-              { text: '用户体验' }
+              { id: 'opt1', text: '界面设计' },
+              { id: 'opt2', text: '功能丰富' },
+              { id: 'opt3', text: '响应速度' },
+              { id: 'opt4', text: '用户体验' }
             ]
+          },
+          {
+            id: Date.now() + 3,
+            type: 'rating',
+            title: '产品整体满意度',
+            required: true,
+            maxRating: 5,
+            ratingStyle: 'star'
+          }
+        ]
+      },
+      3: {
+        title: '心理健康状况评估',
+        description: '专业的心理健康评估量表，帮助了解个人心理状况',
+        category: 'psychology',
+        duration: 20,
+        tags: ['心理健康', '评估', '量表'],
+        questions: [
+          {
+            id: Date.now() + 1,
+            type: 'single',
+            title: '您的性别是？',
+            required: true,
+            options: [
+              { id: 'opt1', text: '男' },
+              { id: 'opt2', text: '女' },
+              { id: 'opt3', text: '其他' }
+            ]
+          },
+          {
+            id: Date.now() + 2,
+            type: 'single',
+            title: '您的年龄段是？',
+            required: true,
+            options: [
+              { id: 'opt1', text: '18-25岁' },
+              { id: 'opt2', text: '26-35岁' },
+              { id: 'opt3', text: '36-50岁' },
+              { id: 'opt4', text: '50岁以上' }
+            ]
+          },
+          {
+            id: Date.now() + 3,
+            type: 'rating',
+            title: '我感到心情愉快',
+            required: true,
+            maxRating: 5,
+            ratingStyle: 'star'
+          },
+          {
+            id: Date.now() + 4,
+            type: 'rating',
+            title: '我对未来充满希望',
+            required: true,
+            maxRating: 5,
+            ratingStyle: 'star'
+          }
+        ]
+      },
+      4: {
+        title: '课程教学效果评价',
+        description: '评价课程内容、教学方法、学习效果的综合调研问卷',
+        category: 'education',
+        duration: 10,
+        tags: ['教学', '课程', '评价'],
+        questions: [
+          {
+            id: Date.now() + 1,
+            type: 'single',
+            title: '您参加的课程名称是？',
+            required: true,
+            options: [
+              { id: 'opt1', text: '课程A' },
+              { id: 'opt2', text: '课程B' },
+              { id: 'opt3', text: '课程C' },
+              { id: 'opt4', text: '其他' }
+            ]
+          },
+          {
+            id: Date.now() + 2,
+            type: 'rating',
+            title: '课程内容的实用性',
+            required: true,
+            maxRating: 5,
+            ratingStyle: 'star'
+          },
+          {
+            id: Date.now() + 3,
+            type: 'rating',
+            title: '教师的教学水平',
+            required: true,
+            maxRating: 5,
+            ratingStyle: 'star'
+          }
+        ]
+      },
+      5: {
+        title: '品牌认知度调研',
+        description: '了解目标用户对品牌的认知程度、印象和偏好',
+        category: 'market',
+        duration: 15,
+        tags: ['品牌', '认知度', '市场调研'],
+        questions: [
+          {
+            id: Date.now() + 1,
+            type: 'single',
+            title: '您的年龄段是？',
+            required: true,
+            options: [
+              { id: 'opt1', text: '18-25岁' },
+              { id: 'opt2', text: '26-35岁' },
+              { id: 'opt3', text: '36-45岁' },
+              { id: 'opt4', text: '46岁以上' }
+            ]
+          },
+          {
+            id: Date.now() + 2,
+            type: 'single',
+            title: '您是否听说过我们的品牌？',
+            required: true,
+            options: [
+              { id: 'opt1', text: '是' },
+              { id: 'opt2', text: '否' }
+            ]
+          },
+          {
+            id: Date.now() + 3,
+            type: 'rating',
+            title: '您对我们品牌的整体印象',
+            required: true,
+            maxRating: 5,
+            ratingStyle: 'star'
+          }
+        ]
+      },
+      6: {
+        title: '网站可用性测试',
+        description: '评估网站的易用性、导航设计、内容布局等方面的用户体验',
+        category: 'ux',
+        duration: 12,
+        tags: ['网站', '可用性', 'UX'],
+        questions: [
+          {
+            id: Date.now() + 1,
+            type: 'single',
+            title: '您使用网站的频率是？',
+            required: true,
+            options: [
+              { id: 'opt1', text: '每天' },
+              { id: 'opt2', text: '每周几次' },
+              { id: 'opt3', text: '每月几次' },
+              { id: 'opt4', text: '很少使用' }
+            ]
+          },
+          {
+            id: Date.now() + 2,
+            type: 'rating',
+            title: '网站导航的清晰度',
+            required: true,
+            maxRating: 5,
+            ratingStyle: 'star'
+          },
+          {
+            id: Date.now() + 3,
+            type: 'rating',
+            title: '信息查找的便利性',
+            required: true,
+            maxRating: 5,
+            ratingStyle: 'star'
+          }
+        ]
+      },
+      7: {
+        title: '学术研究问卷',
+        description: '标准的学术研究调查问卷模板，适用于各类社会科学研究项目',
+        category: 'academic',
+        duration: 25,
+        tags: ['学术研究', '科研', '调查'],
+        questions: [
+          {
+            id: Date.now() + 1,
+            type: 'single',
+            title: '您的教育背景是？',
+            required: true,
+            options: [
+              { id: 'opt1', text: '本科' },
+              { id: 'opt2', text: '硕士' },
+              { id: 'opt3', text: '博士' },
+              { id: 'opt4', text: '其他' }
+            ]
+          },
+          {
+            id: Date.now() + 2,
+            type: 'rating',
+            title: '您对研究主题的了解程度',
+            required: true,
+            maxRating: 5,
+            ratingStyle: 'star'
+          },
+          {
+            id: Date.now() + 3,
+            type: 'text',
+            title: '请详细说明您的观点',
+            required: false,
+            textType: 'textarea',
+            placeholder: '请输入...',
+            maxLength: 500
+          }
+        ]
+      },
+      8: {
+        title: '活动反馈调查',
+        description: '收集参与者对活动组织、内容、服务等方面的反馈意见',
+        category: 'event',
+        duration: 8,
+        tags: ['活动', '反馈', '服务'],
+        questions: [
+          {
+            id: Date.now() + 1,
+            type: 'single',
+            title: '您是第几次参加我们的活动？',
+            required: true,
+            options: [
+              { id: 'opt1', text: '第一次' },
+              { id: 'opt2', text: '2-3次' },
+              { id: 'opt3', text: '4次以上' }
+            ]
+          },
+          {
+            id: Date.now() + 2,
+            type: 'rating',
+            title: '活动内容的丰富程度',
+            required: true,
+            maxRating: 5,
+            ratingStyle: 'star'
+          },
+          {
+            id: Date.now() + 3,
+            type: 'rating',
+            title: '活动组织的专业性',
+            required: true,
+            maxRating: 5,
+            ratingStyle: 'star'
           }
         ]
       }

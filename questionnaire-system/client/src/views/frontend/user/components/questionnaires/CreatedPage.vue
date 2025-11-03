@@ -246,14 +246,26 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item
+                  :command="{ action: 'edit', data: survey }"
+                  v-if="survey.status === 'pending'"
+                >
+                  编辑问卷
+                </el-dropdown-item>
+                <el-dropdown-item
                   :command="{ action: 'share', data: survey }"
                   v-if="survey.status === 'published'"
                 >
                   分享问卷
                 </el-dropdown-item>
                 <el-dropdown-item
+                  :command="{ action: 'copy', data: survey }"
+                  :divided="survey.status === 'published' || survey.status === 'pending'"
+                >
+                  复制问卷
+                </el-dropdown-item>
+                <el-dropdown-item
                   :command="{ action: 'delete', data: survey }"
-                  :divided="survey.status === 'published'"
+                  divided
                   class="danger-item"
                   v-if="survey.status === 'draft'"
                 >
@@ -519,11 +531,72 @@ const publishSurvey = async (id) => {
 
 const handleMoreAction = async ({ action, data }) => {
   switch (action) {
+    case "edit":
+      router.push(`/questionnaires/edit/${data.id}`);
+      break;
+
     case "share":
       navigator.clipboard.writeText(
         `${window.location.origin}/surveys/${data.id}`
       );
       ElMessage.success("问卷链接已复制到剪贴板");
+      break;
+
+    case "copy":
+      try {
+        // 获取完整的问卷数据
+        const surveyResponse = await fetch(`http://localhost:3002/surveys/${data.id}`);
+        if (!surveyResponse.ok) {
+          throw new Error('获取问卷数据失败');
+        }
+        const surveyData = await surveyResponse.json();
+        
+        // 创建新的问卷副本
+        const newSurvey = {
+          ...surveyData,
+          id: Date.now().toString(),
+          title: `${surveyData.title} - 副本`,
+          status: 'draft',
+          participants: 0,
+          participantCount: 0,
+          views: 0,
+          answerCount: 0,
+          completionRate: 0,
+          rating: 0,
+          averageRating: 0,
+          ratingCount: 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          publishedAt: undefined,
+          // 重置所有选项的统计数据
+          questionList: surveyData.questionList?.map(question => ({
+            ...question,
+            options: question.options?.map(option => ({
+              ...option,
+              selectedCount: 0
+            }))
+          }))
+        };
+        
+        // 保存新问卷
+        const createResponse = await fetch('http://localhost:3002/surveys', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(newSurvey)
+        });
+        
+        if (!createResponse.ok) {
+          throw new Error('创建问卷副本失败');
+        }
+        
+        ElMessage.success('问卷已复制为草稿，可以在草稿中查看');
+        await loadCreatedSurveys();
+      } catch (error) {
+        console.error('复制问卷失败:', error);
+        ElMessage.error('复制失败：' + error.message);
+      }
       break;
 
     case "delete":

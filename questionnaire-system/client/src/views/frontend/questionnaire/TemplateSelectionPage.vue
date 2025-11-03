@@ -773,15 +773,15 @@ const getQuestionTypeText = (type) => {
 
   .templates-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 24px;
     margin-bottom: 32px;
 
-    @media (max-width: 1200px) {
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    @media (max-width: 1400px) {
+      grid-template-columns: repeat(2, 1fr);
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
       grid-template-columns: 1fr;
     }
   }
@@ -791,10 +791,14 @@ const getQuestionTypeText = (type) => {
   position: relative;
   border: 2px solid #f0f0f0;
   border-radius: 16px;
-  padding: 24px;
+  padding: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
   background: white;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 420px;
 
   &:hover {
     border-color: var(--color-primary-light-3);
@@ -854,44 +858,51 @@ const getQuestionTypeText = (type) => {
   }
 
   .template-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
     h3 {
-      font-size: 1.25rem;
+      font-size: 1.125rem;
       font-weight: 600;
       color: #333;
       margin-bottom: 8px;
+      line-height: 1.4;
     }
 
     p {
       color: #666;
-      line-height: 1.5;
+      line-height: 1.6;
       margin-bottom: 16px;
+      font-size: 0.875rem;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      flex: 1;
+      min-height: 40px;
     }
   }
 
   .template-stats {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 
     .stat-group {
       display: flex;
       gap: 16px;
-      margin-bottom: 8px;
-
-      @media (max-width: 768px) {
-        flex-direction: column;
-        gap: 8px;
-      }
+      margin-bottom: 10px;
 
       .stat-item {
         display: flex;
         align-items: center;
         gap: 4px;
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
         color: #888;
+
+        .el-icon {
+          font-size: 14px;
+        }
       }
     }
 
@@ -899,6 +910,7 @@ const getQuestionTypeText = (type) => {
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
 
       .usage-count {
         font-size: 0.75rem;
@@ -909,17 +921,26 @@ const getQuestionTypeText = (type) => {
 
   .template-tags {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     flex-wrap: wrap;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+    min-height: 28px;
+
+    .el-tag {
+      font-size: 0.75rem;
+    }
   }
 
   .template-footer {
     display: flex;
     gap: 8px;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
 
     .el-button {
       flex: 1;
+      font-size: 0.875rem;
     }
   }
 }

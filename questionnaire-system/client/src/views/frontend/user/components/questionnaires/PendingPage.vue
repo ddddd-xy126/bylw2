@@ -144,26 +144,10 @@
             <el-icon><RefreshLeft /></el-icon>
             撤回
           </el-button>
-          <el-dropdown @command="handleMoreAction">
-            <el-button type="info">
-              更多 <el-icon><ArrowDown /></el-icon>
-            </el-button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item
-                  :command="{ action: 'copy', data: survey }"
-                >
-                  复制问卷
-                </el-dropdown-item>
-                <el-dropdown-item
-                  :command="{ action: 'contact', data: survey }"
-                  divided
-                >
-                  联系管理员
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+          <el-button @click="contactAdmin(survey)">
+            <el-icon><ChatDotRound /></el-icon>
+            联系管理员
+          </el-button>
         </div>
       </div>
 
@@ -237,7 +221,7 @@ import {
   Timer,
   View,
   RefreshLeft,
-  ArrowDown,
+  ChatDotRound,
 } from "@element-plus/icons-vue";
 
 import { 
@@ -380,16 +364,16 @@ const goToCreated = () => {
   router.push("/profile/questionnaires/created");
 };
 
-const handleMoreAction = async ({ action, data }) => {
-  switch (action) {
-    case "copy":
-      ElMessage.info("复制功能开发中...");
-      break;
-
-    case "contact":
-      ElMessage.info("如有疑问，请联系管理员邮箱：admin@example.com");
-      break;
-  }
+// 联系管理员
+const contactAdmin = (survey) => {
+  ElMessageBox.alert(
+    `如有疑问，请联系管理员邮箱：admin@example.com\n\n问卷名称：${survey.title}\n问卷ID：${survey.id}`,
+    '联系管理员',
+    {
+      confirmButtonText: '确定',
+      type: 'info'
+    }
+  );
 };
 
 // 生命周期
