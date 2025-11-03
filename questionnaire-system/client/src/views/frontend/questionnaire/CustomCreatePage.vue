@@ -1101,37 +1101,49 @@ const publishQuestionnaire = async () => {
   if (!validateForm()) return
 
   try {
-    await ElMessageBox.confirm(
-      isEditMode.value
+    // 检查是否为管理员创建
+    const isAdmin = route.query.admin === 'true'
+    const statusToSet = isAdmin ? 'published' : 'pending'
+    const confirmMessage = isAdmin
+      ? '确定要发布此问卷吗？管理员创建的问卷将直接发布上线。'
+      : isEditMode.value
         ? '确定要提交此问卷进行审核吗？提交后需等待管理员审核。'
-        : '确定要提交此问卷进行审核吗？',
-      '确认提交',
+        : '确定要提交此问卷进行审核吗？'
+    
+    await ElMessageBox.confirm(
+      confirmMessage,
+      isAdmin ? '确认发布' : '确认提交',
       {
-        confirmButtonText: '确定提交',
+        confirmButtonText: isAdmin ? '确定发布' : '确定提交',
         cancelButtonText: '取消',
         type: 'warning'
       }
     )
 
-    const questionnaireData = buildQuestionnaireData('pending')
+    const questionnaireData = buildQuestionnaireData(statusToSet)
 
     // 导入 API
     const { createQuestionnaire, updateQuestionnaire } = await import('@/api/questionnaire')
 
     if (isEditMode.value && currentQuestionnaireId.value) {
-      // 编辑模式：更新现有问卷为待审核状态
+      // 编辑模式：更新现有问卷
       await updateQuestionnaire(currentQuestionnaireId.value, questionnaireData)
-      ElMessage.success('问卷已重新提交审核！')
+      ElMessage.success(isAdmin ? '问卷已成功发布！' : '问卷已重新提交审核！')
     } else {
-      // 创建模式：创建新问卷并设为待审核状态
+      // 创建模式：创建新问卷
       const result = await createQuestionnaire(questionnaireData)
-      ElMessage.success('问卷已提交审核！')
+      ElMessage.success(isAdmin ? '问卷已成功发布！' : '问卷已提交审核！')
     }
 
     // 清除本地草稿
     clearLocalStorage()
 
-    router.push('/profile/questionnaires/created')
+    // 管理员创建后返回管理页面，普通用户返回个人中心
+    if (isAdmin) {
+      router.push('/admin/questionnaires/list')
+    } else {
+      router.push('/profile/questionnaires/created')
+    }
   } catch (error) {
     if (error !== 'cancel') {
       console.error('发布失败:', error)

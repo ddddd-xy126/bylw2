@@ -205,10 +205,6 @@
               <el-icon><Upload /></el-icon>
               提交审核
             </el-button>
-            <el-button type="danger" size="default" @click="handleMoreAction({ action: 'delete', data: survey })">
-              <el-icon><Delete /></el-icon>
-              删除
-            </el-button>
           </template>
           
           <!-- 退回状态 -->
@@ -250,11 +246,6 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item
-                  :command="{ action: 'copy', data: survey }"
-                >
-                  复制问卷
-                </el-dropdown-item>
-                <el-dropdown-item
                   :command="{ action: 'share', data: survey }"
                   v-if="survey.status === 'published'"
                 >
@@ -262,8 +253,9 @@
                 </el-dropdown-item>
                 <el-dropdown-item
                   :command="{ action: 'delete', data: survey }"
-                  divided
+                  :divided="survey.status === 'published'"
                   class="danger-item"
+                  v-if="survey.status === 'draft'"
                 >
                   删除问卷
                 </el-dropdown-item>
@@ -527,10 +519,6 @@ const publishSurvey = async (id) => {
 
 const handleMoreAction = async ({ action, data }) => {
   switch (action) {
-    case "copy":
-      ElMessage.info("复制功能开发中...");
-      break;
-
     case "share":
       navigator.clipboard.writeText(
         `${window.location.origin}/surveys/${data.id}`

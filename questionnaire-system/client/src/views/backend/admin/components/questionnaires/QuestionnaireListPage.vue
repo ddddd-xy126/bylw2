@@ -103,7 +103,6 @@
                   <template #dropdown>
                     <el-dropdown-menu>
                       <el-dropdown-item command="edit">编辑</el-dropdown-item>
-                      <el-dropdown-item command="preview">预览</el-dropdown-item>
                       <el-dropdown-item command="copy">复制</el-dropdown-item>
                       <el-dropdown-item command="statistics">统计</el-dropdown-item>
                       <el-dropdown-item command="offline" v-if="questionnaire.status === 'published'">下架</el-dropdown-item>
@@ -194,16 +193,16 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="操作" width="240" fixed="right">
+          <el-table-column label="操作" width="200" fixed="right">
             <template #default="{row}">
               <el-button type="text" size="small" @click="editQuestionnaire(row.id)">
                 编辑
               </el-button>
-              <el-button type="text" size="small" @click="previewQuestionnaire(row.id)">
-                预览
-              </el-button>
               <el-button type="text" size="small" @click="viewStatistics(row.id)">
                 统计
+              </el-button>
+              <el-button type="text" size="small" @click="copyQuestionnaire(row.id)">
+                复制
               </el-button>
               <el-button 
                 v-if="row.status === 'published'" 
@@ -359,8 +358,9 @@ const formatDateTime = (dateString) => {
 }
 
 const createQuestionnaire = () => {
-  ElMessage.info('创建问卷功能待实现')
-  // router.push('/admin/questionnaires/create')
+  // 管理员创建问卷,跳转到自定义创建页面
+  // 管理员创建的问卷会自动设置为published状态
+  router.push('/questionnaire/create/custom?admin=true')
 }
 
 const viewQuestionnaire = (id) => {
@@ -369,17 +369,58 @@ const viewQuestionnaire = (id) => {
 }
 
 const editQuestionnaire = (id) => {
-  ElMessage.info(`编辑问卷 ${id}`)
-  // router.push(`/admin/questionnaires/${id}/edit`)
-}
-
-const previewQuestionnaire = (id) => {
-  ElMessage.info(`预览问卷 ${id}`)
+  // 跳转到自定义编辑页面,带admin参数
+  router.push(`/questionnaire/create/edit/${id}?admin=true`)
 }
 
 const viewStatistics = (id) => {
-  ElMessage.info(`查看统计 ${id}`)
-  // router.push(`/admin/questionnaires/${id}/statistics`)
+  // 跳转到问卷结果页面查看统计
+  router.push(`/survey/${id}/result`)
+}
+
+const copyQuestionnaire = async (id) => {
+  try {
+    await ElMessageBox.confirm(
+      '确定要复制这个问卷吗？复制后将创建一个新的草稿问卷。',
+      '确认复制',
+      {
+        confirmButtonText: '复制',
+        cancelButtonText: '取消',
+        type: 'info',
+      }
+    )
+    
+    // 获取原问卷数据
+    const response = await fetch(`http://localhost:3002/surveys/${id}`)
+    const originalSurvey = await response.json()
+    
+    // 创建新问卷(复制数据)
+    const newSurvey = {
+      ...originalSurvey,
+      id: Date.now(), // 新ID
+      title: `${originalSurvey.title} (复制)`,
+      status: 'published', // 管理员复制的问卷直接发布
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      participants: 0,
+      responses: 0,
+      responseCount: 0
+    }
+    
+    // 保存新问卷
+    await fetch('http://localhost:3002/surveys', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newSurvey)
+    })
+    
+    ElMessage.success('问卷复制成功')
+    await loadQuestionnaires()
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error('复制失败：' + error.message)
+    }
+  }
 }
 
 const offlineQuestionnaire = async (id) => {
@@ -457,10 +498,10 @@ const handleAction = (command, questionnaire) => {
       editQuestionnaire(questionnaire.id)
       break
     case 'preview':
-      previewQuestionnaire(questionnaire.id)
+      // 删除预览功能
       break
     case 'copy':
-      ElMessage.info(`复制问卷 ${questionnaire.id}`)
+      copyQuestionnaire(questionnaire.id)
       break
     case 'statistics':
       viewStatistics(questionnaire.id)

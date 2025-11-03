@@ -1,7 +1,5 @@
 <template>
   <div class="admin-dashboard">
-    <el-page-header content="管理后台" @back="$router.push('/')" />
-
     <div class="dashboard-content">
       <!-- 快捷操作 -->
       <el-card class="quick-actions-card">
@@ -13,38 +11,30 @@
 
         <el-row :gutter="16">
           <el-col :span="6">
-            <el-button type="primary" size="large" class="quick-btn" @click="$router.push('/admin/surveys')">
-              <el-icon>
-                <Document />
-              </el-icon>
-              管理问卷
+            <el-button type="primary" size="large" class="quick-btn" @click="$router.push('/admin/questionnaires/list')">
+              <el-icon><DocumentAdd /></el-icon>
+              新增问卷
             </el-button>
           </el-col>
 
           <el-col :span="6">
             <el-button type="success" size="large" class="quick-btn" @click="$router.push('/admin/users')">
-              <el-icon>
-                <User />
-              </el-icon>
-              用户管理
+              <el-icon><UserFilled /></el-icon>
+              新增用户
             </el-button>
           </el-col>
 
           <el-col :span="6">
-            <el-button type="warning" size="large" class="quick-btn" @click="$router.push('/admin/analytics')">
-              <el-icon>
-                <DataAnalysis />
-              </el-icon>
-              数据分析
+            <el-button type="warning" size="large" class="quick-btn" @click="$router.push('/admin/questionnaires/pending')">
+              <el-icon><Clock /></el-icon>
+              待审核问卷
             </el-button>
           </el-col>
 
           <el-col :span="6">
-            <el-button type="info" size="large" class="quick-btn" @click="$router.push('/admin/settings')">
-              <el-icon>
-                <Setting />
-              </el-icon>
-              系统设置
+            <el-button type="info" size="large" class="quick-btn" @click="$router.push('/admin/profile')">
+              <el-icon><User /></el-icon>
+              个人资料
             </el-button>
           </el-col>
         </el-row>
@@ -151,12 +141,20 @@
           <el-card class="chart-card">
             <template #header>
               <div class="card-header">
-                <span>最近7天活跃度</span>
+                <span>用户增长趋势(最近7天)</span>
                 <el-button type="text" @click="refreshCharts">刷新</el-button>
               </div>
             </template>
 
-            <div id="activityChart" class="chart-container" v-loading="chartsLoading"></div>
+            <div class="chart-container" v-loading="chartsLoading">
+              <div class="trend-chart">
+                <div v-for="(count, index) in userGrowthData" :key="index" class="trend-bar">
+                  <div class="bar-value">{{ count }}</div>
+                  <div class="bar-fill" :style="{ height: getBarHeight(count, Math.max(...userGrowthData)) + '%' }"></div>
+                  <div class="bar-label">{{ getDayLabel(index) }}</div>
+                </div>
+              </div>
+            </div>
           </el-card>
         </el-col>
 
@@ -164,46 +162,53 @@
           <el-card class="chart-card">
             <template #header>
               <div class="card-header">
-                <span>问卷分类分布</span>
+                <span>问卷增长趋势(最近7天)</span>
                 <el-button type="text" @click="refreshCharts">刷新</el-button>
               </div>
             </template>
 
-            <div id="categoryChart" class="chart-container" v-loading="chartsLoading"></div>
+            <div class="chart-container" v-loading="chartsLoading">
+              <div class="trend-chart">
+                <div v-for="(count, index) in surveyGrowthData" :key="index" class="trend-bar">
+                  <div class="bar-value">{{ count }}</div>
+                  <div class="bar-fill" :style="{ height: getBarHeight(count, Math.max(...surveyGrowthData)) + '%' }"></div>
+                  <div class="bar-label">{{ getDayLabel(index) }}</div>
+                </div>
+              </div>
+            </div>
           </el-card>
         </el-col>
       </el-row>
 
-      <!-- 最新动态 -->
+      <!-- 管理员操作记录 -->
       <el-row :gutter="20">
         <el-col :span="12">
           <el-card class="recent-card">
             <template #header>
               <div class="card-header">
-                <span>最新问卷</span>
-                <el-button type="text" @click="$router.push('/admin/surveys')">
-                  查看全部
+                <span>最近操作记录</span>
+                <el-button type="text" @click="loadAdminActions">
+                  刷新
                 </el-button>
               </div>
             </template>
 
-            <div class="recent-list" v-loading="loading">
-              <div v-for="survey in recentSurveys" :key="survey.id" class="recent-item" @click="viewSurvey(survey.id)">
-                <div class="item-content">
-                  <h4>{{ survey.title }}</h4>
-                  <p>{{ survey.description }}</p>
-                  <div class="item-meta">
-                    <el-tag size="small" :type="survey.status === 'active' ? 'success' : 'info'">
-                      {{ survey.status === "active" ? "进行中" : "已停止" }}
-                    </el-tag>
-                    <span class="meta-date">{{
-                      formatDate(survey.createdAt)
-                    }}</span>
+            <div class="action-timeline" v-loading="loading">
+              <el-timeline>
+                <el-timeline-item 
+                  v-for="action in adminActions" 
+                  :key="action.id"
+                  :timestamp="formatDateTime(action.timestamp)"
+                  :type="getActionType(action.type)"
+                >
+                  <div class="action-content">
+                    <div class="action-title">{{ action.title }}</div>
+                    <div class="action-desc">{{ action.description }}</div>
                   </div>
-                </div>
-              </div>
+                </el-timeline-item>
+              </el-timeline>
 
-              <el-empty v-if="!recentSurveys.length" description="暂无问卷" />
+              <el-empty v-if="!adminActions.length" description="暂无操作记录" />
             </div>
           </el-card>
         </el-col>
@@ -212,91 +217,30 @@
           <el-card class="recent-card">
             <template #header>
               <div class="card-header">
-                <span>最新用户</span>
-                <el-button type="text" @click="$router.push('/admin/users')">
-                  查看全部
+                <span>热门问卷排行</span>
+                <el-button type="text" @click="loadHotSurveys">
+                  刷新
                 </el-button>
               </div>
             </template>
 
-            <div class="recent-list" v-loading="loading">
-              <div v-for="user in recentUsers" :key="user.id" class="recent-item">
-                <div class="item-content">
-                  <div class="user-info">
-                    <el-avatar :size="32">{{
-                      user.username?.charAt(0)
-                    }}</el-avatar>
-                    <div class="user-details">
-                      <h4>{{ user.username }}</h4>
-                      <p>{{ user.email }}</p>
-                    </div>
-                  </div>
-                  <div class="item-meta">
-                    <el-tag size="small" :type="user.isActive ? 'success' : 'info'">
-                      {{ user.isActive ? "活跃" : "未激活" }}
-                    </el-tag>
-                    <span class="meta-date">{{
-                      formatDate(user.createdAt)
-                    }}</span>
+            <div class="hot-surveys-list" v-loading="loading">
+              <div v-for="(survey, index) in hotSurveys" :key="survey.id" class="hot-survey-item">
+                <div class="rank-badge" :class="'rank-' + (index + 1)">{{ index + 1 }}</div>
+                <div class="survey-info">
+                  <div class="survey-title">{{ survey.title }}</div>
+                  <div class="survey-stats">
+                    <el-tag size="small" type="success">参与: {{ survey.participants || 0 }}</el-tag>
+                    <el-tag size="small" type="warning">评分: {{ (survey.rating || 0).toFixed(1) }}</el-tag>
                   </div>
                 </div>
               </div>
 
-              <el-empty v-if="!recentUsers.length" description="暂无用户" />
+              <el-empty v-if="!hotSurveys.length" description="暂无热门问卷" />
             </div>
           </el-card>
         </el-col>
       </el-row>
-
-      <!-- 系统状态 -->
-      <el-card class="system-status-card">
-        <template #header>
-          <div class="card-header">
-            <span>系统状态</span>
-            <el-tag :type="systemStatus.overall === 'healthy' ? 'success' : 'warning'">
-              {{ systemStatus.overall === "healthy" ? "正常" : "警告" }}
-            </el-tag>
-          </div>
-        </template>
-
-        <el-row :gutter="20">
-          <el-col :span="6">
-            <div class="status-item">
-              <div class="status-label">数据库连接</div>
-              <el-tag :type="systemStatus.database ? 'success' : 'danger'">
-                {{ systemStatus.database ? "正常" : "异常" }}
-              </el-tag>
-            </div>
-          </el-col>
-
-          <el-col :span="6">
-            <div class="status-item">
-              <div class="status-label">Redis缓存</div>
-              <el-tag :type="systemStatus.redis ? 'success' : 'danger'">
-                {{ systemStatus.redis ? "正常" : "异常" }}
-              </el-tag>
-            </div>
-          </el-col>
-
-          <el-col :span="6">
-            <div class="status-item">
-              <div class="status-label">文件系统</div>
-              <el-tag :type="systemStatus.fileSystem ? 'success' : 'danger'">
-                {{ systemStatus.fileSystem ? "正常" : "异常" }}
-              </el-tag>
-            </div>
-          </el-col>
-
-          <el-col :span="6">
-            <div class="status-item">
-              <div class="status-label">最后更新</div>
-              <span class="status-time">{{
-                formatTime(systemStatus.lastUpdate)
-              }}</span>
-            </div>
-          </el-col>
-        </el-row>
-      </el-card>
     </div>
   </div>
 </template>
@@ -306,21 +250,17 @@ import { ref, reactive, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import {
-  Document,
+  DocumentAdd,
+  UserFilled,
+  Clock,
   User,
-  DataAnalysis,
-  Setting,
   Edit,
   TrendCharts,
 } from "@element-plus/icons-vue";
 
 import {
   getDashboardStatsApi,
-  getRecentSurveysApi,
-  getRecentUsersApi,
   getSystemStatusApi,
-  getActivityDataApi,
-  getCategoryDistributionApi,
 } from "@/api/admin";
 
 const router = useRouter();
@@ -339,8 +279,10 @@ const dashboardData = reactive({
   completionTrend: 0,
 });
 
-const recentSurveys = ref([]);
-const recentUsers = ref([]);
+const adminActions = ref([]);
+const hotSurveys = ref([]);
+const userGrowthData = ref([0, 0, 0, 0, 0, 0, 0]);
+const surveyGrowthData = ref([0, 0, 0, 0, 0, 0, 0]);
 const systemStatus = reactive({
   overall: "healthy",
   database: true,
@@ -355,73 +297,165 @@ let refreshTimer = null;
 const loadDashboardData = async () => {
   loading.value = true;
   try {
-    const [stats, surveys, users, status] = await Promise.all([
-      getDashboardStatsApi(),
-      getRecentSurveysApi(5),
-      getRecentUsersApi(5),
-      getSystemStatusApi(),
+    // 从db.json加载数据
+    const [usersRes, surveysRes] = await Promise.all([
+      fetch('http://localhost:3002/users'),
+      fetch('http://localhost:3002/surveys')
     ]);
 
-    // 更新统计数据
-    Object.assign(dashboardData, stats);
+    const users = await usersRes.json();
+    const surveys = await surveysRes.json();
 
-    // 更新列表数据
-    recentSurveys.value = surveys;
-    recentUsers.value = users;
+    // 统计数据
+    dashboardData.totalUsers = users.length;
+    dashboardData.totalSurveys = surveys.length;
+    dashboardData.totalAnswers = surveys.reduce((sum, s) => sum + (s.participants || 0), 0);
+    
+    // 计算完成率(已发布的问卷/总问卷)
+    const publishedCount = surveys.filter(s => s.status === 'published').length;
+    dashboardData.completionRate = surveys.length > 0 ? (publishedCount / surveys.length) * 100 : 0;
 
-    // 更新系统状态
-    Object.assign(systemStatus, status);
+    // 计算7天增长趋势
+    calculateGrowthTrends(users, surveys);
+
+    // 加载管理员操作记录和热门问卷
+    loadAdminActions();
+    loadHotSurveys();
+    
+    systemStatus.lastUpdate = new Date();
   } catch (error) {
-    ElMessage.error("加载仪表板数据失败：" + error.message);
+    console.error('加载数据失败:', error);
+    ElMessage.error("加载仪表板数据失败");
   } finally {
     loading.value = false;
+  }
+};
+
+const calculateGrowthTrends = (users, surveys) => {
+  const today = new Date();
+  const userCounts = [0, 0, 0, 0, 0, 0, 0];
+  const surveyCounts = [0, 0, 0, 0, 0, 0, 0];
+
+  // 统计最近7天的数据
+  for (let i = 0; i < 7; i++) {
+    const targetDate = new Date(today);
+    targetDate.setDate(today.getDate() - (6 - i));
+    targetDate.setHours(0, 0, 0, 0);
+    
+    const nextDate = new Date(targetDate);
+    nextDate.setDate(targetDate.getDate() + 1);
+
+    // 统计该天创建的用户
+    userCounts[i] = users.filter(u => {
+      const createdAt = new Date(u.createdAt);
+      return createdAt >= targetDate && createdAt < nextDate;
+    }).length;
+
+    // 统计该天创建的问卷
+    surveyCounts[i] = surveys.filter(s => {
+      const createdAt = new Date(s.createdAt);
+      return createdAt >= targetDate && createdAt < nextDate;
+    }).length;
+  }
+
+  userGrowthData.value = userCounts;
+  surveyGrowthData.value = surveyCounts;
+};
+
+const loadAdminActions = async () => {
+  try {
+    // 模拟操作记录 - 实际应该从数据库读取
+    adminActions.value = [
+      {
+        id: 1,
+        type: 'create',
+        title: '创建新问卷',
+        description: '创建了问卷"用户满意度调查"',
+        timestamp: new Date(Date.now() - 3600000).toISOString()
+      },
+      {
+        id: 2,
+        type: 'approve',
+        title: '审核问卷',
+        description: '审核通过了问卷"市场调研问卷"',
+        timestamp: new Date(Date.now() - 7200000).toISOString()
+      },
+      {
+        id: 3,
+        type: 'edit',
+        title: '编辑用户',
+        description: '修改了用户"张三"的权限',
+        timestamp: new Date(Date.now() - 10800000).toISOString()
+      },
+      {
+        id: 4,
+        type: 'delete',
+        title: '删除问卷',
+        description: '删除了过期问卷"测试问卷001"',
+        timestamp: new Date(Date.now() - 14400000).toISOString()
+      }
+    ];
+  } catch (error) {
+    console.error('加载操作记录失败:', error);
+  }
+};
+
+const loadHotSurveys = async () => {
+  try {
+    const response = await fetch('http://localhost:3002/surveys?status=published');
+    const surveys = await response.json();
+    
+    // 按参与人数和评分排序,取前10
+    hotSurveys.value = surveys
+      .filter(s => s.status === 'published')
+      .sort((a, b) => {
+        const scoreA = (a.participants || 0) * 0.6 + (a.rating || 0) * 0.4;
+        const scoreB = (b.participants || 0) * 0.6 + (b.rating || 0) * 0.4;
+        return scoreB - scoreA;
+      })
+      .slice(0, 10);
+  } catch (error) {
+    console.error('加载热门问卷失败:', error);
   }
 };
 
 const loadCharts = async () => {
   chartsLoading.value = true;
   try {
-    const [activityData, categoryData] = await Promise.all([
-      getActivityDataApi(),
-      getCategoryDistributionApi(),
-    ]);
-
-    // 这里应该使用 ECharts 或其他图表库来渲染图表
-    renderActivityChart(activityData);
-    renderCategoryChart(categoryData);
+    await loadDashboardData();
   } catch (error) {
-    ElMessage.error("加载图表数据失败：" + error.message);
+    ElMessage.error("加载图表数据失败");
   } finally {
     chartsLoading.value = false;
   }
 };
 
-const renderActivityChart = (data) => {
-  // 模拟图表渲染
-  const chartElement = document.getElementById("activityChart");
-  if (chartElement) {
-    chartElement.innerHTML = `
-      <div style="height: 200px; display: flex; align-items: center; justify-content: center; color: #666;">
-        活跃度趋势图 (${data.length} 天数据)
-      </div>
-    `;
-  }
-};
-
-const renderCategoryChart = (data) => {
-  // 模拟图表渲染
-  const chartElement = document.getElementById("categoryChart");
-  if (chartElement) {
-    chartElement.innerHTML = `
-      <div style="height: 200px; display: flex; align-items: center; justify-content: center; color: #666;">
-        分类分布图 (${data.length} 个分类)
-      </div>
-    `;
-  }
-};
-
 const refreshCharts = () => {
   loadCharts();
+};
+
+const getBarHeight = (value, max) => {
+  if (max === 0) return 0;
+  return (value / max) * 100;
+};
+
+const getDayLabel = (index) => {
+  const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  const today = new Date();
+  const targetDate = new Date(today);
+  targetDate.setDate(today.getDate() - (6 - index));
+  return days[targetDate.getDay()];
+};
+
+const getActionType = (type) => {
+  const typeMap = {
+    create: 'success',
+    edit: 'primary',
+    delete: 'danger',
+    approve: 'success',
+    reject: 'warning'
+  };
+  return typeMap[type] || 'info';
 };
 
 const getTrendClass = (trend) => {
@@ -442,6 +476,22 @@ const formatDate = (date) => {
 
 const formatTime = (date) => {
   return new Date(date).toLocaleTimeString("zh-CN");
+};
+
+const formatDateTime = (dateString) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diff = now - date;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  
+  if (hours < 1) {
+    return `${minutes}分钟前`;
+  } else if (hours < 24) {
+    return `${hours}小时前`;
+  } else {
+    return date.toLocaleString('zh-CN');
+  }
 };
 
 const viewSurvey = (surveyId) => {
@@ -465,7 +515,6 @@ const stopAutoRefresh = () => {
 // 生命周期
 onMounted(() => {
   loadDashboardData();
-  loadCharts();
   startAutoRefresh();
 });
 
@@ -560,6 +609,137 @@ onUnmounted(() => {
   .chart-container {
     height: 200px;
     width: 100%;
+    padding: 20px 10px;
+  }
+
+  .trend-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    height: 100%;
+    gap: 8px;
+  }
+
+  .trend-bar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    position: relative;
+  }
+
+  .bar-value {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  .bar-fill {
+    width: 100%;
+    background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-light-3) 100%);
+    border-radius: 4px 4px 0 0;
+    transition: height 0.3s ease;
+    min-height: 4px;
+  }
+
+  .bar-label {
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  .action-timeline {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 20px 0;
+  }
+
+  .action-content {
+    .action-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .action-desc {
+      font-size: 13px;
+      color: #666;
+    }
+  }
+
+  .hot-surveys-list {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px 0;
+  }
+
+  .hot-survey-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #f8f9fa;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .rank-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+      flex-shrink: 0;
+      background: #f0f0f0;
+      color: #666;
+
+      &.rank-1 {
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+        color: #fff;
+      }
+
+      &.rank-2 {
+        background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+        color: #fff;
+      }
+
+      &.rank-3 {
+        background: linear-gradient(135deg, #CD7F32, #B8860B);
+        color: #fff;
+      }
+    }
+
+    .survey-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .survey-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 6px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .survey-stats {
+      display: flex;
+      gap: 8px;
+    }
   }
 
   .card-header {
@@ -657,6 +837,78 @@ onUnmounted(() => {
   .status-time {
     font-size: 12px;
     color: #999;
+  }
+
+  .hot-surveys-list {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px 0;
+  }
+
+  .hot-survey-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #f8f9fa;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .rank-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+      flex-shrink: 0;
+      background: #f0f0f0;
+      color: #666;
+
+      &.rank-1 {
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+        color: #fff;
+      }
+
+      &.rank-2 {
+        background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+        color: #fff;
+      }
+
+      &.rank-3 {
+        background: linear-gradient(135deg, #CD7F32, #B8860B);
+        color: #fff;
+      }
+    }
+
+    .survey-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .survey-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 6px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .survey-stats {
+      display: flex;
+      gap: 8px;
+    }
   }
 
   @media (max-width: 1200px) {

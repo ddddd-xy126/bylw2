@@ -669,13 +669,34 @@ onUnmounted(() => {
 
 /* 头部样式 */
 .answer-header {
-  background: white;
-  border-bottom: 1px solid #e4e7ed;
-  padding: 8px 0;
+  background: linear-gradient(135deg, var(--color-primary-light-3) 0%, var(--color-primary) 100%);
+  border-bottom: none;
+  padding: 16px 0;
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
+
+  :deep(.el-page-header) {
+    .el-page-header__back {
+      color: var(--text-inverse);
+      font-weight: var(--font-weight-semibold);
+      transition: all var(--transition-base);
+      
+      &:hover {
+        color: var(--color-primary-dark-4);
+        transform: translateX(-4px);
+      }
+
+      .el-icon {
+        font-size: var(--font-size-lg);
+      }
+    }
+
+    .el-page-header__content {
+      color: var(--text-inverse);
+    }
+  }
 
   .header-content {
     max-width: 1200px;
@@ -690,13 +711,15 @@ onUnmounted(() => {
       .survey-title {
         margin: 0;
         font-size: 20px;
-        font-weight: 600;
-        color: #303133;
+        font-weight: 700;
+        color: var(--text-inverse);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
       .progress-info {
-        color: #606266;
+        color: rgba(255, 255, 255, 0.9);
         font-size: 14px;
+        font-weight: var(--font-weight-medium);
       }
     }
   }

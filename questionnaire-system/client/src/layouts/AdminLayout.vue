@@ -32,20 +32,16 @@
         </el-menu-item>
 
         <!-- 问卷管理 -->
-        <el-sub-menu index="questionnaire">
-          <template #title>
-            <el-icon><Document /></el-icon>
-            <span>问卷管理</span>
-          </template>
-          <el-menu-item index="/admin/questionnaires/list">
-            <el-icon><List /></el-icon>
-            <span>问卷列表</span>
-          </el-menu-item>
-          <el-menu-item index="/admin/questionnaires/pending">
-            <el-icon><Clock /></el-icon>
-            <span>待审核问卷</span>
-          </el-menu-item>
-        </el-sub-menu>
+        <el-menu-item index="/admin/questionnaires/list">
+          <el-icon><Document /></el-icon>
+          <span>问卷管理</span>
+        </el-menu-item>
+
+        <!-- 待审核问卷 -->
+        <el-menu-item index="/admin/questionnaires/pending">
+          <el-icon><Clock /></el-icon>
+          <span>待审核问卷</span>
+        </el-menu-item>
 
         <!-- 题目管理 -->
         <el-menu-item index="/admin/questions">
@@ -76,11 +72,6 @@
         </div>
         <div class="spacer" />
         <div class="topbar-actions">
-          <el-badge :value="notificationCount" class="notification-badge" :hidden="!notificationCount">
-            <el-button type="text" @click="showNotifications">
-              <el-icon size="18"><Bell /></el-icon>
-            </el-button>
-          </el-badge>
           <el-dropdown @command="handleUserAction">
             <div class="user-dropdown">
               <el-avatar :size="32" :src="adminAvatar">
@@ -133,9 +124,11 @@ const router = useRouter()
 const route = useRoute()
 
 // 响应式数据
-const adminName = ref('管理员')
-const adminAvatar = computed(() => `https://api.dicebear.com/7.x/initials/svg?seed=${adminName.value}`)
-const notificationCount = ref(3)
+const adminName = computed(() => userStore.profile?.nickname || userStore.profile?.username || '管理员')
+const adminAvatar = computed(() => {
+  // 优先使用用户上传的头像,否则使用默认头像
+  return userStore.profile?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${adminName.value}`
+})
 
 // 计算当前激活的菜单
 const activeMenu = computed(() => {
@@ -146,7 +139,7 @@ const activeMenu = computed(() => {
 const currentPageTitle = computed(() => {
   const pathTitleMap = {
     '/admin/dashboard': '仪表盘',
-    '/admin/questionnaires/list': '问卷列表',
+    '/admin/questionnaires/list': '问卷管理',
     '/admin/questionnaires/pending': '待审核问卷',
     '/admin/questions': '题目管理',
     '/admin/users': '人员管理',
@@ -172,20 +165,10 @@ const handleUserAction = (command) => {
   }
 }
 
-const showNotifications = () => {
-  ElMessage.info('通知功能待实现')
-  notificationCount.value = 0
-}
-
 const onLogout = () => {
   userStore.logout()
-  router.replace('/admin/login')
+  router.replace('/home')
 }
-
-onMounted(() => {
-  // 初始化管理员信息
-  adminName.value = userStore.userName || '管理员'
-})
 </script>
 
 <style scoped lang="scss">
@@ -481,10 +464,6 @@ onMounted(() => {
 
     @media (max-width: 480px) {
       gap: 8px;
-    }
-
-    .notification-badge {
-      cursor: pointer;
     }
 
     .user-dropdown {

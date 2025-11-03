@@ -378,41 +378,54 @@ export const updateAdminProfileApi = async (data) => {
 };
 
 export const changeAdminPasswordApi = async (passwordData) => {
-  const users = await apiClient.get('/users?role=admin');
-  const admin = users.find(user => user.username === 'admin');
+  // 从 localStorage 获取当前登录用户信息
+  const profileStr = localStorage.getItem('userProfile');
+  if (!profileStr) {
+    throw new Error('请先登录');
+  }
   
-  if (!admin) {
-    throw new Error('管理员账户不存在');
+  const currentUser = JSON.parse(profileStr);
+  
+  // 获取用户完整信息
+  const user = await apiClient.get(`/users/${currentUser.id}`);
+  
+  if (!user) {
+    throw new Error('用户不存在');
   }
   
   // 验证当前密码
-  if (passwordData.currentPassword !== admin.password) {
+  if (passwordData.currentPassword !== user.password) {
     throw new Error('当前密码不正确');
   }
   
-  // 更新密码
-  await apiClient.put(`/users/${admin.id}`, {
-    ...admin,
+  // 更新密码到 db.json
+  await apiClient.put(`/users/${user.id}`, {
+    ...user,
     password: passwordData.newPassword,
     updatedAt: new Date().toISOString()
   });
   
   return {
     success: true,
-    message: '密码修改成功'
+    message: '密码修改成功,请妥善保管新密码'
   };
 };
 
 export const updateAdminAvatarApi = async (avatarData) => {
-  const users = await apiClient.get('/users?role=admin');
-  const admin = users.find(user => user.username === 'admin');
-  
-  if (!admin) {
-    throw new Error('管理员账户不存在');
+  // 从 localStorage 获取当前登录用户信息
+  const profileStr = localStorage.getItem('userProfile');
+  if (!profileStr) {
+    throw new Error('请先登录');
   }
   
-  await apiClient.put(`/users/${admin.id}`, {
-    ...admin,
+  const currentUser = JSON.parse(profileStr);
+  
+  // 先获取数据库中的完整用户信息
+  const existingUser = await apiClient.get(`/users/${currentUser.id}`);
+  
+  // 更新头像到 db.json
+  const updatedUser = await apiClient.put(`/users/${currentUser.id}`, {
+    ...existingUser,
     avatar: avatarData.avatar,
     updatedAt: new Date().toISOString()
   });
@@ -420,7 +433,7 @@ export const updateAdminAvatarApi = async (avatarData) => {
   return {
     success: true,
     message: '头像更新成功',
-    avatar: avatarData.avatar
+    user: updatedUser
   };
 };
 

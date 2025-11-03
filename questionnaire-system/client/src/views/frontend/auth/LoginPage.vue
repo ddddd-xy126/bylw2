@@ -197,13 +197,13 @@ const goHome = () => router.push("/home");
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, var(--color-primary-light-5) 0%, #e8f5e9 100%);
 
   .box {
     width: 420px;
-    background: linear-gradient(145deg, var(--text-inverse)ff 0%, #f8f9ff 100%);
+    background: linear-gradient(145deg, var(--text-inverse)ff 0%, #f8fff9 100%);
     border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(102, 126, 234, 0.15), 0 8px 32px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 60px rgba(37, 146, 52, 0.15), 0 8px 32px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);
     overflow: hidden;
@@ -222,10 +222,10 @@ const goHome = () => router.push("/home");
     :deep(.el-button) { margin: 0 10px; }
   }
 
-  // 深度选择器样式保持为 :deep 形式，放在 .login-page 内以限定作用域
+  // 深度选择器样式保持为 :deep 形式,放在 .login-page 内以限定作用域
   :deep(.el-tabs__header) {
     margin-bottom: 30px;
-    border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+    border-bottom: 2px solid rgba(37, 146, 52, 0.1);
   }
 
   :deep(.el-tabs__nav-wrap::after) { background: transparent; }
@@ -240,18 +240,20 @@ const goHome = () => router.push("/home");
     transition: all 0.3s ease;
   }
 
-  :deep(.el-tabs__item:hover) { color: #667eea; }
+  :deep(.el-tabs__item:hover) { color: var(--color-primary); }
 
   :deep(.el-tabs__item.is-active) {
-    color: #667eea;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    color: var(--color-primary);
+    background: linear-gradient(135deg, rgba(37, 146, 52, 0.1) 0%, rgba(103, 212, 116, 0.1) 100%);
     border-radius: 10px 10px 0 0;
+    position: relative;
   }
 
   :deep(.el-tabs__active-bar) {
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light-2) 100%);
     height: 3px;
     border-radius: 2px;
+    bottom: 0;
   }
 
   :deep(.el-form-item__label) {
@@ -262,39 +264,39 @@ const goHome = () => router.push("/home");
 
   :deep(.el-input__wrapper) {
     border-radius: 10px;
-    box-shadow: 0 2px 12px rgba(102, 126, 234, 0.1);
-    border: 1px solid rgba(102, 126, 234, 0.2);
+    box-shadow: 0 2px 12px rgba(37, 146, 52, 0.1);
+    border: 1px solid rgba(37, 146, 52, 0.2);
     transition: all 0.3s ease;
   }
 
   :deep(.el-input__wrapper:hover) {
-    border-color: #667eea;
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 20px rgba(37, 146, 52, 0.2);
   }
 
   :deep(.el-input__wrapper.is-focus) {
-    border-color: #667eea;
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 20px rgba(37, 146, 52, 0.3);
   }
 
   :deep(.el-button--primary) {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light-2) 100%);
     border: none;
     border-radius: 25px;
     padding: 12px 30px;
     font-weight: 600;
     font-size: 14px;
     transition: all 0.3s ease;
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 6px 20px rgba(37, 146, 52, 0.3);
   }
 
   :deep(.el-button--primary:hover) {
     transform: translateY(-2px);
-    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 12px 35px rgba(37, 146, 52, 0.4);
   }
 
   :deep(.el-button--text) {
-    color: #667eea;
+    color: var(--color-primary);
     font-weight: 500;
     border-radius: 20px;
     padding: 8px 16px;
@@ -302,8 +304,8 @@ const goHome = () => router.push("/home");
   }
 
   :deep(.el-button--text:hover) {
-    background: rgba(102, 126, 234, 0.1);
-    color: #667eea;
+    background: rgba(37, 146, 52, 0.1);
+    color: var(--color-primary-dark-2);
   }
 
   @keyframes slideInUp {

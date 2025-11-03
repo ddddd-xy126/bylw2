@@ -259,10 +259,18 @@ onMounted(() => {
   overflow: hidden;
   transition: all 0.3s ease;
   animation: slideInUp 0.6s ease-out;
+  
+  // 粘性定位，粘在导航栏底部
+  position: sticky;
+  top: 84px; // 导航栏高度64px + 20px间距
+  align-self: flex-start;
+  max-height: calc(100vh - 104px); // 视口高度 - top值 - 底部间距
+  overflow-y: auto;
 
   @media (max-width: 1024px) {
     width: 100%;
     position: static;
+    max-height: none;
   }
 
   &:hover {

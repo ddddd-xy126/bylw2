@@ -91,10 +91,12 @@ const isSelected = (catId) => {
   return String(selectedCategory.value) === String(catId);
 };
 
-// 根据 selectedCategory 过滤（不分页，展示全部）
+// 根据 selectedCategory 过滤(不分页,展示全部)
 const surveysToShow = computed(() => {
-  const list = Array.isArray(surveys.value) ? surveys.value.filter(s => s.status === 'published') : [];
-  // 如果选择了分类，通过统一的 categoryId 字符串进行匹配（兼容数字/字符串以及缺失 categoryId 的问卷）
+  const list = Array.isArray(surveys.value) 
+    ? surveys.value.filter(s => s.status === 'published' && s.isCollecting !== false) 
+    : [];
+  // 如果选择了分类,通过统一的 categoryId 字符串进行匹配(兼容数字/字符串以及缺失 categoryId 的问卷)
   if (selectedCategory.value) {
     return list.filter(s => {
       const sid = getSurveyCategoryId(s);

@@ -414,9 +414,10 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 20px;
   padding: 20px;
-  background: white;
+  background: linear-gradient(135deg, var(--color-primary-light-5) 0%, white 100%);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(37, 146, 52, 0.1);
+  border: 1px solid var(--color-primary-light-5);
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -518,7 +519,7 @@ onMounted(() => {
         justify-content: center;
         width: 48px;
         height: 48px;
-        background: #fdf6ec;
+        background: var(--color-primary-light-5);
         border-radius: 12px;
         flex-shrink: 0;
       }
@@ -580,10 +581,10 @@ onMounted(() => {
 
         /* 审核进度 */
         .review-progress {
-          background: #fdf6ec;
+          background: var(--color-success-bg);
           padding: 12px;
           border-radius: 8px;
-          border: 1px solid #f5dab1;
+          border: 1px solid var(--color-primary-light-4);
 
           .progress-info {
             display: flex;
@@ -593,12 +594,12 @@ onMounted(() => {
 
             .progress-label {
               font-weight: 600;
-              color: #E6A23C;
+              color: var(--color-primary);
               font-size: 14px;
             }
 
             .progress-status {
-              color: #606266;
+              color: var(--text-secondary);
               font-size: 12px;
             }
           }

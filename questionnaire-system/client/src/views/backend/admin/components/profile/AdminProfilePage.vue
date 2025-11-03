@@ -315,8 +315,10 @@ import {
 
   getAdminActivitiesApi
 } from '@/api/admin'
+import { useUserStore } from '@/store/user'
 
 // 响应式数据
+const userStore = useUserStore()
 const editMode = ref(false)
 const saving = ref(false)
 const passwordDialogVisible = ref(false)
@@ -546,6 +548,12 @@ const saveAvatar = async () => {
     
     const result = await updateAdminAvatarApi({ avatar: selectedAvatar.value })
     profileForm.avatar = selectedAvatar.value
+    
+    // 同步更新 userStore 中的头像
+    if (result.user) {
+      userStore.setProfile(result.user)
+    }
+    
     ElMessage.success(result.message || '头像更新成功')
     avatarDialogVisible.value = false
   } catch (error) {

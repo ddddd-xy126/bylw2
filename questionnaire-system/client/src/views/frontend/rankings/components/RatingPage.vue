@@ -129,8 +129,10 @@ onMounted(() => {
 
   .header-card {
     margin-bottom: 20px;
-    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    background: linear-gradient(135deg, var(--color-primary-light-3) 0%, var(--color-primary) 100%);
     border: none;
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-lg);
 
     .page-header {
       display: flex;
@@ -148,12 +150,13 @@ onMounted(() => {
           margin: 0 0 5px 0;
           font-size: 28px;
           font-weight: 700;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         p {
           margin: 0;
           font-size: 14px;
-          opacity: 0.9;
+          opacity: 0.95;
         }
       }
     }
@@ -161,6 +164,8 @@ onMounted(() => {
 
   .rankings-card {
     overflow: visible;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-base);
   }
 
   .rankings-list {
@@ -257,11 +262,12 @@ onMounted(() => {
 
           .survey-description {
             font-size: 14px;
-            color: #666;
+            color: var(--text-secondary);
             margin: 0 0 12px 0;
             line-height: 1.6;
             display: -webkit-box;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
           }

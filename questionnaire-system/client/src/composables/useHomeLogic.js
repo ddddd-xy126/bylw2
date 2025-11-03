@@ -57,12 +57,34 @@ export function useHomeLogic() {
         );
         break;
       case "recommended":
-        // 热门推荐：综合评分（评分 * 0.6 + 参与人数/1000 * 0.4）
-        filtered.sort((a, b) => {
-          const scoreA = (a.rating || 0) * 0.6 + ((a.participants || 0) / 1000) * 0.4;
-          const scoreB = (b.rating || 0) * 0.6 + ((b.participants || 0) / 1000) * 0.4;
-          return scoreB - scoreA;
-        });
+        // 智能推荐：根据用户标签进行相关性推荐
+        const userTags = userStore.profile?.tags || userStore.profile?.interests || [];
+        
+        if (userTags && userTags.length > 0) {
+          // 有标签时：计算相关性得分
+          filtered.forEach(survey => {
+            const surveyTags = survey.tags || [];
+            // 计算标签匹配度
+            const matchCount = surveyTags.filter(tag => userTags.includes(tag)).length;
+            const tagScore = matchCount / Math.max(userTags.length, 1);
+            
+            // 综合评分：标签匹配(40%) + 评分(30%) + 参与人数(30%)
+            survey.recommendScore = 
+              tagScore * 0.4 + 
+              ((survey.rating || 0) / 5) * 0.3 + 
+              Math.min((survey.participants || 0) / 1000, 1) * 0.3;
+          });
+          
+          // 按推荐得分排序
+          filtered.sort((a, b) => (b.recommendScore || 0) - (a.recommendScore || 0));
+        } else {
+          // 无标签时：使用原有的综合评分逻辑
+          filtered.sort((a, b) => {
+            const scoreA = (a.rating || 0) * 0.6 + ((a.participants || 0) / 1000) * 0.4;
+            const scoreB = (b.rating || 0) * 0.6 + ((b.participants || 0) / 1000) * 0.4;
+            return scoreB - scoreA;
+          });
+        }
         break;
     }
 

@@ -178,8 +178,10 @@ onMounted(() => {
 
 .header-card {
   margin-bottom: 20px;
-  background: linear-gradient(135deg, #011a8b 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary-light-3) 0%, var(--color-primary) 100%);
   border: none;
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-lg);
 }
 
 .page-header {
@@ -198,18 +200,21 @@ onMounted(() => {
       margin: 0 0 5px 0;
       font-size: 28px;
       font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     p {
       margin: 0;
       font-size: 14px;
-      opacity: 0.9;
+      opacity: 0.95;
     }
   }
 }
 
 .rankings-card {
   overflow: visible;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-base);
 }
 
 /* 前三名特殊展示 */
@@ -272,15 +277,15 @@ onMounted(() => {
 
 .survey-card {
   flex: 1;
-  border: 2px solid #e4e7ed;
-  border-radius: 12px;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all var(--transition-base);
   background: white;
 
   &:hover {
-    border-color: #667eea;
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-primary);
     transform: translateY(-5px);
   }
 
@@ -290,22 +295,24 @@ onMounted(() => {
     .survey-title {
       font-size: 16px;
       font-weight: 700;
-      color: #333;
+      color: var(--text-primary);
       margin: 0 0 10px 0;
       line-height: 1.4;
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
 
     .survey-description {
       font-size: 13px;
-      color: #666;
+      color: var(--text-secondary);
       margin: 0 0 12px 0;
       line-height: 1.5;
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }

@@ -139,9 +139,6 @@
             <el-button size="small" @click.stop="showPreview(template)">
               预览
             </el-button>
-            <el-button size="small" :icon="isFavorite(template.id) ? 'StarFilled' : 'Star'"
-              @click.stop="toggleFavorite(template.id)">
-            </el-button>
           </div>
         </div>
       </div>

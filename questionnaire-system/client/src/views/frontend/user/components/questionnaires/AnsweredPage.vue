@@ -225,6 +225,30 @@
         <div v-else class="no-answers">
           <el-empty description="暂无答题详情" :image-size="120" />
         </div>
+
+        <!-- 我的评论卡片 -->
+        <div class="detail-section" v-if="selectedAnswer">
+          <h4 class="section-title">
+            <el-icon><ChatDotRound /></el-icon>
+            我的评论
+          </h4>
+          <div v-if="myComment" class="my-comment-display">
+            <div class="comment-header">
+              <el-rate :model-value="myComment.rating" disabled show-score />
+              <span class="comment-time">{{ formatDateTime(myComment.createdAt) }}</span>
+            </div>
+            <div class="comment-content">
+              {{ myComment.content }}
+            </div>
+          </div>
+          <div v-else class="no-comment">
+            <el-empty description="您还没有评论此问卷" :image-size="80">
+              <el-button type="primary" size="small" @click="goToComment(selectedAnswer)">
+                去评论
+              </el-button>
+            </el-empty>
+          </div>
+        </div>
       </div>
 
       <template #footer>
@@ -294,6 +318,7 @@ const {
 // 详情对话框状态
 const detailDialogVisible = ref(false);
 const selectedAnswer = ref(null);
+const myComment = ref(null);
 
 // 方法
 const loadAnsweredSurveys = async () => {
@@ -380,6 +405,7 @@ const handleMoreAction = async ({ action, data }) => {
   switch (action) {
     case "detail":
       selectedAnswer.value = data;
+      await loadMyCommentForAnswer(data);
       detailDialogVisible.value = true;
       break;
 
@@ -445,6 +471,29 @@ const goToComment = (answer) => {
   detailDialogVisible.value = false;
   // 跳转到测评报告页面
   router.push(`/surveys/result/${answer.id}`);
+};
+
+// 加载该答题记录对应的评论
+const loadMyCommentForAnswer = async (answer) => {
+  try {
+    myComment.value = null;
+    
+    if (!answer || !answer.surveyId) return;
+    
+    const userId = userStore.profile?.id || userStore.userId;
+    if (!userId) return;
+
+    // 根据 surveyId 和 userId 查询评论
+    const response = await fetch(`http://localhost:3002/comments?surveyId=${answer.surveyId}&userId=${userId}`);
+    if (!response.ok) return;
+    
+    const comments = await response.json();
+    if (comments && comments.length > 0) {
+      myComment.value = comments[0];
+    }
+  } catch (error) {
+    console.error('加载评论失败:', error);
+  }
 };
 
 // 生命周期
@@ -830,6 +879,35 @@ onMounted(() => {
 
   .no-answers {
     padding: 60px 0;
+  }
+
+  .my-comment-display {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 4px solid var(--color-primary);
+
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+
+      .comment-time {
+        font-size: 12px;
+        color: #909399;
+      }
+    }
+
+    .comment-content {
+      color: #606266;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+  }
+
+  .no-comment {
+    padding: 20px 0;
   }
 }
 

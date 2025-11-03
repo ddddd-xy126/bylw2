@@ -200,7 +200,12 @@
               <div class="rating-distribution">
                 <div v-for="i in 5" :key="i" class="rating-bar">
                   <span class="star-count">{{ 6 - i }}星</span>
-                  <el-progress :percentage="getRatingPercentage(6 - i)" :stroke-width="8" :show-text="false" />
+                  <el-progress 
+                    :percentage="getRatingPercentage(6 - i)" 
+                    :stroke-width="8" 
+                    :show-text="false"
+                    color="#67d474"
+                  />
                   <span class="percentage">{{ getRatingPercentage(6 - i) }}%</span>
                 </div>
               </div>
@@ -676,7 +681,32 @@ onMounted(async () => {
 
   // ===== 页面头部 =====
   .page-header {
+    background: linear-gradient(135deg, var(--color-primary-light-3) 0%, var(--color-primary) 100%);
+    padding: var(--spacing-lg) var(--spacing-xl);
     margin-bottom: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+
+    :deep(.el-page-header) {
+      .el-page-header__back {
+        color: var(--text-inverse);
+        font-weight: var(--font-weight-semibold);
+        transition: all var(--transition-base);
+        
+        &:hover {
+          color: var(--color-primary-dark-4);
+          transform: translateX(-4px);
+        }
+
+        .el-icon {
+          font-size: var(--font-size-lg);
+        }
+      }
+
+      .el-page-header__content {
+        color: var(--text-inverse);
+      }
+    }
 
     .header-content {
       display: flex;
@@ -685,19 +715,30 @@ onMounted(async () => {
 
       .header-title {
         font-size: var(--font-size-2xl);
-        font-weight: var(--font-weight-semibold);
-        color: var(--color-primary-dark-2);
+        font-weight: var(--font-weight-bold);
+        color: var(--text-inverse);
         margin-right: var(--spacing-md);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
       .el-breadcrumb {
         font-size: var(--font-size-sm);
-        .el-breadcrumb__inner {
-          color: var(--text-secondary);
+        
+        :deep(.el-breadcrumb__separator) {
+          color: rgba(255, 255, 255, 0.7);
+        }
+
+        :deep(.el-breadcrumb__inner) {
+          color: rgba(255, 255, 255, 0.9);
+          font-weight: var(--font-weight-medium);
           transition: color var(--transition-base);
 
           &:hover {
-            color: var(--color-primary);
+            color: var(--text-inverse);
+          }
+
+          &.is-link:hover {
+            color: var(--color-primary-dark-4);
           }
         }
       }

@@ -1,5 +1,5 @@
 import AdminLayout from "@/layouts/AdminLayout.vue";
-import AdminLoginPage from "@/views/backend/admin/LoginPage.vue";
+import LoginPage from "@/views/frontend/auth/LoginPage.vue";
 import DashboardPage from "@/views/backend/admin/DashboardPage.vue";
 import UserManagePage from "@/views/backend/admin/components/users/UserManagePage.vue";
 import AdminManagePage from "@/views/backend/admin/components/users/AdminManagePage.vue";
@@ -16,7 +16,7 @@ import AnnouncementManagePage from "@/views/backend/admin/components/announcemen
 import AdminProfilePage from "@/views/backend/admin/components/profile/AdminProfilePage.vue";
 
 export default [
-  { path: "/admin/login", component: AdminLoginPage },
+  { path: "/admin/login", component: LoginPage, meta: { isAdminLogin: true } },
   {
     path: "/admin",
     component: AdminLayout,

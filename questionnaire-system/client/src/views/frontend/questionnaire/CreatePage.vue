@@ -115,58 +115,6 @@
         </el-button>
       </div>
     </div>
-
-    <!-- 最近创建的问卷 -->
-    <div class="recent-questionnaires" v-if="recentQuestionnaires.length > 0">
-      <h2>
-        <el-icon><Clock /></el-icon>
-        最近创建的问卷
-      </h2>
-      
-      <div class="recent-list">
-        <div 
-          v-for="questionnaire in recentQuestionnaires" 
-          :key="questionnaire.id"
-          class="recent-item"
-          @click="editQuestionnaire(questionnaire.id)"
-        >
-          <div class="recent-info">
-            <h4>{{ questionnaire.title }}</h4>
-            <p>{{ questionnaire.description }}</p>
-            <div class="recent-meta">
-              <span>{{ questionnaire.questions }}个问题</span>
-              <span>{{ questionnaire.responses }}份回答</span>
-              <span>{{ formatDate(questionnaire.updatedAt) }}</span>
-            </div>
-          </div>
-          
-          <div class="recent-status">
-            <el-tag 
-              :type="getStatusType(questionnaire.status)"
-              size="small"
-            >
-              {{ getStatusText(questionnaire.status) }}
-            </el-tag>
-          </div>
-
-          <div class="recent-actions">
-            <el-dropdown @command="handleQuestionnaireAction">
-              <el-button type="text" size="small">
-                <el-icon><More /></el-icon>
-              </el-button>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item :command="`edit_${questionnaire.id}`">编辑</el-dropdown-item>
-                  <el-dropdown-item :command="`copy_${questionnaire.id}`">复制</el-dropdown-item>
-                  <el-dropdown-item :command="`share_${questionnaire.id}`">分享</el-dropdown-item>
-                  <el-dropdown-item :command="`delete_${questionnaire.id}`" divided>删除</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -178,15 +126,13 @@ import {
   Document, 
   Star, 
   Clock, 
-  User, 
-  More 
+  User
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const showTemplates = ref(true)
 const featuredTemplates = ref([])
-const recentQuestionnaires = ref([])
 
 // 模拟的问卷模板数据
 const mockTemplates = [
@@ -308,41 +254,13 @@ const mockTemplates = [
   }
 ]
 
-// 模拟的最近创建问卷数据
-const mockRecentQuestionnaires = [
-  {
-    id: 1,
-    title: '新员工入职体验调研',
-    description: '了解新员工入职过程中的体验和改进建议',
-    questions: 15,
-    responses: 23,
-    status: 'published',
-    updatedAt: '2024-02-01T10:30:00Z'
-  },
-  {
-    id: 2,
-    title: '产品功能需求调研',
-    description: '收集用户对新功能的需求和期望',
-    questions: 12,
-    responses: 0,
-    status: 'draft',
-    updatedAt: '2024-01-30T15:20:00Z'
-  }
-]
-
 onMounted(() => {
   loadFeaturedTemplates()
-  loadRecentQuestionnaires()
 })
 
 const loadFeaturedTemplates = () => {
   // 取前3个作为推荐模板
   featuredTemplates.value = mockTemplates.slice(0, 3)
-}
-
-const loadRecentQuestionnaires = () => {
-  // 模拟加载用户最近创建的问卷
-  recentQuestionnaires.value = mockRecentQuestionnaires
 }
 
 const goToCustomCreate = () => {
@@ -359,71 +277,16 @@ const selectTemplate = (template) => {
 }
 
 const useTemplate = (template) => {
-  ElMessage.success(`正在使用模板：${template.title}`)
-  // 跳转到模板创建页面，传递模板ID
+  ElMessage.success(`正在使用模板:${template.title}`)
+  // 跳转到模板创建页面,传递模板ID
   router.push(`/create/template/${template.id}`)
 }
 
 const previewTemplate = (template) => {
-  ElMessage.info(`预览模板：${template.title}`)
+  ElMessage.info(`预览模板:${template.title}`)
   // 这里可以打开预览对话框或跳转到预览页面
 }
 
-const editQuestionnaire = (id) => {
-  // 跳转到编辑页面
-  router.push(`/questionnaires/edit/${id}`)
-}
-
-const formatDate = (dateString) => {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffTime = Math.abs(now - date)
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  
-  if (diffDays === 1) return '1天前'
-  if (diffDays < 7) return `${diffDays}天前`
-  if (diffDays < 30) return `${Math.ceil(diffDays / 7)}周前`
-  return `${Math.ceil(diffDays / 30)}个月前`
-}
-
-const getStatusType = (status) => {
-  const statusMap = {
-    'draft': 'info',
-    'published': 'success',
-    'paused': 'warning',
-    'closed': 'danger'
-  }
-  return statusMap[status] || 'info'
-}
-
-const getStatusText = (status) => {
-  const statusMap = {
-    'draft': '草稿',
-    'published': '已发布',
-    'paused': '已暂停',
-    'closed': '已关闭'
-  }
-  return statusMap[status] || '未知'
-}
-
-const handleQuestionnaireAction = (command) => {
-  const [action, id] = command.split('_')
-  
-  switch (action) {
-    case 'edit':
-      editQuestionnaire(id)
-      break
-    case 'copy':
-      ElMessage.success('问卷已复制')
-      break
-    case 'share':
-      ElMessage.success('分享链接已复制到剪贴板')
-      break
-    case 'delete':
-      ElMessage.warning('删除功能暂未实现')
-      break
-  }
-}
 </script>
 
 <style lang="scss" scoped>
@@ -634,73 +497,6 @@ const handleQuestionnaireAction = (command) => {
       text-align: center;
     }
   }
-  .recent-questionnaires {
-    margin-bottom: 32px;
-
-    h2 {
-      font-size: 1.75rem;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .recent-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-
-      .recent-item {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-
-        &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .recent-info {
-          flex: 1;
-
-          h4 {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 6px;
-          }
-          p {
-            color: #666;
-            font-size: 0.875rem;
-            margin-bottom: 8px;
-          }
-        }
-
-        .recent-meta {
-          display: flex;
-          gap: 16px;
-          font-size: 0.75rem;
-          color: #888;
-        }
-
-        .recent-status {
-          margin-right: 8px;
-        }
-
-        .recent-actions {
-          flex-shrink: 0;
-        }
-      }
-    }
-  }
 
   @media (max-width: 768px) {
     .creation-options {
@@ -709,14 +505,6 @@ const handleQuestionnaireAction = (command) => {
     }
     .template-grid {
       grid-template-columns: 1fr;
-    }
-    .recent-item {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    .recent-meta {
-      flex-direction: column;
-      gap: 4px;
     }
   }
 }

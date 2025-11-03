@@ -513,7 +513,7 @@ onMounted(() => {
 /* 下拉菜单样式 */
 :deep(.el-dropdown-menu) {
   background: linear-gradient(145deg, var(--text-inverse)ff 0%, #f8f9ff 100%);
-  border: 1px solid rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(37, 146, 52, 0.1);
   border-radius: 12px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
   backdrop-filter: blur(10px);
@@ -529,8 +529,8 @@ onMounted(() => {
     font-weight: 500;
 
     &:hover {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-      color: var(--color-primary-dark-1);
+      background: linear-gradient(135deg, var(--color-primary-light-5) 0%, var(--color-primary-light-4) 100%);
+      color: var(--color-primary-dark-2);
     }
 
     .el-icon {

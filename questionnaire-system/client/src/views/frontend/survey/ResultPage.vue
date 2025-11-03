@@ -248,7 +248,7 @@ const ratingForm = ref({
 
 // 计算属性
 const canSubmit = computed(() => {
-  return ratingForm.value.content.length >= 10;
+  return ratingForm.value.content.trim().length > 0;
 });
 
 // 方法
@@ -304,8 +304,8 @@ const submitRating = async () => {
     return;
   }
 
-  if (ratingForm.value.content.length < 10) {
-    ElMessage.warning('评论内容至少需要10个字');
+  if (!ratingForm.value.content.trim()) {
+    ElMessage.warning('请填写评论内容');
     return;
   }
 
@@ -482,14 +482,60 @@ onMounted(() => {
   padding: 20px;
 
   .page-header {
+    background: linear-gradient(135deg, var(--color-primary-light-3) 0%, var(--color-primary) 100%);
+    padding: var(--spacing-lg) var(--spacing-xl);
     margin-bottom: 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+
+    :deep(.el-page-header) {
+      .el-page-header__back {
+        color: var(--text-inverse);
+        font-weight: var(--font-weight-semibold);
+        transition: all var(--transition-base);
+        
+        &:hover {
+          color: var(--color-primary-dark-4);
+          transform: translateX(-4px);
+        }
+
+        .el-icon {
+          font-size: var(--font-size-lg);
+        }
+      }
+
+      .el-page-header__content {
+        color: var(--text-inverse);
+      }
+    }
 
     .header-content {
       h2 {
         margin: 0 0 8px 0;
         font-size: 24px;
-        font-weight: 600;
-        color: #303133;
+        font-weight: 700;
+        color: var(--text-inverse);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .el-breadcrumb {
+        :deep(.el-breadcrumb__separator) {
+          color: rgba(255, 255, 255, 0.7);
+        }
+
+        :deep(.el-breadcrumb__inner) {
+          color: rgba(255, 255, 255, 0.9);
+          font-weight: var(--font-weight-medium);
+          transition: color var(--transition-base);
+
+          &:hover {
+            color: var(--text-inverse);
+          }
+
+          &.is-link:hover {
+            color: var(--color-primary-dark-4);
+          }
+        }
       }
     }
   }
