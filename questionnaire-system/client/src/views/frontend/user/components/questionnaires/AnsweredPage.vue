@@ -145,44 +145,100 @@
     </div>
 
     <!-- 详情弹窗 -->
-    <el-dialog v-model="detailDialogVisible" title="答题详情" width="60%" :destroy-on-close="true">
-      <div v-if="selectedAnswer" class="answer-detail">
-        <el-descriptions :column="2" border>
-          <el-descriptions-item label="问卷标题">
-            {{ selectedAnswer.title }}
-          </el-descriptions-item>
-          <el-descriptions-item label="问卷分类">
-            {{ selectedAnswer.category }}
-          </el-descriptions-item>
-          <el-descriptions-item label="答题时间">
-            {{ formatDateTime(selectedAnswer.submittedAt) }}
-          </el-descriptions-item>
-          <el-descriptions-item label="答题用时">
-            {{ formatDuration(selectedAnswer.duration) }}
-          </el-descriptions-item>
-          <el-descriptions-item label="得分">
-            {{ selectedAnswer.score || 0 }}分
-          </el-descriptions-item>
-          <el-descriptions-item label="结果">
-            {{ selectedAnswer.result || '无' }}
-          </el-descriptions-item>
-        </el-descriptions>
+    <el-dialog 
+      v-model="detailDialogVisible" 
+      :append-to-body="true"
+      :destroy-on-close="true"
+      :z-index="3000"
+      width="720px"
+      class="answer-detail-dialog"
+    >
+      <template #header>
+        <div class="dialog-header">
+          <div class="header-icon">
+            <el-icon><Document /></el-icon>
+          </div>
+          <div class="header-text">
+            <h3>答题详情</h3>
+            <p v-if="selectedAnswer">{{ selectedAnswer.title }}</p>
+          </div>
+        </div>
+      </template>
 
-        <div class="answers-section" v-if="selectedAnswer.answers">
-          <h4>答题详情</h4>
-          <div v-for="(answer, index) in selectedAnswer.answers" :key="index" class="answer-item">
-            <div class="question-text">
-              <strong>Q{{ index + 1 }}:</strong> {{ answer.question || `题目${answer.questionId}` }}
-            </div>
-            <div class="answer-text">
-              <strong>答案:</strong> {{ formatAnswerValue(answer.answer) }}
+      <div v-if="selectedAnswer" class="answer-detail">
+        <!-- 基本信息卡片 -->
+        <div class="detail-section">
+          <h4 class="section-title">
+            <el-icon><InfoFilled /></el-icon>
+            基本信息
+          </h4>
+          <el-descriptions :column="2" border size="default">
+            <el-descriptions-item label="问卷标题" label-class-name="detail-label">
+              {{ selectedAnswer.title }}
+            </el-descriptions-item>
+            <el-descriptions-item label="问卷分类" label-class-name="detail-label">
+              <el-tag size="small" type="primary">{{ selectedAnswer.category }}</el-tag>
+            </el-descriptions-item>
+            <el-descriptions-item label="答题时间" label-class-name="detail-label">
+              <span class="detail-value">
+                <el-icon><Clock /></el-icon>
+                {{ formatDateTime(selectedAnswer.submittedAt) }}
+              </span>
+            </el-descriptions-item>
+            <el-descriptions-item label="答题用时" label-class-name="detail-label">
+              <span class="detail-value">
+                <el-icon><Timer /></el-icon>
+                {{ formatDuration(selectedAnswer.duration) }}
+              </span>
+            </el-descriptions-item>
+            <el-descriptions-item label="得分情况" label-class-name="detail-label">
+              <el-tag :type="selectedAnswer.score >= 60 ? 'success' : 'warning'" size="default" effect="dark">
+                {{ selectedAnswer.score || 0 }} 分
+              </el-tag>
+            </el-descriptions-item>
+            <el-descriptions-item label="评估结果" label-class-name="detail-label">
+              <span class="result-badge">{{ selectedAnswer.result || '无' }}</span>
+            </el-descriptions-item>
+          </el-descriptions>
+        </div>
+
+        <!-- 答题记录卡片 -->
+        <div class="detail-section" v-if="selectedAnswer.answers && selectedAnswer.answers.length > 0">
+          <h4 class="section-title">
+            <el-icon><Edit /></el-icon>
+            答题记录
+          </h4>
+          <div class="answers-list">
+            <div v-for="(answer, index) in selectedAnswer.answers" :key="index" class="answer-item-card">
+              <div class="question-header">
+                <span class="question-number">Q{{ index + 1 }}</span>
+                <span class="question-text">{{ getQuestionText(answer) }}</span>
+              </div>
+              <div class="answer-content">
+                <el-icon><Check /></el-icon>
+                <span class="answer-value">{{ formatAnswerValue(answer.answer) }}</span>
+              </div>
             </div>
           </div>
+        </div>
+
+        <div v-else class="no-answers">
+          <el-empty description="暂无答题详情" :image-size="120" />
         </div>
       </div>
 
       <template #footer>
-        <el-button @click="detailDialogVisible = false">关闭</el-button>
+        <div class="dialog-footer">
+          <el-button @click="detailDialogVisible = false" size="large">关闭</el-button>
+          <el-button type="success" @click="goToComment(selectedAnswer)" size="large">
+            <el-icon><ChatDotRound /></el-icon>
+            去评论
+          </el-button>
+          <el-button type="primary" @click="viewResult(selectedAnswer)" size="large" v-if="selectedAnswer?.score">
+            <el-icon><View /></el-icon>
+            查看完整报告
+          </el-button>
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -203,6 +259,12 @@ import {
   View,
   RefreshRight,
   ArrowDown,
+  InfoFilled,
+  Edit,
+  Check,
+  Timer,
+  ChatDotRound,
+  Delete
 } from "@element-plus/icons-vue";
 
 import { getUserAnsweredSurveysApi, addFavoriteApi, moveAnsweredToRecycleApi } from "@/api/user";
@@ -277,6 +339,31 @@ const formatAnswerValue = (value) => {
   return value || "未作答";
 };
 
+const getQuestionText = (answer) => {
+  // 如果答案对象中有问题文本，直接使用
+  if (answer.question) {
+    return answer.question;
+  }
+  
+  // 如果答案对象中有题目内容，使用题目内容
+  if (answer.content) {
+    return answer.content;
+  }
+  
+  // 如果答案对象中有标题，使用标题
+  if (answer.title) {
+    return answer.title;
+  }
+  
+  // 如果答案对象中有文本，使用文本
+  if (answer.text) {
+    return answer.text;
+  }
+  
+  // 最后的兜底方案
+  return answer.questionId ? `题目 ${answer.questionId}` : '题目';
+};
+
 const viewResult = (answer) => {
   router.push(`/surveys/result/${answer.id}`);
 };
@@ -296,6 +383,12 @@ const handleMoreAction = async ({ action, data }) => {
       detailDialogVisible.value = true;
       break;
 
+    case "myComment":
+      await loadMyComment(data);
+      selectedAnswer.value = data;
+      commentDialogVisible.value = true;
+      break;
+
     case "share":
       // 分享功能
       navigator.clipboard.writeText(
@@ -312,6 +405,7 @@ const handleMoreAction = async ({ action, data }) => {
         ElMessage.error("收藏失败：" + error.message);
       }
       break;
+      
     case "delete":
       try {
         // 弹出确认框
@@ -339,6 +433,18 @@ const handleMoreAction = async ({ action, data }) => {
       }
       break;
   }
+};
+
+// 跳转到评论页面（测评报告页）
+const goToComment = (answer) => {
+  if (!answer || !answer.id) {
+    ElMessage.warning('答题记录不存在');
+    return;
+  }
+  // 关闭详情对话框
+  detailDialogVisible.value = false;
+  // 跳转到测评报告页面
+  router.push(`/surveys/result/${answer.id}`);
 };
 
 // 生命周期
@@ -508,6 +614,11 @@ onMounted(() => {
     overflow-y: auto;
   }
 
+  .no-answers {
+    padding: 40px 0;
+    text-align: center;
+  }
+
   .answers-section {
     margin-top: 20px;
 
@@ -533,6 +644,204 @@ onMounted(() => {
       font-size: 14px;
       color: #666;
     }
+  }
+}
+
+/* 答题详情弹窗样式 */
+:deep(.answer-detail-dialog) {
+  border-radius: 16px;
+  overflow: hidden;
+
+  .el-dialog__header {
+    padding: 0;
+    margin: 0;
+  }
+
+  .el-dialog__body {
+    padding: 24px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .el-dialog__footer {
+    padding: 16px 24px;
+    border-top: 1px solid #f0f2f5;
+  }
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+
+  .header-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    font-size: 24px;
+  }
+
+  .header-text {
+    flex: 1;
+
+    h3 {
+      margin: 0 0 4px 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px;
+      opacity: 0.9;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
+.answer-detail {
+  .detail-section {
+    margin-bottom: 24px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 16px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #303133;
+
+      .el-icon {
+        color: #667eea;
+      }
+    }
+  }
+
+  .detail-label {
+    font-weight: 500;
+    background: #f8f9fa !important;
+  }
+
+  .detail-value {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #606266;
+
+    .el-icon {
+      color: #909399;
+    }
+  }
+
+  .result-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .answers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .answer-item-card {
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border-left: 4px solid #667eea;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #f0f2f5;
+        transform: translateX(4px);
+      }
+
+      .question-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 12px;
+
+        .question-number {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 32px;
+          height: 32px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          flex-shrink: 0;
+        }
+
+        .question-text {
+          flex: 1;
+          font-size: 15px;
+          font-weight: 500;
+          color: #303133;
+          line-height: 32px;
+        }
+      }
+
+      .answer-content {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 16px;
+        background: white;
+        border-radius: 8px;
+        margin-left: 44px;
+
+        .el-icon {
+          color: #67C23A;
+          font-size: 16px;
+          flex-shrink: 0;
+        }
+
+        .answer-value {
+          flex: 1;
+          color: #606266;
+          font-size: 14px;
+          line-height: 1.6;
+        }
+      }
+    }
+  }
+
+  .no-answers {
+    padding: 60px 0;
+  }
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  .el-button {
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-weight: 500;
   }
 }
 

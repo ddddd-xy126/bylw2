@@ -119,7 +119,12 @@
 
     <!-- 问卷列表 -->
     <div class="survey-list" v-loading="loading">
-      <div v-for="survey in filteredSurveys" :key="survey.id" class="survey-item published-item">
+      <div 
+        v-for="survey in filteredSurveys" 
+        :key="survey.id" 
+        class="survey-item published-item"
+        :class="{ 'status-stopped': survey.isCollecting === false }"
+      >
         <div class="survey-main">
           <div class="survey-icon">
             <el-icon size="24" color="#67C23A">
@@ -235,8 +240,19 @@
                 <el-dropdown-item :command="{ action: 'settings', data: survey }">
                   问卷设置
                 </el-dropdown-item>
-                <el-dropdown-item :command="{ action: 'close', data: survey }" divided>
-                  <span style="color: #F56C6C">停止收集</span>
+                <el-dropdown-item 
+                  v-if="survey.isCollecting !== false"
+                  :command="{ action: 'stopCollecting', data: survey }" 
+                  divided
+                >
+                  <span style="color: #E6A23C">停止收集</span>
+                </el-dropdown-item>
+                <el-dropdown-item 
+                  v-else
+                  :command="{ action: 'resumeCollecting', data: survey }" 
+                  divided
+                >
+                  <span style="color: #67C23A">继续收集</span>
                 </el-dropdown-item>
                 <el-dropdown-item :command="{ action: 'delete', data: survey }">
                   <span style="color: #F56C6C">删除问卷</span>
@@ -262,7 +278,14 @@
     </div>
 
     <!-- 分享对话框 -->
-    <el-dialog v-model="shareDialogVisible" title="分享问卷" width="500px">
+    <el-dialog 
+      v-model="shareDialogVisible" 
+      title="分享问卷" 
+      width="500px"
+      :append-to-body="true"
+      :destroy-on-close="true"
+      :z-index="3000"
+    >
       <div class="share-content">
         <div class="share-item">
           <label>问卷链接：</label>
@@ -496,10 +519,10 @@ const handleMoreAction = async ({ action, data }) => {
       ElMessage.info("问卷设置功能开发中...");
       break;
 
-    case "close":
+    case "stopCollecting":
       try {
         await ElMessageBox.confirm(
-          '确定要停止收集这个问卷的回答吗？停止后用户将无法继续填写。',
+          '停止收集后，该问卷将不再在首页和问卷列表展示，用户无法填写。确定要停止收集吗？',
           '确认停止收集',
           {
             confirmButtonText: '确定停止',
@@ -508,12 +531,62 @@ const handleMoreAction = async ({ action, data }) => {
           }
         );
 
-        await updateSurveyApi(data.id, { status: 'closed' });
-        ElMessage.success("已停止收集问卷回答");
+        const response = await fetch(`http://localhost:3002/surveys/${data.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            isCollecting: false,
+            updatedAt: new Date().toISOString()
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('停止收集失败');
+        }
+
+        ElMessage.success('已停止收集，问卷将不再对外展示');
         loadPublishedSurveys();
       } catch (error) {
         if (error !== 'cancel') {
-          ElMessage.error("操作失败：" + error.message);
+          ElMessage.error('操作失败：' + error.message);
+        }
+      }
+      break;
+
+    case "resumeCollecting":
+      try {
+        await ElMessageBox.confirm(
+          '继续收集后，问卷将重新在首页和问卷列表展示，用户可以填写。确定要继续收集吗？',
+          '确认继续收集',
+          {
+            confirmButtonText: '确定继续',
+            cancelButtonText: '取消',
+            type: 'success'
+          }
+        );
+
+        const response = await fetch(`http://localhost:3002/surveys/${data.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            isCollecting: true,
+            updatedAt: new Date().toISOString()
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('继续收集失败');
+        }
+
+        ElMessage.success('已恢复收集，问卷将重新对外展示');
+        loadPublishedSurveys();
+      } catch (error) {
+        if (error !== 'cancel') {
+          ElMessage.error('操作失败：' + error.message);
         }
       }
       break;
@@ -680,6 +753,24 @@ onMounted(() => {
 
     &.published-item {
       border-left: 4px solid #67C23A;
+    }
+
+    &.status-stopped {
+      opacity: 0.6;
+      background: #f5f7fa;
+      border-left-color: #c0c4cc;
+      
+      .survey-title {
+        color: #909399;
+      }
+      
+      .survey-badges .el-tag {
+        opacity: 0.7;
+      }
+      
+      &:hover {
+        transform: none;
+      }
     }
 
     .survey-main {

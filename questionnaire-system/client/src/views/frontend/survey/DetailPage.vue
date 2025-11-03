@@ -193,8 +193,9 @@
           <div class="rating-summary">
             <div class="rating-overview">
               <div class="overall-rating">
-                <div class="rating-score">{{ detail.averageRating || 4.5 }}</div>
-                <el-rate :model-value="detail.averageRating || 4.5" disabled show-score text-color="#ff9900" />
+                <div class="rating-score">{{ detail.averageRating || 0 }}</div>
+                <el-rate :model-value="detail.averageRating || 0" disabled show-score text-color="#ff9900" />
+                <div class="rating-count">{{ detail.ratingCount || 0 }} 人评价</div>
               </div>
               <div class="rating-distribution">
                 <div v-for="i in 5" :key="i" class="rating-bar">
@@ -206,26 +207,20 @@
             </div>
           </div>
 
-          <!-- 发表评论 -->
-          <div class="comment-form" v-if="userStore.isLoggedIn">
-            <el-divider />
-            <div class="form-header">
-              <h4>发表评价</h4>
-            </div>
-            <el-form @submit.prevent="submitComment">
-              <el-form-item label="评分">
-                <el-rate v-model="commentForm.rating" />
-              </el-form-item>
-              <el-form-item label="评论内容">
-                <el-input v-model="commentForm.content" type="textarea" :rows="3" placeholder="分享您对这个问卷的看法..."
-                  maxlength="500" show-word-limit />
-              </el-form-item>
-              <el-form-item>
-                <el-button type="primary" @click="submitComment" :loading="submittingComment">
-                  发表评论
-                </el-button>
-              </el-form-item>
-            </el-form>
+          <el-divider />
+
+          <!-- 评价提示 -->
+          <div class="comment-tip">
+            <el-alert
+              title="温馨提示"
+              type="info"
+              :closable="false"
+              show-icon
+            >
+              <template #default>
+                <p>完成问卷答题后，您可以在测评报告页面发表评价和打分。</p>
+              </template>
+            </el-alert>
           </div>
 
           <!-- 评论列表 -->
@@ -310,17 +305,66 @@
         <!-- 相关推荐 -->
         <el-card class="recommend-card" shadow="hover">
           <template #header>
-            <h4>相关推荐</h4>
+            <div class="card-header-with-icon">
+              <el-icon><Collection /></el-icon>
+              <h4>相关推荐</h4>
+            </div>
           </template>
           <div class="recommend-list">
-            <div v-for="survey in recommendedSurveys" :key="survey.id" class="recommend-item"
-              @click="$router.push(`/surveys/${survey.id}`)">
-              <div class="recommend-title">{{ survey.title }}</div>
-              <div class="recommend-meta">
-                <span class="participants">{{ survey.participantCount || 0 }}人参与</span>
-                <el-rate :model-value="survey.averageRating || 4.0" disabled :size="12" />
+            <div 
+              v-for="survey in recommendedSurveys" 
+              :key="survey.id" 
+              class="recommend-item"
+              @click="navigateToSurvey(survey.id)"
+            >
+              <div class="recommend-content">
+                <div class="recommend-header">
+                  <h5 class="recommend-title">{{ survey.title }}</h5>
+                  <el-tag size="small" type="success" effect="plain">推荐</el-tag>
+                </div>
+                <div class="recommend-meta">
+                  <span class="meta-info">
+                    <el-icon><User /></el-icon>
+                    {{ survey.participantCount || 0 }}人
+                  </span>
+                  <div class="rating-info">
+                    <el-rate 
+                      :model-value="survey.averageRating || 4.0" 
+                      disabled 
+                      :size="14"
+                      :show-score="false"
+                    />
+                    <span class="rating-text">{{ survey.averageRating || 4.0 }}</span>
+                  </div>
+                </div>
+                <div class="recommend-actions">
+                  <el-button 
+                    size="small" 
+                    type="primary" 
+                    text
+                    @click.stop="quickStart(survey.id)"
+                  >
+                    <el-icon><CaretRight /></el-icon>
+                    开始测试
+                  </el-button>
+                  <el-button 
+                    size="small" 
+                    type="success" 
+                    text
+                    @click.stop="quickFavorite(survey.id)"
+                  >
+                    <el-icon><Star /></el-icon>
+                    收藏
+                  </el-button>
+                </div>
               </div>
             </div>
+            
+            <el-empty 
+              v-if="recommendedSurveys.length === 0" 
+              description="暂无相关推荐" 
+              :image-size="80"
+            />
           </div>
         </el-card>
       </div>
@@ -347,7 +391,8 @@ import {
   ArrowDown,
   CircleCheck,
   Edit,
-  MoreFilled as More
+  MoreFilled as More,
+  Collection
 } from "@element-plus/icons-vue";
 
 import { getSurveyDetail, getSurveyCommentsApi, createCommentApi } from "@/api/survey";
@@ -365,13 +410,6 @@ const showAllQuestions = ref(false);
 const startLoading = ref(false);
 const favoriteLoading = ref(false);
 const loadingComments = ref(false);
-const submittingComment = ref(false);
-
-// 评论表单
-const commentForm = ref({
-  rating: 5,
-  content: ''
-});
 
 // 推荐问卷
 const recommendedSurveys = ref([
@@ -487,6 +525,12 @@ const formatDate = (date) => {
 const startSurvey = async () => {
   startLoading.value = true;
   try {
+    // 检查问卷是否已停止收集
+    if (detail.value.isCollecting === false) {
+      ElMessage.warning('该问卷已停止收集，暂时无法填写');
+      return;
+    }
+
     // 检查登录状态
     if (!userStore.isLoggedIn) {
       const result = await ElMessageBox.confirm(
@@ -543,37 +587,48 @@ const shareQuestionnaire = () => {
   });
 };
 
-const submitComment = async () => {
+// 相关推荐跳转
+const navigateToSurvey = (surveyId) => {
+  router.push(`/surveys/${surveyId}`);
+  // 重新加载数据
+  window.location.reload();
+};
+
+// 快速开始测试
+const quickStart = async (surveyId) => {
+  if (!userStore.isLoggedIn) {
+    const result = await ElMessageBox.confirm(
+      '开始测试需要登录，是否前往登录？',
+      '提示',
+      {
+        confirmButtonText: '去登录',
+        cancelButtonText: '取消',
+        type: 'info'
+      }
+    ).catch(() => 'cancel');
+    
+    if (result === 'confirm') {
+      router.push(`/login?redirect=/surveys/${surveyId}`);
+    }
+    return;
+  }
+  
+  router.push(`/surveys/answer/${surveyId}`);
+};
+
+// 快速收藏
+const quickFavorite = async (surveyId) => {
   if (!userStore.isLoggedIn) {
     ElMessage.warning('请先登录');
     return;
   }
-
-  if (!commentForm.value.content.trim()) {
-    ElMessage.warning('请输入评论内容');
-    return;
-  }
-
-  submittingComment.value = true;
+  
   try {
-    const newComment = await createCommentApi(route.params.id, {
-      ...commentForm.value,
-      userId: userStore.user.id,
-      username: userStore.user.nickname || userStore.user.username
-    });
-
-    comments.value.list.unshift(newComment);
-    comments.value.total++;
-
-    // 重置表单
-    commentForm.value.content = '';
-    commentForm.value.rating = 5;
-
-    ElMessage.success('评论发表成功');
+    // 模拟收藏操作
+    await new Promise(resolve => setTimeout(resolve, 300));
+    ElMessage.success('收藏成功');
   } catch (error) {
-    ElMessage.error('评论发表失败：' + error.message);
-  } finally {
-    submittingComment.value = false;
+    ElMessage.error('收藏失败，请重试');
   }
 };
 
@@ -599,6 +654,11 @@ onMounted(async () => {
     ]);
 
     detail.value = surveyData;
+    
+    // 检查问卷是否已停止收集
+    if (surveyData.isCollecting === false) {
+      ElMessage.warning('该问卷已停止收集，暂时无法填写');
+    }
   } catch (error) {
     ElMessage.error('加载问卷详情失败：' + error.message);
     console.error('加载详情失败:', error);
@@ -878,31 +938,111 @@ onMounted(async () => {
       margin-bottom: var(--spacing-md);
     }
 
+    .comment-form {
+      .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+
+        h4 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #303133;
+        }
+      }
+
+      .login-prompt {
+        padding: 32px 0;
+      }
+
+      .comment-input-form {
+        .rating-input {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          .el-rate {
+            height: 32px;
+          }
+        }
+
+        .el-textarea {
+          .el-textarea__inner {
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+          }
+        }
+      }
+
+      .cannot-comment-hint {
+        margin: 16px 0;
+
+        .el-alert {
+          border-radius: 8px;
+
+          p {
+            margin: 8px 0;
+            color: #606266;
+            line-height: 1.6;
+          }
+        }
+      }
+    }
+
     .comment-item {
       display: flex;
       gap: var(--spacing-md);
-      padding: var(--spacing-sm) 0;
+      padding: var(--spacing-md) 0;
       border-bottom: 1px solid var(--border-light);
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #f8f9fa;
+        padding-left: 12px;
+        padding-right: 12px;
+        margin-left: -12px;
+        margin-right: -12px;
+        border-radius: 8px;
+      }
 
       &:last-child {
         border-bottom: none;
       }
 
-      .comment-author {
-        font-weight: var(--font-weight-medium);
-        color: var(--text-primary);
-        margin-right: var(--spacing-sm);
+      .comment-avatar {
+        flex-shrink: 0;
       }
 
-      .comment-time {
-        color: var(--text-tertiary);
-        font-size: var(--font-size-xs);
-      }
+      .comment-content {
+        flex: 1;
 
-      .comment-text {
-        margin-top: 4px;
-        color: var(--text-secondary);
-        line-height: 1.5;
+        .comment-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 8px;
+
+          .comment-author {
+            font-weight: var(--font-weight-medium);
+            color: var(--text-primary);
+            font-size: 15px;
+          }
+
+          .comment-time {
+            color: var(--text-tertiary);
+            font-size: var(--font-size-xs);
+            margin-left: auto;
+          }
+        }
+
+        .comment-text {
+          color: var(--text-secondary);
+          line-height: 1.6;
+          font-size: 14px;
+        }
       }
     }
   }
@@ -921,19 +1061,46 @@ onMounted(async () => {
     .action-buttons {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-sm);
+      gap: var(--spacing-md);
 
       .el-button {
         font-weight: var(--font-weight-medium);
-        transition: background-color var(--transition-fast);
+        transition: all 0.3s ease;
+        border-radius: 10px;
+        padding: 12px 20px;
+        font-size: 15px;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
       }
 
-      .el-button--primary:hover {
-        background-color: var(--color-primary-light-1);
+      .el-button--primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+
+        &:hover {
+          background: linear-gradient(135deg, #5568d3 0%, #6a3f8e 100%);
+        }
       }
 
-      .el-button--success:hover {
-        background-color: var(--color-success-light);
+      .el-button--success {
+        background: linear-gradient(135deg, #67C23A 0%, #409EFF 100%);
+        border: none;
+        
+        &:hover {
+          background: linear-gradient(135deg, #5daf34 0%, #3a8ee6 100%);
+        }
+      }
+
+      .el-button--info {
+        background: linear-gradient(135deg, #909399 0%, #606266 100%);
+        border: none;
+        
+        &:hover {
+          background: linear-gradient(135deg, #82848a 0%, #565a5e 100%);
+        }
       }
     }
 
@@ -969,29 +1136,118 @@ onMounted(async () => {
 
     .recommend-list {
       .recommend-item {
-        padding: var(--spacing-sm) 0;
-        border-bottom: 1px solid var(--border-light);
+        padding: 16px;
+        margin-bottom: 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border-light);
         cursor: pointer;
-        transition: background-color var(--transition-fast);
+        transition: all var(--transition-fast);
+        background: white;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
 
         &:hover {
-          background-color: var(--bg-primary-medium);
+          border-color: var(--color-primary);
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+          transform: translateY(-2px);
         }
 
-        .recommend-title {
-          color: var(--text-primary);
-          font-weight: var(--font-weight-medium);
-        }
+        .recommend-content {
+          .recommend-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
 
-        .recommend-meta {
-          font-size: var(--font-size-sm);
-          color: var(--text-tertiary);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
+            .recommend-title {
+              flex: 1;
+              font-size: 15px;
+              font-weight: 600;
+              color: var(--text-primary);
+              margin: 0;
+              line-height: 1.5;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              display: -webkit-box;
+              -webkit-line-clamp: 2;
+              -webkit-box-orient: vertical;
+            }
+
+            .el-tag {
+              flex-shrink: 0;
+              margin-left: 8px;
+            }
+          }
+
+          .recommend-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+
+            .meta-info {
+              display: flex;
+              align-items: center;
+              gap: 4px;
+
+              .el-icon {
+                font-size: 14px;
+              }
+            }
+
+            .rating-info {
+              display: flex;
+              align-items: center;
+              gap: 6px;
+
+              .rating-text {
+                font-size: 13px;
+                font-weight: 600;
+                color: #f59e0b;
+              }
+            }
+          }
+
+          .recommend-actions {
+            display: flex;
+            gap: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-light);
+
+            .el-button {
+              flex: 1;
+              font-weight: 500;
+              transition: all 0.2s;
+
+              &:hover {
+                transform: scale(1.05);
+              }
+            }
+          }
         }
       }
     }
+  }
+}
+
+.card-header-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .el-icon {
+    font-size: 18px;
+    color: var(--color-primary);
+  }
+
+  h4 {
+    margin: 0;
+    font-size: var(--font-size-base);
+    font-weight: 600;
   }
 }
 

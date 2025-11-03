@@ -87,6 +87,10 @@ const unreadAnnouncementCount = ref(0);
 const isAuthed = computed(() => !!token.value);
 const username = computed(() => profile.value?.username);
 const userAvatar = computed(() => {
+  // 优先使用用户上传的头像
+  if (profile.value?.avatar) {
+    return profile.value.avatar;
+  }
   // 如果用户有头像，使用用户头像，否则使用默认头像
   return profile.value?.avatar || generateAvatarUrl(username.value);
 });

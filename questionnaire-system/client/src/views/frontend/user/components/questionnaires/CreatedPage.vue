@@ -129,7 +129,9 @@
         v-for="survey in filteredSurveys"
         :key="survey.id"
         class="survey-item"
-        :class="{ 'status-draft': survey.status === 'draft' }"
+        :class="{ 
+          'status-draft': survey.status === 'draft'
+        }"
       >
         <div class="survey-main">
           <div class="survey-icon">
@@ -179,6 +181,10 @@
               <span class="meta-item" v-if="survey.status === 'published'">
                 <el-icon><User /></el-icon>
                 参与人数：{{ survey.participants }}人
+              </span>
+              <span class="meta-item" v-if="survey.status === 'published' && survey.averageRating > 0">
+                <el-icon><Star /></el-icon>
+                评分：{{ survey.averageRating }}分 ({{ survey.ratingCount }}人评价)
               </span>
             </div>
             
@@ -234,10 +240,6 @@
             <el-button type="success" @click="viewSurvey(survey.id)">
               <el-icon><View /></el-icon>
               查看
-            </el-button>
-            <el-button @click="viewStats(survey.id)">
-              <el-icon><TrendCharts /></el-icon>
-              统计
             </el-button>
           </template>
 
@@ -318,6 +320,7 @@ import {
   ArrowDown,
   WarningFilled,
   Delete,
+  Star,
 } from "@element-plus/icons-vue";
 
 import { useUserStore } from "@/store/user";
@@ -393,7 +396,9 @@ const loadCreatedSurveys = async () => {
       participants: q.participantCount || q.participants || 0,
       shareCount: q.shareCount || 0,
       rejectedReason: q.rejectedReason || '',
-      rejectedAt: q.rejectedAt || null
+      rejectedAt: q.rejectedAt || null,
+      averageRating: q.averageRating || 0,
+      ratingCount: q.ratingCount || 0
     }));
   } catch (error) {
     console.error('加载问卷失败:', error);

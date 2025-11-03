@@ -143,7 +143,7 @@
                 type="primary" 
                 @click="nextQuestion"
                 size="large"
-                :disabled="!isAnswered && currentQuestion.required"
+                :disabled="!canProceed"
               >
                 {{ isLastQuestion ? '提交问卷' : '下一题' }}
                 <el-icon v-if="!isLastQuestion"><ArrowRight /></el-icon>
@@ -282,6 +282,16 @@ const isAnswered = computed(() => {
   return answer !== null && answer !== undefined && answer !== '';
 });
 
+// 是否可以进入下一题（必答题必须作答，非必答题可以跳过）
+const canProceed = computed(() => {
+  // 如果是必答题，必须已回答
+  if (currentQuestion.value?.required) {
+    return isAnswered.value;
+  }
+  // 非必答题可以直接进入下一题
+  return true;
+});
+
 // 已确认的答题数量（只有点击/失焦后计入）
 const answeredCount = computed(() => {
   return Object.keys(committedAnswers).length;
@@ -409,10 +419,25 @@ const handleTextCommit = () => {
 };
 
 const nextQuestion = async () => {
-  // 验证必答题
-  if (currentQuestion.value?.required && !isAnswered.value) {
-    ElMessage.warning('请回答当前问题后再继续');
-    return;
+  // 验证必答题（强化检查）
+  if (currentQuestion.value?.required) {
+    const answer = currentAnswer.value;
+    let hasAnswer = false;
+    
+    if (currentQuestion.value.type === 'multiple') {
+      hasAnswer = Array.isArray(answer) && answer.length > 0;
+    } else {
+      hasAnswer = answer !== null && answer !== undefined && String(answer).trim() !== '';
+    }
+    
+    if (!hasAnswer) {
+      ElMessage.warning({
+        message: '此题为必答题，请选择或填写答案后再继续',
+        duration: 2000,
+        showClose: true
+      });
+      return;
+    }
   }
 
   // 检查是否有跳转逻辑

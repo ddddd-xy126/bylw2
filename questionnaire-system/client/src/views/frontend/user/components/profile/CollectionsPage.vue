@@ -98,15 +98,10 @@
             />
             
             <div class="survey-content" @click="goToSurvey(collection.surveyId)">
-              <div class="survey-thumbnail">
-                <img
-                  :src="collection.thumbnail || '/images/default-survey.jpg'"
-                  :alt="collection.title"
-                  @error="handleImageError"
-                />
-                <div class="survey-overlay">
-                  <el-icon><View /></el-icon>
-                </div>
+              <div class="survey-icon">
+                <el-icon size="24" color="#F56C6C">
+                  <Star />
+                </el-icon>
               </div>
               
               <div class="survey-info">
@@ -424,10 +419,6 @@ const formatDate = (dateString) => {
   });
 };
 
-const handleImageError = (event) => {
-  event.target.src = '/images/default-survey.jpg';
-};
-
 // 监听分页变化，清空选中项
 watch([currentPage, pageSize], () => {
   selectedItems.value = [];
@@ -579,48 +570,21 @@ onMounted(() => {
     }
   }
 
-  .survey-thumbnail {
-    width: 120px;
-    height: 80px;
-    border-radius: 6px;
-    overflow: hidden;
-    position: relative;
+  .survey-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: #fef0f0;
+    border-radius: 12px;
     flex-shrink: 0;
     margin-right: 16px;
 
     @media (max-width: 768px) {
-      width: 100%;
-      height: 120px;
-      margin: 0 0 12px 0;
-    }
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .survey-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-
-      &:hover {
-        opacity: 1;
-      }
-
-      .el-icon {
-        color: white;
-        font-size: 24px;
-      }
+      width: 40px;
+      height: 40px;
+      margin-right: 12px;
     }
   }
 

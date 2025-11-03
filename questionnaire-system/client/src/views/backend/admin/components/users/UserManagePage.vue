@@ -263,7 +263,14 @@
     </div>
 
     <!-- 用户详情对话框 -->
-    <el-dialog v-model="detailDialogVisible" title="用户详情" width="60%" :destroy-on-close="true">
+    <el-dialog 
+      v-model="detailDialogVisible" 
+      title="用户详情" 
+      width="60%" 
+      :append-to-body="true"
+      :destroy-on-close="true"
+      :z-index="3000"
+    >
       <div v-if="selectedUser" class="user-detail">
         <el-descriptions :column="2" border>
           <el-descriptions-item label="用户名">
@@ -357,8 +364,15 @@
     </el-dialog>
 
     <!-- 编辑用户对话框 -->
-    <el-dialog v-model="editDialogVisible" title="编辑用户" width="50%" :destroy-on-close="true">
-      <el-form :model="editForm" :rules="editRules" ref="editFormRef" label-width="80px">
+    <el-dialog 
+      v-model="editDialogVisible" 
+      title="编辑用户" 
+      width="50%" 
+      :append-to-body="true"
+      :destroy-on-close="true"
+      :z-index="3000"
+    >
+      <el-form ref="editFormRef" :model="editForm" :rules="editFormRules" label-width="100px">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="editForm.username" />
         </el-form-item>

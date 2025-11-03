@@ -4,9 +4,22 @@
       <!-- 左侧导航栏 -->
       <div class="profile-sidebar">
         <div class="user-info-mini">
-          <el-avatar :size="60" :src="userAvatar">
-            {{ userStore.userName?.charAt(0) }}
-          </el-avatar>
+          <div class="avatar-wrapper" @click="handleAvatarClick">
+            <el-avatar :size="60" :src="userAvatar">
+              {{ userStore.userName?.charAt(0) }}
+            </el-avatar>
+            <div class="avatar-overlay">
+              <el-icon><Camera /></el-icon>
+              <span>更换头像</span>
+            </div>
+          </div>
+          <input
+            ref="avatarInput"
+            type="file"
+            accept="image/*"
+            style="display: none"
+            @change="handleAvatarUpload"
+          />
           <div class="user-details">
             <h3>{{ userStore.userName || '用户' }}</h3>
             <p>{{ userStore.profile?.email || '暂无邮箱' }}</p>
@@ -93,17 +106,25 @@ import {
   Promotion,
   Delete,
   Trophy,
-  DataAnalysis
+  DataAnalysis,
+  Camera
 } from "@element-plus/icons-vue";
+import { ElMessage } from "element-plus";
 
 import { useUserStore } from "@/store/user";
+import { updateProfileApi } from "@/api/user";
 
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
+const avatarInput = ref(null);
 
 // 计算属性
 const userAvatar = computed(() => {
+  // 优先使用用户上传的头像
+  if (userStore.profile?.avatar) {
+    return userStore.profile.avatar;
+  }
   return `https://api.dicebear.com/7.x/initials/svg?seed=${userStore.userName || 'User'}`;
 });
 
@@ -112,6 +133,68 @@ const activeMenu = computed(() => {
 });
 
 // 方法
+const handleAvatarClick = () => {
+  avatarInput.value?.click();
+};
+
+const handleAvatarUpload = async (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  // 验证文件类型
+  if (!file.type.startsWith('image/')) {
+    ElMessage.error('请选择图片文件');
+    return;
+  }
+
+  // 验证文件大小（限制为 2MB）
+  if (file.size > 2 * 1024 * 1024) {
+    ElMessage.error('图片大小不能超过 2MB');
+    return;
+  }
+
+  try {
+    // 将图片转换为 Base64
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64Avatar = e.target.result;
+      
+      // 更新用户头像到后端
+      const currentProfile = userStore.profile;
+      if (!currentProfile) {
+        ElMessage.error('用户未登录');
+        return;
+      }
+
+      await updateProfileApi(currentProfile.id, {
+        ...currentProfile,
+        avatar: base64Avatar,
+        updatedAt: new Date().toISOString()
+      });
+
+      // 更新 store
+      userStore.setProfile({
+        ...currentProfile,
+        avatar: base64Avatar
+      });
+
+      ElMessage.success('头像更新成功');
+    };
+    
+    reader.onerror = () => {
+      ElMessage.error('图片读取失败');
+    };
+    
+    reader.readAsDataURL(file);
+  } catch (error) {
+    console.error('上传头像失败:', error);
+    ElMessage.error('头像上传失败，请重试');
+  }
+
+  // 清空 input，允许重复选择同一文件
+  event.target.value = '';
+};
+
 const handleMenuSelect = (index) => {
   router.push(index);
 };
@@ -223,10 +306,11 @@ onMounted(() => {
       text-align: center;
     }
 
-    .el-avatar {
+    .avatar-wrapper {
+      position: relative;
+      display: inline-block;
       margin-bottom: 16px;
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
 
       @media (max-width: 1024px) {
         margin-bottom: 0;
@@ -236,6 +320,43 @@ onMounted(() => {
       @media (max-width: 768px) {
         margin-right: 0;
         margin-bottom: 12px;
+      }
+
+      .el-avatar {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .avatar-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: all 0.3s ease;
+        color: white;
+        font-size: 12px;
+
+        .el-icon {
+          font-size: 20px;
+          margin-bottom: 4px;
+        }
+      }
+
+      &:hover .avatar-overlay {
+        opacity: 1;
+      }
+
+      &:hover .el-avatar {
+        transform: scale(1.05);
       }
     }
 

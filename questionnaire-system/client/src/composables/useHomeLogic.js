@@ -25,7 +25,9 @@ export function useHomeLogic() {
   // 过滤和排序逻辑
   const filteredSurveys = computed(() => {
     const surveysArray = Array.isArray(surveys.value) ? surveys.value : [];
-    let filtered = surveysArray.filter((survey) => survey.status === "published");
+    let filtered = surveysArray.filter((survey) => 
+      survey.status === "published" && survey.isCollecting !== false
+    );
 
     // 搜索过滤
     if (searchQuery.value.trim()) {
@@ -73,7 +75,7 @@ export function useHomeLogic() {
   const totalSurveys = computed(() => {
     const surveysArray = Array.isArray(surveys.value) ? surveys.value : [];
     let total = surveysArray.filter(
-      (survey) => survey.status === "published"
+      (survey) => survey.status === "published" && survey.isCollecting !== false
     ).length;
 
     if (searchQuery.value.trim()) {
@@ -81,6 +83,7 @@ export function useHomeLogic() {
       total = surveysArray.filter(
         (survey) =>
           survey.status === "published" &&
+          survey.isCollecting !== false &&
           (survey.title.toLowerCase().includes(query) ||
             survey.description.toLowerCase().includes(query))
       ).length;
@@ -90,6 +93,7 @@ export function useHomeLogic() {
       total = surveysArray.filter(
         (survey) =>
           survey.status === "published" &&
+          survey.isCollecting !== false &&
           survey.categoryId === selectedCategory.value
       ).length;
     }
