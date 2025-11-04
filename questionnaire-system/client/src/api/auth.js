@@ -15,18 +15,10 @@ export async function login(data) {
     throw new Error("用户名或密码错误");
   }
   
+  // 返回完整的用户信息
   return {
     token: `mock-jwt-token-${user.id}`,
-    user: {
-      id: user.id,
-      username: user.username,
-      nickname: user.nickname,
-      email: user.email,
-      avatar: user.avatar,
-      role: user.role,
-      points: user.points,
-      level: user.level
-    }
+    user: user  // 返回完整的用户对象,包含所有字段
   };
 }
 
@@ -67,18 +59,10 @@ export async function register(data) {
   
   const createdUser = await apiClient.post('/users', newUser);
   
+  // 返回完整的用户信息
   return {
     token: `mock-jwt-token-${createdUser.id}`,
-    user: {
-      id: createdUser.id,
-      username: createdUser.username,
-      nickname: createdUser.nickname,
-      email: createdUser.email,
-      avatar: createdUser.avatar,
-      role: createdUser.role,
-      points: createdUser.points,
-      level: createdUser.level
-    }
+    user: createdUser  // 返回完整的用户对象
   };
 }
 

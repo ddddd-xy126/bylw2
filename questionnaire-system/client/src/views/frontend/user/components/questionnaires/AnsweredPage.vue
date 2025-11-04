@@ -26,9 +26,8 @@
         <el-col :span="6">
           <el-select v-model="filterCategory" placeholder="问卷分类" clearable @change="handleFilter">
             <el-option label="全部分类" value="" />
-            <el-option label="心理健康" value="心理健康" />
-            <el-option label="教育" value="教育" />
-            <el-option label="职业发展" value="职业发展" />
+            <el-option v-for="category in categories" :key="category.id" :label="category.name"
+              :value="category.name" />
           </el-select>
         </el-col>
         <el-col :span="4">
@@ -92,13 +91,13 @@
         </div>
 
         <div class="survey-actions">
-          <el-button type="primary" @click="viewResult(answer)" :disabled="!answer.score">
+          <el-button type="info"  @click="viewResult(answer)" :disabled="!answer.score">
             <el-icon>
               <View />
             </el-icon>
             查看结果
           </el-button>
-          <el-button @click="retakeSurvey(answer.surveyId)" :disabled="!answer.survey">
+          <el-button type="primary" @click="retakeSurvey(answer.surveyId)" :disabled="!answer.survey">
             <el-icon>
               <RefreshRight />
             </el-icon>
@@ -152,6 +151,7 @@ import {
 } from "@element-plus/icons-vue";
 
 import { getUserAnsweredSurveysApi, addFavoriteApi, moveAnsweredToRecycleApi } from "@/api/user";
+import { getCategoriesApi } from "@/api/survey";
 import { useUserStore } from "@/store/user";
 import { useListFilter } from "@/hooks/useListFilter";
 
@@ -161,6 +161,7 @@ const userStore = useUserStore();
 // 响应式数据
 const loading = ref(false);
 const answeredSurveys = ref([]);
+const categories = ref([]);
 
 // 使用通用列表筛选 hooks（封装搜索/筛选/分页）
 const {
@@ -177,6 +178,14 @@ const {
 } = useListFilter({ sourceList: answeredSurveys, searchFields: ["title"] });
 
 // 方法
+const loadCategories = async () => {
+  try {
+    categories.value = await getCategoriesApi();
+  } catch (error) {
+    console.error('加载分类失败:', error);
+  }
+};
+
 const loadAnsweredSurveys = async () => {
   loading.value = true;
   try {
@@ -284,6 +293,7 @@ const handleFavorite = async (answer) => {
 
 // 生命周期
 onMounted(() => {
+  loadCategories();
   loadAnsweredSurveys();
 });
 </script>
@@ -292,7 +302,6 @@ onMounted(() => {
 <style scoped lang="scss">
 .answered-page {
   padding: var(--spacing-lg);
-  background: var(--bg-primary-light);
   min-height: 100vh;
   color: var(--text-primary);
   transition: background var(--transition-base);
@@ -302,47 +311,42 @@ onMounted(() => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--color-primary-light-3);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-lg) var(--spacing-xl);
-    box-shadow: var(--shadow-md);
-    color: var(--text-inverse);
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--color-primary-light-5) 0%, white 100%);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(37, 146, 52, 0.1);
+    border: 1px solid var(--color-primary-light-5);
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 16px;
+    }
 
     .header-info {
       h2 {
-        font-size: var(--font-size-2xl);
-        font-weight: var(--font-weight-bold);
-        margin-bottom: var(--spacing-xs);
+        margin: 0 0 8px 0;
+        color: #303133;
+        font-size: 24px;
       }
 
       p {
-        font-size: var(--font-size-base);
-        color: var(--text-inverse);
-        opacity: 0.85;
+        margin: 0;
+        color: #606266;
+        font-size: 14px;
       }
     }
 
     .header-stats {
-      .el-statistic {
-        background: var(--bg-primary-light);
-        border-radius: var(--radius-md);
-        padding: var(--spacing-sm) var(--spacing-lg);
-        box-shadow: var(--shadow-sm);
+      text-align: right;
 
-        .el-statistic__title {
-          color: var(--text-inverse);
-          font-size: var(--font-size-sm);
-        }
-
-        .el-statistic__content {
-          color: var(--text-inverse);
-          font-weight: var(--font-weight-bold);
-          font-size: var(--font-size-lg);
-        }
+      @media (max-width: 768px) {
+        text-align: left;
+        width: 100%;
       }
     }
   }
+
 
   // ============ 筛选卡片 ============
   .filter-card {
@@ -381,12 +385,14 @@ onMounted(() => {
     .survey-item {
       display: flex;
       justify-content: space-between;
-      align-items: stretch;
+      align-items: center;
       background: var(--color-white);
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-base);
       padding: var(--spacing-md) var(--spacing-lg);
       transition: transform var(--transition-base), box-shadow var(--transition-base);
+      border-left: 4px solid #67C23A;
+      gap: 20px;
 
       &:hover {
         transform: translateY(-2px);
@@ -395,7 +401,7 @@ onMounted(() => {
 
       .survey-main {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         flex: 1;
 
         .survey-icon {
@@ -479,31 +485,31 @@ onMounted(() => {
       .survey-actions {
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        gap: var(--spacing-sm);
-        margin-left: var(--spacing-lg);
+        gap: 12px;
+        flex-shrink: 0;
+        min-width: 120px;
 
-        .el-button {
-          font-size: var(--font-size-sm);
-          transition: all var(--transition-base);
-          border-radius: var(--radius-sm);
+        .el-button,
+        :deep(.el-dropdown) {
+          width: 100%;
+        }
 
-          &:hover {
-            transform: scale(1.03);
-          }
+        :deep(.el-dropdown .el-button) {
+          width: 100%;
+        }
 
-          &.el-button--primary {
-            background-color: var(--color-primary);
-            border-color: var(--color-primary);
-          }
+        .el-button + .el-button {
+          margin-left: 0;
+        }
 
-          &.el-button--danger {
-            color: var(--color-error-dark);
-          }
+        @media (max-width: 768px) {
+          width: 100%;
+          justify-content: center;
+        }
 
-          &.el-button--warning {
-            color: var(--color-warning-dark);
-          }
+        @media (max-width: 480px) {
+          flex-direction: column;
+          width: 100%;
         }
       }
     }
@@ -554,14 +560,7 @@ onMounted(() => {
     .survey-item {
       flex-direction: column;
       align-items: flex-start;
-
-      .survey-actions {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-      }
     }
   }
 }
-
 </style>

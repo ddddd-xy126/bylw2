@@ -90,6 +90,50 @@
   border-color: var(--color-error) !important;
 }
 
+.el-button--info {
+  background-color: var(--color-info) !important;
+  border-color: var(--color-info) !important;
+  color: var(--text-inverse) !important;
+}
+.el-button--info:hover {
+  background-color: var(--color-info-light) !important;
+  border-color: var(--color-info-light) !important;
+}
+.el-button--info:active {
+  background-color: var(--color-info-dark) !important;
+  border-color: var(--color-info-dark) !important;
+}
+.el-button--info.is-plain,
+.el-button--info.is-plain:hover {
+  background-color: transparent !important;
+  color: var(--color-info) !important;
+  border-color: var(--color-info) !important;
+}
+
+.el-button--other{
+  background-color: var(--color-gray-400) !important;
+  border-color: var(--color-gray-400) !important;
+  // color: var(--color-primary-dark-3) !important;
+}
+.el-button--other:hover {
+  background-color: var(--color-gray-500) !important;
+  border-color: var(--color-gray-500) !important;
+  color: var(--color-gray-200) !important;
+}
+.el-button--other:active {
+  background-color: var(--color-gray-600) !important;
+  border-color: var(--color-gray-600) !important;
+  // color: var(--color-primary-dark-3) !important;
+}
+.el-button--other.is-plain,
+.el-button--other.is-plain:hover {
+  background-color: transparent !important;
+  color: var(--color-gray-400) !important;
+  border-color: var(--color-gray-400) !important;
+}
+
+
+
 .el-button.is-circle {
   background-color: var(--color-gray-400) !important;
   border-radius: 50% !important;
@@ -443,6 +487,10 @@
   display: block !important;
   align-items: unset !important;
   gap: unset !important;
+}
+
+.el-message-box__btns {
+    gap: 10px !important;
 }
 
 

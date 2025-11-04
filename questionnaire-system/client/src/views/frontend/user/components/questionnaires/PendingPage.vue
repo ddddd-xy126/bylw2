@@ -26,8 +26,8 @@
 
     <!-- 筛选和搜索 -->
     <el-card class="filter-card" shadow="never">
-      <el-row :gutter="16">
-        <el-col :span="8">
+      <el-row :gutter="10">
+        <el-col :span="6">
           <el-input
             v-model="searchKeyword"
             placeholder="搜索问卷标题"
@@ -47,11 +47,12 @@
             @change="handleFilter"
           >
             <el-option label="全部分类" value="" />
-            <el-option label="心理健康" value="心理健康" />
-            <el-option label="教育" value="教育" />
-            <el-option label="职业发展" value="职业发展" />
-            <el-option label="产品" value="产品" />
-            <el-option label="企业" value="企业" />
+            <el-option 
+              v-for="category in categories" 
+              :key="category.id" 
+              :label="category.name" 
+              :value="category.name" 
+            />
           </el-select>
         </el-col>
         <el-col :span="6">
@@ -226,7 +227,8 @@ import {
 
 import { 
   getUserSurveysApi, 
-  updateSurveyApi 
+  updateSurveyApi,
+  getCategoriesApi
 } from "@/api/survey";
 import { useUserStore } from "@/store/user";
 import { useListFilter } from "@/hooks/useListFilter";
@@ -237,6 +239,7 @@ const userStore = useUserStore();
 // 响应式数据
 const loading = ref(false);
 const pendingSurveys = ref([]);
+const categories = ref([]);
 
 // 使用 useListFilter 管理搜索/分类/日期/分页
 const {
@@ -256,6 +259,14 @@ const {
 // filteredSurveys 由 useListFilter 返回
 
 // 方法
+const loadCategories = async () => {
+  try {
+    categories.value = await getCategoriesApi();
+  } catch (error) {
+    console.error('加载分类失败:', error);
+  }
+};
+
 const loadPendingSurveys = async () => {
   loading.value = true;
   try {
@@ -266,21 +277,11 @@ const loadPendingSurveys = async () => {
       return;
     }
     
-    // 从 json-server 获取所有问卷
-    const response = await fetch('http://localhost:3002/surveys');
-    if (!response.ok) {
-      throw new Error('加载待审核问卷失败');
-    }
-    
-    const allSurveys = await response.json();
-    
-    // 筛选当前用户的待审核问卷
-    const userPendingSurveys = allSurveys.filter(s => 
-      (s.userId === userId || s.authorId === userId) && s.status === 'pending'
-    );
+    // 使用 API 获取当前用户的待审核问卷
+    const allSurveys = await getUserSurveysApi(userId, 'pending');
     
     // 格式化数据
-    pendingSurveys.value = userPendingSurveys.map(q => ({
+    pendingSurveys.value = allSurveys.map(q => ({
       id: q.id,
       title: q.title,
       description: q.description,
@@ -293,7 +294,7 @@ const loadPendingSurveys = async () => {
       participants: q.participantCount || q.participants || 0
     }));
     
-    console.log('Loaded pending surveys:', userPendingSurveys);
+    console.log('Loaded pending surveys:', allSurveys);
   } catch (error) {
     console.error('加载待审核问卷失败:', error);
     ElMessage.error("加载待审核问卷失败：" + error.message);
@@ -334,21 +335,11 @@ const withdrawSurvey = async (id) => {
       }
     );
     
-    // 更新 json-server 中的问卷状态
-    const response = await fetch(`http://localhost:3002/surveys/${id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        status: 'draft',
-        updatedAt: new Date().toISOString()
-      })
+    // 使用 API 更新问卷状态
+    await updateSurveyApi(id, {
+      status: 'draft',
+      updatedAt: new Date().toISOString()
     });
-    
-    if (!response.ok) {
-      throw new Error('撤回失败');
-    }
     
     ElMessage.success("问卷已撤回到草稿状态");
     loadPendingSurveys();
@@ -378,6 +369,7 @@ const contactAdmin = (survey) => {
 
 // 生命周期
 onMounted(() => {
+  loadCategories();
   loadPendingSurveys();
 });
 </script>
@@ -472,6 +464,7 @@ onMounted(() => {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 20px;
 
     @media (max-width: 768px) {
       flex-direction: column;
@@ -489,7 +482,7 @@ onMounted(() => {
 
     .survey-main {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 16px;
       flex: 1;
 
@@ -593,8 +586,23 @@ onMounted(() => {
 
     .survey-actions {
       display: flex;
+      flex-direction: column;
       gap: 12px;
       flex-shrink: 0;
+      min-width: 120px;
+
+      .el-button,
+      :deep(.el-dropdown) {
+        width: 100%;
+      }
+
+      :deep(.el-dropdown .el-button) {
+        width: 100%;
+      }
+
+      .el-button + .el-button {
+        margin-left: 0;
+      }
 
       @media (max-width: 768px) {
         width: 100%;

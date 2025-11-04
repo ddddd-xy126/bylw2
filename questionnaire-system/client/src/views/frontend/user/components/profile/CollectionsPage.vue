@@ -24,11 +24,12 @@
             clearable
             @change="handleCategoryChange"
           >
+            <el-option label="全部分类" value="" />
             <el-option
               v-for="category in categories"
               :key="category.id"
               :label="category.name"
-              :value="category.id"
+              :value="category.name"
             />
           </el-select>
         </el-col>
@@ -97,7 +98,7 @@
               class="item-checkbox"
             />
             
-            <div class="survey-content" @click="goToSurvey(collection.surveyId)">
+            <div class="survey-main" @click="goToSurvey(collection.surveyId)">
               <div class="survey-icon">
                 <el-icon size="24" color="#F56C6C">
                   <Star />
@@ -105,61 +106,65 @@
               </div>
               
               <div class="survey-info">
-                <h3 class="survey-title" :title="collection.title">
-                  {{ collection.title }}
-                </h3>
-                <p class="survey-description">
-                  {{ collection.description }}
-                </p>
-                
-                <div class="survey-meta">
-                  <el-tag :type="getCategoryTagType(collection.category)" size="small">
-                    {{ collection.category }}
-                  </el-tag>
-                  <span class="survey-author">{{ collection.author }}</span>
-                  <span class="survey-participants">
-                    <el-icon><User /></el-icon>
-                    {{ collection.participants || 0 }}
-                  </span>
+                <div class="survey-header">
+                  <h3 class="survey-title" :title="collection.title">
+                    {{ collection.title }}
+                  </h3>
+                  <div class="survey-badges">
+                    <el-tag :type="getCategoryTagType(collection.category)" size="small">
+                      {{ collection.category }}
+                    </el-tag>
+                  </div>
                 </div>
                 
-                <div class="survey-stats">
-                  <span class="stat-item">
+                <div class="survey-meta">
+                  <span class="meta-item">
+                    <el-icon><User /></el-icon>
+                    作者：{{ collection.author }}
+                  </span>
+                  <span class="meta-item">
+                    <el-icon><User /></el-icon>
+                    参与人数：{{ collection.participants || 0 }}
+                  </span>
+                  <span class="meta-item">
                     <el-icon><Clock /></el-icon>
                     {{ collection.duration }}分钟
                   </span>
-                  <span class="stat-item">
+                  <span class="meta-item">
                     <el-icon><Star /></el-icon>
-                    {{ collection.rating || 0 }}
+                    评分：{{ collection.rating || 0 }}
                   </span>
-                  <span class="stat-item difficulty">
-                    {{ collection.difficulty }}
+                  <span class="meta-item difficulty">
+                    难度：{{ collection.difficulty }}
                   </span>
+                </div>
+                
+                <div class="survey-description">
+                  {{ collection.description }}
+                </div>
+                
+                <div class="collected-time">
+                  收藏于 {{ formatDate(collection.createdAt) }}
                 </div>
               </div>
             </div>
             
             <div class="survey-actions">
-              <span class="collected-time">
-                收藏于 {{ formatDate(collection.createdAt) }}
-              </span>
-              <div class="action-buttons">
-                <el-button
-                  type="primary"
-                  size="small"
-                  @click="goToSurvey(collection.surveyId)"
-                >
-                  开始答题
-                </el-button>
-                <el-button
-                  type="danger"
-                  size="small"
-                  @click="removeFavorite(collection.id, collection.surveyId)"
-                  :loading="removingItems.includes(collection.id)"
-                >
-                  取消收藏
-                </el-button>
-              </div>
+              <el-button
+                type="primary"
+                @click.stop="goToSurvey(collection.surveyId)"
+              >
+                <el-icon><View /></el-icon>
+                开始答题
+              </el-button>
+              <el-button
+                type="danger"
+                @click.stop="removeFavorite(collection.id, collection.surveyId)"
+                :loading="removingItems.includes(collection.id)"
+              >
+                <el-icon><Delete /></el-icon>
+                取消收藏
+              </el-button>
             </div>
           </div>
         </div>
@@ -188,6 +193,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { Search, Delete, View, User, Clock, Star } from '@element-plus/icons-vue';
 import { useUserStore } from '@/store/user';
 import { getFavoritesApi, removeFavoriteApi } from '@/api/user';
+import { getCategoriesApi } from '@/api/survey';
 import { useListFilter } from '@/hooks/useListFilter';
 
 const router = useRouter();
@@ -207,7 +213,7 @@ const removingItems = ref([]);
 const sourceForFilter = computed(() => {
   let list = [...collections.value];
   if (categoryFilter.value) {
-    list = list.filter(item => item.categoryId == categoryFilter.value);
+    list = list.filter(item => item.category === categoryFilter.value);
   }
   return list;
 });
@@ -257,6 +263,16 @@ const indeterminate = computed(() => {
 });
 
 // 方法
+const loadCategories = async () => {
+  try {
+    categories.value = await getCategoriesApi();
+  } catch (error) {
+    console.error('加载分类失败:', error);
+    ElMessage.error('加载分类失败');
+    categories.value = [];
+  }
+};
+
 const loadCollections = async () => {
   try {
     loading.value = true;
@@ -268,19 +284,6 @@ const loadCollections = async () => {
     
     const favoriteSurveys = await getFavoritesApi(userId);
     collections.value = favoriteSurveys;
-    
-    // 提取分类信息
-    const categorySet = new Set();
-    favoriteSurveys.forEach(survey => {
-      if (survey.categoryId && survey.category) {
-        categorySet.add(JSON.stringify({
-          id: survey.categoryId,
-          name: survey.category
-        }));
-      }
-    });
-    
-    categories.value = Array.from(categorySet).map(cat => JSON.parse(cat));
     
   } catch (error) {
     console.error('加载收藏失败:', error);
@@ -426,6 +429,7 @@ watch([currentPage, pageSize], () => {
 
 // 生命周期
 onMounted(() => {
+  loadCategories();
   loadCollections();
 });
 </script>
@@ -527,46 +531,50 @@ onMounted(() => {
 
 .survey-item {
   display: flex;
-  align-items: flex-start;
-  padding: 16px;
-  border: 1px solid #f0f2f5;
-  border-radius: 8px;
+  align-items: center;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-  position: relative;
+  border-left: 4px solid #F56C6C;
+  gap: 20px;
 
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: stretch;
+    gap: 16px;
   }
 
   &:hover {
-    border-color: var(--color-primary-light-3);
-    box-shadow: 0 4px 12px rgba(64, 158, 255, 0.1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
   }
 
   &.selected {
-    border-color: var(--color-primary-light-3);
+    border-left-color: var(--color-primary-light-3);
     background-color: #f0f9ff;
   }
 
   .item-checkbox {
-    margin-right: 16px;
-    margin-top: 8px;
+    flex-shrink: 0;
 
     @media (max-width: 768px) {
       align-self: flex-start;
-      margin: 0 0 12px 0;
+      margin-bottom: 12px;
     }
   }
 
-  .survey-content {
+  .survey-main {
     display: flex;
+    align-items: center;
     flex: 1;
     cursor: pointer;
-    min-width: 0;
+    gap: 16px;
 
     @media (max-width: 768px) {
       flex-direction: column;
+      align-items: flex-start;
     }
   }
 
@@ -579,12 +587,10 @@ onMounted(() => {
     background: #fef0f0;
     border-radius: 12px;
     flex-shrink: 0;
-    margin-right: 16px;
 
     @media (max-width: 768px) {
       width: 40px;
       height: 40px;
-      margin-right: 12px;
     }
   }
 
@@ -592,15 +598,34 @@ onMounted(() => {
     flex: 1;
     min-width: 0;
 
+    .survey-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+
+      @media (max-width: 480px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+    }
+
     .survey-title {
-      margin: 0 0 8px 0;
-      font-size: 16px;
+      margin: 0;
+      font-size: 18px;
       font-weight: 600;
       color: #303133;
       line-height: 1.4;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    .survey-badges {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
     }
 
     .survey-description {
@@ -618,48 +643,22 @@ onMounted(() => {
     .survey-meta {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
       margin-bottom: 8px;
       flex-wrap: wrap;
 
-      @media (max-width: 480px) {
+      @media (max-width: 768px) {
         flex-direction: column;
         align-items: flex-start;
         gap: 8px;
       }
 
-      .survey-author {
-        color: #909399;
-        font-size: 13px;
-      }
-
-      .survey-participants {
+      .meta-item {
         display: flex;
         align-items: center;
         gap: 4px;
-        color: #909399;
-        font-size: 13px;
-      }
-    }
-
-    .survey-stats {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-
-      @media (max-width: 480px) {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-      }
-
-      .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        color: #909399;
-        font-size: 13px;
+        color: #606266;
+        font-size: 14px;
 
         &.difficulty {
           background: #f0f2f5;
@@ -669,43 +668,42 @@ onMounted(() => {
         }
       }
     }
+
+    .collected-time {
+      color: #909399;
+      font-size: 12px;
+      margin-top: 8px;
+    }
   }
 
   .survey-actions {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
-    margin-left: 16px;
+    gap: 12px;
+    flex-shrink: 0;
+    min-width: 120px;
+
+    .el-button,
+    :deep(.el-dropdown) {
+      width: 100%;
+    }
+
+    :deep(.el-dropdown .el-button) {
+      width: 100%;
+    }
+
+    .el-button + .el-button {
+      margin-left: 0;
+    }
 
     @media (max-width: 768px) {
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      margin: 12px 0 0 0;
+      width: 100%;
+      justify-content: center;
     }
 
-    .collected-time {
-      color: #909399;
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 8px;
-
-      @media (max-width: 768px) {
-        flex-direction: column;
-        gap: 4px;
-      }
-
-      .el-button {
-        @media (max-width: 768px) {
-          font-size: 12px;
-          padding: 6px 12px;
-        }
-      }
+    @media (max-width: 480px) {
+      flex-direction: column;
+      width: 100%;
     }
   }
 }

@@ -205,7 +205,7 @@
                 </el-button>
 
                 <el-dropdown @command="(cmd) => handleAction(cmd, row)">
-                  <el-button type="info" size="small">
+                  <el-button type="other" size="small">
                     更多 <el-icon>
                       <ArrowDown />
                     </el-icon>

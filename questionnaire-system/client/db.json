@@ -904,151 +904,6 @@
       "isTemplate": false
     },
     {
-      "id": "1760948457095",
-      "title": "eqeqwe",
-      "description": "qweqweqe",
-      "category": "psychology",
-      "duration": 10,
-      "tags": [
-        "weqeq"
-      ],
-      "questions": 5,
-      "settings": {
-        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
-        "showProgress": true,
-        "randomOrder": false
-      },
-      "status": "closed",
-      "createdAt": "2025-10-20T08:20:57.112Z",
-      "updatedAt": "2025-11-03T02:40:39.353Z",
-      "userId": "ec9c",
-      "authorName": "123",
-      "creatorId": "ec9c",
-      "authorId": "ec9c",
-      "author": "123",
-      "responses": 0,
-      "participants": 0,
-      "participantCount": 0,
-      "rating": 0,
-      "thumbnail": "/images/default.jpg",
-      "questionList": [
-        {
-          "type": "single",
-          "title": "新的单选题qeqwe",
-          "description": "qweqe",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1",
-              "text": "选项1",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2",
-              "text": "选项2",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1760948437510.531,
-          "order": 1
-        },
-        {
-          "type": "single",
-          "title": "新的单选题 (副本)eqweqwe",
-          "description": "qweqweqe",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1_1760948439134_0.17673769171953824",
-              "text": "选项1",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2_1760948439134_0.2630666430921047",
-              "text": "选项2",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1760948439134.6104,
-          "order": 2
-        },
-        {
-          "type": "single",
-          "title": "新的单选题 (副本)eqweqwe",
-          "description": "qweqweqee",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1_1760948439470_0.712217560205572",
-              "text": "选项1",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2_1760948439470_0.23641593172543007",
-              "text": "选项2",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1760948439470.0989,
-          "order": 3
-        },
-        {
-          "type": "single",
-          "title": "新的单选题 (副本)eeeq",
-          "description": "e",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1_1760948439646_0.44544700911197044",
-              "text": "选项1",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2_1760948439646_0.24837080904137154",
-              "text": "选项2",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1760948439646.0881,
-          "order": 4
-        },
-        {
-          "type": "single",
-          "title": "新的单选题 (副本)weqweq",
-          "description": "",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1_1760948439814_0.10852207345938747",
-              "text": "选项1",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2_1760948439814_0.08265114229097092",
-              "text": "选项2",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1760948439814.0251,
-          "order": 5
-        }
-      ],
-      "isCollecting": false,
-      "averageRating": 0,
-      "ratingCount": 0,
-      "answerCount": 0,
-      "completionRate": 0,
-      "favoriteCount": 0,
-      "views": 0,
-      "answers": [],
-      "isTemplate": false
-    },
-    {
       "id": "8",
       "title": "健康生活习惯调查",
       "description": "了解您的日常健康习惯，提供改善建议",
@@ -1283,453 +1138,6 @@
       "completionRate": 88,
       "favoriteCount": 265,
       "views": 3728,
-      "answers": [],
-      "isTemplate": false
-    },
-    {
-      "id": "1761025276907",
-      "title": "额为全额全额aa",
-      "description": "e委屈恶气呃",
-      "category": "product",
-      "duration": 10,
-      "tags": [
-        "q恶气恶气"
-      ],
-      "questions": 8,
-      "settings": {
-        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
-        "showProgress": true,
-        "randomOrder": false
-      },
-      "status": "closed",
-      "createdAt": "2025-10-21T05:41:16.919Z",
-      "updatedAt": "2025-11-03T02:22:48.455Z",
-      "userId": "ec9c",
-      "authorName": "123",
-      "creatorId": "ec9c",
-      "authorId": "ec9c",
-      "author": "123",
-      "responses": 0,
-      "participants": 0,
-      "participantCount": 0,
-      "rating": 0,
-      "thumbnail": "/images/default.jpg",
-      "questionList": [
-        {
-          "type": "single",
-          "title": "新的单选题驱蚊器恶气",
-          "description": "",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1",
-              "text": "选项1",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2",
-              "text": "选项2",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1761025242579.8027,
-          "order": 1
-        },
-        {
-          "type": "single",
-          "title": "新的单选题驱蚊器恶气 (副本)",
-          "description": "",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1_1761025247011_0.2404844707827104",
-              "text": "选项1",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2_1761025247011_0.7153776356766121",
-              "text": "选项2",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1761025247011.0173,
-          "order": 2
-        },
-        {
-          "type": "single",
-          "title": "新的单选题驱蚊器恶气 (副本)",
-          "description": "",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1_1761025247379_0.14174602840769557",
-              "text": "选项1",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2_1761025247379_0.9757759053071425",
-              "text": "选项2",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1761025247379.3018,
-          "order": 3
-        },
-        {
-          "type": "single",
-          "title": "新的单选题驱蚊器恶气 (副本)",
-          "description": "",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1_1761025247611_0.000256395159591305",
-              "text": "选项1",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2_1761025247611_0.6013241616707159",
-              "text": "选项2",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1761025247611.2097,
-          "order": 4
-        },
-        {
-          "type": "single",
-          "title": "新的单选题驱蚊器恶气 (副本)",
-          "description": "",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1_1761025247819_0.22267861858403915",
-              "text": "选项1",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2_1761025247819_0.4626024121938742",
-              "text": "选项2",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1761025247819.019,
-          "order": 5
-        },
-        {
-          "type": "multiple",
-          "title": "新的多选题",
-          "description": "",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1",
-              "text": "选项1",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2",
-              "text": "选项2",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt3",
-              "text": "选项3",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "randomOrder": false,
-          "id": 1761025262059.976,
-          "order": 6
-        },
-        {
-          "type": "text",
-          "title": "新的文本题",
-          "description": "",
-          "required": false,
-          "textType": "text",
-          "placeholder": "请输入...",
-          "minLength": null,
-          "maxLength": 500,
-          "id": 1761025264475.2634,
-          "order": 7
-        },
-        {
-          "type": "rating",
-          "title": "新的评分题",
-          "description": "qwe企鹅",
-          "required": false,
-          "minRating": 1,
-          "maxRating": 5,
-          "ratingStyle": "star",
-          "ratingLabels": {
-            "low": "很差",
-            "high": "很好"
-          },
-          "id": 1761025266819.131,
-          "order": 8
-        }
-      ],
-      "rejectedReason": "a",
-      "rejectedAt": "2025-10-21T07:02:18.860Z",
-      "isCollecting": true,
-      "averageRating": 0,
-      "ratingCount": 0,
-      "answerCount": 0,
-      "completionRate": 0,
-      "favoriteCount": 0,
-      "views": 0,
-      "answers": [],
-      "isTemplate": false
-    },
-    {
-      "id": "1761270207375",
-      "title": "sda",
-      "description": "dasd",
-      "category": "enterprise",
-      "duration": 10,
-      "tags": [],
-      "questions": 7,
-      "questionList": [
-        {
-          "type": "single",
-          "title": "1",
-          "description": "",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1",
-              "text": "2",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2",
-              "text": "3",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1761033339799.1675,
-          "order": 1,
-          "enableLogic": true,
-          "logicRules": [
-            {
-              "optionId": "opt1",
-              "targetQuestion": 2
-            },
-            {
-              "optionId": "opt2",
-              "targetQuestion": 3
-            }
-          ]
-        },
-        {
-          "type": "single",
-          "title": "2",
-          "description": "",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1_1761270052949_0.69678316085411",
-              "text": "4",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2_1761270052949_0.43169401894674",
-              "text": "5",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1761270052949.2275,
-          "order": 2,
-          "enableLogic": true,
-          "logicRules": [
-            {
-              "optionId": "opt1_1761270052949_0.69678316085411",
-              "targetQuestion": 4
-            },
-            {
-              "optionId": "opt2_1761270052949_0.43169401894674",
-              "targetQuestion": 5
-            }
-          ]
-        },
-        {
-          "type": "single",
-          "title": "3",
-          "description": "",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1_1761270053509_0.9255147496725037",
-              "text": "6",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2_1761270053509_0.31372133652026035",
-              "text": "7",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1761270053509.924,
-          "order": 3,
-          "enableLogic": true,
-          "logicRules": [
-            {
-              "optionId": "opt1_1761270053509_0.9255147496725037",
-              "targetQuestion": 6
-            },
-            {
-              "optionId": "opt2_1761270053509_0.31372133652026035",
-              "targetQuestion": 7
-            }
-          ]
-        },
-        {
-          "type": "single",
-          "title": "4",
-          "description": "",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1_1761270054173_0.5210026719675347",
-              "text": "具体语境人员",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2_1761270054173_0.310256027445163",
-              "text": "呃uyetuyeuy",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1761270054173.9832,
-          "order": 4
-        },
-        {
-          "type": "single",
-          "title": "5",
-          "description": "",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1_1761270109173_0.5017487776771354",
-              "text": "e他也同样",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2_1761270109173_0.4888578640501312",
-              "text": "7teyer他也同样",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1761270109173.0017,
-          "order": 5
-        },
-        {
-          "type": "single",
-          "title": "6",
-          "description": "",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1_1761270109869_0.9909665104773897",
-              "text": "一条鱼让",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2_1761270109869_0.6623257754192245",
-              "text": "他也也同样e",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1761270109869.0957,
-          "order": 6
-        },
-        {
-          "type": "single",
-          "title": "7",
-          "description": "",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1_1761270116821_0.33560436873523325",
-              "text": "液体也同样rt",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2_1761270116821_0.5859290671056243",
-              "text": "他也同样绕太阳ey",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1761270116821.5095,
-          "order": 7
-        }
-      ],
-      "settings": {
-        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
-        "showProgress": true,
-        "randomOrder": false
-      },
-      "status": "closed",
-      "updatedAt": "2025-10-27T01:28:26.579Z",
-      "createdAt": "2025-10-24T01:43:27.386Z",
-      "userId": "ec9c",
-      "authorId": "ec9c",
-      "authorName": "123",
-      "author": "123",
-      "participants": 0,
-      "participantCount": 0,
-      "creatorId": "ec9c",
-      "responses": 0,
-      "rating": 0,
-      "thumbnail": "/images/default.jpg",
-      "isCollecting": true,
-      "averageRating": 0,
-      "ratingCount": 0,
-      "answerCount": 0,
-      "completionRate": 0,
-      "favoriteCount": 0,
-      "views": 0,
-      "answers": [],
-      "isTemplate": false
-    },
-    {
-      "id": "9fc2",
-      "updatedAt": "2025-11-03T02:22:54.255Z",
-      "status": "closed",
-      "isCollecting": true,
-      "averageRating": 0,
-      "ratingCount": 0,
-      "answerCount": 0,
-      "completionRate": 0,
-      "favoriteCount": 0,
-      "views": 0,
-      "answers": [],
-      "isTemplate": false
-    },
-    {
-      "id": "5615",
-      "updatedAt": "2025-11-03T02:40:50.203Z",
-      "isCollecting": true,
-      "averageRating": 0,
-      "ratingCount": 0,
-      "status": "closed",
-      "answerCount": 0,
-      "completionRate": 0,
-      "favoriteCount": 0,
-      "views": 0,
       "answers": [],
       "isTemplate": false
     },
@@ -3052,232 +2460,13 @@
       "isTemplate": false
     },
     {
-      "id": "1762237406151",
-      "title": "qqqqqqqqqqq - 副本",
-      "description": "qqqqqqqqqqqq",
-      "category": "enterprise",
-      "duration": 10,
-      "tags": [],
-      "questions": 2,
-      "questionList": [
-        {
-          "type": "single",
-          "title": "新的单选题",
-          "description": "qqqqqqqqqqq",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1",
-              "text": "选项1",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2",
-              "text": "选项2",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1762158518839.1165,
-          "order": 1
-        },
-        {
-          "type": "single",
-          "title": "新的单选题 (副本)",
-          "description": "qqqqqqqqqqqwwwwwwwwwwwwwwwwwww",
-          "required": false,
-          "options": [
-            {
-              "id": "opt1_1762158522623_0.9936671810747991",
-              "text": "选项1",
-              "selectedCount": 0
-            },
-            {
-              "id": "opt2_1762158522623_0.13554659931255475",
-              "text": "选项2",
-              "selectedCount": 0
-            }
-          ],
-          "allowOther": false,
-          "id": 1762158522623.583,
-          "order": 2
-        }
-      ],
-      "settings": {
-        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
-        "showProgress": true,
-        "randomOrder": false
-      },
-      "status": "rejected",
-      "updatedAt": "2025-11-04T06:24:04.321Z",
-      "createdAt": "2025-11-04T06:23:26.151Z",
-      "userId": "ec9c",
-      "authorId": "ec9c",
-      "authorName": "123",
-      "author": "123",
-      "participants": 0,
-      "participantCount": 0,
-      "creatorId": "ec9c",
-      "responses": 0,
-      "rating": 0,
-      "thumbnail": "/images/default.jpg",
-      "rejectedReason": "q",
-      "rejectedAt": "2025-11-04T06:24:04.321Z",
-      "answerCount": 0,
-      "completionRate": 0,
-      "favoriteCount": 0,
-      "views": 0,
-      "answers": [
-        {
-          "id": "4682",
-          "userId": "ec9c",
-          "surveyId": 1762158531721,
-          "surveyTitle": "qqqqqqqqqqq",
-          "score": 92,
-          "result": "良好",
-          "submittedAt": "2025-11-03T09:42:04.000Z",
-          "duration": 2,
-          "answers": [
-            {
-              "questionId": "1762158518839.1165",
-              "answer": "opt1",
-              "question": "新的单选题"
-            },
-            {
-              "questionId": "1762158522623.583",
-              "answer": "opt2_1762158522623_0.13554659931255475",
-              "question": "新的单选题 (副本)"
-            }
-          ],
-          "comment": null
-        },
-        {
-          "id": "198b",
-          "userId": "ec9c",
-          "surveyId": 1762158531721,
-          "surveyTitle": "qqqqqqqqqqq",
-          "score": 95,
-          "result": "良好",
-          "submittedAt": "2025-11-03T09:42:11.104Z",
-          "duration": 2,
-          "answers": [
-            {
-              "questionId": "1762158518839.1165",
-              "answer": "opt1",
-              "question": "新的单选题"
-            },
-            {
-              "questionId": "1762158522623.583",
-              "answer": "opt1_1762158522623_0.9936671810747991",
-              "question": "新的单选题 (副本)"
-            }
-          ],
-          "comment": null
-        },
-        {
-          "id": "1f7b",
-          "userId": "4",
-          "surveyId": 1762158531721,
-          "surveyTitle": "qqqqqqqqqqq",
-          "score": 65,
-          "result": "良好",
-          "submittedAt": "2025-11-03T09:44:17.003Z",
-          "duration": 3,
-          "answers": [
-            {
-              "questionId": "1762158518839.1165",
-              "answer": "opt1",
-              "question": "新的单选题"
-            },
-            {
-              "questionId": "1762158522623.583",
-              "answer": "opt2_1762158522623_0.13554659931255475",
-              "question": "新的单选题 (副本)"
-            }
-          ],
-          "comment": null
-        },
-        {
-          "id": "687b",
-          "userId": "4",
-          "surveyId": 1762158531721,
-          "surveyTitle": "qqqqqqqqqqq",
-          "score": 93,
-          "result": "良好",
-          "submittedAt": "2025-11-03T09:55:14.623Z",
-          "duration": 2,
-          "answers": [
-            {
-              "questionId": "1762158518839.1165",
-              "answer": "opt1",
-              "question": "新的单选题"
-            },
-            {
-              "questionId": "1762158522623.583",
-              "answer": "opt2_1762158522623_0.13554659931255475",
-              "question": "新的单选题 (副本)"
-            }
-          ],
-          "comment": null
-        },
-        {
-          "id": "1bd2",
-          "userId": "4",
-          "surveyId": 1762158531721,
-          "surveyTitle": "qqqqqqqqqqq",
-          "score": 62,
-          "result": "良好",
-          "submittedAt": "2025-11-03T09:56:05.428Z",
-          "duration": 2,
-          "answers": [
-            {
-              "questionId": "1762158518839.1165",
-              "answer": "opt1",
-              "question": "新的单选题"
-            },
-            {
-              "questionId": "1762158522623.583",
-              "answer": "opt1_1762158522623_0.9936671810747991",
-              "question": "新的单选题 (副本)"
-            }
-          ],
-          "comment": null
-        },
-        {
-          "id": "a2be",
-          "userId": "ec9c",
-          "surveyId": 1762158531721,
-          "surveyTitle": "qqqqqqqqqqq",
-          "score": 71,
-          "result": "良好",
-          "submittedAt": "2025-11-04T01:36:07.079Z",
-          "duration": 4,
-          "answers": [
-            {
-              "questionId": "1762158518839.1165",
-              "answer": "opt1",
-              "question": "新的单选题"
-            },
-            {
-              "questionId": "1762158522623.583",
-              "answer": "opt2_1762158522623_0.13554659931255475",
-              "question": "新的单选题 (副本)"
-            }
-          ],
-          "comment": null
-        }
-      ],
-      "averageRating": 0,
-      "ratingCount": 0,
-      "isTemplate": false
-    },
-    {
       "id": "template_1",
       "title": "员工满意度调查",
       "description": "全面了解员工对工作环境、薪酬福利、职业发展等方面的满意度，为企业管理提供数据支持",
       "category": "企业管理",
       "categoryValue": "enterprise",
       "questions": 25,
+      "questionList": [],
       "duration": 15,
       "rating": 4.8,
       "participants": 1250,
@@ -3294,7 +2483,23 @@
       ],
       "status": "published",
       "createdAt": "2024-01-01T08:00:00Z",
-      "updatedAt": "2024-01-20T10:00:00Z"
+      "updatedAt": "2024-01-20T10:00:00Z",
+      "userId": "admin",
+      "authorId": "admin",
+      "authorName": "系统管理员",
+      "author": "系统管理员",
+      "creatorId": "admin",
+      "responses": 0,
+      "thumbnail": "/images/default.jpg",
+      "answerCount": 0,
+      "answers": [],
+      "averageRating": 4.8,
+      "ratingCount": 1250,
+      "settings": {
+        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
+        "showProgress": true,
+        "randomOrder": false
+      }
     },
     {
       "id": "template_2",
@@ -3303,6 +2508,7 @@
       "category": "产品研发",
       "categoryValue": "product",
       "questions": 20,
+      "questionList": [],
       "duration": 12,
       "rating": 4.6,
       "participants": 980,
@@ -3319,7 +2525,23 @@
       ],
       "status": "published",
       "createdAt": "2024-01-02T08:00:00Z",
-      "updatedAt": "2024-01-20T10:00:00Z"
+      "updatedAt": "2024-01-20T10:00:00Z",
+      "userId": "admin",
+      "authorId": "admin",
+      "authorName": "系统管理员",
+      "author": "系统管理员",
+      "creatorId": "admin",
+      "responses": 0,
+      "thumbnail": "/images/default.jpg",
+      "answerCount": 0,
+      "answers": [],
+      "averageRating": 4.6,
+      "ratingCount": 980,
+      "settings": {
+        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
+        "showProgress": true,
+        "randomOrder": false
+      }
     },
     {
       "id": "template_3",
@@ -3328,6 +2550,7 @@
       "category": "心理健康",
       "categoryValue": "psychology",
       "questions": 30,
+      "questionList": [],
       "duration": 20,
       "rating": 4.9,
       "participants": 2340,
@@ -3344,7 +2567,23 @@
       ],
       "status": "published",
       "createdAt": "2024-01-03T08:00:00Z",
-      "updatedAt": "2024-01-20T10:00:00Z"
+      "updatedAt": "2024-01-20T10:00:00Z",
+      "userId": "admin",
+      "authorId": "admin",
+      "authorName": "系统管理员",
+      "author": "系统管理员",
+      "creatorId": "admin",
+      "responses": 0,
+      "thumbnail": "/images/default.jpg",
+      "answerCount": 0,
+      "answers": [],
+      "averageRating": 4.9,
+      "ratingCount": 2340,
+      "settings": {
+        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
+        "showProgress": true,
+        "randomOrder": false
+      }
     },
     {
       "id": "template_4",
@@ -3353,6 +2592,7 @@
       "category": "教育培训",
       "categoryValue": "education",
       "questions": 18,
+      "questionList": [],
       "duration": 10,
       "rating": 4.7,
       "participants": 756,
@@ -3369,7 +2609,23 @@
       ],
       "status": "published",
       "createdAt": "2024-11-01T08:00:00Z",
-      "updatedAt": "2024-11-03T10:00:00Z"
+      "updatedAt": "2024-11-03T10:00:00Z",
+      "userId": "admin",
+      "authorId": "admin",
+      "authorName": "系统管理员",
+      "author": "系统管理员",
+      "creatorId": "admin",
+      "responses": 0,
+      "thumbnail": "/images/default.jpg",
+      "answerCount": 0,
+      "answers": [],
+      "averageRating": 4.7,
+      "ratingCount": 756,
+      "settings": {
+        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
+        "showProgress": true,
+        "randomOrder": false
+      }
     },
     {
       "id": "template_5",
@@ -3378,6 +2634,7 @@
       "category": "市场调研",
       "categoryValue": "market",
       "questions": 22,
+      "questionList": [],
       "duration": 15,
       "rating": 4.5,
       "participants": 1180,
@@ -3394,7 +2651,23 @@
       ],
       "status": "published",
       "createdAt": "2024-01-05T08:00:00Z",
-      "updatedAt": "2024-01-20T10:00:00Z"
+      "updatedAt": "2024-01-20T10:00:00Z",
+      "userId": "admin",
+      "authorId": "admin",
+      "authorName": "系统管理员",
+      "author": "系统管理员",
+      "creatorId": "admin",
+      "responses": 0,
+      "thumbnail": "/images/default.jpg",
+      "answerCount": 0,
+      "answers": [],
+      "averageRating": 4.5,
+      "ratingCount": 1180,
+      "settings": {
+        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
+        "showProgress": true,
+        "randomOrder": false
+      }
     },
     {
       "id": "template_6",
@@ -3403,6 +2676,7 @@
       "category": "用户体验",
       "categoryValue": "ux",
       "questions": 16,
+      "questionList": [],
       "duration": 12,
       "rating": 4.4,
       "participants": 645,
@@ -3419,7 +2693,23 @@
       ],
       "status": "published",
       "createdAt": "2024-11-02T08:00:00Z",
-      "updatedAt": "2024-11-04T10:00:00Z"
+      "updatedAt": "2024-11-04T10:00:00Z",
+      "userId": "admin",
+      "authorId": "admin",
+      "authorName": "系统管理员",
+      "author": "系统管理员",
+      "creatorId": "admin",
+      "responses": 0,
+      "thumbnail": "/images/default.jpg",
+      "answerCount": 0,
+      "answers": [],
+      "averageRating": 4.4,
+      "ratingCount": 645,
+      "settings": {
+        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
+        "showProgress": true,
+        "randomOrder": false
+      }
     },
     {
       "id": "template_7",
@@ -3428,6 +2718,7 @@
       "category": "学术研究",
       "categoryValue": "academic",
       "questions": 35,
+      "questionList": [],
       "duration": 25,
       "rating": 4.6,
       "participants": 420,
@@ -3444,7 +2735,23 @@
       ],
       "status": "published",
       "createdAt": "2024-01-07T08:00:00Z",
-      "updatedAt": "2024-01-20T10:00:00Z"
+      "updatedAt": "2024-01-20T10:00:00Z",
+      "userId": "admin",
+      "authorId": "admin",
+      "authorName": "系统管理员",
+      "author": "系统管理员",
+      "creatorId": "admin",
+      "responses": 0,
+      "thumbnail": "/images/default.jpg",
+      "answerCount": 0,
+      "answers": [],
+      "averageRating": 4.6,
+      "ratingCount": 420,
+      "settings": {
+        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
+        "showProgress": true,
+        "randomOrder": false
+      }
     },
     {
       "id": "template_8",
@@ -3453,6 +2760,7 @@
       "category": "活动反馈",
       "categoryValue": "event",
       "questions": 14,
+      "questionList": [],
       "duration": 8,
       "rating": 4.3,
       "participants": 890,
@@ -3469,7 +2777,23 @@
       ],
       "status": "published",
       "createdAt": "2024-11-01T08:00:00Z",
-      "updatedAt": "2024-11-03T10:00:00Z"
+      "updatedAt": "2024-11-03T10:00:00Z",
+      "userId": "admin",
+      "authorId": "admin",
+      "authorName": "系统管理员",
+      "author": "系统管理员",
+      "creatorId": "admin",
+      "responses": 0,
+      "thumbnail": "/images/default.jpg",
+      "answerCount": 0,
+      "answers": [],
+      "averageRating": 4.3,
+      "ratingCount": 890,
+      "settings": {
+        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
+        "showProgress": true,
+        "randomOrder": false
+      }
     },
     {
       "id": "template_9",
@@ -3478,6 +2802,7 @@
       "category": "企业管理",
       "categoryValue": "enterprise",
       "questions": 20,
+      "questionList": [],
       "duration": 10,
       "rating": 4.2,
       "participants": 1500,
@@ -3494,211 +2819,292 @@
       ],
       "status": "published",
       "createdAt": "2024-01-09T08:00:00Z",
-      "updatedAt": "2024-01-20T10:00:00Z"
+      "updatedAt": "2024-01-20T10:00:00Z",
+      "userId": "admin",
+      "authorId": "admin",
+      "authorName": "系统管理员",
+      "author": "系统管理员",
+      "creatorId": "admin",
+      "responses": 0,
+      "thumbnail": "/images/default.jpg",
+      "answerCount": 0,
+      "answers": [],
+      "averageRating": 4.2,
+      "ratingCount": 1500,
+      "settings": {
+        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
+        "showProgress": true,
+        "randomOrder": false
+      }
+    },
+    {
+      "id": "865e",
+      "title": "员工满意度调查 - 副本",
+      "description": "全面了解员工对工作环境、薪酬福利、职业发展等方面的满意度",
+      "category": "enterprise",
+      "categoryId": 1,
+      "author": "123",
+      "authorId": "ec9c",
+      "questions": 2,
+      "duration": 15,
+      "difficulty": "简单",
+      "status": "draft",
+      "tags": [
+        "员工",
+        "满意度",
+        "企业管理"
+      ],
+      "thumbnail": "/images/default.jpg",
+      "rating": 0,
+      "participants": 0,
+      "participantCount": 0,
+      "questionList": [
+        {
+          "id": 1,
+          "type": "single",
+          "title": "您的工作部门是？",
+          "required": true,
+          "options": [
+            {
+              "text": "技术部",
+              "selectedCount": 0
+            },
+            {
+              "text": "市场部",
+              "selectedCount": 0
+            },
+            {
+              "text": "人事部",
+              "selectedCount": 0
+            },
+            {
+              "text": "财务部",
+              "selectedCount": 0
+            },
+            {
+              "text": "其他",
+              "selectedCount": 0
+            }
+          ],
+          "order": 1
+        },
+        {
+          "id": 2,
+          "type": "rating",
+          "title": "您对当前工作内容的满意度",
+          "required": true,
+          "maxRating": 5,
+          "ratingStyle": "star",
+          "order": 2
+        }
+      ],
+      "createdAt": "2025-11-04T09:41:48.820Z",
+      "updatedAt": "2025-11-04T10:11:44.185Z",
+      "settings": {
+        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
+        "showProgress": true,
+        "randomOrder": false
+      },
+      "userId": "ec9c",
+      "authorName": "123"
     }
   ],
   "answers": [],
   "recycleBin": [
     {
-      "id": "1762162833517",
+      "id": "1762248800759",
       "surveyId": null,
-      "title": "asdad - 副本",
-      "description": "sdada",
-      "category": "psychology",
-      "originalStatus": "draft",
-      "questions": 5,
-      "deletedAt": "2025-11-03T09:40:33.517Z",
-      "userId": "ec9c",
-      "authorId": "ec9c",
+      "originalStatus": "closed",
+      "questions": 4,
+      "deletedAt": "2025-11-04T09:33:20.759Z",
       "surveyData": {
-        "id": "1762162826856",
-        "title": "asdad - 副本",
-        "description": "sdada",
-        "category": "psychology",
-        "duration": 10,
-        "tags": [
-          "dsadasd"
-        ],
-        "questions": 5,
-        "questionList": [
+        "id": "5615",
+        "updatedAt": "2025-11-03T02:40:50.203Z",
+        "isCollecting": true,
+        "averageRating": 4.5,
+        "ratingCount": 0,
+        "status": "closed",
+        "answerCount": 0,
+        "completionRate": 0,
+        "favoriteCount": 0,
+        "views": 0,
+        "answers": [],
+        "isTemplate": false,
+        "questions": [
           {
+            "id": 1,
             "type": "single",
-            "title": "新的单选题",
-            "description": "",
-            "required": false,
+            "title": "您最喜欢的颜色是什么？",
+            "description": "请选择一个您最喜欢的颜色",
             "options": [
               {
-                "id": "opt1",
-                "text": "2",
-                "selectedCount": 0
+                "id": "red",
+                "text": "红色"
               },
               {
-                "id": "opt2",
-                "text": "3",
-                "selectedCount": 0
-              }
-            ],
-            "allowOther": false,
-            "id": 1761032914989.239,
-            "enableLogic": true,
-            "logicRules": [
-              {
-                "optionId": "opt1",
-                "targetQuestion": 2
+                "id": "blue",
+                "text": "蓝色"
               },
               {
-                "optionId": "opt2",
-                "targetQuestion": 3
+                "id": "green",
+                "text": "绿色"
+              },
+              {
+                "id": "yellow",
+                "text": "黄色"
               }
             ],
+            "required": true,
             "order": 1
           },
           {
-            "type": "single",
-            "title": "新的单选题asda",
-            "description": "",
-            "required": false,
+            "id": 2,
+            "type": "multiple",
+            "title": "您喜欢的运动有哪些？",
+            "description": "可以选择多个选项",
             "options": [
               {
-                "id": "opt1",
-                "text": "4",
-                "selectedCount": 0
+                "id": "basketball",
+                "text": "篮球"
               },
               {
-                "id": "opt2",
-                "text": "5",
-                "selectedCount": 0
-              }
-            ],
-            "allowOther": false,
-            "id": 1761032933901.0586,
-            "enableLogic": true,
-            "logicRules": [
-              {
-                "optionId": "opt1",
-                "targetQuestion": 4
+                "id": "football",
+                "text": "足球"
               },
               {
-                "optionId": "opt2",
-                "targetQuestion": 5
+                "id": "tennis",
+                "text": "网球"
+              },
+              {
+                "id": "swimming",
+                "text": "游泳"
+              },
+              {
+                "id": "running",
+                "text": "跑步"
               }
             ],
+            "required": false,
             "order": 2
           },
           {
-            "type": "multiple",
-            "title": "新的多选题",
-            "description": "",
-            "required": false,
-            "options": [
-              {
-                "id": "opt1",
-                "text": "选项1",
-                "selectedCount": 0
-              },
-              {
-                "id": "opt2",
-                "text": "选项2",
-                "selectedCount": 0
-              },
-              {
-                "id": "opt3",
-                "text": "选项3",
-                "selectedCount": 0
-              }
-            ],
-            "allowOther": false,
-            "randomOrder": false,
-            "id": 1761032935469.3125,
-            "enableLogic": false,
-            "logicRules": [],
+            "id": 3,
+            "type": "rating",
+            "title": "请为我们的服务打分",
+            "description": "您对我们服务的整体满意度",
+            "maxRating": 5,
+            "required": true,
             "order": 3
           },
           {
-            "type": "single",
-            "title": "新的单选题 (副本)",
-            "description": "",
+            "id": 4,
+            "type": "text",
+            "title": "您还有什么建议或意见吗？",
+            "description": "请在此处输入您的建议",
             "required": false,
-            "options": [
-              {
-                "id": "opt1_1761032937053_0.5403791632287117",
-                "text": "选项1",
-                "selectedCount": 0
-              },
-              {
-                "id": "opt2_1761032937053_0.8842710654149365",
-                "text": "选项2",
-                "selectedCount": 0
-              }
-            ],
-            "allowOther": false,
-            "id": 1761032937053.24,
-            "enableLogic": false,
-            "logicRules": [
-              {
-                "optionId": "opt1",
-                "targetQuestion": 2
-              },
-              {
-                "optionId": "opt1",
-                "targetQuestion": 2
-              }
-            ],
             "order": 4
-          },
-          {
-            "type": "single",
-            "title": "新的单选题 (副本)",
-            "description": "",
-            "required": false,
-            "options": [
-              {
-                "id": "opt1_1761032937253_0.4174912609686606",
-                "text": "选项1",
-                "selectedCount": 0
-              },
-              {
-                "id": "opt2_1761032937253_0.8722986825993186",
-                "text": "选项2",
-                "selectedCount": 0
-              }
-            ],
-            "allowOther": false,
-            "id": 1761032937253.0024,
-            "enableLogic": false,
-            "logicRules": [
-              {
-                "optionId": "opt2_1761032937253_0.8722986825993186",
-                "targetQuestion": 2
-              }
-            ],
-            "order": 5
           }
         ],
-        "settings": {
-          "thankMessage": "感谢您的参与！您的回答已经成功提交。",
-          "showProgress": true,
-          "randomOrder": false
-        },
-        "status": "draft",
-        "updatedAt": "2025-11-03T09:40:26.856Z",
-        "createdAt": "2025-11-03T09:40:26.856Z",
-        "userId": "ec9c",
-        "authorId": "ec9c",
-        "authorName": "123",
-        "author": "123",
-        "participants": 0,
-        "participantCount": 0,
-        "creatorId": "ec9c",
-        "responses": 0,
-        "rating": 0,
-        "thumbnail": "/images/default.jpg",
+        "isFavorite": false,
+        "estimatedTime": 6
+      }
+    },
+    {
+      "id": "1762249206218",
+      "surveyId": null,
+      "originalStatus": "closed",
+      "questions": 4,
+      "deletedAt": "2025-11-04T09:40:06.218Z",
+      "surveyData": {
+        "id": "9fc2",
+        "updatedAt": "2025-11-03T02:22:54.255Z",
+        "status": "closed",
         "isCollecting": true,
-        "averageRating": 0,
+        "averageRating": 4.5,
         "ratingCount": 0,
-        "views": 0,
         "answerCount": 0,
-        "completionRate": 0
+        "completionRate": 0,
+        "favoriteCount": 0,
+        "views": 0,
+        "answers": [],
+        "isTemplate": false,
+        "questions": [
+          {
+            "id": 1,
+            "type": "single",
+            "title": "您最喜欢的颜色是什么？",
+            "description": "请选择一个您最喜欢的颜色",
+            "options": [
+              {
+                "id": "red",
+                "text": "红色"
+              },
+              {
+                "id": "blue",
+                "text": "蓝色"
+              },
+              {
+                "id": "green",
+                "text": "绿色"
+              },
+              {
+                "id": "yellow",
+                "text": "黄色"
+              }
+            ],
+            "required": true,
+            "order": 1
+          },
+          {
+            "id": 2,
+            "type": "multiple",
+            "title": "您喜欢的运动有哪些？",
+            "description": "可以选择多个选项",
+            "options": [
+              {
+                "id": "basketball",
+                "text": "篮球"
+              },
+              {
+                "id": "football",
+                "text": "足球"
+              },
+              {
+                "id": "tennis",
+                "text": "网球"
+              },
+              {
+                "id": "swimming",
+                "text": "游泳"
+              },
+              {
+                "id": "running",
+                "text": "跑步"
+              }
+            ],
+            "required": false,
+            "order": 2
+          },
+          {
+            "id": 3,
+            "type": "rating",
+            "title": "请为我们的服务打分",
+            "description": "您对我们服务的整体满意度",
+            "maxRating": 5,
+            "required": true,
+            "order": 3
+          },
+          {
+            "id": 4,
+            "type": "text",
+            "title": "您还有什么建议或意见吗？",
+            "description": "请在此处输入您的建议",
+            "required": false,
+            "order": 4
+          }
+        ],
+        "isFavorite": false,
+        "estimatedTime": 6
       }
     }
   ],

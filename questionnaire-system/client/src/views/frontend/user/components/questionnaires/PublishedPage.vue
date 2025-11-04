@@ -91,11 +91,12 @@
         <el-col :span="5">
           <el-select v-model="filterCategory" placeholder="问卷分类" clearable @change="handleFilter">
             <el-option label="全部分类" value="" />
-            <el-option label="心理健康" value="心理健康" />
-            <el-option label="教育" value="教育" />
-            <el-option label="职业发展" value="职业发展" />
-            <el-option label="产品" value="产品" />
-            <el-option label="企业" value="企业" />
+            <el-option 
+              v-for="category in categories" 
+              :key="category.id" 
+              :label="category.name" 
+              :value="category.name" 
+            />
           </el-select>
         </el-col>
         <el-col :span="5">
@@ -209,7 +210,7 @@
             分享
           </el-button>
           <el-dropdown @command="handleMoreAction">
-            <el-button type="info">
+            <el-button type="other">
               更多 <el-icon>
                 <ArrowDown />
               </el-icon>
@@ -345,7 +346,9 @@ import {
 import {
   getUserSurveysApi,
   updateSurveyApi,
-  deleteSurveyApi
+  deleteSurveyApi,
+  getCategoriesApi,
+  getSurveyDetail
 } from "@/api/survey";
 import { useUserStore } from "@/store/user";
 import { useListFilter } from "@/hooks/useListFilter";
@@ -356,6 +359,7 @@ const userStore = useUserStore();
 // 响应式数据
 const loading = ref(false);
 const publishedSurveys = ref([]);
+const categories = ref([]);
 
 // 排序（保留在组件中）
 const sortBy = ref("publishedAt");
@@ -434,6 +438,14 @@ watch(sortBy, () => {
 });
 
 // 方法
+const loadCategories = async () => {
+  try {
+    categories.value = await getCategoriesApi();
+  } catch (error) {
+    console.error('加载分类失败:', error);
+  }
+};
+
 const loadPublishedSurveys = async () => {
   loading.value = true;
   try {
@@ -481,12 +493,8 @@ const formatDate = (date) => {
 const viewResults = async (id) => {
   try {
     loading.value = true;
-    // 获取问卷详细数据
-    const response = await fetch(`http://localhost:3002/surveys/${id}`);
-    if (!response.ok) {
-      throw new Error('获取问卷数据失败');
-    }
-    const surveyData = await response.json();
+    // 使用 API 获取问卷详细数据
+    const surveyData = await getSurveyDetail(id);
     currentSurveyStats.value = surveyData;
     statsDialogVisible.value = true;
   } catch (error) {
@@ -582,20 +590,10 @@ const handleMoreAction = async ({ action, data }) => {
           }
         );
 
-        const response = await fetch(`http://localhost:3002/surveys/${data.id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            isCollecting: false,
-            updatedAt: new Date().toISOString()
-          })
+        await updateSurveyApi(data.id, {
+          isCollecting: false,
+          updatedAt: new Date().toISOString()
         });
-
-        if (!response.ok) {
-          throw new Error('停止收集失败');
-        }
 
         ElMessage.success('已停止收集，问卷将不再对外展示');
         loadPublishedSurveys();
@@ -618,20 +616,10 @@ const handleMoreAction = async ({ action, data }) => {
           }
         );
 
-        const response = await fetch(`http://localhost:3002/surveys/${data.id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            isCollecting: true,
-            updatedAt: new Date().toISOString()
-          })
+        await updateSurveyApi(data.id, {
+          isCollecting: true,
+          updatedAt: new Date().toISOString()
         });
-
-        if (!response.ok) {
-          throw new Error('继续收集失败');
-        }
 
         ElMessage.success('已恢复收集，问卷将重新对外展示');
         loadPublishedSurveys();
@@ -668,6 +656,7 @@ const handleMoreAction = async ({ action, data }) => {
 
 // 生命周期
 onMounted(() => {
+  loadCategories();
   loadPublishedSurveys();
 });
 </script>
@@ -684,7 +673,7 @@ onMounted(() => {
     align-items: center;
     margin-bottom: 20px;
     padding: 20px;
-    background: var(--text-inverse)ff;
+     background: linear-gradient(135deg, var(--color-primary-light-5) 0%, white 100%);
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
@@ -796,6 +785,7 @@ onMounted(() => {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 20px;
 
     &:hover {
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
@@ -826,7 +816,7 @@ onMounted(() => {
 
     .survey-main {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 16px;
       flex: 1;
     }
@@ -936,8 +926,33 @@ onMounted(() => {
 
   .survey-actions {
     display: flex;
+    flex-direction: column;
     gap: 12px;
     flex-shrink: 0;
+    min-width: 120px;
+
+    .el-button,
+    :deep(.el-dropdown) {
+      width: 100%;
+    }
+
+    :deep(.el-dropdown .el-button) {
+      width: 100%;
+    }
+
+    .el-button + .el-button {
+      margin-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      width: 100%;
+      justify-content: center;
+    }
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+      width: 100%;
+    }
   }
 
   .empty-state {

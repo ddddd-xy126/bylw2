@@ -595,3 +595,24 @@ export async function deleteSurveyApi(id) {
   await apiClient.delete(`/surveys/${id}`);
   return { success: true };
 }
+
+// 回收站相关
+export async function getRecycleBinApi() {
+  const recycleBin = await apiClient.get("/recycleBin");
+  return recycleBin;
+}
+
+export async function addToRecycleBinApi(data) {
+  const recycleBinItem = await apiClient.post("/recycleBin", data);
+  return recycleBinItem;
+}
+
+export async function restoreFromRecycleBinApi(id) {
+  await apiClient.delete(`/recycleBin/${id}`);
+  return { success: true };
+}
+
+export async function deleteFromRecycleBinApi(id) {
+  await apiClient.delete(`/recycleBin/${id}`);
+  return { success: true };
+}

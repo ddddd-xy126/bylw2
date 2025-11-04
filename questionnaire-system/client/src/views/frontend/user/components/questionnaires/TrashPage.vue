@@ -13,33 +13,19 @@
         </div>
       </div>
       <div class="header-actions">
-        <el-button 
-          type="primary" 
-          :disabled="selectedIds.length === 0"
-          @click="batchRestore"
-          size="large"
-        >
-          <el-icon><RefreshRight /></el-icon>
+        <el-button type="primary" :disabled="selectedIds.length === 0" @click="batchRestore" size="large">
+          <el-icon>
+            <RefreshRight />
+          </el-icon>
           批量恢复
-          <el-badge 
-            v-if="selectedIds.length > 0" 
-            :value="selectedIds.length" 
-            class="action-badge"
-          />
+          <el-badge v-if="selectedIds.length > 0" :value="selectedIds.length" class="action-badge" />
         </el-button>
-        <el-button 
-          type="danger" 
-          :disabled="selectedIds.length === 0"
-          @click="batchDelete"
-          size="large"
-        >
-          <el-icon><Delete /></el-icon>
+        <el-button type="danger" :disabled="selectedIds.length === 0" @click="batchDelete" size="large">
+          <el-icon>
+            <Delete />
+          </el-icon>
           批量永久删除
-          <el-badge 
-            v-if="selectedIds.length > 0" 
-            :value="selectedIds.length" 
-            class="action-badge"
-          />
+          <el-badge v-if="selectedIds.length > 0" :value="selectedIds.length" class="action-badge" />
         </el-button>
       </div>
     </div>
@@ -50,7 +36,9 @@
         <el-card class="stat-card">
           <div class="stat-content">
             <div class="stat-icon">
-              <el-icon><Delete /></el-icon>
+              <el-icon>
+                <Delete />
+              </el-icon>
             </div>
             <div class="stat-info">
               <div class="stat-number">{{ trashedSurveys.length }}</div>
@@ -63,7 +51,9 @@
         <el-card class="stat-card">
           <div class="stat-content">
             <div class="stat-icon warning">
-              <el-icon><Timer /></el-icon>
+              <el-icon>
+                <Timer />
+              </el-icon>
             </div>
             <div class="stat-info">
               <div class="stat-number">{{ expiringSoonCount }}</div>
@@ -76,7 +66,9 @@
         <el-card class="stat-card">
           <div class="stat-content">
             <div class="stat-icon success">
-              <el-icon><CircleCheck /></el-icon>
+              <el-icon>
+                <CircleCheck />
+              </el-icon>
             </div>
             <div class="stat-info">
               <div class="stat-number">{{ selectedIds.length }}</div>
@@ -91,45 +83,38 @@
     <el-card class="filter-card" shadow="never">
       <el-row :gutter="16">
         <el-col :span="10">
-          <el-input
-            v-model="searchKeyword"
-            placeholder="搜索问卷标题"
-            clearable
-            @input="handleSearch"
-          >
+          <el-input v-model="searchKeyword" placeholder="搜索问卷标题" clearable @input="handleSearch">
             <template #prefix>
-              <el-icon><Search /></el-icon>
+              <el-icon>
+                <Search />
+              </el-icon>
             </template>
           </el-input>
         </el-col>
         <el-col :span="6">
-          <el-select
-            v-model="filterCategory"
-            placeholder="问卷分类"
-            clearable
-            @change="handleFilter"
-          >
+          <el-select v-model="filterCategory" placeholder="问卷分类" clearable @change="handleFilter">
             <el-option label="全部分类" value="" />
-            <el-option label="心理健康" value="心理健康" />
-            <el-option label="教育" value="教育" />
-            <el-option label="职业发展" value="职业发展" />
-            <el-option label="产品" value="产品" />
-            <el-option label="企业" value="企业" />
+            <el-option 
+              v-for="category in categories" 
+              :key="category.id" 
+              :label="category.name" 
+              :value="category.name"
+            />
           </el-select>
         </el-col>
         <el-col :span="4">
           <el-button type="primary" @click="refreshData">
-            <el-icon><Refresh /></el-icon>
+            <el-icon>
+              <Refresh />
+            </el-icon>
             刷新
           </el-button>
         </el-col>
         <el-col :span="4">
-          <el-button 
-            type="warning" 
-            @click="clearExpired"
-            :disabled="expiringSoonCount === 0"
-          >
-            <el-icon><Delete /></el-icon>
+          <el-button type="warning" @click="clearExpired" :disabled="expiringSoonCount === 0">
+            <el-icon>
+              <Delete />
+            </el-icon>
             清理过期
           </el-button>
         </el-col>
@@ -138,103 +123,92 @@
 
     <!-- 问卷列表 -->
     <div class="survey-list" v-loading="loading">
-      <el-checkbox 
-        v-model="selectAll" 
-        @change="handleSelectAll"
-        class="select-all-checkbox"
-        v-if="filteredSurveys.length > 0"
-      >
+      <el-checkbox v-model="selectAll" @change="handleSelectAll" class="select-all-checkbox"
+        v-if="filteredSurveys.length > 0">
         全选
       </el-checkbox>
 
-      <div
-        v-for="survey in filteredSurveys"
-        :key="survey.id"
-        class="survey-item"
-        :class="{ 
-          'selected': selectedIds.includes(survey.id),
-          'expiring-soon': isExpiringSoon(survey.deletedAt)
-        }"
-      >
-        <el-checkbox 
-          :model-value="selectedIds.includes(survey.id)"
-          @change="toggleSelect(survey.id)"
-          class="survey-checkbox"
-        />
+      <div v-for="survey in filteredSurveys" :key="survey.id" class="survey-item" :class="{
+        'selected': selectedIds.includes(survey.id),
+        'expiring-soon': isExpiringSoon(survey.deletedAt)
+      }">
+        <el-checkbox :model-value="selectedIds.includes(survey.id)" @change="toggleSelect(survey.id)"
+          class="survey-checkbox" />
 
         <div class="survey-main">
           <div class="survey-icon">
-            <el-icon size="24" color="#909399"><Delete /></el-icon>
+            <el-icon size="24" color="#909399">
+              <Delete />
+            </el-icon>
           </div>
-          
+
           <div class="survey-info">
             <div class="survey-header">
               <h3 class="survey-title">{{ survey.title }}</h3>
               <div class="survey-badges">
                 <el-tag size="small" type="primary">{{ survey.category }}</el-tag>
-                <el-tag 
-                  size="small" 
-                  :type="isExpiringSoon(survey.deletedAt) ? 'danger' : 'info'"
-                >
+                <el-tag size="small" :type="isExpiringSoon(survey.deletedAt) ? 'danger' : 'info'">
                   {{ getExpiryText(survey.deletedAt) }}
                 </el-tag>
               </div>
             </div>
-            
+
             <div class="survey-meta">
               <span class="meta-item">
-                <el-icon><Calendar /></el-icon>
+                <el-icon>
+                  <Calendar />
+                </el-icon>
                 删除时间：{{ formatDate(survey.deletedAt) }}
               </span>
               <span class="meta-item">
-                <el-icon><Timer /></el-icon>
+                <el-icon>
+                  <Timer />
+                </el-icon>
                 剩余天数：{{ getRemainingDays(survey.deletedAt) }}天
               </span>
               <span class="meta-item">
-                <el-icon><Document /></el-icon>
+                <el-icon>
+                  <Document />
+                </el-icon>
                 题目数：{{ survey.questions }}题
               </span>
               <span class="meta-item">
-                <el-icon><User /></el-icon>
+                <el-icon>
+                  <User />
+                </el-icon>
                 原状态：{{ getOriginalStatus(survey.originalStatus) }}
               </span>
             </div>
-            
+
             <div class="survey-description">
               {{ survey.description }}
             </div>
 
             <!-- 过期警告 -->
-            <el-alert
-              v-if="isExpiringSoon(survey.deletedAt)"
-              title="即将过期"
-              :description="`此问卷将在 ${getRemainingDays(survey.deletedAt)} 天后被永久删除，请及时恢复或备份`"
-              type="warning"
-              :closable="false"
-              show-icon
-              class="expiry-alert"
-            />
+            <el-alert v-if="isExpiringSoon(survey.deletedAt)" title="即将过期"
+              :description="`此问卷将在 ${getRemainingDays(survey.deletedAt)} 天后被永久删除，请及时恢复或备份`" type="warning"
+              :closable="false" show-icon class="expiry-alert" />
           </div>
         </div>
 
         <div class="survey-actions">
           <el-button type="success" @click="restoreSurvey(survey)">
-            <el-icon><RefreshRight /></el-icon>
+            <el-icon>
+              <RefreshRight />
+            </el-icon>
             恢复
           </el-button>
           <el-button type="danger" @click="permanentlyDelete(survey.id)">
-            <el-icon><Delete /></el-icon>
+            <el-icon>
+              <Delete />
+            </el-icon>
             永久删除
           </el-button>
         </div>
       </div>
 
       <!-- 空状态 -->
-      <el-empty 
-        v-if="!loading && filteredSurveys.length === 0" 
-        description="回收站是空的"
-        class="empty-state"
-      >
+      <el-empty v-if="!loading && filteredSurveys.length === 0" description="回收站是空的" class="empty-state">
         <el-button type="primary" @click="goToCreated">
           查看我的问卷
         </el-button>
@@ -243,13 +217,8 @@
 
     <!-- 分页 -->
     <div class="pagination-wrapper" v-if="totalItems > pageSize">
-      <el-pagination
-        v-model:current-page="currentPage"
-        :page-size="pageSize"
-        :total="totalItems"
-        layout="prev, pager, next, jumper, total"
-        @current-change="handlePageChange"
-      />
+      <el-pagination v-model:current-page="currentPage" :page-size="pageSize" :total="totalItems"
+        layout="prev, pager, next, jumper, total" @current-change="handlePageChange" />
     </div>
 
     <!-- 提示信息 -->
@@ -258,29 +227,12 @@
         <h3>回收站说明</h3>
       </template>
       <div class="notice-content">
-        <el-alert
-          title="自动清理"
-          description="问卷删除后将在回收站保留30天，超过30天的问卷将被自动永久删除。"
-          type="info"
-          :closable="false"
-          show-icon
-        />
+        <el-alert title="自动清理" description="问卷删除后将在回收站保留30天，超过30天的问卷将被自动永久删除。" type="info" :closable="false"
+          show-icon />
         <br>
-        <el-alert
-          title="恢复问卷"
-          description="恢复问卷后，问卷将回到原来的状态（草稿、待审核或已发布）。"
-          type="success"
-          :closable="false"
-          show-icon
-        />
+        <el-alert title="恢复问卷" description="恢复问卷后，问卷将回到原来的状态（草稿、待审核或已发布）。" type="success" :closable="false" show-icon />
         <br>
-        <el-alert
-          title="永久删除"
-          description="永久删除后，问卷数据将无法恢复，请谨慎操作。"
-          type="warning"
-          :closable="false"
-          show-icon
-        />
+        <el-alert title="永久删除" description="永久删除后，问卷数据将无法恢复，请谨慎操作。" type="warning" :closable="false" show-icon />
       </div>
     </el-card>
   </div>
@@ -301,6 +253,7 @@ import {
   Document,
   User,
 } from "@element-plus/icons-vue";
+import { getRecycleBinApi, createSurveyApi, deleteFromRecycleBinApi, getCategoriesApi } from '@/api/survey';
 
 import { useUserStore } from "@/store/user";
 import { useListFilter } from "@/hooks/useListFilter";
@@ -313,6 +266,7 @@ const loading = ref(false);
 const trashedSurveys = ref([]);
 const selectedIds = ref([]);
 const selectAll = ref(false);
+const categories = ref([]);
 
 // 使用 useListFilter 管理搜索/分类/分页
 const {
@@ -329,11 +283,22 @@ const {
 } = useListFilter({ sourceList: trashedSurveys, searchFields: ["title"] });
 
 // 计算属性
-const expiringSoonCount = computed(() => 
+const expiringSoonCount = computed(() =>
   trashedSurveys.value.filter(s => isExpiringSoon(s.deletedAt)).length
 );
 
 // filteredSurveys / totalItems / handlers 由 useListFilter 提供
+
+// 加载分类
+const loadCategories = async () => {
+  try {
+    categories.value = await getCategoriesApi();
+  } catch (error) {
+    console.error('加载分类失败:', error);
+    ElMessage.error('加载分类失败');
+    categories.value = [];
+  }
+};
 
 // 方法
 const loadTrashedSurveys = async () => {
@@ -345,20 +310,15 @@ const loadTrashedSurveys = async () => {
       trashedSurveys.value = [];
       return;
     }
-    
-    // 从 json-server 获取回收站数据
-    const response = await fetch('http://localhost:3002/recycleBin');
-    if (!response.ok) {
-      throw new Error('加载回收站失败');
-    }
-    
-    const allTrashed = await response.json();
-    
+
+    // 使用 API 获取回收站数据
+    const allTrashed = await getRecycleBinApi();
+
     // 筛选当前用户的已删除问卷
-    const userTrashed = allTrashed.filter(item => 
+    const userTrashed = allTrashed.filter(item =>
       item.userId === userId || item.authorId === userId
     );
-    
+
     // 格式化数据
     trashedSurveys.value = userTrashed.map(item => ({
       id: item.id,
@@ -371,7 +331,7 @@ const loadTrashedSurveys = async () => {
       questions: item.questions || 0,
       surveyData: item.surveyData
     }));
-    
+
     console.log('Loaded trashed surveys:', trashedSurveys.value);
   } catch (error) {
     console.error('加载回收站失败:', error);
@@ -440,7 +400,7 @@ const handleSelectAll = (checked) => {
 };
 
 const updateSelectAll = () => {
-  selectAll.value = filteredSurveys.value.length > 0 && 
+  selectAll.value = filteredSurveys.value.length > 0 &&
     selectedIds.value.length === filteredSurveys.value.length;
 };
 
@@ -455,35 +415,19 @@ const restoreSurvey = async (survey) => {
         type: 'success'
       }
     );
-    
+
     // 恢复问卷到 surveys 表
     const restoreData = {
       ...survey.surveyData,
       status: survey.originalStatus,
       updatedAt: new Date().toISOString()
     };
-    
-    const createResponse = await fetch('http://localhost:3002/surveys', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(restoreData)
-    });
-    
-    if (!createResponse.ok) {
-      throw new Error('恢复问卷失败');
-    }
-    
+
+    await createSurveyApi(restoreData);
+
     // 从回收站删除
-    const deleteResponse = await fetch(`http://localhost:3002/recycleBin/${survey.id}`, {
-      method: 'DELETE'
-    });
-    
-    if (!deleteResponse.ok) {
-      throw new Error('从回收站删除失败');
-    }
-    
+    await deleteFromRecycleBinApi(survey.id);
+
     ElMessage.success("问卷恢复成功");
     await loadTrashedSurveys();
   } catch (error) {
@@ -506,16 +450,10 @@ const permanentlyDelete = async (id) => {
         confirmButtonClass: 'el-button--danger'
       }
     );
-    
-    // 从回收站永久删除
-    const response = await fetch(`http://localhost:3002/recycleBin/${id}`, {
-      method: 'DELETE'
-    });
-    
-    if (!response.ok) {
-      throw new Error('永久删除失败');
-    }
-    
+
+    // 使用 API 从回收站永久删除
+    await deleteFromRecycleBinApi(id);
+
     ElMessage.success("问卷已永久删除");
     await loadTrashedSurveys();
   } catch (error) {
@@ -542,14 +480,14 @@ const batchRestore = async () => {
         type: 'success'
       }
     );
-    
+
     // 显示加载状态
     loading.value = true;
     let successCount = 0;
     let failCount = 0;
     const totalCount = selectedIds.value.length;
     const failedItems = [];
-    
+
     // 使用 ElMessage 显示进度
     const progressMessage = ElMessage({
       message: `正在恢复问卷... (0/${totalCount})`,
@@ -557,17 +495,17 @@ const batchRestore = async () => {
       duration: 0,
       showClose: false
     });
-    
+
     for (let i = 0; i < selectedIds.value.length; i++) {
       const id = selectedIds.value[i];
       const survey = trashedSurveys.value.find(s => s.id === id);
-      
+
       if (!survey) {
         failCount++;
         failedItems.push({ id, title: '未知问卷', reason: '问卷数据不存在' });
         continue;
       }
-      
+
       try {
         // 恢复问卷到 surveys 表
         const restoreData = {
@@ -575,30 +513,14 @@ const batchRestore = async () => {
           status: survey.originalStatus,
           updatedAt: new Date().toISOString()
         };
-        
-        const createResponse = await fetch('http://localhost:3002/surveys', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(restoreData)
-        });
-        
-        if (!createResponse.ok) {
-          throw new Error('恢复问卷失败');
-        }
-        
+
+        await createSurveyApi(restoreData);
+
         // 从回收站删除
-        const deleteResponse = await fetch(`http://localhost:3002/recycleBin/${id}`, {
-          method: 'DELETE'
-        });
-        
-        if (!deleteResponse.ok) {
-          throw new Error('从回收站删除失败');
-        }
-        
+        await deleteFromRecycleBinApi(id);
+
         successCount++;
-        
+
         // 更新进度
         progressMessage.close();
         ElMessage({
@@ -610,20 +532,20 @@ const batchRestore = async () => {
       } catch (error) {
         console.error(`恢复问卷 ${survey.title} 失败:`, error);
         failCount++;
-        failedItems.push({ 
-          id, 
-          title: survey.title, 
-          reason: error.message 
+        failedItems.push({
+          id,
+          title: survey.title,
+          reason: error.message
         });
       }
     }
-    
+
     // 关闭进度提示
     progressMessage.close();
-    
+
     // 显示结果
     loading.value = false;
-    
+
     if (successCount > 0 && failCount === 0) {
       ElMessage.success(`成功恢复 ${successCount} 个问卷！`);
     } else if (successCount > 0 && failCount > 0) {
@@ -645,7 +567,7 @@ const batchRestore = async () => {
         }
       );
     }
-    
+
     // 清空选择并刷新列表
     selectedIds.value = [];
     selectAll.value = false;
@@ -671,7 +593,7 @@ const batchDelete = async () => {
     const surveyTitles = selectedSurveys.map(s => s.title).slice(0, 5);
     const titleList = surveyTitles.join('、');
     const moreText = selectedIds.value.length > 5 ? `等 ${selectedIds.value.length} 个问卷` : '';
-    
+
     await ElMessageBox.confirm(
       `确定要永久删除以下问卷吗？\n\n${titleList}${moreText}\n\n⚠️ 此操作不可撤销，数据将永久丢失！`,
       '严重警告',
@@ -683,7 +605,7 @@ const batchDelete = async () => {
         dangerouslyUseHTMLString: true
       }
     );
-    
+
     // 二次确认
     await ElMessageBox.confirm(
       `您真的要删除这 ${selectedIds.value.length} 个问卷吗？删除后无法恢复！\n\n请输入"确认删除"以继续。`,
@@ -698,14 +620,14 @@ const batchDelete = async () => {
         showInput: true
       }
     );
-    
+
     // 显示加载状态
     loading.value = true;
     let successCount = 0;
     let failCount = 0;
     const totalCount = selectedIds.value.length;
     const failedItems = [];
-    
+
     // 使用 ElMessage 显示进度
     const progressMessage = ElMessage({
       message: `正在删除问卷... (0/${totalCount})`,
@@ -713,22 +635,16 @@ const batchDelete = async () => {
       duration: 0,
       showClose: false
     });
-    
+
     for (let i = 0; i < selectedIds.value.length; i++) {
       const id = selectedIds.value[i];
       const survey = trashedSurveys.value.find(s => s.id === id);
-      
+
       try {
-        const response = await fetch(`http://localhost:3002/recycleBin/${id}`, {
-          method: 'DELETE'
-        });
-        
-        if (!response.ok) {
-          throw new Error('删除失败');
-        }
-        
+        await deleteFromRecycleBinApi(id);
+
         successCount++;
-        
+
         // 更新进度
         progressMessage.close();
         ElMessage({
@@ -740,20 +656,20 @@ const batchDelete = async () => {
       } catch (error) {
         console.error(`删除问卷 ${survey?.title || id} 失败:`, error);
         failCount++;
-        failedItems.push({ 
-          id, 
-          title: survey?.title || '未知问卷', 
-          reason: error.message 
+        failedItems.push({
+          id,
+          title: survey?.title || '未知问卷',
+          reason: error.message
         });
       }
     }
-    
+
     // 关闭进度提示
     progressMessage.close();
-    
+
     // 显示结果
     loading.value = false;
-    
+
     if (successCount > 0 && failCount === 0) {
       ElMessage.success(`成功永久删除 ${successCount} 个问卷！`);
     } else if (successCount > 0 && failCount > 0) {
@@ -775,7 +691,7 @@ const batchDelete = async () => {
         }
       );
     }
-    
+
     // 清空选择并刷新列表
     selectedIds.value = [];
     selectAll.value = false;
@@ -792,17 +708,17 @@ const batchDelete = async () => {
 const clearExpired = async () => {
   try {
     const expiredSurveys = trashedSurveys.value.filter(s => getRemainingDays(s.deletedAt) === 0);
-    
+
     if (expiredSurveys.length === 0) {
       ElMessage.info("没有过期的问卷需要清理");
       return;
     }
-    
+
     // 显示过期问卷列表
     const expiredTitles = expiredSurveys.map(s => s.title).slice(0, 5);
     const titleList = expiredTitles.join('、');
     const moreText = expiredSurveys.length > 5 ? `等 ${expiredSurveys.length} 个问卷` : '';
-    
+
     await ElMessageBox.confirm(
       `发现 ${expiredSurveys.length} 个已过期问卷：\n\n${titleList}${moreText}\n\n这些问卷已超过30天保留期，确定要清理吗？`,
       '清理过期问卷',
@@ -812,14 +728,14 @@ const clearExpired = async () => {
         type: 'warning'
       }
     );
-    
+
     // 显示加载状态
     loading.value = true;
     let successCount = 0;
     let failCount = 0;
     const totalCount = expiredSurveys.length;
     const failedItems = [];
-    
+
     // 使用 ElMessage 显示进度
     const progressMessage = ElMessage({
       message: `正在清理过期问卷... (0/${totalCount})`,
@@ -827,21 +743,15 @@ const clearExpired = async () => {
       duration: 0,
       showClose: false
     });
-    
+
     for (let i = 0; i < expiredSurveys.length; i++) {
       const survey = expiredSurveys[i];
-      
+
       try {
-        const response = await fetch(`http://localhost:3002/recycleBin/${survey.id}`, {
-          method: 'DELETE'
-        });
-        
-        if (!response.ok) {
-          throw new Error('删除失败');
-        }
-        
+        await deleteFromRecycleBinApi(survey.id);
+
         successCount++;
-        
+
         // 更新进度
         progressMessage.close();
         ElMessage({
@@ -853,20 +763,20 @@ const clearExpired = async () => {
       } catch (error) {
         console.error(`清理问卷 ${survey.title} 失败:`, error);
         failCount++;
-        failedItems.push({ 
-          id: survey.id, 
-          title: survey.title, 
-          reason: error.message 
+        failedItems.push({
+          id: survey.id,
+          title: survey.title,
+          reason: error.message
         });
       }
     }
-    
+
     // 关闭进度提示
     progressMessage.close();
-    
+
     // 显示结果
     loading.value = false;
-    
+
     if (successCount > 0 && failCount === 0) {
       ElMessage.success(`成功清理 ${successCount} 个过期问卷！`);
     } else if (successCount > 0 && failCount > 0) {
@@ -888,7 +798,7 @@ const clearExpired = async () => {
         }
       );
     }
-    
+
     await loadTrashedSurveys();
   } catch (error) {
     loading.value = false;
@@ -913,19 +823,19 @@ const handleKeydown = (event) => {
       handleSelectAll(true);
     }
   }
-  
+
   // Delete 键: 批量删除
   if (event.key === 'Delete' && selectedIds.value.length > 0 && !event.shiftKey) {
     event.preventDefault();
     batchDelete();
   }
-  
+
   // Ctrl/Cmd + R: 批量恢复
   if ((event.ctrlKey || event.metaKey) && event.key === 'r' && selectedIds.value.length > 0) {
     event.preventDefault();
     batchRestore();
   }
-  
+
   // Escape: 取消选择
   if (event.key === 'Escape' && selectedIds.value.length > 0) {
     selectedIds.value = [];
@@ -935,8 +845,9 @@ const handleKeydown = (event) => {
 
 // 生命周期
 onMounted(() => {
+  loadCategories();
   loadTrashedSurveys();
-  
+
   // 添加键盘事件监听
   window.addEventListener('keydown', handleKeydown);
 });
@@ -963,7 +874,7 @@ onUnmounted(() => {
   align-items: center;
   margin-bottom: 20px;
   padding: 20px;
-  background: white;
+  background: linear-gradient(135deg, var(--color-primary-light-5) 0%, white 100%);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
@@ -1115,7 +1026,7 @@ onUnmounted(() => {
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 20px;
     border-left: 4px solid #909399;
 
     @media (max-width: 768px) {
@@ -1143,7 +1054,7 @@ onUnmounted(() => {
 
     .survey-main {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 16px;
       flex: 1;
 
@@ -1225,8 +1136,23 @@ onUnmounted(() => {
 
     .survey-actions {
       display: flex;
+      flex-direction: column;
       gap: 12px;
       flex-shrink: 0;
+      min-width: 120px;
+
+      .el-button,
+      :deep(.el-dropdown) {
+        width: 100%;
+      }
+
+      :deep(.el-dropdown .el-button) {
+        width: 100%;
+      }
+
+      .el-button + .el-button {
+        margin-left: 0;
+      }
 
       @media (max-width: 768px) {
         width: 100%;
