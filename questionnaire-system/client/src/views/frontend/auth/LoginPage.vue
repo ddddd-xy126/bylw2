@@ -1,6 +1,16 @@
 <template>
   <div class="login-page">
+    <el-button class="back-home-btn" text @click="goHome">
+      <el-icon>
+        <ArrowLeft />
+      </el-icon> 返回首页
+    </el-button>
+
     <el-card class="box">
+      <div class="logo-title">
+        <h2>智能问卷分析系统</h2>
+      </div>
+
       <el-tabs v-model="activeTab" class="auth-tabs">
         <el-tab-pane label="登录" name="login">
           <el-form :model="loginForm" @submit.prevent>
@@ -8,19 +18,14 @@
               <el-input v-model="loginForm.email" placeholder="请输入邮箱"></el-input>
             </el-form-item>
             <el-form-item label="密码">
-              <el-input
-                v-model="loginForm.password"
-                type="password"
-                placeholder="请输入密码"
-              ></el-input>
+              <el-input v-model="loginForm.password" type="password" placeholder="请输入密码"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="submitLogin" :loading="loginLoading">登录</el-button>
-              <el-button type="text" @click="goHome">返回首页</el-button>
+              <el-button type="primary" @click="submitLogin" :loading="loginLoading" class="login-button">登录</el-button>
             </el-form-item>
           </el-form>
         </el-tab-pane>
-        
+
         <el-tab-pane label="注册" name="register">
           <el-form :model="registerForm" @submit.prevent>
             <el-form-item label="邮箱">
@@ -33,15 +38,10 @@
               <el-input v-model="registerForm.nickname" placeholder="请输入昵称"></el-input>
             </el-form-item>
             <el-form-item label="密码">
-              <el-input
-                v-model="registerForm.password"
-                type="password"
-                placeholder="请输入密码"
-              ></el-input>
+              <el-input v-model="registerForm.password" type="password" placeholder="请输入密码"></el-input>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="submitRegister" :loading="registerLoading">注册</el-button>
-              <el-button type="text" @click="goHome">返回首页</el-button>
             </el-form-item>
           </el-form>
         </el-tab-pane>
@@ -56,6 +56,8 @@ import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/user";
 import { login as loginAuth, register as registerAuth } from "@/api/auth";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { ArrowLeft } from '@element-plus/icons-vue'
+import apiClient from '@/api/index.js';
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -65,11 +67,11 @@ const loginLoading = ref(false);
 const registerLoading = ref(false);
 
 const loginForm = reactive({ email: "", password: "" });
-const registerForm = reactive({ 
-  email: "", 
-  username: "", 
-  nickname: "", 
-  password: "" 
+const registerForm = reactive({
+  email: "",
+  username: "",
+  nickname: "",
+  password: ""
 });
 
 const submitLogin = async () => {
@@ -78,16 +80,16 @@ const submitLogin = async () => {
     const response = await loginAuth(loginForm);
     // 处理不同的响应格式
     const { token, user } = response.data || response;
-    
+
     userStore.setToken(token);
     userStore.setProfile(user);
-    
+
     ElMessage.success('登录成功！');
-    
+
     // 检查是否有被退回的问卷
     await checkRejectedSurveys(user);
-    
-    // redirect admin to admin dashboard, others to home
+
+
     if (user?.role === "admin") {
       router.push("/admin/dashboard");
     } else {
@@ -104,20 +106,18 @@ const submitLogin = async () => {
 // 检查被退回的问卷
 const checkRejectedSurveys = async (user) => {
   if (!user || user.role === 'admin') return;
-  
+
   try {
-    const response = await fetch('http://localhost:3002/surveys');
-    if (!response.ok) return;
-    
-    const allSurveys = await response.json();
+    // 使用统一的 API 调用
+    const allSurveys = await apiClient.get('/surveys');
     const userId = user.id;
-    
+
     // 筛选当前用户被退回的问卷
-    const rejectedSurveys = allSurveys.filter(s => 
-      (s.userId === userId || s.authorId === userId) && 
+    const rejectedSurveys = allSurveys.filter(s =>
+      (s.userId === userId || s.authorId === userId) &&
       s.status === 'rejected'
     );
-    
+
     // 如果有被退回的问卷，显示提醒
     if (rejectedSurveys.length > 0) {
       const messageContent = rejectedSurveys.map((survey, index) => {
@@ -133,7 +133,7 @@ const checkRejectedSurveys = async (user) => {
           </div>
         </div>`;
       }).join('');
-      
+
       setTimeout(() => {
         ElMessageBox({
           title: `您有 ${rejectedSurveys.length} 个问卷被退回`,
@@ -147,7 +147,7 @@ const checkRejectedSurveys = async (user) => {
             width: '550px'
           }
         }).then(() => {
-          router.push('/profile/created');
+          router.push('/profile/questionnaires/created');
         }).catch(() => {
           // 用户点击稍后处理
         });
@@ -163,23 +163,23 @@ const submitRegister = async () => {
     ElMessage.error('请填写完整信息');
     return;
   }
-  
+
   registerLoading.value = true;
   try {
     await registerAuth(registerForm);
     ElMessage.success('注册成功！请登录');
-    
+
     // 切换到登录标签页
     activeTab.value = 'login';
-    
+
     // 清空注册表单
     Object.assign(registerForm, {
-      email: "", 
-      username: "", 
-      nickname: "", 
+      email: "",
+      username: "",
+      nickname: "",
       password: ""
     });
-    
+
   } catch (error) {
     console.error('注册失败:', error);
     ElMessage.error(error.message || '注册失败，请重试');
@@ -191,13 +191,52 @@ const submitRegister = async () => {
 const goHome = () => router.push("/home");
 </script>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 .login-page {
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(145deg,
+      var(--theme-background-color),
+      var(--bg-primary-light));
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, var(--color-primary-light-5) 0%, #e8f5e9 100%);
+  position: relative;
+  font-family: "HarmonyOS Sans", "Microsoft YaHei", sans-serif;
+
+  // ====== 返回首页按钮 ======
+  .back-home-btn {
+    position: absolute;
+    top: var(--spacing-lg);
+    left: var(--spacing-lg);
+    transition: var(--transition-base);
+
+    color: var(--color-primary-dark-2);
+    font-weight: 500;
+
+    .el-icon {
+      margin-right: 6px;
+      font-size: 18px;
+    }
+
+    &:hover {
+      color: var(--color-primary);
+      background-color: transparent;
+      transform: translateX(-2px);
+    }
+
+  }
+
+  .logo-title {
+    text-align: center;
+    margin-bottom: 10px;
+
+    h2 {
+      font-size: 24px;
+      color: var(--color-primary-dark-3);
+      font-weight: 700;
+    }
+  }
 
   .box {
     width: 420px;
@@ -211,15 +250,25 @@ const goHome = () => router.push("/home");
     animation: slideInUp 0.6s ease-out;
   }
 
-  .auth-tabs { padding: 20px; }
+  .auth-tabs {
+    padding: 20px;
+    .login-button {
+      width: 100%;
+    }
+  }
 
-  :deep(.el-form-item) { margin-bottom: 25px; }
+  :deep(.el-form-item) {
+    display: block;
+  }
+
   :deep(.el-form-item:last-child) {
     margin-bottom: 0;
     margin-top: 30px;
     text-align: center;
 
-    :deep(.el-button) { margin: 0 10px; }
+    :deep(.el-button) {
+      margin: 0 10px;
+    }
   }
 
   // 深度选择器样式保持为 :deep 形式,放在 .login-page 内以限定作用域
@@ -228,7 +277,9 @@ const goHome = () => router.push("/home");
     border-bottom: 2px solid rgba(37, 146, 52, 0.1);
   }
 
-  :deep(.el-tabs__nav-wrap::after) { background: transparent; }
+  :deep(.el-tabs__nav-wrap::after) {
+    background: transparent;
+  }
 
   :deep(.el-tabs__item) {
     font-size: 16px;
@@ -240,11 +291,12 @@ const goHome = () => router.push("/home");
     transition: all 0.3s ease;
   }
 
-  :deep(.el-tabs__item:hover) { color: var(--color-primary); }
+  :deep(.el-tabs__item:hover) {
+    color: var(--color-primary);
+  }
 
   :deep(.el-tabs__item.is-active) {
     color: var(--color-primary);
-    background: linear-gradient(135deg, rgba(37, 146, 52, 0.1) 0%, rgba(103, 212, 116, 0.1) 100%);
     border-radius: 10px 10px 0 0;
     position: relative;
   }
@@ -279,6 +331,31 @@ const goHome = () => router.push("/home");
     box-shadow: 0 4px 20px rgba(37, 146, 52, 0.3);
   }
 
+
+  // 移除 autocomplete 自动填充的背景色
+  :deep(.el-input__wrapper) {
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(37, 146, 52, 0.1);
+    border: 1px solid rgba(37, 146, 52, 0.2);
+    transition: all 0.3s ease;
+    background-color: #ffffff !important;
+  }
+
+  :deep(.el-input__inner) {
+    background-color: transparent !important;
+
+    // 移除浏览器自动填充的背景色
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus,
+    &:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+      -webkit-text-fill-color: var(--text-primary) !important;
+      background-color: transparent !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+  }
+
   :deep(.el-button--primary) {
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light-2) 100%);
     border: none;
@@ -309,15 +386,33 @@ const goHome = () => router.push("/home");
   }
 
   @keyframes slideInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   // 响应式
   @media (max-width: 768px) {
-    .box { width: 90%; max-width: 380px; margin: 20px; }
-    .auth-tabs { padding: 15px; }
-    :deep(.el-tabs__item) { padding: 0 20px; font-size: 14px; }
+    .box {
+      width: 90%;
+      max-width: 380px;
+      margin: 20px;
+    }
+
+    .auth-tabs {
+      padding: 15px;
+    }
+
+    :deep(.el-tabs__item) {
+      padding: 0 20px;
+      font-size: 14px;
+    }
   }
 }
 </style>

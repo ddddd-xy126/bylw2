@@ -36,6 +36,7 @@
             <el-option label="草稿" value="draft" />
             <el-option label="已发布" value="published" />
             <el-option label="已停止" value="stopped" />
+            <el-option label="模板" value="template" />
           </el-select>
           
           <el-select v-model="filterCategory" placeholder="分类筛选" style="width: 140px" @change="handleFilter">
@@ -108,6 +109,8 @@
                       <el-dropdown-item command="statistics">统计</el-dropdown-item>
                       <el-dropdown-item command="offline" v-if="questionnaire.status === 'published'">下架</el-dropdown-item>
                       <el-dropdown-item command="online" v-if="questionnaire.status === 'stopped'">上架</el-dropdown-item>
+                      <el-dropdown-item command="setTemplate" v-if="!questionnaire.isTemplate">设为模板</el-dropdown-item>
+                      <el-dropdown-item command="removeTemplate" v-if="questionnaire.isTemplate">取消模板</el-dropdown-item>
                       <el-dropdown-item divided command="delete">删除</el-dropdown-item>
                     </el-dropdown-menu>
                   </template>
@@ -335,10 +338,16 @@ const categories = ref([])
 const questionnaireList = ref([])
 
 // 计算属性
-// 构造传入 hooks 的源数据（先按 status/category 预过滤）
+// 构造传入 hooks 的源数据(先按 status/category/template 预过滤)
 const sourceForFilter = computed(() => {
   let list = questionnaireList.value
-  if (filterStatus.value) list = list.filter(item => item.status === filterStatus.value)
+  // 如果筛选模板,则单独处理
+  if (filterStatus.value === 'template') {
+    list = list.filter(item => item.isTemplate === true)
+  } else if (filterStatus.value) {
+    // 其他状态筛选
+    list = list.filter(item => item.status === filterStatus.value)
+  }
   if (filterCategory.value) list = list.filter(item => item.category === filterCategory.value)
   return list
 })
@@ -588,6 +597,90 @@ const deleteQuestionnaire = async (id) => {
   })
 }
 
+// 设置为模板
+const setTemplate = async (id) => {
+  ElMessageBox.confirm(
+    '确定要将这个问卷设置为模板吗？设置后将在模板选择页面显示。',
+    '设为模板',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'success',
+    }
+  ).then(async () => {
+    try {
+      // 获取问卷信息
+      const response = await fetch(`http://localhost:3002/surveys/${id}`)
+      const survey = await response.json()
+      
+      // 更新 isTemplate 字段
+      await fetch(`http://localhost:3002/surveys/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isTemplate: true })
+      })
+      
+      // 记录管理员操作
+      await recordAdminActivity({
+        adminId: userStore.profile.id,
+        adminName: userStore.profile.nickname || userStore.profile.username,
+        title: '设置模板',
+        description: `将问卷"${survey.title}"设置为模板`,
+        type: 'questionnaire_template'
+      })
+      
+      ElMessage.success('已设为模板')
+      await loadQuestionnaires()
+    } catch (error) {
+      ElMessage.error('设置失败：' + error.message)
+    }
+  }).catch(() => {
+    ElMessage.info('已取消操作')
+  })
+}
+
+// 取消模板
+const removeTemplate = async (id) => {
+  ElMessageBox.confirm(
+    '确定要取消这个问卷的模板状态吗？取消后将不在模板选择页面显示。',
+    '取消模板',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  ).then(async () => {
+    try {
+      // 获取问卷信息
+      const response = await fetch(`http://localhost:3002/surveys/${id}`)
+      const survey = await response.json()
+      
+      // 更新 isTemplate 字段
+      await fetch(`http://localhost:3002/surveys/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isTemplate: false })
+      })
+      
+      // 记录管理员操作
+      await recordAdminActivity({
+        adminId: userStore.profile.id,
+        adminName: userStore.profile.nickname || userStore.profile.username,
+        title: '取消模板',
+        description: `取消问卷"${survey.title}"的模板状态`,
+        type: 'questionnaire_template'
+      })
+      
+      ElMessage.success('已取消模板状态')
+      await loadQuestionnaires()
+    } catch (error) {
+      ElMessage.error('操作失败：' + error.message)
+    }
+  }).catch(() => {
+    ElMessage.info('已取消操作')
+  })
+}
+
 const handleAction = (command, questionnaire) => {
   switch (command) {
     case 'edit':
@@ -607,6 +700,12 @@ const handleAction = (command, questionnaire) => {
       break
     case 'online':
       onlineQuestionnaire(questionnaire.id)
+      break
+    case 'setTemplate':
+      setTemplate(questionnaire.id)
+      break
+    case 'removeTemplate':
+      removeTemplate(questionnaire.id)
       break
     case 'delete':
       deleteQuestionnaire(questionnaire.id)

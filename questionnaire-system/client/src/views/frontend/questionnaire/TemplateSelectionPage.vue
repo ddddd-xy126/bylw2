@@ -80,67 +80,14 @@
       </div>
 
       <div v-else class="templates-grid">
-        <div v-for="template in filteredList" :key="template.id" class="template-card"
-          @click="selectTemplate(template)">
-          <!-- 模板标签 -->
-          <div class="template-badges">
-            <span v-if="template.isHot" class="badge hot-badge">🔥 热门</span>
-            <span v-if="template.isNew" class="badge new-badge">🆕 新品</span>
-            <span v-if="template.isPro" class="badge pro-badge">💎 专业版</span>
-          </div>
-
-          <!-- 模板内容 -->
-          <div class="template-header">
-            <div class="template-icon">
-              <el-icon size="32">
-                <Document />
-              </el-icon>
-            </div>
-            <div class="template-category">{{ template.category }}</div>
-          </div>
-
-          <div class="template-body">
-            <h3>{{ template.title }}</h3>
-            <p>{{ template.description }}</p>
-
-            <div class="template-stats">
-              <div class="stat-group">
-                <div class="stat-item">
-                  <el-icon>
-                    <Document />
-                  </el-icon>
-                  <span>{{ template.questions }}题</span>
-                </div>
-                <div class="stat-item">
-                  <el-icon>
-                    <Clock />
-                  </el-icon>
-                  <span>{{ template.duration }}分钟</span>
-                </div>
-              </div>
-
-              <div class="rating-group">
-                <el-rate v-model="template.rating" disabled size="small" show-score text-color="#ff9900" />
-                <span class="usage-count">{{ template.usageCount }}人使用</span>
-              </div>
-            </div>
-
-            <div class="template-tags">
-              <el-tag v-for="tag in template.tags.slice(0, 4)" :key="tag" size="small" type="info" effect="plain">
-                {{ tag }}
-              </el-tag>
-            </div>
-          </div>
-
-          <div class="template-footer">
-            <el-button type="primary" size="small" @click.stop="useTemplate(template)">
-              使用模板
-            </el-button>
-            <el-button size="small" @click.stop="showPreview(template)">
-              预览
-            </el-button>
-          </div>
-        </div>
+        <TemplateCard
+          v-for="template in filteredList" 
+          :key="template.id"
+          :template="template"
+          @click="selectTemplate"
+          @use="useTemplate"
+          @preview="showPreview"
+        />
       </div>
 
       <!-- 分页 -->
@@ -212,16 +159,20 @@ import {
   StarFilled
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import TemplateCard from '@/components/TemplateCard.vue'
+import { getTemplatesApi } from '@/api/survey'
 
 const router = useRouter()
 
 // 响应式数据
 const sortBy = ref('popular')
 const loading = ref(false)
-// 原始模板数据（局部静态样例）
 const previewVisible = ref(false)
 const previewTemplate = ref(null)
 const userFavorites = ref([])
+
+// 从 db.json 获取的模板数据
+const templates = ref([])
 
 // 分类数据
 const categories = ref([
@@ -237,284 +188,20 @@ const categories = ref([
 
 const popularCategories = computed(() => categories.value.slice(0, 6))
 
-// 扩展的模板数据
-const templates = ref([
-  {
-    id: 1,
-    title: '员工满意度调查',
-    description: '全面了解员工对工作环境、薪酬福利、职业发展等方面的满意度，为企业管理提供数据支持',
-    category: '企业管理',
-    categoryValue: 'enterprise',
-    questions: 25,
-    duration: 15,
-    rating: 4.8,
-    usageCount: 1250,
-    isHot: true,
-    isNew: false,
-    isPro: true,
-    tags: ['员工', '满意度', '企业管理', '人力资源', 'HR'],
-    template: {
-      sections: [
-        {
-          title: '基本信息',
-          questions: [
-            { type: 'single', title: '您的工作部门是？', required: true },
-            { type: 'single', title: '您的工作年限是？', required: true },
-            { type: 'single', title: '您的职位级别是？', required: true }
-          ]
-        },
-        {
-          title: '工作满意度',
-          questions: [
-            { type: 'rating', title: '您对当前工作内容的满意度', required: true },
-            { type: 'rating', title: '您对工作环境的满意度', required: true },
-            { type: 'rating', title: '您对薪酬福利的满意度', required: true }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    id: 2,
-    title: '产品用户体验调研',
-    description: '收集用户对产品功能、界面设计、使用体验的反馈和建议，优化产品设计',
-    category: '产品研发',
-    categoryValue: 'product',
-    questions: 20,
-    duration: 12,
-    rating: 4.6,
-    usageCount: 980,
-    isHot: true,
-    isNew: false,
-    isPro: false,
-    tags: ['用户体验', '产品', '反馈', '优化', 'UX'],
-    template: {
-      sections: [
-        {
-          title: '用户画像',
-          questions: [
-            { type: 'single', title: '您的年龄段是？', required: true },
-            { type: 'single', title: '您使用我们产品多长时间了？', required: true }
-          ]
-        },
-        {
-          title: '使用体验',
-          questions: [
-            { type: 'rating', title: '产品整体满意度', required: true },
-            { type: 'multiple', title: '您最喜欢的功能有哪些？', required: false }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    id: 3,
-    title: '心理健康状况评估',
-    description: '专业的心理健康评估量表，帮助了解个人心理状况，提供心理健康指导',
-    category: '心理健康',
-    categoryValue: 'psychology',
-    questions: 30,
-    duration: 20,
-    rating: 4.9,
-    usageCount: 2340,
-    isHot: true,
-    isNew: false,
-    isPro: true,
-    tags: ['心理健康', '评估', '量表', '专业', '心理测试'],
-    template: {
-      sections: [
-        {
-          title: '基本情况',
-          questions: [
-            { type: 'single', title: '您的性别是？', required: true },
-            { type: 'single', title: '您的年龄段是？', required: true }
-          ]
-        },
-        {
-          title: '心理状况',
-          questions: [
-            { type: 'likert', title: '我感到心情愉快', required: true },
-            { type: 'likert', title: '我对未来充满希望', required: true }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    id: 4,
-    title: '课程教学效果评价',
-    description: '评价课程内容、教学方法、学习效果的综合调研问卷，提升教学质量',
-    category: '教育培训',
-    categoryValue: 'education',
-    questions: 18,
-    duration: 10,
-    rating: 4.7,
-    usageCount: 756,
-    isHot: false,
-    isNew: true,
-    isPro: false,
-    tags: ['教学', '课程', '评价', '教育', '培训'],
-    template: {
-      sections: [
-        {
-          title: '课程信息',
-          questions: [
-            { type: 'single', title: '您参加的课程名称是？', required: true },
-            { type: 'single', title: '您的学习背景是？', required: true }
-          ]
-        },
-        {
-          title: '教学评价',
-          questions: [
-            { type: 'rating', title: '课程内容的实用性', required: true },
-            { type: 'rating', title: '教师的教学水平', required: true }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    id: 5,
-    title: '品牌认知度调研',
-    description: '了解目标用户对品牌的认知程度、印象和偏好，为品牌营销策略提供依据',
-    category: '市场调研',
-    categoryValue: 'market',
-    questions: 22,
-    duration: 15,
-    rating: 4.5,
-    usageCount: 1180,
-    isHot: true,
-    isNew: false,
-    isPro: false,
-    tags: ['品牌', '认知度', '市场调研', '营销', '用户调研'],
-    template: {
-      sections: [
-        {
-          title: '用户画像',
-          questions: [
-            { type: 'single', title: '您的年龄段是？', required: true },
-            { type: 'single', title: '您的职业是？', required: true }
-          ]
-        },
-        {
-          title: '品牌认知',
-          questions: [
-            { type: 'single', title: '您是否听说过我们的品牌？', required: true },
-            { type: 'rating', title: '您对我们品牌的整体印象', required: true }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    id: 6,
-    title: '网站可用性测试',
-    description: '评估网站的易用性、导航设计、内容布局等方面的用户体验',
-    category: '用户体验',
-    categoryValue: 'ux',
-    questions: 16,
-    duration: 12,
-    rating: 4.4,
-    usageCount: 645,
-    isHot: false,
-    isNew: true,
-    isPro: false,
-    tags: ['网站', '可用性', 'UX', '用户测试', '界面设计'],
-    template: {
-      sections: [
-        {
-          title: '用户背景',
-          questions: [
-            { type: 'single', title: '您使用网站的频率是？', required: true },
-            { type: 'single', title: '您主要使用什么设备访问？', required: true }
-          ]
-        },
-        {
-          title: '使用体验',
-          questions: [
-            { type: 'rating', title: '网站导航的清晰度', required: true },
-            { type: 'rating', title: '信息查找的便利性', required: true }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    id: 7,
-    title: '学术研究问卷',
-    description: '标准的学术研究调查问卷模板，适用于各类社会科学研究项目',
-    category: '学术研究',
-    categoryValue: 'academic',
-    questions: 35,
-    duration: 25,
-    rating: 4.6,
-    usageCount: 420,
-    isHot: false,
-    isNew: false,
-    isPro: true,
-    tags: ['学术研究', '科研', '调查', '数据收集', '统计分析'],
-    template: {
-      sections: [
-        {
-          title: '研究参与者信息',
-          questions: [
-            { type: 'single', title: '您的教育背景是？', required: true },
-            { type: 'single', title: '您的研究领域是？', required: true }
-          ]
-        },
-        {
-          title: '研究问题',
-          questions: [
-            { type: 'likert', title: '研究问题1的态度量表', required: true },
-            { type: 'text', title: '请详细说明您的观点', required: false }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    id: 8,
-    title: '活动反馈调查',
-    description: '收集参与者对活动组织、内容、服务等方面的反馈意见',
-    category: '活动反馈',
-    categoryValue: 'event',
-    questions: 14,
-    duration: 8,
-    rating: 4.3,
-    usageCount: 890,
-    isHot: false,
-    isNew: true,
-    isPro: false,
-    tags: ['活动', '反馈', '服务', '组织', '参与体验'],
-    template: {
-      sections: [
-        {
-          title: '参与信息',
-          questions: [
-            { type: 'single', title: '您是第几次参加我们的活动？', required: true },
-            { type: 'single', title: '您是如何了解到本次活动的？', required: true }
-          ]
-        },
-        {
-          title: '活动评价',
-          questions: [
-            { type: 'rating', title: '活动内容的丰富程度', required: true },
-            { type: 'rating', title: '活动组织的专业性', required: true }
-          ]
-        }
-      ]
-    }
-  }
-])
-
 // 将原始 templates 包装为 hook 的 sourceList：添加 category 与 searchText 字段以支持分类与 tags 搜索
 const sourceList = computed(() =>
   templates.value.map((t) => ({
     ...t,
-    // hook 默认按 item.category 做分类过滤；模板使用 categoryValue 字段，映射一份
-    category: t.categoryValue,
+    // hook 默认按 item.category 做分类过滤；确保 categoryValue 存在
+    category: t.categoryValue || t.category,
+    categoryValue: t.categoryValue || t.category,
     // 用于全文搜索（包括 tags）
-    searchText: `${t.title} ${t.description} ${t.tags?.join(' ')}`,
+    searchText: `${t.title} ${t.description} ${t.tags?.join(' ') || ''}`,
+    // 确保数值字段存在
+    usageCount: t.usageCount || t.participants || 0,
+    isHot: t.isHot !== undefined ? t.isHot : (t.participants > 1500),
+    isNew: t.isNew !== undefined ? t.isNew : (new Date(t.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)),
+    isPro: t.isPro || false
   }))
 )
 
@@ -562,12 +249,29 @@ onMounted(() => {
 })
 
 // 方法
-const loadData = () => {
+const loadData = async () => {
   loading.value = true
-  // 模拟加载
-  setTimeout(() => {
+  try {
+    // 使用 API 获取模板
+    const templateData = await getTemplatesApi()
+    
+    // 处理数据格式
+    templates.value = templateData.map(t => ({
+      ...t,
+      category: t.category || '其他',
+      categoryValue: t.categoryValue || t.category,
+      questions: t.questions?.length || 0,
+      tags: t.tags || [],
+      isHot: t.participants > 1500 || false,
+      isNew: new Date(t.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      isPro: t.isPro || false
+    }))
+  } catch (error) {
+    ElMessage.error('加载模板失败：' + error.message)
+    templates.value = []
+  } finally {
     loading.value = false
-  }, 500)
+  }
 }
 
 const goBack = () => {
@@ -612,20 +316,20 @@ const usePreviewTemplate = () => {
   }
 }
 
-const isFavorite = (templateId) => {
-  return userFavorites.value.includes(templateId)
-}
+// const isFavorite = (templateId) => {
+//   return userFavorites.value.includes(templateId)
+// }
 
-const toggleFavorite = (templateId) => {
-  const index = userFavorites.value.indexOf(templateId)
-  if (index > -1) {
-    userFavorites.value.splice(index, 1)
-    ElMessage.info('已取消收藏')
-  } else {
-    userFavorites.value.push(templateId)
-    ElMessage.success('已添加到收藏')
-  }
-}
+// const toggleFavorite = (templateId) => {
+//   const index = userFavorites.value.indexOf(templateId)
+//   if (index > -1) {
+//     userFavorites.value.splice(index, 1)
+//     ElMessage.info('已取消收藏')
+//   } else {
+//     userFavorites.value.push(templateId)
+//     ElMessage.success('已添加到收藏')
+//   }
+// }
 
 const getQuestionTypeText = (type) => {
   const typeMap = {
@@ -638,6 +342,8 @@ const getQuestionTypeText = (type) => {
   return typeMap[type] || '未知题型'
 }
 </script>
+
+
 <style scoped lang="scss">
 .template-selection {
   min-height: 100vh;
@@ -783,164 +489,6 @@ const getQuestionTypeText = (type) => {
 
     @media (max-width: 900px) {
       grid-template-columns: 1fr;
-    }
-  }
-}
-
-.template-card {
-  position: relative;
-  border: 2px solid #f0f0f0;
-  border-radius: 16px;
-  padding: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: white;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 420px;
-
-  &:hover {
-    border-color: var(--color-primary-light-3);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-  }
-
-  .template-badges {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    display: flex;
-    gap: 8px;
-    z-index: 1;
-
-    .badge {
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
-
-      &.hot-badge {
-        background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-        color: white;
-      }
-
-      &.new-badge {
-        background: linear-gradient(45deg, #4ecdc4, #44a08d);
-        color: white;
-      }
-
-      &.pro-badge {
-        background: linear-gradient(45deg, #a8edea, #fed6e3);
-        color: #333;
-      }
-    }
-  }
-
-  .template-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-
-    .template-icon {
-      color: var(--color-primary-light-3);
-    }
-
-    .template-category {
-      background: #f0f9ff;
-      color: #0369a1;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 500;
-    }
-  }
-
-  .template-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-
-    h3 {
-      font-size: 1.125rem;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 8px;
-      line-height: 1.4;
-    }
-
-    p {
-      color: #666;
-      line-height: 1.6;
-      margin-bottom: 16px;
-      font-size: 0.875rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      flex: 1;
-      min-height: 40px;
-    }
-  }
-
-  .template-stats {
-    margin-bottom: 12px;
-
-    .stat-group {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 10px;
-
-      .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 0.8125rem;
-        color: #888;
-
-        .el-icon {
-          font-size: 14px;
-        }
-      }
-    }
-
-    .rating-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-
-      .usage-count {
-        font-size: 0.75rem;
-        color: #888;
-      }
-    }
-  }
-
-  .template-tags {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 16px;
-    min-height: 28px;
-
-    .el-tag {
-      font-size: 0.75rem;
-    }
-  }
-
-  .template-footer {
-    display: flex;
-    gap: 8px;
-    margin-top: auto;
-    padding-top: 12px;
-    border-top: 1px solid #f0f0f0;
-
-    .el-button {
-      flex: 1;
-      font-size: 0.875rem;
     }
   }
 }

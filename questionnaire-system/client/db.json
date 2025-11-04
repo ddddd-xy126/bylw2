@@ -404,6 +404,7 @@
       "participants": 1250,
       "participantCount": 1250,
       "isCollecting": true,
+      "isTemplate": false,
       "averageRating": 0,
       "ratingCount": 0,
       "createdAt": "2024-01-10T08:00:00Z",
@@ -566,7 +567,8 @@
           ],
           "comment": null
         }
-      ]
+      ],
+      "isTemplate": false
     },
     {
       "id": "3",
@@ -636,7 +638,8 @@
           ],
           "comment": null
         }
-      ]
+      ],
+      "isTemplate": false
     },
     {
       "id": "4",
@@ -698,7 +701,8 @@
       "completionRate": 0,
       "favoriteCount": 0,
       "views": 0,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "5",
@@ -768,7 +772,8 @@
       "completionRate": 0,
       "favoriteCount": 0,
       "views": 0,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "6",
@@ -895,7 +900,8 @@
           ],
           "comment": null
         }
-      ]
+      ],
+      "isTemplate": false
     },
     {
       "id": "1760948457095",
@@ -1039,7 +1045,8 @@
       "completionRate": 0,
       "favoriteCount": 0,
       "views": 0,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "8",
@@ -1072,7 +1079,8 @@
       "completionRate": 75,
       "favoriteCount": 298,
       "views": 4296,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "9",
@@ -1105,7 +1113,8 @@
       "completionRate": 89,
       "favoriteCount": 320,
       "views": 8472,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "10",
@@ -1138,7 +1147,8 @@
       "completionRate": 80,
       "favoriteCount": 432,
       "views": 5578,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "11",
@@ -1171,7 +1181,8 @@
       "completionRate": 81,
       "favoriteCount": 434,
       "views": 7356,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "12",
@@ -1204,7 +1215,8 @@
       "completionRate": 84,
       "favoriteCount": 1133,
       "views": 16586,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "13",
@@ -1237,7 +1249,8 @@
       "completionRate": 88,
       "favoriteCount": 488,
       "views": 7307,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "14",
@@ -1270,7 +1283,8 @@
       "completionRate": 88,
       "favoriteCount": 265,
       "views": 3728,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "1761025276907",
@@ -1470,7 +1484,8 @@
       "completionRate": 0,
       "favoriteCount": 0,
       "views": 0,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "1761270207375",
@@ -1687,7 +1702,8 @@
       "completionRate": 0,
       "favoriteCount": 0,
       "views": 0,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "9fc2",
@@ -1700,7 +1716,8 @@
       "completionRate": 0,
       "favoriteCount": 0,
       "views": 0,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "5615",
@@ -1713,7 +1730,8 @@
       "completionRate": 0,
       "favoriteCount": 0,
       "views": 0,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "1761033155346",
@@ -1905,7 +1923,8 @@
       "completionRate": 0,
       "favoriteCount": 0,
       "views": 0,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "1762139332079",
@@ -1983,7 +2002,8 @@
       "views": 0,
       "rejectedReason": "请问请问",
       "rejectedAt": "2025-11-04T01:32:33.408Z",
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "1762154996701",
@@ -2090,7 +2110,8 @@
       "completionRate": 96,
       "favoriteCount": 268,
       "views": 4051,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "1762155178425",
@@ -2197,7 +2218,8 @@
       "completionRate": 96,
       "favoriteCount": 178,
       "views": 5150,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "1762156196414",
@@ -2304,7 +2326,8 @@
       "completionRate": 95,
       "favoriteCount": 193,
       "views": 2612,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "1762157949828",
@@ -2382,7 +2405,8 @@
       "completionRate": 0,
       "favoriteCount": 0,
       "views": 0,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "1762158412371",
@@ -2459,7 +2483,8 @@
       "completionRate": 0,
       "favoriteCount": 0,
       "views": 0,
-      "answers": []
+      "answers": [],
+      "isTemplate": false
     },
     {
       "id": "1762158531721",
@@ -2676,7 +2701,8 @@
           ],
           "comment": null
         }
-      ]
+      ],
+      "isTemplate": false
     },
     {
       "id": "1762159399818",
@@ -2766,7 +2792,8 @@
         }
       ],
       "averageRating": 5,
-      "ratingCount": 1
+      "ratingCount": 1,
+      "isTemplate": false
     },
     {
       "id": "1762219902340",
@@ -3021,401 +3048,453 @@
         }
       ],
       "averageRating": 5,
-      "ratingCount": 1
-    }
-  ],
-  "questions": [
+      "ratingCount": 1,
+      "isTemplate": false
+    },
     {
-      "id": "1",
-      "type": "single",
-      "title": "您的年龄段是？",
-      "options": [
+      "id": "1762237406151",
+      "title": "qqqqqqqqqqq - 副本",
+      "description": "qqqqqqqqqqqq",
+      "category": "enterprise",
+      "duration": 10,
+      "tags": [],
+      "questions": 2,
+      "questionList": [
         {
-          "id": "opt_1",
-          "text": "18-25岁"
+          "type": "single",
+          "title": "新的单选题",
+          "description": "qqqqqqqqqqq",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1",
+              "text": "选项1",
+              "selectedCount": 0
+            },
+            {
+              "id": "opt2",
+              "text": "选项2",
+              "selectedCount": 0
+            }
+          ],
+          "allowOther": false,
+          "id": 1762158518839.1165,
+          "order": 1
         },
         {
-          "id": "opt_2",
-          "text": "26-35岁"
-        },
-        {
-          "id": "opt_3",
-          "text": "36-45岁"
-        },
-        {
-          "id": "opt_4",
-          "text": "46岁以上"
+          "type": "single",
+          "title": "新的单选题 (副本)",
+          "description": "qqqqqqqqqqqwwwwwwwwwwwwwwwwwww",
+          "required": false,
+          "options": [
+            {
+              "id": "opt1_1762158522623_0.9936671810747991",
+              "text": "选项1",
+              "selectedCount": 0
+            },
+            {
+              "id": "opt2_1762158522623_0.13554659931255475",
+              "text": "选项2",
+              "selectedCount": 0
+            }
+          ],
+          "allowOther": false,
+          "id": 1762158522623.583,
+          "order": 2
         }
       ],
-      "category": "basic",
-      "required": true,
-      "permission": "all",
-      "enableLogic": false,
+      "settings": {
+        "thankMessage": "感谢您的参与！您的回答已经成功提交。",
+        "showProgress": true,
+        "randomOrder": false
+      },
+      "status": "rejected",
+      "updatedAt": "2025-11-04T06:24:04.321Z",
+      "createdAt": "2025-11-04T06:23:26.151Z",
+      "userId": "ec9c",
+      "authorId": "ec9c",
+      "authorName": "123",
+      "author": "123",
+      "participants": 0,
+      "participantCount": 0,
+      "creatorId": "ec9c",
+      "responses": 0,
+      "rating": 0,
+      "thumbnail": "/images/default.jpg",
+      "rejectedReason": "q",
+      "rejectedAt": "2025-11-04T06:24:04.321Z",
+      "answerCount": 0,
+      "completionRate": 0,
+      "favoriteCount": 0,
+      "views": 0,
+      "answers": [
+        {
+          "id": "4682",
+          "userId": "ec9c",
+          "surveyId": 1762158531721,
+          "surveyTitle": "qqqqqqqqqqq",
+          "score": 92,
+          "result": "良好",
+          "submittedAt": "2025-11-03T09:42:04.000Z",
+          "duration": 2,
+          "answers": [
+            {
+              "questionId": "1762158518839.1165",
+              "answer": "opt1",
+              "question": "新的单选题"
+            },
+            {
+              "questionId": "1762158522623.583",
+              "answer": "opt2_1762158522623_0.13554659931255475",
+              "question": "新的单选题 (副本)"
+            }
+          ],
+          "comment": null
+        },
+        {
+          "id": "198b",
+          "userId": "ec9c",
+          "surveyId": 1762158531721,
+          "surveyTitle": "qqqqqqqqqqq",
+          "score": 95,
+          "result": "良好",
+          "submittedAt": "2025-11-03T09:42:11.104Z",
+          "duration": 2,
+          "answers": [
+            {
+              "questionId": "1762158518839.1165",
+              "answer": "opt1",
+              "question": "新的单选题"
+            },
+            {
+              "questionId": "1762158522623.583",
+              "answer": "opt1_1762158522623_0.9936671810747991",
+              "question": "新的单选题 (副本)"
+            }
+          ],
+          "comment": null
+        },
+        {
+          "id": "1f7b",
+          "userId": "4",
+          "surveyId": 1762158531721,
+          "surveyTitle": "qqqqqqqqqqq",
+          "score": 65,
+          "result": "良好",
+          "submittedAt": "2025-11-03T09:44:17.003Z",
+          "duration": 3,
+          "answers": [
+            {
+              "questionId": "1762158518839.1165",
+              "answer": "opt1",
+              "question": "新的单选题"
+            },
+            {
+              "questionId": "1762158522623.583",
+              "answer": "opt2_1762158522623_0.13554659931255475",
+              "question": "新的单选题 (副本)"
+            }
+          ],
+          "comment": null
+        },
+        {
+          "id": "687b",
+          "userId": "4",
+          "surveyId": 1762158531721,
+          "surveyTitle": "qqqqqqqqqqq",
+          "score": 93,
+          "result": "良好",
+          "submittedAt": "2025-11-03T09:55:14.623Z",
+          "duration": 2,
+          "answers": [
+            {
+              "questionId": "1762158518839.1165",
+              "answer": "opt1",
+              "question": "新的单选题"
+            },
+            {
+              "questionId": "1762158522623.583",
+              "answer": "opt2_1762158522623_0.13554659931255475",
+              "question": "新的单选题 (副本)"
+            }
+          ],
+          "comment": null
+        },
+        {
+          "id": "1bd2",
+          "userId": "4",
+          "surveyId": 1762158531721,
+          "surveyTitle": "qqqqqqqqqqq",
+          "score": 62,
+          "result": "良好",
+          "submittedAt": "2025-11-03T09:56:05.428Z",
+          "duration": 2,
+          "answers": [
+            {
+              "questionId": "1762158518839.1165",
+              "answer": "opt1",
+              "question": "新的单选题"
+            },
+            {
+              "questionId": "1762158522623.583",
+              "answer": "opt1_1762158522623_0.9936671810747991",
+              "question": "新的单选题 (副本)"
+            }
+          ],
+          "comment": null
+        },
+        {
+          "id": "a2be",
+          "userId": "ec9c",
+          "surveyId": 1762158531721,
+          "surveyTitle": "qqqqqqqqqqq",
+          "score": 71,
+          "result": "良好",
+          "submittedAt": "2025-11-04T01:36:07.079Z",
+          "duration": 4,
+          "answers": [
+            {
+              "questionId": "1762158518839.1165",
+              "answer": "opt1",
+              "question": "新的单选题"
+            },
+            {
+              "questionId": "1762158522623.583",
+              "answer": "opt2_1762158522623_0.13554659931255475",
+              "question": "新的单选题 (副本)"
+            }
+          ],
+          "comment": null
+        }
+      ],
+      "averageRating": 0,
+      "ratingCount": 0,
+      "isTemplate": false
+    },
+    {
+      "id": "template_1",
+      "title": "员工满意度调查",
+      "description": "全面了解员工对工作环境、薪酬福利、职业发展等方面的满意度，为企业管理提供数据支持",
+      "category": "企业管理",
+      "categoryValue": "enterprise",
+      "questions": 25,
+      "duration": 15,
+      "rating": 4.8,
+      "participants": 1250,
+      "participantCount": 1250,
+      "usageCount": 1250,
+      "isPro": true,
       "isTemplate": true,
-      "usageCount": 25,
-      "tags": "基础信息,人口统计",
-      "description": "了解受访者的年龄分布",
-      "createdAt": "2024-01-10T08:00:00Z",
-      "updatedAt": "2024-01-10T08:00:00Z"
-    },
-    {
-      "id": "2",
-      "type": "multiple",
-      "title": "您使用过哪些学习工具？",
-      "options": [
-        {
-          "id": "opt_1",
-          "text": "在线课程平台"
-        },
-        {
-          "id": "opt_2",
-          "text": "学习APP"
-        },
-        {
-          "id": "opt_3",
-          "text": "电子书"
-        },
-        {
-          "id": "opt_4",
-          "text": "视频教程"
-        }
+      "tags": [
+        "员工",
+        "满意度",
+        "企业管理",
+        "人力资源",
+        "HR"
       ],
-      "category": "preference",
-      "required": false,
-      "permission": "registered",
-      "enableLogic": false,
-      "isTemplate": true,
-      "usageCount": 18,
-      "tags": "学习工具,偏好调查",
-      "description": "调查用户使用的学习工具类型",
-      "createdAt": "2024-01-12T10:30:00Z",
-      "updatedAt": "2024-01-12T10:30:00Z"
-    },
-    {
-      "id": "3",
-      "type": "single",
-      "title": "您对我们的产品满意吗？",
-      "options": [
-        {
-          "id": "opt_1",
-          "text": "非常满意"
-        },
-        {
-          "id": "opt_2",
-          "text": "比较满意"
-        },
-        {
-          "id": "opt_3",
-          "text": "一般"
-        },
-        {
-          "id": "opt_4",
-          "text": "不太满意"
-        },
-        {
-          "id": "opt_5",
-          "text": "非常不满意"
-        }
-      ],
-      "category": "satisfaction",
-      "required": true,
-      "permission": "all",
-      "enableLogic": true,
-      "logicRules": [
-        {
-          "optionId": "opt_4",
-          "targetQuestion": 5
-        },
-        {
-          "optionId": "opt_5",
-          "targetQuestion": 5
-        }
-      ],
-      "isTemplate": true,
-      "usageCount": 42,
-      "tags": "满意度,核心指标",
-      "description": "产品满意度调查核心题目,不满意会跳转到原因调查",
-      "createdAt": "2024-01-15T09:00:00Z",
-      "updatedAt": "2024-01-20T14:30:00Z"
-    },
-    {
-      "id": "4",
-      "type": "rating",
-      "title": "请为我们的客服服务打分",
-      "maxRating": 5,
-      "category": "satisfaction",
-      "required": true,
-      "permission": "registered",
-      "enableLogic": false,
-      "isTemplate": true,
-      "usageCount": 35,
-      "tags": "评分,客服质量",
-      "description": "客服服务质量评分",
-      "createdAt": "2024-01-16T10:00:00Z",
-      "updatedAt": "2024-01-16T10:00:00Z"
-    },
-    {
-      "id": "5",
-      "type": "text",
-      "title": "请详细说明您不满意的原因",
-      "minLength": 10,
-      "maxLength": 500,
-      "category": "satisfaction",
-      "required": true,
-      "permission": "all",
-      "enableLogic": false,
-      "isTemplate": false,
-      "usageCount": 8,
-      "tags": "开放式问题,意见反馈",
-      "description": "收集不满意用户的详细反馈",
-      "createdAt": "2024-01-16T11:00:00Z",
-      "updatedAt": "2024-01-16T11:00:00Z"
-    },
-    {
-      "id": "6",
-      "type": "single",
-      "title": "您的职业是？",
-      "options": [
-        {
-          "id": "opt_1",
-          "text": "学生"
-        },
-        {
-          "id": "opt_2",
-          "text": "上班族"
-        },
-        {
-          "id": "opt_3",
-          "text": "自由职业者"
-        },
-        {
-          "id": "opt_4",
-          "text": "退休人员"
-        },
-        {
-          "id": "opt_5",
-          "text": "其他"
-        }
-      ],
-      "category": "basic",
-      "required": false,
-      "permission": "all",
-      "enableLogic": true,
-      "logicRules": [
-        {
-          "optionId": "opt_1",
-          "targetQuestion": 7
-        }
-      ],
-      "isTemplate": true,
-      "usageCount": 30,
-      "tags": "职业,基础信息",
-      "description": "了解受访者职业分布,学生会跳转到教育相关问题",
-      "createdAt": "2024-01-17T08:00:00Z",
-      "updatedAt": "2024-01-17T08:00:00Z"
-    },
-    {
-      "id": "7",
-      "type": "single",
-      "title": "您目前的学历是？",
-      "options": [
-        {
-          "id": "opt_1",
-          "text": "高中及以下"
-        },
-        {
-          "id": "opt_2",
-          "text": "本科在读"
-        },
-        {
-          "id": "opt_3",
-          "text": "本科毕业"
-        },
-        {
-          "id": "opt_4",
-          "text": "研究生及以上"
-        }
-      ],
-      "category": "basic",
-      "required": false,
-      "permission": "all",
-      "enableLogic": false,
-      "isTemplate": true,
-      "usageCount": 15,
-      "tags": "学历,教育背景",
-      "description": "学生群体的学历调查",
-      "createdAt": "2024-01-17T09:00:00Z",
-      "updatedAt": "2024-01-17T09:00:00Z"
-    },
-    {
-      "id": "8",
-      "type": "multiple",
-      "title": "您希望我们增加哪些新功能？(可多选)",
-      "options": [
-        {
-          "id": "opt_1",
-          "text": "数据导出"
-        },
-        {
-          "id": "opt_2",
-          "text": "更多图表类型"
-        },
-        {
-          "id": "opt_3",
-          "text": "移动端优化"
-        },
-        {
-          "id": "opt_4",
-          "text": "团队协作功能"
-        },
-        {
-          "id": "opt_5",
-          "text": "API接口"
-        }
-      ],
-      "category": "preference",
-      "required": false,
-      "permission": "vip",
-      "enableLogic": false,
-      "isTemplate": false,
-      "usageCount": 22,
-      "tags": "产品需求,VIP专属",
-      "description": "VIP用户的功能需求调查",
-      "createdAt": "2024-01-18T10:00:00Z",
-      "updatedAt": "2024-01-18T10:00:00Z"
-    },
-    {
-      "id": "9",
-      "type": "text",
-      "title": "您对我们有什么建议或意见？",
-      "minLength": 0,
-      "maxLength": 1000,
-      "category": "other",
-      "required": false,
-      "permission": "all",
-      "enableLogic": false,
-      "isTemplate": true,
-      "usageCount": 50,
-      "tags": "意见反馈,开放式",
-      "description": "收集用户的开放式反馈和建议",
-      "createdAt": "2024-01-19T08:00:00Z",
-      "updatedAt": "2024-01-19T08:00:00Z"
-    },
-    {
-      "id": "10",
-      "type": "single",
-      "title": "您使用我们产品的频率是？",
-      "options": [
-        {
-          "id": "opt_1",
-          "text": "每天"
-        },
-        {
-          "id": "opt_2",
-          "text": "每周2-3次"
-        },
-        {
-          "id": "opt_3",
-          "text": "每周一次"
-        },
-        {
-          "id": "opt_4",
-          "text": "偶尔使用"
-        }
-      ],
-      "category": "behavior",
-      "required": true,
-      "permission": "custom",
-      "minLevel": 2,
-      "enableLogic": true,
-      "logicRules": [
-        {
-          "optionId": "opt_4",
-          "targetQuestion": 11
-        }
-      ],
-      "isTemplate": true,
-      "usageCount": 28,
-      "tags": "使用频率,行为分析",
-      "description": "了解用户的产品使用频率,需要2级以上用户才能回答",
-      "createdAt": "2024-01-20T09:00:00Z",
-      "updatedAt": "2024-01-20T09:00:00Z"
-    },
-    {
-      "id": "11",
-      "type": "multiple",
-      "title": "是什么原因让您使用频率较低？(可多选)",
-      "options": [
-        {
-          "id": "opt_1",
-          "text": "功能不够完善"
-        },
-        {
-          "id": "opt_2",
-          "text": "操作不够便捷"
-        },
-        {
-          "id": "opt_3",
-          "text": "没有使用需求"
-        },
-        {
-          "id": "opt_4",
-          "text": "有更好的替代品"
-        }
-      ],
-      "category": "behavior",
-      "required": false,
-      "permission": "all",
-      "enableLogic": false,
-      "isTemplate": false,
-      "usageCount": 5,
-      "tags": "流失原因,深度分析",
-      "description": "分析低频用户的原因",
-      "createdAt": "2024-01-20T10:00:00Z",
+      "status": "published",
+      "createdAt": "2024-01-01T08:00:00Z",
       "updatedAt": "2024-01-20T10:00:00Z"
     },
     {
-      "id": "12",
-      "type": "rating",
-      "title": "请为我们的产品界面设计打分",
-      "maxRating": 10,
-      "category": "satisfaction",
-      "required": false,
-      "permission": "registered",
-      "enableLogic": false,
+      "id": "template_2",
+      "title": "产品用户体验调研",
+      "description": "收集用户对产品功能、界面设计、使用体验的反馈和建议，优化产品设计",
+      "category": "产品研发",
+      "categoryValue": "product",
+      "questions": 20,
+      "duration": 12,
+      "rating": 4.6,
+      "participants": 980,
+      "participantCount": 980,
+      "usageCount": 980,
+      "isPro": false,
       "isTemplate": true,
-      "usageCount": 40,
-      "tags": "界面设计,用户体验",
-      "description": "产品界面设计满意度评分(1-10分)",
-      "createdAt": "2024-01-21T08:00:00Z",
-      "updatedAt": "2024-01-21T08:00:00Z"
+      "tags": [
+        "用户体验",
+        "产品",
+        "反馈",
+        "优化",
+        "UX"
+      ],
+      "status": "published",
+      "createdAt": "2024-01-02T08:00:00Z",
+      "updatedAt": "2024-01-20T10:00:00Z"
     },
     {
-      "id": "a2eb",
-      "type": "multiple",
-      "title": "您使用过哪些学习工具？ (副本)",
-      "options": [
-        {
-          "id": "a",
-          "text": "在线课程平台"
-        },
-        {
-          "id": "b",
-          "text": "学习APP"
-        },
-        {
-          "id": "c",
-          "text": "电子书"
-        },
-        {
-          "id": "d",
-          "text": "视频教程"
-        }
+      "id": "template_3",
+      "title": "心理健康状况评估",
+      "description": "专业的心理健康评估量表，帮助了解个人心理状况，提供心理健康指导",
+      "category": "心理健康",
+      "categoryValue": "psychology",
+      "questions": 30,
+      "duration": 20,
+      "rating": 4.9,
+      "participants": 2340,
+      "participantCount": 2340,
+      "usageCount": 2340,
+      "isPro": true,
+      "isTemplate": true,
+      "tags": [
+        "心理健康",
+        "评估",
+        "量表",
+        "专业",
+        "心理测试"
       ],
-      "category": "学习工具",
-      "usageCount": 0,
-      "createdAt": "2025-10-21T07:27:03.076Z",
-      "updatedAt": "2025-10-21T07:27:03.076Z"
+      "status": "published",
+      "createdAt": "2024-01-03T08:00:00Z",
+      "updatedAt": "2024-01-20T10:00:00Z"
+    },
+    {
+      "id": "template_4",
+      "title": "课程教学效果评价",
+      "description": "评价课程内容、教学方法、学习效果的综合调研问卷，提升教学质量",
+      "category": "教育培训",
+      "categoryValue": "education",
+      "questions": 18,
+      "duration": 10,
+      "rating": 4.7,
+      "participants": 756,
+      "participantCount": 756,
+      "usageCount": 756,
+      "isPro": false,
+      "isTemplate": true,
+      "tags": [
+        "教学",
+        "课程",
+        "评价",
+        "教育",
+        "培训"
+      ],
+      "status": "published",
+      "createdAt": "2024-11-01T08:00:00Z",
+      "updatedAt": "2024-11-03T10:00:00Z"
+    },
+    {
+      "id": "template_5",
+      "title": "品牌认知度调研",
+      "description": "了解目标用户对品牌的认知程度、印象和偏好，为品牌营销策略提供依据",
+      "category": "市场调研",
+      "categoryValue": "market",
+      "questions": 22,
+      "duration": 15,
+      "rating": 4.5,
+      "participants": 1180,
+      "participantCount": 1180,
+      "usageCount": 1180,
+      "isPro": false,
+      "isTemplate": true,
+      "tags": [
+        "品牌",
+        "认知度",
+        "市场调研",
+        "营销",
+        "用户调研"
+      ],
+      "status": "published",
+      "createdAt": "2024-01-05T08:00:00Z",
+      "updatedAt": "2024-01-20T10:00:00Z"
+    },
+    {
+      "id": "template_6",
+      "title": "网站可用性测试",
+      "description": "评估网站的易用性、导航设计、内容布局等方面的用户体验",
+      "category": "用户体验",
+      "categoryValue": "ux",
+      "questions": 16,
+      "duration": 12,
+      "rating": 4.4,
+      "participants": 645,
+      "participantCount": 645,
+      "usageCount": 645,
+      "isPro": false,
+      "isTemplate": true,
+      "tags": [
+        "网站",
+        "可用性",
+        "UX",
+        "用户测试",
+        "界面设计"
+      ],
+      "status": "published",
+      "createdAt": "2024-11-02T08:00:00Z",
+      "updatedAt": "2024-11-04T10:00:00Z"
+    },
+    {
+      "id": "template_7",
+      "title": "学术研究问卷",
+      "description": "标准的学术研究调查问卷模板，适用于各类社会科学研究项目",
+      "category": "学术研究",
+      "categoryValue": "academic",
+      "questions": 35,
+      "duration": 25,
+      "rating": 4.6,
+      "participants": 420,
+      "participantCount": 420,
+      "usageCount": 420,
+      "isPro": true,
+      "isTemplate": true,
+      "tags": [
+        "学术研究",
+        "科研",
+        "调查",
+        "数据收集",
+        "统计分析"
+      ],
+      "status": "published",
+      "createdAt": "2024-01-07T08:00:00Z",
+      "updatedAt": "2024-01-20T10:00:00Z"
+    },
+    {
+      "id": "template_8",
+      "title": "活动反馈调查",
+      "description": "收集参与者对活动组织、内容、服务等方面的反馈意见",
+      "category": "活动反馈",
+      "categoryValue": "event",
+      "questions": 14,
+      "duration": 8,
+      "rating": 4.3,
+      "participants": 890,
+      "participantCount": 890,
+      "usageCount": 890,
+      "isPro": false,
+      "isTemplate": true,
+      "tags": [
+        "活动",
+        "反馈",
+        "服务",
+        "组织",
+        "参与体验"
+      ],
+      "status": "published",
+      "createdAt": "2024-11-01T08:00:00Z",
+      "updatedAt": "2024-11-03T10:00:00Z"
+    },
+    {
+      "id": "template_9",
+      "title": "客户满意度调查",
+      "description": "评估客户对产品和服务的满意度，帮助企业提升客户体验和忠诚度",
+      "category": "企业管理",
+      "categoryValue": "enterprise",
+      "questions": 20,
+      "duration": 10,
+      "rating": 4.2,
+      "participants": 1500,
+      "participantCount": 1500,
+      "usageCount": 1500,
+      "isPro": false,
+      "isTemplate": true,
+      "tags": [
+        "客户",
+        "满意度",
+        "服务",
+        "反馈",
+        "体验"
+      ],
+      "status": "published",
+      "createdAt": "2024-01-09T08:00:00Z",
+      "updatedAt": "2024-01-20T10:00:00Z"
     }
   ],
   "answers": [],
@@ -3924,6 +4003,33 @@
       "description": "拒绝问卷\"员工满意度调查\"，原因：请问请问",
       "type": "questionnaire_reject",
       "timestamp": "2025-11-04T01:32:33.425Z"
+    },
+    {
+      "id": "act_1762237444333",
+      "adminId": "3",
+      "adminName": "系统管理员",
+      "title": "拒绝问卷审核",
+      "description": "拒绝问卷\"qqqqqqqqqqq - 副本\"，原因：q",
+      "type": "questionnaire_reject",
+      "timestamp": "2025-11-04T06:24:04.333Z"
+    },
+    {
+      "id": "act_1762244528684",
+      "adminId": "3",
+      "adminName": "系统管理员",
+      "title": "设置模板",
+      "description": "将问卷\"aaaaaaa\"设置为模板",
+      "type": "questionnaire_template",
+      "timestamp": "2025-11-04T08:22:08.684Z"
+    },
+    {
+      "id": "act_1762244555738",
+      "adminId": "3",
+      "adminName": "系统管理员",
+      "title": "取消模板",
+      "description": "取消问卷\"aaaaaaa\"的模板状态",
+      "type": "questionnaire_template",
+      "timestamp": "2025-11-04T08:22:35.738Z"
     }
   ],
   "badges": [

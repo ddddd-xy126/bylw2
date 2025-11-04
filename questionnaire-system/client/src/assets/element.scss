@@ -90,6 +90,13 @@
   border-color: var(--color-error) !important;
 }
 
+.el-button.is-circle {
+  background-color: var(--color-gray-400) !important;
+  border-radius: 50% !important;
+  border-color: transparent !important;
+  color: var(--color-primary-dark-3) !important;
+}
+
 /* Tag */
 .el-tag--primary {
   background-color: var(--color-primary) !important;
@@ -222,7 +229,9 @@
   border-color: var(--border-primary) !important;
 }
 
-.el-radio-button.is-active .el-radio-button__original-radio:not(:disabled) + .el-radio-button__inner {
+.el-radio-button.is-active
+  .el-radio-button__original-radio:not(:disabled)
+  + .el-radio-button__inner {
   background-color: var(--color-primary) !important;
   border-color: var(--color-primary) !important;
   color: var(--text-inverse) !important;
@@ -231,7 +240,9 @@
 
 /* Radio Button - hover / focus / disabled 小效果 */
 /* 只在未激活（非 is-active）状态下应用 hover 效果，避免覆盖激活样式 */
-.el-radio-button:not(.is-active) .el-radio-button__original-radio:not(:disabled):hover + .el-radio-button__inner,
+.el-radio-button:not(.is-active)
+  .el-radio-button__original-radio:not(:disabled):hover
+  + .el-radio-button__inner,
 .el-radio-button:not(.is-active):hover .el-radio-button__inner {
   background-color: var(--color-primary-dark-1) !important;
   border-color: var(--color-primary-dark-1) !important;
@@ -244,14 +255,18 @@
 }
 
 /* focus 可见性，便于键盘操作 */
-.el-radio-button .el-radio-button__original-radio:not(:disabled):focus + .el-radio-button__inner {
+.el-radio-button
+  .el-radio-button__original-radio:not(:disabled):focus
+  + .el-radio-button__inner {
   box-shadow: 0 0 0 4px var(--bg-primary-light) !important;
   border-color: var(--color-primary) !important;
 }
 
 /* 禁用样式 */
 .el-radio-button.is-disabled .el-radio-button__inner,
-.el-radio-button .el-radio-button__original-radio:disabled + .el-radio-button__inner {
+.el-radio-button
+  .el-radio-button__original-radio:disabled
+  + .el-radio-button__inner {
   opacity: 0.6 !important;
   cursor: not-allowed !important;
 }
@@ -281,7 +296,7 @@
 
 /* 小圆点（选中态） */
 .el-radio__inner::after {
-  content: '';
+  content: "";
   display: block;
   width: 8px;
   height: 8px;
@@ -309,7 +324,11 @@
 .el-radio.is-checked .el-radio__inner,
 .el-radio__original-radio:checked + .el-radio__inner {
   border-color: var(--color-primary);
-  background: linear-gradient(180deg, var(--color-primary-light-2), var(--color-primary-dark-1));
+  background: linear-gradient(
+    180deg,
+    var(--color-primary-light-2),
+    var(--color-primary-dark-1)
+  );
 }
 
 .el-radio.is-checked .el-radio__inner::after,
@@ -359,7 +378,7 @@
 
 /* 勾（选中态）使用伪元素绘制白色勾 */
 .el-checkbox__inner::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 3px;
   top: 1px;
@@ -388,7 +407,11 @@
 .el-checkbox.is-checked .el-checkbox__inner,
 .el-checkbox__original:checked + .el-checkbox__inner {
   border-color: var(--color-primary);
-  background: linear-gradient(180deg, var(--color-primary-light-2), var(--color-primary-dark-1));
+  background: linear-gradient(
+    180deg,
+    var(--color-primary-light-2),
+    var(--color-primary-dark-1)
+  );
 }
 
 .el-checkbox.is-checked .el-checkbox__inner::after,
@@ -411,5 +434,16 @@
   width: 12px;
   height: 12px;
 }
+
+/* ============================================
+   MessageBox - 移除 container 的 flex 布局
+   修复布局问题
+============================================ */
+.el-message-box__container {
+  display: block !important;
+  align-items: unset !important;
+  gap: unset !important;
+}
+
 
 
