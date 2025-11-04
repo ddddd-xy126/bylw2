@@ -58,7 +58,9 @@ export const registerApi = async (data) => {
     createdAt: new Date().toISOString(),
     lastLoginAt: new Date().toISOString(),
     lastLoginIp: '',
-    password: data.password
+    password: data.password,
+    completedSurveys: [],  // 已完成的问卷ID数组
+    tags: []  // 用户兴趣标签
   };
   
   const createdUser = await apiClient.post('/users', newUser);
@@ -152,6 +154,86 @@ export const removeFavoriteApi = async (userId, surveyId) => {
 
 // 获取用户答题记录
 export const getUserAnsweredSurveysApi = async (userId) => {
+  // 方法1：从用户的completedSurveys字段获取（推荐）
+  try {
+    const user = await apiClient.get(`/users/${userId}`);
+    const completedSurveyIds = user.completedSurveys || [];
+    
+    if (completedSurveyIds.length === 0) {
+      return [];
+    }
+    
+    // 获取所有问卷
+    const surveys = await apiClient.get('/surveys');
+    
+    // 根据已完成的问卷ID获取问卷详情和答案
+    const answeredSurveys = completedSurveyIds.map(surveyId => {
+      const survey = surveys.find(s => s.id == surveyId);
+      if (!survey) return null;
+      
+      // 从问卷的answers中找到该用户的答案
+      const userAnswer = survey.answers?.find(a => a.userId == userId);
+      
+      // 处理答案数据，确保有 text 字段用于显示
+      let processedAnswers = userAnswer?.answers || [];
+      if (processedAnswers.length > 0 && survey.questionList) {
+        processedAnswers = processedAnswers.map(ans => {
+          // 如果已经有 text 字段，直接使用
+          if (ans.text) return ans;
+          
+          // 否则根据 questionList 生成 text
+          const question = survey.questionList.find(q => q.id == ans.questionId);
+          if (!question) return ans;
+          
+          let text = ans.answer;
+          
+          // 为单选题和多选题生成文本
+          if (question.type === 'single' && question.options) {
+            const option = question.options.find(opt => opt.id === ans.answer);
+            text = option ? option.text : ans.answer;
+          } else if (question.type === 'multiple' && Array.isArray(ans.answer) && question.options) {
+            text = ans.answer.map(answerId => {
+              const option = question.options.find(opt => opt.id === answerId);
+              return option ? option.text : answerId;
+            });
+          }
+          
+          return {
+            ...ans,
+            text: text,
+            question: question.title || question.content
+          };
+        });
+      }
+      
+      return {
+        id: userAnswer?.id || `${userId}_${surveyId}`,
+        userId: userId,
+        surveyId: surveyId,
+        surveyTitle: survey.title,
+        title: survey.title,
+        category: survey.category,
+        estimatedTime: survey.estimatedTime || survey.duration || 5,
+        score: userAnswer?.score || 0,
+        result: userAnswer?.result || '未评分',
+        submittedAt: userAnswer?.submittedAt || new Date().toISOString(),
+        duration: userAnswer?.duration || 0,
+        answers: processedAnswers,
+        comment: userAnswer?.comment || null,
+        survey: survey
+      };
+    }).filter(item => item !== null);
+    
+    return answeredSurveys;
+  } catch (error) {
+    console.error('获取用户答题记录失败:', error);
+    // 降级：使用旧方法从独立的answers表获取
+    return getUserAnsweredSurveysFromAnswersTable(userId);
+  }
+};
+
+// 降级方法：从独立的answers表获取（兼容旧数据）
+const getUserAnsweredSurveysFromAnswersTable = async (userId) => {
   const answers = await apiClient.get(`/answers?userId=${userId}`);
   const surveys = await apiClient.get('/surveys');
   

@@ -536,13 +536,10 @@ const submitSurvey = async () => {
     
     ElMessage.success('问卷提交成功！');
     
-    // 直接跳转到结果页面（使用返回的 answerId）
-    if (result && result.answerId) {
-      router.push(`/surveys/result/${result.answerId}`);
-    } else {
-      // 如果没有返回 answerId，显示完成页面
-      isCompleted.value = true;
-    }
+    // 跳转到结果页面，传递surveyId和userId用于查询答案
+    const surveyId = route.params.id;
+    const userId = userStore.profile?.id;
+    router.push(`/surveys/result/${result.answerId}?surveyId=${surveyId}&userId=${userId}`);
     
   } catch (error) {
     ElMessage.error('提交失败：' + error.message);

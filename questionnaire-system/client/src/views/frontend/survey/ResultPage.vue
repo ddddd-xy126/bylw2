@@ -229,6 +229,13 @@ import {
   ChatLineRound
 } from '@element-plus/icons-vue';
 import { useUserStore } from '@/store/user';
+import { 
+  createCommentApi, 
+  updateCommentApi, 
+  deleteCommentApi, 
+  getUserCommentApi,
+  getUserAnswerApi 
+} from '@/api/survey';
 
 const route = useRoute();
 const router = useRouter();
@@ -312,56 +319,38 @@ const submitRating = async () => {
   submitting.value = true;
   try {
     const userId = userStore.profile?.id || userStore.userId;
-    const username = userStore.profile?.username || userStore.userName;
+    const username = userStore.profile?.nickname || userStore.profile?.username || userStore.userName;
     const surveyId = reportData.value.surveyId;
 
     if (myRating.value) {
       // 更新已有评价
-      const updatedRating = {
+      await updateCommentApi(surveyId, userId, {
+        rating: ratingForm.value.rating,
+        content: ratingForm.value.content
+      });
+
+      myRating.value = {
         ...myRating.value,
         rating: ratingForm.value.rating,
         content: ratingForm.value.content,
         updatedAt: new Date().toISOString()
       };
-
-      const response = await fetch(`http://localhost:3002/comments/${myRating.value.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedRating)
-      });
-
-      if (!response.ok) throw new Error('更新失败');
-
-      myRating.value = updatedRating;
+      
       isEditing.value = false;
       ElMessage.success('评价已更新');
     } else {
       // 创建新评价
-      const newRating = {
-        surveyId: parseInt(surveyId),
-        userId: parseInt(userId),
+      const newComment = await createCommentApi(surveyId, {
+        userId: userId,
         username: username,
         avatar: userStore.profile?.avatar || '',
         rating: ratingForm.value.rating,
-        content: ratingForm.value.content,
-        createdAt: new Date().toISOString()
-      };
-
-      const response = await fetch('http://localhost:3002/comments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newRating)
+        content: ratingForm.value.content
       });
 
-      if (!response.ok) throw new Error('发表失败');
-
-      const savedRating = await response.json();
-      myRating.value = savedRating;
+      myRating.value = newComment;
       ElMessage.success('评价发表成功');
     }
-
-    // 更新问卷平均评分
-    await updateSurveyAverageRating(surveyId);
   } catch (error) {
     console.error('提交评价失败:', error);
     ElMessage.error('操作失败：' + error.message);
@@ -383,52 +372,17 @@ const deleteRating = async () => {
       }
     );
 
-    const response = await fetch(`http://localhost:3002/comments/${myRating.value.id}`, {
-      method: 'DELETE'
-    });
-
-    if (!response.ok) throw new Error('删除失败');
-
+    const userId = userStore.profile?.id || userStore.userId;
     const surveyId = reportData.value.surveyId;
+    
+    await deleteCommentApi(surveyId, userId);
+
     myRating.value = null;
     ratingForm.value = { rating: 5, content: '' };
     ElMessage.success('评价已删除');
-
-    // 更新问卷平均评分
-    await updateSurveyAverageRating(surveyId);
   } catch (err) {
     if (err && (err === 'cancel' || err.type === 'cancel')) return;
     ElMessage.error('删除失败：' + (err.message || err));
-  }
-};
-
-// 更新问卷平均评分
-const updateSurveyAverageRating = async (surveyId) => {
-  try {
-    // 获取该问卷的所有评分
-    const response = await fetch(`http://localhost:3002/comments?surveyId=${surveyId}`);
-    const comments = await response.json();
-
-    let averageRating = 0;
-    if (comments.length > 0) {
-      const totalRating = comments.reduce((sum, comment) => sum + comment.rating, 0);
-      averageRating = (totalRating / comments.length).toFixed(1);
-    }
-
-    // 更新问卷的平均评分
-    await fetch(`http://localhost:3002/surveys/${surveyId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        rating: parseFloat(averageRating),
-        averageRating: parseFloat(averageRating),
-        ratingCount: comments.length
-      })
-    });
-
-    console.log(`问卷 ${surveyId} 的平均评分已更新为: ${averageRating}`);
-  } catch (error) {
-    console.error('更新平均评分失败:', error);
   }
 };
 
@@ -438,7 +392,22 @@ const loadReportData = async () => {
   try {
     const answerId = route.params.id;
     
-    // 从 answers 表获取答题记录
+    // 尝试从URL参数获取surveyId和userId
+    const surveyId = route.query.surveyId;
+    const userId = userStore.profile?.id || userStore.userId;
+    
+    if (surveyId && userId) {
+      // 从问卷的answers中获取用户的答题记录
+      const userAnswer = await getUserAnswerApi(surveyId, userId);
+      if (userAnswer) {
+        reportData.value = userAnswer;
+        await loadMyRating();
+        loading.value = false;
+        return;
+      }
+    }
+    
+    // 兼容旧的answerId方式（从独立的answers表查询）
     const response = await fetch(`http://localhost:3002/answers/${answerId}`);
     if (!response.ok) throw new Error('报告不存在');
     
@@ -461,10 +430,10 @@ const loadMyRating = async () => {
     const userId = userStore.profile?.id || userStore.userId;
     const surveyId = reportData.value.surveyId;
 
-    const response = await fetch(`http://localhost:3002/comments?userId=${userId}&surveyId=${surveyId}`);
-    const comments = await response.json();
+    if (!surveyId || !userId) return;
 
-    myRating.value = comments.length > 0 ? comments[0] : null;
+    const comment = await getUserCommentApi(surveyId, userId);
+    myRating.value = comment;
   } catch (error) {
     console.error('加载评价失败:', error);
   }

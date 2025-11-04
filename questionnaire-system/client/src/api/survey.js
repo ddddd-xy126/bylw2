@@ -80,104 +80,367 @@ export async function getSurveyDetail(id) {
 
 // 答题相关
 export async function submitSurveyApi(id, data) {
-  // 1. 创建答案记录
-  const newAnswer = {
-    userId: data.userId || 1,
-    surveyId: parseInt(id),
-    surveyTitle: data.surveyTitle || "问卷",
-    score: Math.floor(Math.random() * 40) + 60, // 60-100分
-    result: "良好",
-    submittedAt: new Date().toISOString(),
-    duration: data.duration || 300,
-    answers: data.answers || []
-  };
-  
-  const answer = await apiClient.post('/answers', newAnswer);
-  
-  // 2. 更新问卷的选项统计数据
   try {
-    // 获取问卷完整数据
+    // 1. 获取问卷完整数据
     const survey = await apiClient.get(`/surveys/${id}`);
     
-    if (survey && survey.questionList && Array.isArray(survey.questionList)) {
-      // 遍历用户的答案，更新对应选项的 selectedCount
-      const updatedQuestionList = survey.questionList.map(question => {
-        // 找到这道题的答案
-        const userAnswer = data.answers.find(a => a.questionId == question.id);
-        
-        if (userAnswer && question.options && Array.isArray(question.options)) {
-          // 更新选项的统计
-          const updatedOptions = question.options.map(option => {
-            let newCount = option.selectedCount || 0;
-            
-            // 单选题：答案是字符串
-            if (question.type === 'single' && userAnswer.answer === option.id) {
-              newCount++;
-            }
-            // 多选题：答案是数组
-            else if (question.type === 'multiple' && Array.isArray(userAnswer.answer) && userAnswer.answer.includes(option.id)) {
-              newCount++;
-            }
-            
-            return {
-              ...option,
-              selectedCount: newCount
-            };
-          });
+    // 2. 处理答案数据，添加选项文本
+    const answersWithText = data.answers.map(answer => {
+      const question = survey.questionList?.find(q => q.id == answer.questionId);
+      if (!question) return answer;
+      
+      let answerText = answer.answer;
+      let text = answer.answer; // 用于显示的文本
+      
+      // 为单选和多选题添加选项文本
+      if (question.type === 'single') {
+        const option = question.options?.find(opt => opt.id === answer.answer);
+        answerText = option ? option.text : answer.answer;
+        text = option ? option.text : answer.answer;
+      } else if (question.type === 'multiple' && Array.isArray(answer.answer)) {
+        answerText = answer.answer.map(answerId => {
+          const option = question.options?.find(opt => opt.id === answerId);
+          return option ? option.text : answerId;
+        });
+        text = Array.isArray(answerText) ? answerText : answerText;
+      } else {
+        // 对于文本题、评分题等，直接使用原始答案
+        text = answer.answer;
+      }
+      
+      return {
+        ...answer,
+        answerText: answerText,  // 保存选项文本（数组或字符串）
+        answerIds: answer.answer,  // 保留选项ID
+        text: text,  // 用于直接显示的文本
+        question: question.title || question.content  // 保存题目文本
+      };
+    });
+    
+    // 3. 创建答案记录
+    const newAnswer = {
+      id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+      userId: data.userId || 1,
+      surveyId: parseInt(id),
+      surveyTitle: data.surveyTitle || survey.title || "问卷",
+      score: Math.floor(Math.random() * 40) + 60, // 60-100分
+      result: "良好",
+      submittedAt: new Date().toISOString(),
+      duration: data.duration || 300,
+      answers: answersWithText,
+      comment: null  // 评论稍后添加
+    };
+    
+    // 4. 更新问卷的选项统计数据和答案列表
+    const updatedQuestionList = survey.questionList?.map(question => {
+      const userAnswer = data.answers.find(a => a.questionId == question.id);
+      
+      if (userAnswer && question.options && Array.isArray(question.options)) {
+        const updatedOptions = question.options.map(option => {
+          let newCount = option.selectedCount || 0;
+          
+          if (question.type === 'single' && userAnswer.answer === option.id) {
+            newCount++;
+          } else if (question.type === 'multiple' && Array.isArray(userAnswer.answer) && userAnswer.answer.includes(option.id)) {
+            newCount++;
+          }
           
           return {
-            ...question,
-            options: updatedOptions
+            ...option,
+            selectedCount: newCount
           };
-        }
+        });
         
-        return question;
-      });
+        return {
+          ...question,
+          options: updatedOptions
+        };
+      }
       
-      // 更新问卷数据
-      await apiClient.patch(`/surveys/${id}`, {
-        questionList: updatedQuestionList,
-        participantCount: (survey.participantCount || 0) + 1,
-        participants: (survey.participants || 0) + 1,
-        answerCount: (survey.answerCount || 0) + 1,
-        updatedAt: new Date().toISOString()
-      });
+      return question;
+    }) || survey.questionList;
+    
+    // 5. 获取现有答案列表并添加新答案
+    const currentAnswers = survey.answers || [];
+    const updatedAnswers = [...currentAnswers, newAnswer];
+    
+    // 6. 更新问卷数据
+    await apiClient.patch(`/surveys/${id}`, {
+      questionList: updatedQuestionList,
+      answers: updatedAnswers,
+      participantCount: (survey.participantCount || 0) + 1,
+      participants: (survey.participants || 0) + 1,
+      answerCount: (survey.answerCount || 0) + 1,
+      updatedAt: new Date().toISOString()
+    });
+    
+    // 7. 更新用户的已完成问卷列表
+    if (data.userId) {
+      try {
+        const user = await apiClient.get(`/users/${data.userId}`);
+        const completedSurveys = user.completedSurveys || [];
+        
+        // 如果还没有这个问卷ID，添加进去
+        if (!completedSurveys.includes(parseInt(id))) {
+          await apiClient.patch(`/users/${data.userId}`, {
+            completedSurveys: [...completedSurveys, parseInt(id)],
+            updatedAt: new Date().toISOString()
+          });
+        }
+      } catch (error) {
+        console.error('更新用户已完成问卷列表失败:', error);
+        // 不影响答题提交
+      }
     }
+    
+    return {
+      answerId: newAnswer.id,
+      score: newAnswer.score,
+      result: newAnswer.result,
+      analysis: "根据您的回答，我们为您生成了个性化的分析报告..."
+    };
   } catch (error) {
-    console.error('更新选项统计失败:', error);
-    // 不影响答题提交，只记录错误
+    console.error('提交答案失败:', error);
+    throw error;
   }
-  
-  return {
-    answerId: answer.id,
-    score: answer.score,
-    result: answer.result,
-    analysis: "根据您的回答，我们为您生成了个性化的分析报告..."
-  };
 }
 
 // 评论相关
 export async function getSurveyCommentsApi(id) {
-  const comments = await apiClient.get(`/comments?surveyId=${id}`);
-  return {
-    list: comments,
-    total: comments.length
-  };
+  try {
+    // 从问卷的answers中获取所有评论
+    const survey = await apiClient.get(`/surveys/${id}`);
+    const answers = survey.answers || [];
+    
+    // 提取所有有评论的答案
+    const comments = answers
+      .filter(answer => answer.comment && answer.comment.content)
+      .map(answer => ({
+        id: answer.id,
+        surveyId: parseInt(id),
+        userId: answer.userId,
+        username: answer.username || '匿名用户',
+        avatar: answer.userAvatar || '',
+        content: answer.comment.content,
+        rating: answer.comment.rating || 5,
+        createdAt: answer.comment.createdAt || answer.submittedAt
+      }));
+    
+    return {
+      list: comments,
+      total: comments.length
+    };
+  } catch (error) {
+    console.error('获取评论失败:', error);
+    return {
+      list: [],
+      total: 0
+    };
+  }
 }
 
 export async function createCommentApi(id, data) {
-  const newComment = {
-    surveyId: parseInt(id),
-    userId: data.userId,
-    username: data.username,
-    avatar: data.avatar,
-    content: data.content,
-    rating: data.rating || 5,
-    createdAt: new Date().toISOString()
-  };
-  
-  const comment = await apiClient.post('/comments', newComment);
-  return comment;
+  try {
+    // 获取问卷数据
+    const survey = await apiClient.get(`/surveys/${id}`);
+    const answers = survey.answers || [];
+    
+    // 查找该用户的答案记录
+    const answerIndex = answers.findIndex(a => a.userId == data.userId);
+    
+    if (answerIndex === -1) {
+      throw new Error('请先完成问卷答题后再评论');
+    }
+    
+    // 更新该答案的评论信息
+    const updatedAnswers = [...answers];
+    updatedAnswers[answerIndex] = {
+      ...updatedAnswers[answerIndex],
+      username: data.username,
+      userAvatar: data.avatar,
+      comment: {
+        content: data.content,
+        rating: data.rating || 5,
+        createdAt: new Date().toISOString()
+      }
+    };
+    
+    // 更新问卷数据
+    await apiClient.patch(`/surveys/${id}`, {
+      answers: updatedAnswers,
+      updatedAt: new Date().toISOString()
+    });
+    
+    // 重新计算平均评分和评分数量
+    const allRatings = updatedAnswers
+      .filter(a => a.comment && a.comment.rating)
+      .map(a => a.comment.rating);
+    
+    if (allRatings.length > 0) {
+      const averageRating = (allRatings.reduce((sum, r) => sum + r, 0) / allRatings.length).toFixed(1);
+      await apiClient.patch(`/surveys/${id}`, {
+        averageRating: parseFloat(averageRating),
+        ratingCount: allRatings.length
+      });
+    }
+    
+    return {
+      id: updatedAnswers[answerIndex].id,
+      surveyId: parseInt(id),
+      userId: data.userId,
+      username: data.username,
+      avatar: data.avatar,
+      content: data.content,
+      rating: data.rating || 5,
+      createdAt: updatedAnswers[answerIndex].comment.createdAt
+    };
+  } catch (error) {
+    console.error('创建评论失败:', error);
+    throw error;
+  }
+}
+
+export async function updateCommentApi(surveyId, userId, data) {
+  try {
+    // 获取问卷数据
+    const survey = await apiClient.get(`/surveys/${surveyId}`);
+    const answers = survey.answers || [];
+    
+    // 查找该用户的答案记录
+    const answerIndex = answers.findIndex(a => a.userId == userId);
+    
+    if (answerIndex === -1) {
+      throw new Error('未找到答案记录');
+    }
+    
+    // 更新评论
+    const updatedAnswers = [...answers];
+    updatedAnswers[answerIndex] = {
+      ...updatedAnswers[answerIndex],
+      comment: {
+        ...updatedAnswers[answerIndex].comment,
+        content: data.content,
+        rating: data.rating,
+        updatedAt: new Date().toISOString()
+      }
+    };
+    
+    // 更新问卷数据
+    await apiClient.patch(`/surveys/${surveyId}`, {
+      answers: updatedAnswers,
+      updatedAt: new Date().toISOString()
+    });
+    
+    // 重新计算平均评分
+    const allRatings = updatedAnswers
+      .filter(a => a.comment && a.comment.rating)
+      .map(a => a.comment.rating);
+    
+    if (allRatings.length > 0) {
+      const averageRating = (allRatings.reduce((sum, r) => sum + r, 0) / allRatings.length).toFixed(1);
+      await apiClient.patch(`/surveys/${surveyId}`, {
+        averageRating: parseFloat(averageRating),
+        ratingCount: allRatings.length
+      });
+    }
+    
+    return updatedAnswers[answerIndex];
+  } catch (error) {
+    console.error('更新评论失败:', error);
+    throw error;
+  }
+}
+
+export async function deleteCommentApi(surveyId, userId) {
+  try {
+    // 获取问卷数据
+    const survey = await apiClient.get(`/surveys/${surveyId}`);
+    const answers = survey.answers || [];
+    
+    // 查找该用户的答案记录
+    const answerIndex = answers.findIndex(a => a.userId == userId);
+    
+    if (answerIndex === -1) {
+      throw new Error('未找到答案记录');
+    }
+    
+    // 删除评论
+    const updatedAnswers = [...answers];
+    updatedAnswers[answerIndex] = {
+      ...updatedAnswers[answerIndex],
+      comment: null
+    };
+    
+    // 更新问卷数据
+    await apiClient.patch(`/surveys/${surveyId}`, {
+      answers: updatedAnswers,
+      updatedAt: new Date().toISOString()
+    });
+    
+    // 重新计算平均评分
+    const allRatings = updatedAnswers
+      .filter(a => a.comment && a.comment.rating)
+      .map(a => a.comment.rating);
+    
+    const averageRating = allRatings.length > 0 
+      ? (allRatings.reduce((sum, r) => sum + r, 0) / allRatings.length).toFixed(1)
+      : 0;
+    
+    await apiClient.patch(`/surveys/${surveyId}`, {
+      averageRating: parseFloat(averageRating),
+      ratingCount: allRatings.length
+    });
+    
+    return { success: true };
+  } catch (error) {
+    console.error('删除评论失败:', error);
+    throw error;
+  }
+}
+
+export async function getUserCommentApi(surveyId, userId) {
+  try {
+    // 获取问卷数据
+    const survey = await apiClient.get(`/surveys/${surveyId}`);
+    const answers = survey.answers || [];
+    
+    // 查找该用户的答案记录
+    const userAnswer = answers.find(a => a.userId == userId);
+    
+    if (!userAnswer || !userAnswer.comment) {
+      return null;
+    }
+    
+    return {
+      id: userAnswer.id,
+      surveyId: parseInt(surveyId),
+      userId: userAnswer.userId,
+      username: userAnswer.username,
+      avatar: userAnswer.userAvatar,
+      content: userAnswer.comment.content,
+      rating: userAnswer.comment.rating,
+      createdAt: userAnswer.comment.createdAt
+    };
+  } catch (error) {
+    console.error('获取用户评论失败:', error);
+    return null;
+  }
+}
+
+export async function getUserAnswerApi(surveyId, userId) {
+  try {
+    // 获取问卷数据
+    const survey = await apiClient.get(`/surveys/${surveyId}`);
+    const answers = survey.answers || [];
+    
+    // 查找该用户的答案记录
+    const userAnswer = answers.find(a => a.userId == userId);
+    
+    return userAnswer || null;
+  } catch (error) {
+    console.error('获取用户答案失败:', error);
+    return null;
+  }
 }
 
 // 分类
