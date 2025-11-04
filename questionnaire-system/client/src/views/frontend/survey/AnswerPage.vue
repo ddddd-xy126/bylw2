@@ -519,11 +519,38 @@ const submitSurvey = async () => {
       surveyTitle: questionnaire.title,
       userId: userStore.profile?.id,
       duration: duration,
-      answers: Object.entries(answers).map(([questionId, answer]) => ({
-        questionId,
-        answer,
-        question: questionnaire.questions.find(q => q.id == questionId)?.title || ''
-      }))
+      answers: Object.entries(answers).map(([questionId, answer]) => {
+        const question = questionnaire.questions.find(q => q.id == questionId);
+        let answerText = answer; // 默认使用原始答案
+        
+        // 根据题目类型获取对应的文本
+        if (question) {
+          if (question.type === 'single') {
+            // 单选题：查找对应选项的文本
+            const option = question.options?.find(opt => opt.id === answer);
+            answerText = option ? option.text : answer;
+          } else if (question.type === 'multiple' && Array.isArray(answer)) {
+            // 多选题：将选项ID数组转换为文本数组
+            answerText = answer.map(answerId => {
+              const option = question.options?.find(opt => opt.id === answerId);
+              return option ? option.text : answerId;
+            });
+          } else if (question.type === 'rating') {
+            // 评分题：直接使用数字
+            answerText = answer;
+          } else if (question.type === 'text') {
+            // 文本题：直接使用输入的文本
+            answerText = answer;
+          }
+        }
+        
+        return {
+          questionId,
+          answer,  // 保留原始答案（ID或值）
+          text: answerText,  // 新增：用于显示的文本
+          question: question?.title || question?.content || ''
+        };
+      })
     };
 
     const result = await submitSurveyApi(route.params.id, answerData);

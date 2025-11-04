@@ -120,7 +120,7 @@
               </div>
               <div class="answer-body">
                 <el-icon><Check /></el-icon>
-                <span>{{ formatAnswer(answer.answer) }}</span>
+                <span>{{ formatAnswer(answer) }}</span>
               </div>
             </div>
           </div>
@@ -133,36 +133,48 @@
           <div class="card-header">
             <h3>
               <el-icon><ChatDotRound /></el-icon>
-              <span style="margin-left: 8px;">问卷评价</span>
+              <span style="margin-left: 8px;">我的评论</span>
             </h3>
-            <el-tag v-if="myRating" type="success" size="small">已评价</el-tag>
+            <el-tag v-if="myComments.length > 0" type="success" size="small">
+              {{ myComments.length }} 条评论
+            </el-tag>
           </div>
         </template>
 
-        <!-- 已有评价的展示 -->
-        <div v-if="myRating && !isEditing" class="my-rating-display">
-          <div class="rating-show">
-            <span class="label">我的评分：</span>
-            <el-rate :model-value="myRating.rating" disabled show-score :size="24" />
-          </div>
-          <div class="comment-show">
-            <span class="label">评论内容：</span>
-            <p class="comment-text">{{ myRating.content }}</p>
-          </div>
-          <div class="rating-actions">
-            <el-button type="primary" size="small" @click="startEdit">
-              <el-icon><Edit /></el-icon>
-              修改评价
-            </el-button>
-            <el-button type="danger" size="small" @click="deleteRating">
-              <el-icon><Delete /></el-icon>
-              删除评价
-            </el-button>
+        <!-- 已有评论列表 -->
+        <div v-if="myComments.length > 0" class="comments-list">
+          <div 
+            v-for="comment in myComments" 
+            :key="comment.id" 
+            class="comment-item"
+          >
+            <div class="comment-header">
+              <div class="comment-meta">
+                <el-rate :model-value="comment.rating" disabled show-score :size="20" />
+                <span class="comment-time">{{ formatDateTime(comment.createdAt) }}</span>
+              </div>
+              <el-button 
+                type="danger" 
+                size="small" 
+                text
+                @click="deleteComment(comment.id)"
+              >
+                <el-icon><Delete /></el-icon>
+                删除
+              </el-button>
+            </div>
+            <div class="comment-content">
+              <p>{{ comment.content }}</p>
+            </div>
           </div>
         </div>
 
-        <!-- 评价表单 -->
-        <div v-else class="rating-form">
+        <!-- 添加新评论表单 -->
+        <div class="add-comment-form">
+          <el-divider v-if="myComments.length > 0" content-position="left">
+            <span style="font-size: 14px; color: #909399;">添加新评论</span>
+          </el-divider>
+          
           <el-form label-width="80px">
             <el-form-item label="评分" required>
               <div class="rating-input">
@@ -187,20 +199,13 @@
             <el-form-item>
               <el-button 
                 type="primary" 
-                @click="submitRating" 
+                @click="submitComment" 
                 :loading="submitting"
                 :disabled="!canSubmit"
                 size="large"
               >
                 <el-icon v-if="!submitting"><ChatLineRound /></el-icon>
-                {{ myRating ? '保存修改' : '发表评价' }}
-              </el-button>
-              <el-button 
-                v-if="myRating" 
-                @click="cancelEdit" 
-                size="large"
-              >
-                取消
+                发表评论
               </el-button>
             </el-form-item>
           </el-form>
@@ -244,8 +249,7 @@ const userStore = useUserStore();
 // 响应式数据
 const loading = ref(true);
 const reportData = ref({});
-const myRating = ref(null);
-const isEditing = ref(false);
+const myComments = ref([]); // 改为数组
 const submitting = ref(false);
 
 const ratingForm = ref({
@@ -275,38 +279,39 @@ const formatDuration = (duration) => {
   return `${minutes}分${seconds}秒`;
 };
 
-const formatAnswer = (answer) => {
+const formatAnswer = (answerObj) => {
+  // answerObj 是整个答案对象，包含 answer, text, question 等字段
+  
+  // 优先使用 text 字段（新数据结构）
+  if (answerObj.text !== undefined && answerObj.text !== null) {
+    if (Array.isArray(answerObj.text)) {
+      return answerObj.text.join('、');
+    }
+    return String(answerObj.text);
+  }
+  
+  // 兼容旧数据：使用 answer 字段
+  const answer = answerObj.answer;
+  if (answer === undefined || answer === null || answer === '') {
+    return '未作答';
+  }
+  
   if (Array.isArray(answer)) {
     return answer.join('、');
   }
-  return answer || '未作答';
+  
+  return String(answer);
 };
 
 const downloadReport = () => {
   ElMessage.info('报告下载功能开发中...');
 };
 
-const startEdit = () => {
-  ratingForm.value = {
-    rating: myRating.value.rating,
-    content: myRating.value.content
-  };
-  isEditing.value = true;
-};
-
-const cancelEdit = () => {
-  isEditing.value = false;
-  ratingForm.value = {
-    rating: 5,
-    content: ''
-  };
-};
-
-// 提交评价
-const submitRating = async () => {
+// 提交评论
+const submitComment = async () => {
   // 检查登录状态
   if (!userStore.isLoggedIn) {
-    ElMessage.warning('请先登录后再发表评价');
+    ElMessage.warning('请先登录后再发表评论');
     router.push(`/login?redirect=/survey/result/${route.params.id}`);
     return;
   }
@@ -322,48 +327,37 @@ const submitRating = async () => {
     const username = userStore.profile?.nickname || userStore.profile?.username || userStore.userName;
     const surveyId = reportData.value.surveyId;
 
-    if (myRating.value) {
-      // 更新已有评价
-      await updateCommentApi(surveyId, userId, {
-        rating: ratingForm.value.rating,
-        content: ratingForm.value.content
-      });
+    // 创建新评论
+    const newComment = await createCommentApi(surveyId, {
+      userId: userId,
+      username: username,
+      avatar: userStore.profile?.avatar || '',
+      rating: ratingForm.value.rating,
+      content: ratingForm.value.content
+    });
 
-      myRating.value = {
-        ...myRating.value,
-        rating: ratingForm.value.rating,
-        content: ratingForm.value.content,
-        updatedAt: new Date().toISOString()
-      };
-      
-      isEditing.value = false;
-      ElMessage.success('评价已更新');
-    } else {
-      // 创建新评价
-      const newComment = await createCommentApi(surveyId, {
-        userId: userId,
-        username: username,
-        avatar: userStore.profile?.avatar || '',
-        rating: ratingForm.value.rating,
-        content: ratingForm.value.content
-      });
-
-      myRating.value = newComment;
-      ElMessage.success('评价发表成功');
-    }
+    myComments.value.push(newComment);
+    
+    // 清空表单
+    ratingForm.value = {
+      rating: 5,
+      content: ''
+    };
+    
+    ElMessage.success('评论发表成功');
   } catch (error) {
-    console.error('提交评价失败:', error);
+    console.error('提交评论失败:', error);
     ElMessage.error('操作失败：' + error.message);
   } finally {
     submitting.value = false;
   }
 };
 
-// 删除评价
-const deleteRating = async () => {
+// 删除评论
+const deleteComment = async (commentId) => {
   try {
     await ElMessageBox.confirm(
-      '确定要删除此评价吗？删除后不可恢复。',
+      '确定要删除此评论吗？删除后不可恢复。',
       '确认删除',
       {
         confirmButtonText: '删除',
@@ -375,11 +369,11 @@ const deleteRating = async () => {
     const userId = userStore.profile?.id || userStore.userId;
     const surveyId = reportData.value.surveyId;
     
-    await deleteCommentApi(surveyId, userId);
+    await deleteCommentApi(surveyId, userId, commentId);
 
-    myRating.value = null;
-    ratingForm.value = { rating: 5, content: '' };
-    ElMessage.success('评价已删除');
+    // 从列表中移除
+    myComments.value = myComments.value.filter(c => c.id !== commentId);
+    ElMessage.success('评论已删除');
   } catch (err) {
     if (err && (err === 'cancel' || err.type === 'cancel')) return;
     ElMessage.error('删除失败：' + (err.message || err));
@@ -401,7 +395,7 @@ const loadReportData = async () => {
       const userAnswer = await getUserAnswerApi(surveyId, userId);
       if (userAnswer) {
         reportData.value = userAnswer;
-        await loadMyRating();
+        await loadMyComments();
         loading.value = false;
         return;
       }
@@ -414,8 +408,8 @@ const loadReportData = async () => {
     const data = await response.json();
     reportData.value = data;
 
-    // 加载用户的评价
-    await loadMyRating();
+    // 加载用户的评论
+    await loadMyComments();
   } catch (error) {
     console.error('加载报告失败:', error);
     ElMessage.error('加载报告失败：' + error.message);
@@ -424,18 +418,18 @@ const loadReportData = async () => {
   }
 };
 
-// 加载我的评价
-const loadMyRating = async () => {
+// 加载我的评论
+const loadMyComments = async () => {
   try {
     const userId = userStore.profile?.id || userStore.userId;
     const surveyId = reportData.value.surveyId;
 
     if (!surveyId || !userId) return;
 
-    const comment = await getUserCommentApi(surveyId, userId);
-    myRating.value = comment;
+    const comments = await getUserCommentApi(surveyId, userId);
+    myComments.value = comments || [];
   } catch (error) {
-    console.error('加载评价失败:', error);
+    console.error('加载评论失败:', error);
   }
 };
 
@@ -602,60 +596,79 @@ onMounted(() => {
       }
 
       .answer-preview {
+        margin: var(--spacing-lg) 0;
+
         .answers-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          gap: 16px;
-          margin-top: 16px;
+          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+          gap: var(--spacing-md);
+          margin-top: var(--spacing-md);
 
           .answer-card {
-            padding: 16px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #67C23A;
+            padding: var(--spacing-md);
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--color-primary);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-base);
+
+            &:hover {
+              box-shadow: var(--shadow-md);
+              transform: translateY(-2px);
+              border-left-color: var(--color-primary-light-2);
+            }
 
             .answer-header {
               display: flex;
               align-items: flex-start;
-              gap: 8px;
-              margin-bottom: 12px;
+              gap: var(--spacing-sm);
+              margin-bottom: var(--spacing-base);
 
               .question-num {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                min-width: 28px;
-                height: 28px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                border-radius: 6px;
-                font-size: 13px;
-                font-weight: 600;
+                min-width: 32px;
+                height: 32px;
+                background: linear-gradient(135deg, var(--color-primary-light-2) 0%, var(--color-primary) 100%);
+                color: var(--text-inverse);
+                border-radius: var(--radius-sm);
+                font-size: var(--font-size-sm);
+                font-weight: var(--font-weight-semibold);
                 flex-shrink: 0;
+                box-shadow: var(--shadow-sm);
               }
 
               .question-text {
                 flex: 1;
-                font-size: 14px;
-                font-weight: 500;
-                color: #303133;
-                line-height: 28px;
+                font-size: var(--font-size-base);
+                font-weight: var(--font-weight-medium);
+                color: var(--text-primary);
+                line-height: 1.6;
               }
             }
 
             .answer-body {
               display: flex;
-              align-items: center;
-              gap: 8px;
-              padding: 8px 12px;
-              background: white;
-              border-radius: 6px;
-              font-size: 14px;
-              color: #606266;
+              align-items: flex-start;
+              gap: var(--spacing-sm);
+              padding: var(--spacing-base);
+              background: var(--bg-primary);
+              border-radius: var(--radius-sm);
+              font-size: var(--font-size-sm);
+              color: var(--text-primary-1);
+              line-height: 1.6;
+              border: 1px solid var(--border-light);
 
               .el-icon {
-                color: #67C23A;
+                color: var(--color-success);
                 flex-shrink: 0;
+                margin-top: 2px;
+              }
+
+              span {
+                flex: 1;
+                word-break: break-word;
               }
             }
           }
@@ -664,59 +677,78 @@ onMounted(() => {
     }
 
     .rating-card {
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
 
-      .my-rating-display {
-        .rating-show {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          margin-bottom: 20px;
+      .comments-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
 
-          .label {
-            font-weight: 600;
-            color: #303133;
-          }
-        }
+        .comment-item {
+          padding: var(--spacing-md);
+          background: var(--bg-secondary);
+          border-radius: var(--radius-md);
+          border: 1px solid var(--border-light);
+          transition: all var(--transition-base);
 
-        .comment-show {
-          margin-bottom: 20px;
-
-          .label {
-            font-weight: 600;
-            color: #303133;
-            display: block;
-            margin-bottom: 12px;
+          &:hover {
+            box-shadow: var(--shadow-sm);
+            border-color: var(--color-primary-light-3);
           }
 
-          .comment-text {
-            padding: 16px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            color: #606266;
-            line-height: 1.6;
-            margin: 0;
-          }
-        }
+          .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
 
-        .rating-actions {
-          display: flex;
-          gap: 12px;
-          padding-top: 16px;
-          border-top: 1px solid #f0f2f5;
+            .comment-meta {
+              display: flex;
+              align-items: center;
+              gap: var(--spacing-md);
+
+              .comment-time {
+                font-size: var(--font-size-sm);
+                color: var(--text-tertiary);
+              }
+            }
+          }
+
+          .comment-content {
+            p {
+              margin: 0;
+              padding: var(--spacing-sm) var(--spacing-md);
+              background: var(--bg-primary);
+              border-radius: var(--radius-sm);
+              color: var(--text-primary);
+              line-height: 1.6;
+              font-size: var(--font-size-sm);
+            }
+          }
         }
       }
 
-      .rating-form {
+      .add-comment-form {
         .rating-input {
           display: flex;
           align-items: center;
         }
 
         .el-textarea {
-          .el-textarea__inner {
-            border-radius: 8px;
+          :deep(.el-textarea__inner) {
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+
+            &:focus {
+              border-color: var(--color-primary);
+              box-shadow: 0 0 0 2px var(--bg-primary-light);
+            }
           }
+        }
+
+        .el-button {
+          border-radius: var(--radius-sm);
         }
       }
     }

@@ -216,12 +216,12 @@ const formatDuration = (duration) => {
 const formatAnswerValue = (value) => {
   // 如果没有值，返回"未作答"
   if (!value) return "未作答";
-  
+
   // 如果是数组，用顿号连接
   if (Array.isArray(value)) {
     return value.length > 0 ? value.join("、") : "未作答";
   }
-  
+
   // 返回字符串值
   return value;
 };
@@ -287,3 +287,281 @@ onMounted(() => {
   loadAnsweredSurveys();
 });
 </script>
+
+
+<style scoped lang="scss">
+.answered-page {
+  padding: var(--spacing-lg);
+  background: var(--bg-primary-light);
+  min-height: 100vh;
+  color: var(--text-primary);
+  transition: background var(--transition-base);
+
+  // ============ 页面头部 ============
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-primary-light-3);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    box-shadow: var(--shadow-md);
+    color: var(--text-inverse);
+    margin-bottom: var(--spacing-xl);
+
+    .header-info {
+      h2 {
+        font-size: var(--font-size-2xl);
+        font-weight: var(--font-weight-bold);
+        margin-bottom: var(--spacing-xs);
+      }
+
+      p {
+        font-size: var(--font-size-base);
+        color: var(--text-inverse);
+        opacity: 0.85;
+      }
+    }
+
+    .header-stats {
+      .el-statistic {
+        background: var(--bg-primary-light);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-sm) var(--spacing-lg);
+        box-shadow: var(--shadow-sm);
+
+        .el-statistic__title {
+          color: var(--text-inverse);
+          font-size: var(--font-size-sm);
+        }
+
+        .el-statistic__content {
+          color: var(--text-inverse);
+          font-weight: var(--font-weight-bold);
+          font-size: var(--font-size-lg);
+        }
+      }
+    }
+  }
+
+  // ============ 筛选卡片 ============
+  .filter-card {
+    background: var(--color-white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+
+    .el-input,
+    .el-select,
+    .el-date-editor {
+      width: 100%;
+    }
+
+    .el-input__wrapper,
+    .el-select__wrapper,
+    .el-range-editor {
+      border-color: var(--border-light);
+      transition: var(--transition-base);
+
+      &:hover,
+      &:focus-within {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 2px rgba(37, 146, 52, 0.15);
+      }
+    }
+  }
+
+  // ============ 问卷列表 ============
+  .survey-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+
+    .survey-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      background: var(--color-white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-base);
+      padding: var(--spacing-md) var(--spacing-lg);
+      transition: transform var(--transition-base), box-shadow var(--transition-base);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      .survey-main {
+        display: flex;
+        align-items: flex-start;
+        flex: 1;
+
+        .survey-icon {
+          background: var(--bg-primary-medium);
+          border-radius: var(--radius-lg);
+          padding: var(--spacing-md);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: var(--spacing-md);
+        }
+
+        .survey-info {
+          flex: 1;
+
+          .survey-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xs);
+
+            .survey-title {
+              font-size: var(--font-size-lg);
+              font-weight: var(--font-weight-semibold);
+              color: var(--text-primary);
+            }
+
+            .survey-badges {
+              display: flex;
+              gap: var(--spacing-xs);
+
+              .el-tag {
+                border-radius: var(--radius-sm);
+                font-size: var(--font-size-sm);
+              }
+            }
+          }
+
+          .survey-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--spacing-xs);
+
+            .meta-item {
+              display: flex;
+              align-items: center;
+              gap: 4px;
+
+              .el-icon {
+                font-size: 14px;
+                color: var(--color-primary);
+              }
+            }
+          }
+
+          .survey-result {
+            font-size: var(--font-size-base);
+            background: var(--bg-primary-light);
+            border-left: 4px solid var(--color-primary);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+
+            .result-label {
+              font-weight: var(--font-weight-semibold);
+              color: var(--color-primary-dark-1);
+              margin-right: var(--spacing-xs);
+            }
+
+            .result-text {
+              color: var(--text-secondary);
+            }
+          }
+        }
+      }
+
+      // ============ 操作按钮组 ============
+      .survey-actions {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: var(--spacing-sm);
+        margin-left: var(--spacing-lg);
+
+        .el-button {
+          font-size: var(--font-size-sm);
+          transition: all var(--transition-base);
+          border-radius: var(--radius-sm);
+
+          &:hover {
+            transform: scale(1.03);
+          }
+
+          &.el-button--primary {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+          }
+
+          &.el-button--danger {
+            color: var(--color-error-dark);
+          }
+
+          &.el-button--warning {
+            color: var(--color-warning-dark);
+          }
+        }
+      }
+    }
+
+    // ============ 空状态 ============
+    .empty-state {
+      margin-top: var(--spacing-2xl);
+
+      .el-empty__description {
+        color: var(--text-secondary);
+        font-size: var(--font-size-base);
+      }
+
+      .el-button {
+        margin-top: var(--spacing-md);
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+
+        &:hover {
+          background: var(--color-primary-light-2);
+        }
+      }
+    }
+  }
+
+  // ============ 分页 ============
+  .pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: var(--spacing-xl);
+    padding-bottom: var(--spacing-xl);
+
+    .el-pagination {
+      --el-pagination-hover-color: var(--color-primary);
+      --el-pagination-button-bg-color: var(--bg-secondary);
+    }
+  }
+
+  // ============ 响应式 ============
+  @media (max-width: 1024px) {
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+    }
+
+    .survey-item {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .survey-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+      }
+    }
+  }
+}
+
+</style>
