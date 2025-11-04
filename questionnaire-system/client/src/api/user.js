@@ -252,21 +252,58 @@ const getUserAnsweredSurveysFromAnswersTable = async (userId) => {
   return answeredSurveys;
 };
 
-// 将答题记录移动到回收站（先保存到 recycleBin，然后删除 answers 中的原记录）
+// 将答题记录移动到回收站
 export const moveAnsweredToRecycleApi = async (answerId, answerData) => {
-  // 1) 将记录复制到 recycleBin（添加 deletedAt）
-  const recycleItem = {
-    ...answerData,
-    originalId: answerId,
-    deletedAt: new Date().toISOString()
-  };
+  try {
+    // 1) 将记录复制到 recycleBin（添加 deletedAt）
+    const recycleItem = {
+      ...answerData,
+      originalId: answerId,
+      deletedAt: new Date().toISOString(),
+      type: 'answer' // 标记类型为答题记录
+    };
 
-  await apiClient.post('/recycleBin', recycleItem);
+    await apiClient.post('/recycleBin', recycleItem);
 
-  // 2) 删除 answers 中的原记录
-  await apiClient.delete(`/answers/${answerId}`);
+    // 2) 从用户的 completedSurveys 中移除此问卷ID
+    if (answerData.userId && answerData.surveyId) {
+      try {
+        const user = await apiClient.get(`/users/${answerData.userId}`);
+        if (user.completedSurveys && Array.isArray(user.completedSurveys)) {
+          const updatedCompletedSurveys = user.completedSurveys.filter(
+            id => id != answerData.surveyId
+          );
+          await apiClient.patch(`/users/${answerData.userId}`, {
+            completedSurveys: updatedCompletedSurveys
+          });
+        }
+      } catch (error) {
+        console.error('更新用户completedSurveys失败:', error);
+        // 即使更新用户失败，也继续执行
+      }
+    }
 
-  return { success: true };
+    // 3) 尝试从独立的 answers 表中删除记录（如果存在）
+    // 这是为了兼容旧版本数据结构
+    try {
+      // 先查找是否存在独立的答题记录
+      const answers = await apiClient.get(`/answers?userId=${answerData.userId}&surveyId=${answerData.surveyId}`);
+      if (answers && answers.length > 0) {
+        // 删除找到的答题记录
+        for (const ans of answers) {
+          await apiClient.delete(`/answers/${ans.id}`);
+        }
+      }
+    } catch (error) {
+      // 忽略错误，因为新版本的答题记录存储在用户的 completedSurveys 中
+      console.log('未找到独立的答题记录，可能使用的是新版数据结构');
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('移动到回收站失败:', error);
+    throw error;
+  }
 };
 
 // 用户成就和报告记录（保留必要功能）

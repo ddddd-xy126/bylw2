@@ -103,13 +103,13 @@
             </el-icon>
             重新答题
           </el-button>
-          <el-button type="danger" plain @click="handleDelete(answer)">
+          <el-button type="danger" @click="handleDelete(answer)">
             <el-icon>
               <Delete />
             </el-icon>
             删除记录
           </el-button>
-          <el-button type="warning" plain @click="handleFavorite(answer)">
+          <el-button type="warning" @click="handleFavorite(answer)">
             <el-icon>
               <Star />
             </el-icon>
