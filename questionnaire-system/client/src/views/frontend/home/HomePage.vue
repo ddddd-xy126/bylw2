@@ -21,8 +21,12 @@
 
     <!-- 统计信息 -->
     <div class="stats-wrapper">
-      <StatsCards :total-surveys="surveys.length" :total-participants="totalParticipants"
-        :user-favorites="userStore.favorites.length" :user-points="userStore.achievements?.points || 0" />
+      <StatsCards 
+        :total-surveys="totalSurveys" 
+        :total-participants="totalParticipants"
+        :user-favorites="userFavorites" 
+        :user-points="userPoints" 
+      />
     </div>
 
     <!-- 问卷列表 -->
@@ -32,7 +36,6 @@
         @survey-click="goToSurvey" @survey-start="goToSurvey" @toggle-favorite="toggleFavorite" />
     </div>
 
-    <!-- 已移除分页：展示上限由 topSurveys 控制（最多 20 条），surveys 区域启用滚动条 -->
   </div>
 </template>
 
@@ -51,7 +54,10 @@ const surveysSection = ref(null);
 const {
   surveys,
   categories,
+  totalSurveys,
   totalParticipants,
+  userFavorites,
+  userPoints,
   loadData,
   getCategoryName,
   isFavorite,

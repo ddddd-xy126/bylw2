@@ -58,7 +58,7 @@ export function useHomeLogic() {
         break;
       case "recommended":
         // 智能推荐：根据用户标签进行相关性推荐
-        const userTags = userStore.profile?.tags || userStore.profile?.interests || [];
+        const userTags = userStore.profile?.tags || [];
         
         if (userTags && userTags.length > 0) {
           // 有标签时：计算相关性得分
@@ -68,22 +68,18 @@ export function useHomeLogic() {
             const matchCount = surveyTags.filter(tag => userTags.includes(tag)).length;
             const tagScore = matchCount / Math.max(userTags.length, 1);
             
-            // 综合评分：标签匹配(40%) + 评分(30%) + 参与人数(30%)
+            // 综合评分：标签匹配(50%) + 评分(30%) + 参与人数(20%)
             survey.recommendScore = 
-              tagScore * 0.4 + 
+              tagScore * 0.5 + 
               ((survey.rating || 0) / 5) * 0.3 + 
-              Math.min((survey.participants || 0) / 1000, 1) * 0.3;
+              Math.min((survey.participantCount || survey.participants || 0) / 1000, 1) * 0.2;
           });
           
-          // 按推荐得分排序
+          // 按推荐得分排序（得分高的在前）
           filtered.sort((a, b) => (b.recommendScore || 0) - (a.recommendScore || 0));
         } else {
-          // 无标签时：使用原有的综合评分逻辑
-          filtered.sort((a, b) => {
-            const scoreA = (a.rating || 0) * 0.6 + ((a.participants || 0) / 1000) * 0.4;
-            const scoreB = (b.rating || 0) * 0.6 + ((b.participants || 0) / 1000) * 0.4;
-            return scoreB - scoreA;
-          });
+          // 无标签时：随机打乱顺序展示
+          filtered = filtered.sort(() => Math.random() - 0.5);
         }
         break;
     }
@@ -94,41 +90,38 @@ export function useHomeLogic() {
     return filtered.slice(start, end);
   });
 
+  // 平台统计数据 - 已发布问卷总数
   const totalSurveys = computed(() => {
     const surveysArray = Array.isArray(surveys.value) ? surveys.value : [];
-    let total = surveysArray.filter(
-      (survey) => survey.status === "published" && survey.isCollecting !== false
+    return surveysArray.filter(
+      (survey) => survey.status === "published"
     ).length;
-
-    if (searchQuery.value.trim()) {
-      const query = searchQuery.value.toLowerCase();
-      total = surveysArray.filter(
-        (survey) =>
-          survey.status === "published" &&
-          survey.isCollecting !== false &&
-          (survey.title.toLowerCase().includes(query) ||
-            survey.description.toLowerCase().includes(query))
-      ).length;
-    }
-
-    if (selectedCategory.value) {
-      total = surveysArray.filter(
-        (survey) =>
-          survey.status === "published" &&
-          survey.isCollecting !== false &&
-          survey.categoryId === selectedCategory.value
-      ).length;
-    }
-
-    return total;
   });
 
+  // 平台统计数据 - 总参与人数
   const totalParticipants = computed(() => {
     const surveysArray = Array.isArray(surveys.value) ? surveys.value : [];
-    return surveysArray.reduce(
-      (sum, survey) => sum + (survey.participantCount || 0),
-      0
-    );
+    return surveysArray
+      .filter((survey) => survey.status === "published")
+      .reduce(
+        (sum, survey) => sum + (survey.participantCount || survey.participants || 0),
+        0
+      );
+  });
+
+  // 用户收藏数量
+  const userFavorites = computed(() => {
+    if (!userStore.isLoggedIn) return 0;
+    const favoritesArray = Array.isArray(userStore.favorites)
+      ? userStore.favorites
+      : [];
+    return favoritesArray.length;
+  });
+
+  // 用户积分
+  const userPoints = computed(() => {
+    if (!userStore.isLoggedIn) return 0;
+    return userStore.profile?.points || 0;
   });
 
   // 数据加载
@@ -254,6 +247,8 @@ export function useHomeLogic() {
     filteredSurveys,
     totalSurveys,
     totalParticipants,
+    userFavorites,
+    userPoints,
     
     // 方法
     loadData,
