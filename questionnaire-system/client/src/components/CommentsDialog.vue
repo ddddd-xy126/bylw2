@@ -1,14 +1,7 @@
 <template>
-  <el-dialog 
-    :model-value="visible"
-    @update:model-value="$emit('update:visible', $event)"
-    :title="`${survey?.title} - 问卷评论管理`" 
-    width="700px"
-    class="comments-dialog" 
-    :append-to-body="true" 
-    :destroy-on-close="true" 
-    :z-index="3000"
-  >
+  <el-dialog :model-value="visible" @update:model-value="$emit('update:visible', $event)"
+    :title="`${survey?.title} - 问卷评论管理`" width="700px" class="comments-dialog" :append-to-body="true"
+    :destroy-on-close="true" :z-index="3000">
     <div class="comments-container" v-loading="loading">
       <div class="comments-header">
         <el-statistic title="评论总数" :value="comments.length" />
@@ -18,15 +11,13 @@
       <el-divider />
 
       <div class="comments-list" v-if="comments.length > 0">
-        <div 
-          v-for="comment in comments" 
-          :key="comment.id" 
-          class="comment-item"
-        >
+        <div v-for="comment in comments" :key="comment.id" class="comment-item">
           <div class="comment-header">
             <div class="user-info">
               <el-avatar :src="comment.avatar" :size="40">
-                <el-icon><User /></el-icon>
+                <el-icon>
+                  <User />
+                </el-icon>
               </el-avatar>
               <div class="user-details">
                 <div class="username">{{ comment.username || '匿名用户' }}</div>
@@ -35,13 +26,7 @@
             </div>
             <div class="comment-actions">
               <el-rate :model-value="comment.rating" disabled :size="18" />
-              <el-button 
-                type="danger" 
-                size="small" 
-                :icon="Delete"
-                @click="handleDeleteComment(comment)"
-                link
-              >
+              <el-button type="danger" size="small" :icon="Delete" @click="handleDeleteComment(comment)" link>
                 删除
               </el-button>
             </div>
@@ -52,11 +37,7 @@
         </div>
       </div>
 
-      <el-empty 
-        v-else 
-        description="暂无评论" 
-        :image-size="120"
-      />
+      <el-empty v-else description="暂无评论" :image-size="120" />
     </div>
   </el-dialog>
 </template>
@@ -107,11 +88,11 @@ const handleDeleteComment = async (comment) => {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
-        zIndex: 10000,  // 设置更高的层级
-        appendTo: 'body'  // 确保挂载到 body
+        zIndex: 100000,            // 很大，确保在最上层
+        appendTo: document.body // 确保挂载到 body
       }
     );
-    
+
     await deleteCommentApi(comment.surveyId, comment.answerId, comment.commentId);
     ElMessage.success('评论删除成功');
     emit('refresh');
@@ -129,7 +110,6 @@ const handleDeleteComment = async (comment) => {
     padding: 20px;
   }
 }
-
 .comments-container {
   max-height: 600px;
   overflow-y: auto;
