@@ -63,7 +63,7 @@
             </el-col>
           </el-row>
 
-          <el-form-item label="问卷标签">
+          <el-form-item label="问卷标签" prop="tags">
             <div class="tags-input">
               <el-tag v-for="tag in questionnaireForm.tags" :key="tag" closable @close="removeTag(tag)"
                 class="tag-item">
@@ -347,6 +347,9 @@ import {
 } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
 import { useUserStore } from '@/store/user'
+import { getCategoriesApi, getSurveyDetail } from '@/api/survey'
+import { createSurveyApi, updateSurveyApi } from '@/api/survey'
+import apiClient from '@/api/index.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -364,6 +367,9 @@ const autoSaveTimer = ref(null)
 const lastSavedData = ref(null)
 
 onMounted(() => {
+  // 加载分类数据
+  loadCategories()
+  
   // 检查模式
   if (route.path.includes('/edit/')) {
     isEditMode.value = true
@@ -409,347 +415,66 @@ const checkLocalDraft = async () => {
 // 加载模板
 const loadTemplate = async (templateId) => {
   try {
-    // 模拟模板数据 - 实际项目中应该从API获取
-    const templates = {
-      1: {
-        title: '员工满意度调查',
-        description: '全面了解员工对工作环境、薪酬福利、职业发展等方面的满意度',
-        category: 'enterprise',
-        duration: 15,
-        tags: ['员工', '满意度', '企业管理'],
-        questions: [
-          {
-            id: Date.now() + 1,
-            type: 'single',
-            title: '您的工作部门是？',
-            required: true,
-            options: [
-              { id: 'opt1', text: '技术部' },
-              { id: 'opt2', text: '市场部' },
-              { id: 'opt3', text: '人事部' },
-              { id: 'opt4', text: '财务部' },
-              { id: 'opt5', text: '其他' }
-            ]
-          },
-          {
-            id: Date.now() + 2,
-            type: 'single',
-            title: '您的工作年限是？',
-            required: true,
-            options: [
-              { id: 'opt1', text: '1年以下' },
-              { id: 'opt2', text: '1-3年' },
-              { id: 'opt3', text: '3-5年' },
-              { id: 'opt4', text: '5年以上' }
-            ]
-          },
-          {
-            id: Date.now() + 3,
-            type: 'rating',
-            title: '您对当前工作内容的满意度',
-            required: true,
-            maxRating: 5,
-            ratingStyle: 'star'
-          },
-          {
-            id: Date.now() + 4,
-            type: 'rating',
-            title: '您对工作环境的满意度',
-            required: true,
-            maxRating: 5,
-            ratingStyle: 'star'
-          }
-        ]
-      },
-      2: {
-        title: '产品用户体验调研',
-        description: '收集用户对产品功能、界面设计、使用体验的反馈和建议',
-        category: 'product',
-        duration: 12,
-        tags: ['用户体验', '产品', '反馈'],
-        questions: [
-          {
-            id: Date.now() + 1,
-            type: 'single',
-            title: '您的年龄段是？',
-            required: true,
-            options: [
-              { id: 'opt1', text: '18-25岁' },
-              { id: 'opt2', text: '26-35岁' },
-              { id: 'opt3', text: '36-45岁' },
-              { id: 'opt4', text: '46岁以上' }
-            ]
-          },
-          {
-            id: Date.now() + 2,
-            type: 'multiple',
-            title: '您最喜欢的功能有哪些？',
-            required: false,
-            options: [
-              { id: 'opt1', text: '界面设计' },
-              { id: 'opt2', text: '功能丰富' },
-              { id: 'opt3', text: '响应速度' },
-              { id: 'opt4', text: '用户体验' }
-            ]
-          },
-          {
-            id: Date.now() + 3,
-            type: 'rating',
-            title: '产品整体满意度',
-            required: true,
-            maxRating: 5,
-            ratingStyle: 'star'
-          }
-        ]
-      },
-      3: {
-        title: '心理健康状况评估',
-        description: '专业的心理健康评估量表，帮助了解个人心理状况',
-        category: 'psychology',
-        duration: 20,
-        tags: ['心理健康', '评估', '量表'],
-        questions: [
-          {
-            id: Date.now() + 1,
-            type: 'single',
-            title: '您的性别是？',
-            required: true,
-            options: [
-              { id: 'opt1', text: '男' },
-              { id: 'opt2', text: '女' },
-              { id: 'opt3', text: '其他' }
-            ]
-          },
-          {
-            id: Date.now() + 2,
-            type: 'single',
-            title: '您的年龄段是？',
-            required: true,
-            options: [
-              { id: 'opt1', text: '18-25岁' },
-              { id: 'opt2', text: '26-35岁' },
-              { id: 'opt3', text: '36-50岁' },
-              { id: 'opt4', text: '50岁以上' }
-            ]
-          },
-          {
-            id: Date.now() + 3,
-            type: 'rating',
-            title: '我感到心情愉快',
-            required: true,
-            maxRating: 5,
-            ratingStyle: 'star'
-          },
-          {
-            id: Date.now() + 4,
-            type: 'rating',
-            title: '我对未来充满希望',
-            required: true,
-            maxRating: 5,
-            ratingStyle: 'star'
-          }
-        ]
-      },
-      4: {
-        title: '课程教学效果评价',
-        description: '评价课程内容、教学方法、学习效果的综合调研问卷',
-        category: 'education',
-        duration: 10,
-        tags: ['教学', '课程', '评价'],
-        questions: [
-          {
-            id: Date.now() + 1,
-            type: 'single',
-            title: '您参加的课程名称是？',
-            required: true,
-            options: [
-              { id: 'opt1', text: '课程A' },
-              { id: 'opt2', text: '课程B' },
-              { id: 'opt3', text: '课程C' },
-              { id: 'opt4', text: '其他' }
-            ]
-          },
-          {
-            id: Date.now() + 2,
-            type: 'rating',
-            title: '课程内容的实用性',
-            required: true,
-            maxRating: 5,
-            ratingStyle: 'star'
-          },
-          {
-            id: Date.now() + 3,
-            type: 'rating',
-            title: '教师的教学水平',
-            required: true,
-            maxRating: 5,
-            ratingStyle: 'star'
-          }
-        ]
-      },
-      5: {
-        title: '品牌认知度调研',
-        description: '了解目标用户对品牌的认知程度、印象和偏好',
-        category: 'market',
-        duration: 15,
-        tags: ['品牌', '认知度', '市场调研'],
-        questions: [
-          {
-            id: Date.now() + 1,
-            type: 'single',
-            title: '您的年龄段是？',
-            required: true,
-            options: [
-              { id: 'opt1', text: '18-25岁' },
-              { id: 'opt2', text: '26-35岁' },
-              { id: 'opt3', text: '36-45岁' },
-              { id: 'opt4', text: '46岁以上' }
-            ]
-          },
-          {
-            id: Date.now() + 2,
-            type: 'single',
-            title: '您是否听说过我们的品牌？',
-            required: true,
-            options: [
-              { id: 'opt1', text: '是' },
-              { id: 'opt2', text: '否' }
-            ]
-          },
-          {
-            id: Date.now() + 3,
-            type: 'rating',
-            title: '您对我们品牌的整体印象',
-            required: true,
-            maxRating: 5,
-            ratingStyle: 'star'
-          }
-        ]
-      },
-      6: {
-        title: '网站可用性测试',
-        description: '评估网站的易用性、导航设计、内容布局等方面的用户体验',
-        category: 'ux',
-        duration: 12,
-        tags: ['网站', '可用性', 'UX'],
-        questions: [
-          {
-            id: Date.now() + 1,
-            type: 'single',
-            title: '您使用网站的频率是？',
-            required: true,
-            options: [
-              { id: 'opt1', text: '每天' },
-              { id: 'opt2', text: '每周几次' },
-              { id: 'opt3', text: '每月几次' },
-              { id: 'opt4', text: '很少使用' }
-            ]
-          },
-          {
-            id: Date.now() + 2,
-            type: 'rating',
-            title: '网站导航的清晰度',
-            required: true,
-            maxRating: 5,
-            ratingStyle: 'star'
-          },
-          {
-            id: Date.now() + 3,
-            type: 'rating',
-            title: '信息查找的便利性',
-            required: true,
-            maxRating: 5,
-            ratingStyle: 'star'
-          }
-        ]
-      },
-      7: {
-        title: '学术研究问卷',
-        description: '标准的学术研究调查问卷模板，适用于各类社会科学研究项目',
-        category: 'academic',
-        duration: 25,
-        tags: ['学术研究', '科研', '调查'],
-        questions: [
-          {
-            id: Date.now() + 1,
-            type: 'single',
-            title: '您的教育背景是？',
-            required: true,
-            options: [
-              { id: 'opt1', text: '本科' },
-              { id: 'opt2', text: '硕士' },
-              { id: 'opt3', text: '博士' },
-              { id: 'opt4', text: '其他' }
-            ]
-          },
-          {
-            id: Date.now() + 2,
-            type: 'rating',
-            title: '您对研究主题的了解程度',
-            required: true,
-            maxRating: 5,
-            ratingStyle: 'star'
-          },
-          {
-            id: Date.now() + 3,
-            type: 'text',
-            title: '请详细说明您的观点',
-            required: false,
-            textType: 'textarea',
-            placeholder: '请输入...',
-            maxLength: 500
-          }
-        ]
-      },
-      8: {
-        title: '活动反馈调查',
-        description: '收集参与者对活动组织、内容、服务等方面的反馈意见',
-        category: 'event',
-        duration: 8,
-        tags: ['活动', '反馈', '服务'],
-        questions: [
-          {
-            id: Date.now() + 1,
-            type: 'single',
-            title: '您是第几次参加我们的活动？',
-            required: true,
-            options: [
-              { id: 'opt1', text: '第一次' },
-              { id: 'opt2', text: '2-3次' },
-              { id: 'opt3', text: '4次以上' }
-            ]
-          },
-          {
-            id: Date.now() + 2,
-            type: 'rating',
-            title: '活动内容的丰富程度',
-            required: true,
-            maxRating: 5,
-            ratingStyle: 'star'
-          },
-          {
-            id: Date.now() + 3,
-            type: 'rating',
-            title: '活动组织的专业性',
-            required: true,
-            maxRating: 5,
-            ratingStyle: 'star'
-          }
-        ]
-      }
+    console.log('[加载模板] 模板ID:', templateId)
+    
+    // 从API获取模板数据
+    const templateData = await getSurveyDetail(templateId)
+    
+    console.log('[加载模板] 获取到的模板数据:', templateData)
+    console.log('[加载模板] questionList:', templateData?.questionList)
+    console.log('[加载模板] questionList 长度:', templateData?.questionList?.length)
+    
+    if (!templateData) {
+      ElMessage.error('模板不存在')
+      router.push('/questionnaires/create')
+      return
     }
 
-    const templateData = templates[templateId]
-    if (templateData) {
-      loadQuestionnaireData(templateData)
-      ElMessage.success(`已加载模板：${templateData.title}`)
+    // 填充基本信息
+    questionnaireForm.title = templateData.title || ''
+    questionnaireForm.description = templateData.description || ''
+    questionnaireForm.category = templateData.categoryValue || templateData.category || ''
+    questionnaireForm.duration = templateData.duration || 10
+    questionnaireForm.tags = Array.isArray(templateData.tags) ? [...templateData.tags] : []
+
+    console.log('[加载模板] 基本信息已填充:', {
+      title: questionnaireForm.title,
+      category: questionnaireForm.category,
+      tags: questionnaireForm.tags
+    })
+
+    // 填充问题列表
+    if (templateData.questionList && Array.isArray(templateData.questionList) && templateData.questionList.length > 0) {
+      questions.value = templateData.questionList.map((q, index) => ({
+        ...q,
+        id: Date.now() + index // 确保ID唯一
+      }))
+      console.log('[加载模板] 问题列表已加载，数量:', questions.value.length)
+      console.log('[加载模板] 第一个问题:', questions.value[0])
+    } else if (templateData.questions && Array.isArray(templateData.questions) && templateData.questions.length > 0) {
+      // 兼容旧版数据结构
+      questions.value = templateData.questions.map((q, index) => ({
+        ...q,
+        id: Date.now() + index
+      }))
+      console.log('[加载模板] 从 questions 字段加载，数量:', questions.value.length)
     } else {
-      throw new Error('模板不存在')
+      console.warn('[加载模板] 警告：模板没有问题数据')
+      ElMessage.warning('该模板暂无问题，您可以自行添加问题')
     }
+
+    // 填充设置
+    if (templateData.settings) {
+      Object.assign(settingsForm, templateData.settings)
+      console.log('[加载模板] 设置已加载:', settingsForm)
+    }
+
+    ElMessage.success('模板加载成功')
+    console.log('[加载模板] 最终问题列表:', questions.value)
   } catch (error) {
     console.error('加载模板失败:', error)
-    ElMessage.error('加载模板失败：' + error.message)
-    router.push('/create')
+    ElMessage.error('加载模板失败：' + (error.message || '未知错误'))
+    router.push('/questionnaires/create')
   }
 }
 
@@ -938,18 +663,33 @@ const settingsForm = reactive({
   randomOrder: false
 })
 
-// 分类数据
-const categories = [
-  { label: '企业管理', value: 'enterprise' },
-  { label: '产品研发', value: 'product' },
-  { label: '心理健康', value: 'psychology' },
-  { label: '教育培训', value: 'education' },
-  { label: '市场调研', value: 'market' },
-  { label: '用户体验', value: 'ux' },
-  { label: '学术研究', value: 'academic' },
-  { label: '活动反馈', value: 'event' },
-  { label: '其他', value: 'other' }
-]
+// 分类数据 - 从API获取
+const categories = ref([])
+
+// 加载分类数据
+const loadCategories = async () => {
+  try {
+    const data = await getCategoriesApi()
+    categories.value = data.map(cat => ({
+      label: cat.name,
+      value: cat.value || cat.id
+    }))
+  } catch (error) {
+    console.error('加载分类失败:', error)
+    // 降级：使用默认分类
+    categories.value = [
+      { label: '企业管理', value: 'enterprise' },
+      { label: '产品研发', value: 'product' },
+      { label: '心理健康', value: 'psychology' },
+      { label: '教育培训', value: 'education' },
+      { label: '市场调研', value: 'market' },
+      { label: '用户体验', value: 'ux' },
+      { label: '学术研究', value: 'academic' },
+      { label: '活动反馈', value: 'event' },
+      { label: '其他', value: 'other' }
+    ]
+  }
+}
 
 // 表单验证规则
 const formRules = {
@@ -959,13 +699,22 @@ const formRules = {
   ],
   description: [
     { required: true, message: '请输入问卷描述', trigger: 'blur' },
-    { min: 10, max: 500, message: '描述长度在 10 到 500 个字符', trigger: 'blur' }
+    { min: 2, max: 500, message: '描述长度在 2 到 500 个字符', trigger: 'blur' }
   ],
   category: [
     { required: true, message: '请选择问卷分类', trigger: 'change' }
   ],
   duration: [
     { required: true, message: '请设置预估时长', trigger: 'blur' }
+  ],
+  tags: [
+    { required: true, message: '请至少添加一个标签', trigger: 'change', validator: (rule, value, callback) => {
+      if (!value || value.length === 0) {
+        callback(new Error('请至少添加一个标签'))
+      } else {
+        callback()
+      }
+    }}
   ]
 }
 
@@ -1070,69 +819,6 @@ const handleAddQuestion = (type) => {
   console.log('Question added:', newQuestion)
   console.log('Total questions:', questions.value.length)
 }
-
-// 添加预设的示例问题（保留但简化）
-// 添加预设的示例问题（保留但简化）
-const addSampleQuestions = () => {
-  const sampleQuestions = [
-    {
-      id: Date.now() + 1,
-      type: 'single',
-      title: '您的性别是？',
-      description: '',
-      required: true,
-      options: [
-        { id: 'male', text: '男' },
-        { id: 'female', text: '女' },
-        { id: 'other', text: '其他' }
-      ],
-      allowOther: false
-    },
-    {
-      id: Date.now() + 2,
-      type: 'multiple',
-      title: '您平时喜欢的运动有哪些？',
-      description: '可以选择多个选项',
-      required: false,
-      options: [
-        { id: 'run', text: '跑步' },
-        { id: 'swim', text: '游泳' },
-        { id: 'gym', text: '健身' },
-        { id: 'yoga', text: '瑜伽' },
-        { id: 'basketball', text: '篮球' }
-      ],
-      allowOther: true,
-      randomOrder: false
-    },
-    {
-      id: Date.now() + 3,
-      type: 'text',
-      title: '请描述您对我们产品的建议',
-      description: '您的意见对我们很重要',
-      required: false,
-      textType: 'textarea',
-      placeholder: '请输入您的建议...',
-      minLength: null,
-      maxLength: 500
-    },
-    {
-      id: Date.now() + 4,
-      type: 'rating',
-      title: '请对我们的服务进行评分',
-      description: '',
-      required: true,
-      minRating: 1,
-      maxRating: 5,
-      ratingStyle: 'star',
-      ratingLabels: { low: '很差', high: '很好' }
-    }
-  ]
-
-  questions.value = [...sampleQuestions]
-  ElMessage.success('已添加示例问题')
-}
-
-// 删除旧的 addSimpleQuestion 函数（已被 handleAddQuestion 替代）
 
 // 直接编辑问题标题
 const updateQuestionTitle = (questionId, newTitle) => {
@@ -1282,9 +968,6 @@ const deleteQuestion = (questionId) => {
   })
 }
 
-const onQuestionReorder = () => {
-  ElMessage.info('问题顺序已调整')
-}
 
 const getQuestionTypeText = (type) => {
   const typeMap = {
@@ -1297,14 +980,6 @@ const getQuestionTypeText = (type) => {
   return typeMap[type] || '未知题型'
 }
 
-const getLikertOptions = (question) => {
-  const likertMap = {
-    '5-point': ['非常不同意', '不同意', '中立', '同意', '非常同意'],
-    '7-point': ['极不同意', '很不同意', '不同意', '中立', '同意', '很同意', '极同意'],
-    '3-point': ['不同意', '中立', '同意']
-  }
-  return likertMap[question.likertType] || likertMap['5-point']
-}
 
 // 标签管理
 const showTagInput = () => {
@@ -1317,6 +992,8 @@ const showTagInput = () => {
 const handleTagInputConfirm = () => {
   if (tagInputValue.value && !questionnaireForm.tags.includes(tagInputValue.value)) {
     questionnaireForm.tags.push(tagInputValue.value)
+    // 触发表单验证
+    formRef.value?.validateField('tags')
   }
   tagInputVisible.value = false
   tagInputValue.value = ''
@@ -1326,6 +1003,8 @@ const removeTag = (tag) => {
   const index = questionnaireForm.tags.indexOf(tag)
   if (index !== -1) {
     questionnaireForm.tags.splice(index, 1)
+    // 触发表单验证
+    formRef.value?.validateField('tags')
   }
 }
 
@@ -1445,30 +1124,7 @@ const publishQuestionnaire = async () => {
   }
 }
 
-const updateQuestionnaire = async () => {
-  if (!validateForm()) return
 
-  try {
-    const questionnaireData = buildQuestionnaireData('draft')
-
-    // 导入 API
-    const { updateQuestionnaire: updateQuestionnaireApi } = await import('@/api/questionnaire')
-
-    // 调用 API 更新问卷
-    await updateQuestionnaireApi(currentQuestionnaireId.value, questionnaireData)
-
-    // 清除本地草稿
-    clearLocalStorage()
-
-    ElMessage.success('问卷修改已保存！')
-    router.push('/profile/questionnaires/created')
-  } catch (error) {
-    console.error('更新失败:', error)
-    ElMessage.error('更新失败：' + error.message)
-  }
-}
-
-// 构建问卷数据
 // 构建问卷数据
 const buildQuestionnaireData = (status = 'draft') => {
   const userId = userStore.profile?.id || 1

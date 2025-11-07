@@ -99,7 +99,15 @@
     </div>
 
     <!-- 预览对话框 -->
-    <el-dialog v-model="previewVisible" :title="previewTemplate?.title" width="80%" class="preview-dialog">
+    <el-dialog 
+      v-model="previewVisible" 
+      :title="previewTemplate?.title" 
+      width="80%" 
+      class="preview-dialog"
+      :modal="true"
+      :close-on-click-modal="true"
+      :append-to-body="true"
+    >
       <div v-if="previewTemplate" class="template-preview">
         <div class="preview-info">
           <div class="info-row">
@@ -122,15 +130,18 @@
         </div>
 
         <div class="preview-sections">
-          <div v-for="(section, index) in previewTemplate.template.sections" :key="index" class="preview-section">
-            <h4>{{ section.title }}</h4>
-            <div v-for="(question, qIndex) in section.questions" :key="qIndex" class="preview-question">
+          <div class="preview-section">
+            <h4>问题列表</h4>
+            <div v-for="(question, qIndex) in (previewTemplate.questionList || [])" :key="qIndex" class="preview-question">
               <div class="question-header">
                 <span class="question-number">{{ qIndex + 1 }}.</span>
                 <span class="question-title">{{ question.title }}</span>
                 <span v-if="question.required" class="required-mark">*</span>
               </div>
               <div class="question-type">{{ getQuestionTypeText(question.type) }}</div>
+            </div>
+            <div v-if="!previewTemplate.questionList || previewTemplate.questionList.length === 0" class="no-questions">
+              暂无问题
             </div>
           </div>
         </div>
@@ -255,17 +266,27 @@ const loadData = async () => {
     // 使用 API 获取模板
     const templateData = await getTemplatesApi()
     
+    console.log('[模板选择] 获取到的原始模板数据:', templateData)
+    
     // 处理数据格式
-    templates.value = templateData.map(t => ({
-      ...t,
-      category: t.category || '其他',
-      categoryValue: t.categoryValue || t.category,
-      questions: t.questions?.length || 0,
-      tags: t.tags || [],
-      isHot: t.participants > 1500 || false,
-      isNew: new Date(t.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      isPro: t.isPro || false
-    }))
+    templates.value = templateData.map(t => {
+      console.log('[模板选择] 处理模板:', t.title, 'questionList:', t.questionList)
+      return {
+        ...t,
+        category: t.category || '其他',
+        categoryValue: t.categoryValue || t.category,
+        // 保留 questionList 用于预览
+        questionList: t.questionList || [],
+        // questions 字段表示问题数量
+        questions: t.questionList?.length || t.questions || 0,
+        tags: t.tags || [],
+        isHot: t.participants > 1500 || false,
+        isNew: new Date(t.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+        isPro: t.isPro || false
+      }
+    })
+    
+    console.log('[模板选择] 处理后的模板数据:', templates.value)
   } catch (error) {
     ElMessage.error('加载模板失败：' + error.message)
     templates.value = []
@@ -296,15 +317,20 @@ const clearFilters = () => {
 }
 
 const selectTemplate = (template) => {
+  console.log('选择模板:', template)
   router.push(`/create/template/${template.id}`)
 }
 
 const useTemplate = (template) => {
+  console.log('使用模板:', template)
   ElMessage.success(`正在使用模板：${template.title}`)
   router.push(`/create/template/${template.id}`)
 }
 
 const showPreview = (template) => {
+  console.log('[预览] 显示模板预览:', template)
+  console.log('[预览] questionList:', template.questionList)
+  console.log('[预览] questionList 长度:', template.questionList?.length)
   previewTemplate.value = template
   previewVisible.value = true
 }
@@ -315,21 +341,6 @@ const usePreviewTemplate = () => {
     previewVisible.value = false
   }
 }
-
-// const isFavorite = (templateId) => {
-//   return userFavorites.value.includes(templateId)
-// }
-
-// const toggleFavorite = (templateId) => {
-//   const index = userFavorites.value.indexOf(templateId)
-//   if (index > -1) {
-//     userFavorites.value.splice(index, 1)
-//     ElMessage.info('已取消收藏')
-//   } else {
-//     userFavorites.value.push(templateId)
-//     ElMessage.success('已添加到收藏')
-//   }
-// }
 
 const getQuestionTypeText = (type) => {
   const typeMap = {
@@ -579,6 +590,13 @@ const getQuestionTypeText = (type) => {
         font-size: 0.875rem;
         color: #888;
       }
+    }
+
+    .no-questions {
+      text-align: center;
+      color: #999;
+      font-style: italic;
+      padding: 20px;
     }
   }
 }

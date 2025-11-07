@@ -18,8 +18,13 @@
               <el-input v-model="loginForm.email" placeholder="请输入邮箱"></el-input>
             </el-form-item>
             <el-form-item label="密码">
-              <el-input v-model="loginForm.password" type="password" placeholder="请输入密码"></el-input>
+              <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password></el-input>
             </el-form-item>
+            <div class="form-footer">
+              <el-button type="text" class="forgot-password-btn" @click="goToResetPassword">
+                忘记密码？
+              </el-button>
+            </div>
             <el-form-item>
               <el-button type="primary" @click="submitLogin" :loading="loginLoading" class="login-button">登录</el-button>
             </el-form-item>
@@ -38,7 +43,7 @@
               <el-input v-model="registerForm.nickname" placeholder="请输入昵称"></el-input>
             </el-form-item>
             <el-form-item label="密码">
-              <el-input v-model="registerForm.password" type="password" placeholder="请输入密码"></el-input>
+              <el-input v-model="registerForm.password" type="password" placeholder="请输入密码" show-password></el-input>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="submitRegister" :loading="registerLoading">注册</el-button>
@@ -189,6 +194,10 @@ const submitRegister = async () => {
 };
 
 const goHome = () => router.push("/home");
+
+const goToResetPassword = () => {
+  router.push('/reset-password');
+};
 </script>
 
 <style scoped lang="scss">
@@ -254,6 +263,25 @@ const goHome = () => router.push("/home");
     padding: 20px;
     .login-button {
       width: 100%;
+    }
+
+    .form-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: -10px;
+      margin-bottom: 10px;
+
+      .forgot-password-btn {
+        font-size: 13px;
+        padding: 0;
+        height: auto;
+        color: var(--color-primary);
+        
+        &:hover {
+          color: var(--color-primary-dark-2);
+          background: transparent;
+        }
+      }
     }
   }
 

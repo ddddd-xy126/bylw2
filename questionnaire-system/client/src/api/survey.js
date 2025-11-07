@@ -24,9 +24,10 @@ export async function getSurveyDetail(id) {
       ...q,
       order: q.order !== undefined ? q.order : index + 1,
     }));
+    // 保持 questionList 不变，供 CustomCreatePage 使用
   } else {
     // 如果没有问题列表，使用默认题目
-    survey.questions = [
+    const defaultQuestions = [
       {
         id: 1,
         type: "single",
@@ -74,6 +75,8 @@ export async function getSurveyDetail(id) {
         order: 4,
       },
     ];
+    survey.questions = defaultQuestions;
+    survey.questionList = defaultQuestions; // 同时设置 questionList
   }
 
   // 添加一些额外的统计信息

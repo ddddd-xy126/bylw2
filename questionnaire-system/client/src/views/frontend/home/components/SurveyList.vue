@@ -75,6 +75,7 @@ defineEmits([
   'toggleFavorite'
 ]);
 </script>
+
 <style lang="scss" scoped>
 .survey-section {
   background-color: var(--color-gray-50);

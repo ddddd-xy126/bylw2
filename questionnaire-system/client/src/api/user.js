@@ -283,8 +283,7 @@ export const moveAnsweredToRecycleApi = async (answerId, answerData) => {
       }
     }
 
-    // 3) 尝试从独立的 answers 表中删除记录（如果存在）
-    // 这是为了兼容旧版本数据结构
+    // 3) 尝试从独立的 answers 表中删除记录（如果存在）, 兼容旧版本数据结构
     try {
       // 先查找是否存在独立的答题记录
       const answers = await apiClient.get(`/answers?userId=${answerData.userId}&surveyId=${answerData.surveyId}`);

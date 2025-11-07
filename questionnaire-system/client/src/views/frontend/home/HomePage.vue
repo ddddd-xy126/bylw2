@@ -50,10 +50,9 @@ import SurveyList from "./components/SurveyList.vue";
 const router = useRouter();
 const surveysSection = ref(null);
 
-// 使用业务逻辑组合函数（只取数据和必要方法）
+// 使用业务逻辑组合函数
 const {
   surveys,
-  categories,
   totalSurveys,
   totalParticipants,
   userFavorites,
@@ -77,12 +76,8 @@ const sourceList = computed(() => (surveys.value || []).map(s => ({
 })))
 
 const {
-  searchKeyword,
-  filterCategory,
   sortBy,
   filteredList,
-  handleSearch,
-  handleFilter,
   handleSort,
 } = useListFilter({ sourceList, searchFields: ['searchText'] })
 

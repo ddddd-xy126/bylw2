@@ -70,3 +70,22 @@ export async function getProfile(userId) {
   const user = await apiClient.get(`/users/${userId}`);
   return user;
 }
+
+// 重置密码
+export async function resetPassword(data) {
+  // 查找用户
+  const users = await apiClient.get('/users');
+  const user = users.find(u => u.email === data.email);
+  
+  if (!user) {
+    throw new Error("该邮箱未注册");
+  }
+  
+  // 更新用户密码
+  await apiClient.patch(`/users/${user.id}`, {
+    password: data.password,
+    updatedAt: new Date().toISOString()
+  });
+  
+  return { success: true, message: "密码重置成功" };
+}

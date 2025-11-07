@@ -72,7 +72,7 @@ const selectCategory = (catId) => {
   handleCategoryChange();
 };
 
-// 帮助：将问卷的 categoryId 统一成字符串形式返回；如果缺失则尝试通过 survey.category 名称或 slug 在 categories 中查找
+//将问卷的 categoryId 统一成字符串形式返回；如果缺失则尝试通过 survey.category 名称或 slug 在 categories 中查找
 const getSurveyCategoryId = (s) => {
   if (s == null) return undefined;
   if (s.categoryId !== undefined && s.categoryId !== null) return String(s.categoryId);
