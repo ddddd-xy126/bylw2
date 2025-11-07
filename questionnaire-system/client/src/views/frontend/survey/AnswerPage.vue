@@ -332,10 +332,8 @@ const computeExpectedPath = () => {
         } else {
           break;
         }
-      } else {
-        // 启用了跳转但没有匹配规则，按业务逻辑认为问卷结束
-        break;
       }
+      // 如果没有匹配规则，继续到下一题（而不是结束问卷）
     }
 
     // 默认顺序推进
@@ -469,14 +467,11 @@ const nextQuestion = async () => {
         currentQuestionIndex.value = targetIndex;
         return;
       }
-    } else {
-      // 没有匹配的跳转规则，如果启用了跳转逻辑，则直接结束问卷
-      await submitSurvey();
-      return;
     }
+    // 如果没有匹配的跳转规则，继续到下一题（而不是结束问卷）
   }
 
-  // 没有启用跳转逻辑，按顺序进行
+  // 没有启用跳转逻辑或没有匹配规则，按顺序进行
   if (isLastQuestion.value) {
     // 提交问卷
     await submitSurvey();

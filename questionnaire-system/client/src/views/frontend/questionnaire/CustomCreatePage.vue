@@ -214,16 +214,35 @@
                       size="small">
                       启用跳转逻辑
                     </el-checkbox>
-                    <el-tooltip content="根据用户选择的选项跳转到不同题目。注意：如果用户的答案不匹配任何跳转规则，问卷将直接结束。" placement="top">
-                      <el-icon style="margin-left: 4px; color: #909399;">
+                    <el-tooltip placement="top">
+                      <template #content>
+                        <div style="max-width: 300px;">
+                          <p>根据用户选择的选项跳转到不同题目。</p>
+                          <p style="color: #f56c6c; margin-top: 8px;">
+                            ⚠️ 注意：<br/>
+                            1. 只有单选题和多选题可以设置跳转逻辑<br/>
+                            2. 文本题和评分题不支持跳转（会自动进入下一题）<br/>
+                            3. 建议为所有可能的答案设置跳转规则
+                          </p>
+                        </div>
+                      </template>
+                      <el-icon style="margin-left: 4px; color: #909399; cursor: help;">
                         <QuestionFilled />
                       </el-icon>
                     </el-tooltip>
                   </div>
 
-                  <el-alert v-if="question.enableLogic" title="跳转逻辑说明" type="info" :closable="false"
+                  <el-alert v-if="question.enableLogic" title="跳转逻辑配置说明" type="warning" :closable="false"
                     style="margin-top: 8px; font-size: 12px;">
-                    当启用跳转逻辑后，如果用户的答案不匹配任何跳转规则，问卷将直接结束（不会继续显示后续题目）。请确保为所有可能的答案设置跳转规则，或者明确希望某些答案直接结束问卷。
+                    <div>
+                      <p>当前题目启用了跳转逻辑，请注意：</p>
+                      <ul style="margin: 8px 0 8px 20px; padding: 0;">
+                        <li>如果用户的答案匹配某个跳转规则，将跳转到指定题目</li>
+                        <li>如果用户的答案不匹配任何跳转规则，将<strong style="color: #f56c6c;">继续到下一题</strong></li>
+                        <li>跳转目标只能是<strong>单选题、多选题、文本题或评分题</strong></li>
+                        <li>文本题和评分题之后会自动进入下一题（无法设置跳转）</li>
+                      </ul>
+                    </div>
                   </el-alert>
 
                   <div v-if="question.enableLogic" class="logic-rules"
@@ -238,9 +257,20 @@
                           :label="`${String.fromCharCode(65 + optIdx)}. ${opt.text}`" :value="opt.id" />
                       </el-select>
                       <span style="font-size: 12px; color: #606266;">时，跳转到第</span>
-                      <el-input-number :model-value="rule.targetQuestion"
-                        @change="updateLogicRuleTarget(question.id, ruleIndex, $event)" :min="1" :max="questions.length"
-                        size="small" style="width: 100px;" />
+                      <el-select 
+                        :model-value="rule.targetQuestion"
+                        @change="updateLogicRuleTarget(question.id, ruleIndex, $event)" 
+                        size="small" 
+                        style="width: 200px;"
+                        placeholder="选择目标题目">
+                        <el-option 
+                          v-for="(q, qIdx) in questions" 
+                          :key="qIdx"
+                          :value="qIdx + 1"
+                          :label="`第${qIdx + 1}题: ${q.title || '未命名'} (${getQuestionTypeText(q.type)})`"
+                          :disabled="qIdx <= index"
+                        />
+                      </el-select>
                       <span style="font-size: 12px; color: #606266;">题</span>
                       <el-button size="small" type="text" @click="removeLogicRule(question.id, ruleIndex)"
                         class="danger-btn">
@@ -671,21 +701,21 @@ const loadCategories = async () => {
     const data = await getCategoriesApi()
     categories.value = data.map(cat => ({
       label: cat.name,
-      value: cat.value || cat.id
+      value: cat.name  // 存储中文名称，而不是 slug
     }))
   } catch (error) {
     console.error('加载分类失败:', error)
     // 降级：使用默认分类
     categories.value = [
-      { label: '企业管理', value: 'enterprise' },
-      { label: '产品研发', value: 'product' },
-      { label: '心理健康', value: 'psychology' },
-      { label: '教育培训', value: 'education' },
-      { label: '市场调研', value: 'market' },
-      { label: '用户体验', value: 'ux' },
-      { label: '学术研究', value: 'academic' },
-      { label: '活动反馈', value: 'event' },
-      { label: '其他', value: 'other' }
+      { label: '企业管理', value: '企业管理' },
+      { label: '产品研发', value: '产品研发' },
+      { label: '心理健康', value: '心理健康' },
+      { label: '教育培训', value: '教育培训' },
+      { label: '市场调研', value: '市场调研' },
+      { label: '用户体验', value: '用户体验' },
+      { label: '学术研究', value: '学术研究' },
+      { label: '活动反馈', value: '活动反馈' },
+      { label: '其他', value: '其他' }
     ]
   }
 }

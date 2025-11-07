@@ -88,10 +88,10 @@ export function useTemplates() {
       const categoryData = await getCategoriesApi()
       console.log('[useTemplates] 获取到的分类数据:', categoryData)
       
-      // 直接使用 API 返回的数据，只做简单的字段映射
+      // 直接使用 API 返回的数据，value 也使用中文名称
       categories.value = categoryData.map(c => ({
         label: c.name || c.label,
-        value: c.slug || c.value || c.id
+        value: c.name || c.label  // 存储中文名称，用于筛选和显示
       }))
       
       console.log('[useTemplates] 处理后的分类数据:', categories.value)
