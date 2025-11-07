@@ -261,7 +261,7 @@
 
     <!-- 数据统计对话框 -->
     <el-dialog v-model="statsDialogVisible" :title="`${currentSurveyStats?.title} - 数据统计`" width="800px"
-      class="stats-dialog">
+      class="stats-dialog" :append-to-body="true" :destroy-on-close="true" :z-index="3000">
       <div class="stats-container" v-if="currentSurveyStats">
         <el-alert title="数据说明" description="以下数据展示了每个问题各选项的选择情况，包括选择次数和占比" type="info" :closable="false"
           style="margin-bottom: 20px" />
@@ -981,6 +981,13 @@ onMounted(() => {
       font-size: 18px;
       font-weight: 600;
       color: #303133;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .survey-badges {
@@ -996,12 +1003,19 @@ onMounted(() => {
     }
 
     .meta-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
+    .survey-description {
+      color: #909399;
       font-size: 14px;
-      color: #606266;
+      line-height: 1.5;
+      margin-bottom: 16px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+  }
 
     .survey-description {
       color: #909399;

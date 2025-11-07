@@ -521,6 +521,13 @@ onMounted(() => {
             font-size: 18px;
             font-weight: 600;
             color: #303133;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
           }
 
           .survey-badges {
