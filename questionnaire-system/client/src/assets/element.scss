@@ -110,7 +110,7 @@
   border-color: var(--color-info) !important;
 }
 
-.el-button--other{
+.el-button--other {
   background-color: var(--color-gray-400) !important;
   border-color: var(--color-gray-400) !important;
   // color: var(--color-primary-dark-3) !important;
@@ -132,14 +132,19 @@
   border-color: var(--color-gray-400) !important;
 }
 
-
-
 .el-button.is-circle {
   background-color: var(--color-gray-400) !important;
   border-radius: 50% !important;
   border-color: transparent !important;
   color: var(--color-primary-dark-3) !important;
 }
+
+.el-button.el-button--text.el-button--large.back-button {
+  color: var(--color-primary);
+  font-size: 18px;
+}
+
+
 
 /* Tag */
 .el-tag--primary {
@@ -490,8 +495,6 @@
 }
 
 .el-message-box__btns {
-    gap: 10px !important;
+  gap: 10px !important;
 }
-
-
 

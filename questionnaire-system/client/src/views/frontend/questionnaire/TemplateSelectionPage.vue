@@ -80,14 +80,8 @@
       </div>
 
       <div v-else class="templates-grid">
-        <TemplateCard
-          v-for="template in filteredList" 
-          :key="template.id"
-          :template="template"
-          @click="selectTemplate"
-          @use="useTemplate"
-          @preview="showPreview"
-        />
+        <TemplateCard v-for="template in filteredList" :key="template.id" :template="template" @click="selectTemplate"
+          @use="useTemplate" @preview="showPreview" />
       </div>
 
       <!-- 分页 -->
@@ -99,11 +93,7 @@
     </div>
 
     <!-- 预览对话框 -->
-    <TemplatePreviewDialog
-      v-model="previewVisible"
-      :template="previewTemplate"
-      @use="useTemplate"
-    />
+    <TemplatePreviewDialog v-model="previewVisible" :template="previewTemplate" @use="useTemplate" />
   </div>
 </template>
 
@@ -263,6 +253,9 @@ const showPreview = (template) => {
       left: 0;
       top: 0;
       z-index: 1;
+
+
+
     }
 
     h1 {

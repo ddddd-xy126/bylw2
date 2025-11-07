@@ -1,19 +1,18 @@
 <template>
   <div class="answer-page">
-    <!-- 页面头部 -->
-    <div class="answer-header">
-      <div class="header-content">
-        <el-page-header @back="handleGoBack">
-          <template #content>
-            <div class="header-info">
-              <h2 class="survey-title">{{ questionnaire.title || '问卷作答' }}</h2>
-              <div class="progress-info">
-                第 {{ currentQuestionIndex + 1 }} 题，共 {{ totalQuestions }} 题
-              </div>
-            </div>
-          </template>
-        </el-page-header>
-      </div>
+    <!-- 页面头部 - 与问卷详情页样式一致 -->
+    <div class="page-header">
+      <el-page-header @back="handleGoBack">
+        <template #content>
+          <div class="header-content">
+            <span class="header-title">{{ questionnaire.title || '问卷作答' }}</span>
+            <el-breadcrumb separator="/">
+              <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+              <el-breadcrumb-item>问卷作答</el-breadcrumb-item>
+            </el-breadcrumb>
+          </div>
+        </template>
+      </el-page-header>
     </div>
 
     <div class="answer-container">
@@ -63,69 +62,20 @@
               <p>{{ currentQuestion.description }}</p>
             </div>
 
-            <!-- 答题区域 -->
+            <!-- 答题区域 - 使用动画组件 -->
             <div class="answer-section">
-              <!-- 单选题 -->
-              <template v-if="currentQuestion.type === 'single'">
-                <el-radio-group 
-                  v-model="currentAnswer" 
-                  class="answer-options"
-                  @change="handleAnswerChange"
-                >
-                  <el-radio 
-                    v-for="option in currentQuestion.options" 
-                    :key="option.id || option.value"
-                    :label="option.id || option.value"
-                    class="option-item"
-                  >
-                    <span class="option-text">{{ option.text || option.label }}</span>
-                  </el-radio>
-                </el-radio-group>
-              </template>
-
-              <!-- 多选题 -->
-              <template v-else-if="currentQuestion.type === 'multiple'">
-                <el-checkbox-group 
-                  v-model="currentAnswer" 
-                  class="answer-options"
-                  @change="handleAnswerChange"
-                >
-                  <el-checkbox 
-                    v-for="option in currentQuestion.options" 
-                    :key="option.id || option.value"
-                    :label="option.id || option.value"
-                    class="option-item"
-                  >
-                    <span class="option-text">{{ option.text || option.label }}</span>
-                  </el-checkbox>
-                </el-checkbox-group>
-              </template>
-
-              <!-- 文本题 -->
-              <template v-else-if="currentQuestion.type === 'text'">
-                <el-input
-                  v-model="currentAnswer"
-                  type="textarea"
-                  :rows="4"
-                  placeholder="请在此输入您的答案..."
-                  maxlength="500"
-                  show-word-limit
-                  @blur="handleTextCommit"
-                />
-              </template>
-
-              <!-- 评分题 -->
-              <template v-else-if="currentQuestion.type === 'rating'">
-                <div class="rating-section">
-                  <el-rate
-                    v-model="currentAnswer"
-                    :max="currentQuestion.maxRating || 5"
-                    show-text
-                    :texts="ratingTexts"
-                    @change="handleAnswerChange"
-                  />
-                </div>
-              </template>
+              <AnimatedQuestion
+                :question-type="currentQuestion.type"
+                :options="currentQuestion.options"
+                v-model="currentAnswer"
+                :max-rating="currentQuestion.maxRating || 5"
+                :rating-texts="ratingTexts"
+                :placeholder="currentQuestion.placeholder || '请在此输入您的答案...'"
+                :max-length="currentQuestion.maxLength || 500"
+                :rows="4"
+                @change="handleAnswerChange"
+                @commit="handleTextCommit"
+              />
             </div>
 
             <!-- 操作按钮 -->
@@ -214,6 +164,9 @@ import {
 import { getSurveyDetail, submitSurveyApi } from "@/api/survey";
 import { useUserStore } from "@/store/user";
 import ProgressCard from './components/ProgressCard.vue';
+import AnimatedQuestion from './components/AnimatedQuestion.vue';
+import { useQuestionnaireLogic } from '@/composables/useQuestionnaireLogic';
+import { useAnswerTimer } from '@/composables/useAnswerTimer';
 
 const route = useRoute();
 const router = useRouter();
@@ -227,352 +180,195 @@ const questionnaire = reactive({
   questions: [],
   estimatedTime: 5
 });
-const answers = reactive({});
-// committedAnswers 存储用户明确确认提交的答案（点击选项或文本失焦时写入）
-const committedAnswers = reactive({});
-const currentQuestionIndex = ref(0);
-// 跟踪用户实际遇到的题目（用于某些展示/调试）
-const visitedQuestions = ref(new Set());
-const isCompleted = ref(false);
-const startTime = ref(Date.now());
-const elapsedTime = ref(0);
-const timer = ref(null);
 
-// 评分选项
-const ratingTexts = ref(['很差', '较差', '一般', '较好', '很好']);
+// 使用 composables
+const {
+  answers,
+  committedAnswers,
+  currentQuestionIndex,
+  visitedQuestions,
+  totalQuestions,
+  currentQuestion,
+  progressPercentage,
+  expectedPath,
+  initializeLogic,
+  setAnswer,
+  commitAnswer,
+  goToQuestion,
+  nextQuestion: nextQuestionLogic,
+  prevQuestion: prevQuestionLogic,
+  validateRequiredQuestions,
+  resetAnswers
+} = useQuestionnaireLogic()
 
-// 计算属性
-const currentQuestion = computed(() => {
-  const questions = getOrderedQuestions();
-  return questions[currentQuestionIndex.value] || null;
-});
-
+const {
+  startTime,
+  elapsedTime,
+  formatTime,
+  startTimer,
+  pauseTimer,
+  resumeTimer,
+  resetTimer,
+  stopTimer
+} = useAnswerTimer()
+// 当前答案
 const currentAnswer = computed({
   get() {
-    if (!currentQuestion.value) return null;
-    const answer = answers[currentQuestion.value.id];
+    if (!currentQuestion.value) return null
+    const answer = answers.value[currentQuestion.value.id]
     
     // 处理多选题的初始值
     if (currentQuestion.value.type === 'multiple' && !answer) {
-      return [];
+      return []
     }
     
-    return answer;
+    return answer
   },
   set(value) {
     if (currentQuestion.value) {
-      answers[currentQuestion.value.id] = value;
+      setAnswer(currentQuestion.value.id, value)
     }
   }
-});
+})
 
-const totalQuestions = computed(() => {
-  return questionnaire.questions.length;
-});
+const isCompleted = ref(false)
+
+// 评分选项
+const ratingTexts = ref(['很差', '较差', '一般', '较好', '很好'])
 
 const isLastQuestion = computed(() => {
-  return currentQuestionIndex.value === totalQuestions.value - 1;
-});
+  return currentQuestionIndex.value === totalQuestions.value - 1
+})
 
 const isAnswered = computed(() => {
-  const answer = currentAnswer.value;
+  const answer = currentAnswer.value
   if (currentQuestion.value?.type === 'multiple') {
-    return Array.isArray(answer) && answer.length > 0;
+    return Array.isArray(answer) && answer.length > 0
   }
-  return answer !== null && answer !== undefined && answer !== '';
-});
+  return answer !== null && answer !== undefined && answer !== ''
+})
 
 // 是否可以进入下一题（必答题必须作答，非必答题可以跳过）
 const canProceed = computed(() => {
   // 如果是必答题，必须已回答
   if (currentQuestion.value?.required) {
-    return isAnswered.value;
+    return isAnswered.value
   }
   // 非必答题可以直接进入下一题
-  return true;
-});
+  return true
+})
 
 // 已确认的答题数量（只有点击/失焦后计入）
 const answeredCount = computed(() => {
-  return Object.keys(committedAnswers).length;
-});
-
-// 根据当前已知答案模拟一条 "预期路径"，用于动态进度计算
-const computeExpectedPath = () => {
-  const questions = getOrderedQuestions();
-  const path = [];
-  const seen = new Set();
-  let idx = 0;
-
-  while (idx >= 0 && idx < questions.length) {
-    const q = questions[idx];
-    if (!q || seen.has(String(q.id))) break; // 防止循环
-    path.push(String(q.id));
-    seen.add(String(q.id));
-
-    // 如果该题启用了跳转逻辑并且已有答案，按规则跳转
-    if (q && q.enableLogic && q.logicRules && q.logicRules.length > 0) {
-      // 这里只使用已确认的答案来判断是否匹配跳转规则
-      const userAnswer = committedAnswers[q.id];
-      let matchedRule = null;
-
-      if (q.type === 'single') {
-        matchedRule = q.logicRules.find(rule => rule.optionId === userAnswer);
-      } else if (q.type === 'multiple') {
-        if (Array.isArray(userAnswer)) {
-          matchedRule = q.logicRules.find(rule => userAnswer.includes(rule.optionId));
-        }
-      }
-
-      if (matchedRule) {
-        const targetIndex = matchedRule.targetQuestion - 1;
-        if (targetIndex >= 0 && targetIndex < questions.length) {
-          idx = targetIndex;
-          continue;
-        } else {
-          break;
-        }
-      }
-      // 如果没有匹配规则，继续到下一题（而不是结束问卷）
-    }
-
-    // 默认顺序推进
-    idx++;
-  }
-
-  return path;
-};
-
-const expectedPath = computed(() => computeExpectedPath());
-
-const progressPercentage = computed(() => {
-  const path = expectedPath.value;
-  if (!path || path.length === 0) return 0;
-  // 进度只基于已确认答案
-  const answeredOnPath = path.filter(id => committedAnswers[id] !== undefined).length;
-  return (answeredOnPath / path.length) * 100;
-});
-
-// 方法
-const getOrderedQuestions = () => {
-  return [...questionnaire.questions].sort((a, b) => {
-    const orderA = a.order !== undefined ? a.order : a.id;
-    const orderB = b.order !== undefined ? b.order : b.id;
-    return orderA - orderB;
-  });
-};
-
-// 当当前题目变更时，把它标记为已遇到（用于动态路径进度）
-watch(currentQuestion, (q) => {
-  if (q && q.id !== undefined && q.id !== null) {
-    visitedQuestions.value.add(String(q.id));
-  }
-});
-
-const getQuestionTypeName = (type) => {
-  const nameMap = {
-    single: '单选题',
-    multiple: '多选题',
-    text: '文本题',
-    rating: '评分题'
-  };
-  return nameMap[type] || '其他';
-};
-
-const getQuestionTypeColor = (type) => {
-  const colorMap = {
-    single: 'primary',
-    multiple: 'success',
-    text: 'warning',
-    rating: 'danger'
-  };
-  return colorMap[type] || 'info';
-};
-
-const formatTime = (seconds) => {
-  const minutes = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-};
+  return Object.keys(committedAnswers.value).length
+})
 
 // 当用户通过点击选项（单选/多选/评分）确认答案时调用
 const handleAnswerChange = (value) => {
-  if (!currentQuestion.value) return;
-  const qid = currentQuestion.value.id;
-  // answers 已由 v-model 更新，这里将其写入 committedAnswers 表示已确认
-  committedAnswers[qid] = answers[qid];
-  // 标记为已访问
-  visitedQuestions.value.add(String(qid));
-};
+  if (!currentQuestion.value) return
+  commitAnswer(currentQuestion.value.id)
+}
 
 // 文本题失焦时才提交为已确认答案
 const handleTextCommit = () => {
-  if (!currentQuestion.value) return;
-  const qid = currentQuestion.value.id;
-  const val = answers[qid];
+  if (!currentQuestion.value) return
+  const qid = currentQuestion.value.id
+  const val = answers.value[qid]
   if (val !== undefined && val !== null && String(val).trim() !== '') {
-    committedAnswers[qid] = val;
-    visitedQuestions.value.add(String(qid));
+    commitAnswer(qid)
   }
-};
+}
 
+// 下一题 - 使用 composable 的逻辑
 const nextQuestion = async () => {
-  // 验证必答题（强化检查）
-  if (currentQuestion.value?.required) {
-    const answer = currentAnswer.value;
-    let hasAnswer = false;
-    
-    if (currentQuestion.value.type === 'multiple') {
-      hasAnswer = Array.isArray(answer) && answer.length > 0;
-    } else {
-      hasAnswer = answer !== null && answer !== undefined && String(answer).trim() !== '';
-    }
-    
-    if (!hasAnswer) {
-      ElMessage.warning({
-        message: '此题为必答题，请选择或填写答案后再继续',
-        duration: 2000,
-        showClose: true
-      });
-      return;
-    }
+  // 验证必答题
+  if (currentQuestion.value?.required && !isAnswered.value) {
+    ElMessage.warning({
+      message: '此题为必答题，请选择或填写答案后再继续',
+      duration: 2000,
+      showClose: true
+    })
+    return
   }
 
-  // 检查是否有跳转逻辑
-  const question = currentQuestion.value;
-  if (question && question.enableLogic && question.logicRules && question.logicRules.length > 0) {
-    // 获取用户的答案
-    const userAnswer = answers[question.id];
-    
-    // 查找匹配的跳转规则
-    let matchedRule = null;
-    
-    if (question.type === 'single') {
-      // 单选题：直接匹配选项ID
-      matchedRule = question.logicRules.find(rule => rule.optionId === userAnswer);
-    } else if (question.type === 'multiple') {
-      // 多选题：检查是否包含某个选项
-      if (Array.isArray(userAnswer)) {
-        matchedRule = question.logicRules.find(rule => userAnswer.includes(rule.optionId));
-      }
-    }
-    
-    if (matchedRule) {
-      // 找到匹配的跳转规则
-      const targetQuestionNumber = matchedRule.targetQuestion;
-      const targetIndex = targetQuestionNumber - 1; // 题号转索引
-      
-      if (targetIndex >= 0 && targetIndex < totalQuestions.value) {
-        // 跳转到指定题目
-        currentQuestionIndex.value = targetIndex;
-        return;
-      }
-    }
-    // 如果没有匹配的跳转规则，继续到下一题（而不是结束问卷）
+  // 使用 composable 的 nextQuestion 逻辑（包含跳转逻辑）
+  const result = nextQuestionLogic(questionnaire.questions)
+  
+  // 如果已经是最后一题，提交问卷
+  if (result === 'complete') {
+    await submitSurvey()
   }
-
-  // 没有启用跳转逻辑或没有匹配规则，按顺序进行
-  if (isLastQuestion.value) {
-    // 提交问卷
-    await submitSurvey();
-  } else {
-    // 下一题
-    currentQuestionIndex.value++;
-  }
-};
+}
 
 const prevQuestion = () => {
-  if (currentQuestionIndex.value > 0) {
-    currentQuestionIndex.value--;
-  }
-};
-
-const goToQuestion = (index) => {
-  if (index >= 0 && index < totalQuestions.value) {
-    currentQuestionIndex.value = index;
-  }
-};
+  prevQuestionLogic()
+}
 
 const submitSurvey = async () => {
   try {
-    loading.value = true;
+    loading.value = true
     
-    // 检查必答题
-    const unansweredRequired = questionnaire.questions.filter(q => 
-      q.required && (answers[q.id] === undefined || answers[q.id] === null || answers[q.id] === '')
-    );
+    // 使用 composable 的验证方法
+    const validation = validateRequiredQuestions(questionnaire.questions)
     
-    if (unansweredRequired.length > 0) {
-      ElMessage.warning(`还有 ${unansweredRequired.length} 道必答题未完成`);
-      loading.value = false;
-      return;
+    if (!validation.isValid) {
+      ElMessage.warning(`还有 ${validation.unansweredRequired.length} 道必答题未完成`)
+      loading.value = false
+      return
     }
 
-    const duration = Math.floor(elapsedTime.value);
+    const duration = Math.floor(elapsedTime.value)
     const answerData = {
       surveyId: questionnaire.id,
       surveyTitle: questionnaire.title,
       userId: userStore.profile?.id,
       duration: duration,
-      answers: Object.entries(answers).map(([questionId, answer]) => {
-        const question = questionnaire.questions.find(q => q.id == questionId);
-        let answerText = answer; // 默认使用原始答案
+      answers: Object.entries(answers.value).map(([questionId, answer]) => {
+        const question = questionnaire.questions.find(q => q.id == questionId)
+        let answerText = answer
         
-        // 根据题目类型获取对应的文本
         if (question) {
           if (question.type === 'single') {
-            // 单选题：查找对应选项的文本
-            const option = question.options?.find(opt => opt.id === answer);
-            answerText = option ? option.text : answer;
+            const option = question.options?.find(opt => opt.id === answer)
+            answerText = option ? option.text : answer
           } else if (question.type === 'multiple' && Array.isArray(answer)) {
-            // 多选题：将选项ID数组转换为文本数组
             answerText = answer.map(answerId => {
-              const option = question.options?.find(opt => opt.id === answerId);
-              return option ? option.text : answerId;
-            });
-          } else if (question.type === 'rating') {
-            // 评分题：直接使用数字
-            answerText = answer;
-          } else if (question.type === 'text') {
-            // 文本题：直接使用输入的文本
-            answerText = answer;
+              const option = question.options?.find(opt => opt.id === answerId)
+              return option ? option.text : answerId
+            })
           }
         }
         
         return {
           questionId,
-          answer,  // 保留原始答案（ID或值）
-          text: answerText,  // 新增：用于显示的文本
+          answer,
+          text: answerText,
           question: question?.title || question?.content || ''
-        };
+        }
       })
-    };
+    }
 
-    const result = await submitSurveyApi(route.params.id, answerData);
+    const result = await submitSurveyApi(route.params.id, answerData)
     
     // 停止计时器
-    if (timer.value) {
-      clearInterval(timer.value);
-      timer.value = null;
-    }
+    stopTimer()
     
-    ElMessage.success('问卷提交成功！');
+    ElMessage.success('问卷提交成功！')
     
-    // 跳转到结果页面，传递surveyId和userId用于查询答案
-    const surveyId = route.params.id;
-    const userId = userStore.profile?.id;
-    router.push(`/surveys/result/${result.answerId}?surveyId=${surveyId}&userId=${userId}`);
+    const surveyId = route.params.id
+    const userId = userStore.profile?.id
+    router.push(`/surveys/result/${result.answerId}?surveyId=${surveyId}&userId=${userId}`)
     
   } catch (error) {
-    ElMessage.error('提交失败：' + error.message);
+    ElMessage.error('提交失败：' + error.message)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 const viewResults = () => {
-  router.push(`/surveys/result/${route.params.id}`);
-};
+  router.push(`/surveys/result/${route.params.id}`)
+}
 
 const restartSurvey = async () => {
   try {
@@ -580,25 +376,21 @@ const restartSurvey = async () => {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
-    });
+    })
     
-    // 重置所有数据
-    Object.keys(answers).forEach(key => delete answers[key]);
-    currentQuestionIndex.value = 0;
-    isCompleted.value = false;
-    startTime.value = Date.now();
-    elapsedTime.value = 0;
+    // 使用 composable 的重置方法
+    resetAnswers()
+    isCompleted.value = false
     
-    // 重新开始计时器
-    startTimer();
-      // 重置已访问集合（确保进度从头计算）
-      visitedQuestions.value.clear();
+    // 重置计时器
+    resetTimer()
+    startTimer()
     
-    ElMessage.success('已重新开始答题');
+    ElMessage.success('已重新开始答题')
   } catch (error) {
     // 用户取消
   }
-};
+}
 
 const handleGoBack = async () => {
   if (answeredCount.value > 0) {
@@ -607,65 +399,78 @@ const handleGoBack = async () => {
         confirmButtonText: '确定离开',
         cancelButtonText: '继续答题',
         type: 'warning'
-      });
-      router.back();
+      })
+      router.back()
     } catch (error) {
       // 用户取消
     }
   } else {
-    router.back();
+    router.back()
   }
-};
+}
 
-const startTimer = () => {
-  if (timer.value) {
-    clearInterval(timer.value);
+// 辅助方法
+const getQuestionTypeName = (type) => {
+  const nameMap = {
+    single: '单选题',
+    multiple: '多选题',
+    text: '文本题',
+    rating: '评分题'
   }
-  
-  timer.value = setInterval(() => {
-    elapsedTime.value = Math.floor((Date.now() - startTime.value) / 1000);
-  }, 1000);
-};
+  return nameMap[type] || '其他'
+}
+
+const getQuestionTypeColor = (type) => {
+  const colorMap = {
+    single: 'primary',
+    multiple: 'success',
+    text: 'warning',
+    rating: 'danger'
+  }
+  return colorMap[type] || 'info'
+}
 
 // 生命周期
 onMounted(async () => {
   try {
-    const surveyData = await getSurveyDetail(route.params.id);
-    questionnaire.id = surveyData.id;
-    questionnaire.title = surveyData.title;
-    questionnaire.questions = surveyData.questions || [];
-    questionnaire.estimatedTime = surveyData.estimatedTime || 5;
+    const surveyData = await getSurveyDetail(route.params.id)
+    questionnaire.id = surveyData.id
+    questionnaire.title = surveyData.title
+    questionnaire.questions = surveyData.questions || []
+    questionnaire.estimatedTime = surveyData.estimatedTime || 5
     
     // 为问题添加默认的order字段（如果没有的话）
     questionnaire.questions.forEach((q, index) => {
       if (q.order === undefined) {
-        q.order = index + 1;
+        q.order = index + 1
       }
-    });
+    })
+    
+    // 初始化 questionnaire logic
+    initializeLogic(questionnaire.questions)
     
     // 开始计时
-    startTimer();
+    startTimer()
     
   } catch (error) {
-    ElMessage.error('加载问卷失败：' + error.message);
-    console.error('加载失败:', error);
+    ElMessage.error('加载问卷失败：' + error.message)
+    console.error('加载失败:', error)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-});
+})
 
+// composable 的 useAnswerTimer 已经自动清理，但还是要确保停止计时器
 onUnmounted(() => {
-  if (timer.value) {
-    clearInterval(timer.value);
-    timer.value = null;
-  }
-});
+  stopTimer()
+})
 </script>
 
 <style scoped lang="scss">
 .answer-page {
   min-height: 100vh;
   background: var(--theme-background-color);
+  padding: 30px 285px;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -686,21 +491,18 @@ onUnmounted(() => {
   }
 }
 
-/* 头部样式 */
-.answer-header {
+/* 头部样式*/
+.page-header {
   background: linear-gradient(135deg, var(--color-primary-light-3) 0%, var(--color-primary) 100%);
-  border-bottom: none;
-  padding: 16px 0;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  box-shadow: var(--shadow-md);
+  padding: 25px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
 
   :deep(.el-page-header) {
     .el-page-header__back {
       color: var(--text-inverse);
-      font-weight: var(--font-weight-semibold);
-      transition: all var(--transition-base);
+      font-weight: 600;
+      transition: all 0.3s ease;
       
       &:hover {
         color: var(--color-primary-dark-4);
@@ -708,7 +510,7 @@ onUnmounted(() => {
       }
 
       .el-icon {
-        font-size: var(--font-size-lg);
+        font-size: 18px;
       }
     }
 
@@ -718,27 +520,37 @@ onUnmounted(() => {
   }
 
   .header-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    .header-info {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+    .header-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-inverse);
+      margin-right: 16px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
-      .survey-title {
-        margin: 0;
-        font-size: 20px;
-        font-weight: 700;
-        color: var(--text-inverse);
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    .el-breadcrumb {
+      font-size: 14px;
+      
+      :deep(.el-breadcrumb__separator) {
+        color: rgba(255, 255, 255, 0.7);
       }
 
-      .progress-info {
+      :deep(.el-breadcrumb__inner) {
         color: rgba(255, 255, 255, 0.9);
-        font-size: 14px;
-        font-weight: var(--font-weight-medium);
+        font-weight: 500;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: var(--text-inverse);
+        }
+
+        &.is-link:hover {
+          color: var(--color-primary-dark-4);
+        }
       }
     }
   }
@@ -1031,104 +843,103 @@ onUnmounted(() => {
   }
 }
 
-/* 问题导航 */
-.question-nav {
-  margin-top: 20px;
-
-  h5 {
-    margin: 0 0 12px 0;
-    color: #303133;
-    font-size: 14px;
-    font-weight: 600;
-  }
-
-  .nav-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-
-    @media (max-width: 768px) {
-      grid-template-columns: repeat(6, 1fr);
-    }
-
-    @media (max-width: 480px) {
-      grid-template-columns: repeat(8, 1fr);
-    }
-  }
-
-  .nav-item {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: #f5f7fa;
-    color: #909399;
-    border: 1px solid #e4e7ed;
-    position: relative;
-
-    @media (max-width: 480px) {
-      width: 28px;
-      height: 28px;
-      font-size: 11px;
-    }
-
-    &:hover {
-      border-color: var(--color-primary-light-3);
-      background: #f0f9ff;
-      color: var(--color-primary-light-3);
-    }
-
-    &.current {
-      background: var(--color-primary-light-3);
-      color: white;
-      border-color: var(--color-primary-light-3);
-    }
-
-    &.answered {
-      background: #67c23a;
-      color: white;
-      border-color: #67c23a;
-    }
-
-    &.required::after {
-      content: '*';
-      position: absolute;
-      top: -2px;
-      right: -2px;
-      color: #f56c6c;
-      font-size: 10px;
-    }
-  }
-}
-
 /* 统计信息 */
 .stats-card {
+  background: linear-gradient(135deg, #f8fbff 0%, #f0f7ff 100%);
+  border: none;
+  overflow: hidden;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary-light-3), var(--color-primary));
+  }
+
+  :deep(.el-card__header) {
+    background: transparent;
+    border-bottom: 1px solid rgba(64, 158, 255, 0.1);
+    padding: 16px 20px;
+
+    h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      &::before {
+        content: '📊';
+        font-size: 18px;
+      }
+    }
+  }
+
   .stats-content {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    padding: 8px 0;
 
     .stat-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 0;
+      padding: 12px 16px;
+      background: white;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+      }
 
       .stat-label {
         color: #606266;
         font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        &::before {
+          content: '';
+          width: 6px;
+          height: 6px;
+          background: var(--color-primary-light-3);
+          border-radius: 50%;
+        }
       }
 
       .stat-value {
-        color: #303133;
-        font-weight: 600;
-        font-size: 16px;
+        color: var(--color-primary);
+        font-weight: 700;
+        font-size: 20px;
+        font-family: 'Arial', sans-serif;
+      }
+
+      &.elapsed {
+        background: linear-gradient(135deg, #fff8e1 0%, #fff3cd 100%);
+
+        .stat-label::before {
+          background: #E6A23C;
+        }
+
+        .elapsed-value {
+          font-size: 24px;
+          color: #E6A23C;
+          font-weight: 700;
+          letter-spacing: 1px;
+          font-variant-numeric: tabular-nums;
+        }
       }
     }
   }
@@ -1137,12 +948,6 @@ onUnmounted(() => {
 /* 左侧统计区域（非粘性） */
 .stats-area {
   position: static;
-}
-
-.stat-item.elapsed .elapsed-value {
-  font-size: 22px;
-  color: var(--color-primary-light-3);
-  font-weight: 700;
 }
 
 /* 加载动画 */

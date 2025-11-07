@@ -63,11 +63,30 @@ const handleTabChange = (index) => {
   }
 
   .rankings-nav {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 
     .rankings-menu {
       justify-content: center;
       border-bottom: 2px solid #e1e8ed;
+      border-radius: 10px;
+      background-color:
+        var(--color-primary-light-3) !important;
+    }
+
+
+    :deep(.el-menu-item) {
+      color: var(--color-primary-dark-1) !important;
+
+      &:hover {
+        background-color: var(--bg-primary-light) !important;
+      }
+
+      &.is-active {
+        color: var(--color-primary-dark-1) !important;
+        border-bottom: 2px solid var(--color-primary) !important;
+        background-color: var(--bg-primary-light) !important;
+        font-weight: 600;
+      }
     }
   }
 

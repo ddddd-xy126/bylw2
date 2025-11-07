@@ -1,6 +1,6 @@
 <template>
   <div class="tree-growth-container">
-    <canvas ref="canvasRef" width="600" height="300"></canvas>
+    <canvas ref="canvasRef" width="500" height="300"></canvas>
   </div>
 </template>
 

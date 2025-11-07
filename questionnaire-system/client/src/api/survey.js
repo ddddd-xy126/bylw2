@@ -248,23 +248,48 @@ export async function getSurveyCommentsApi(id) {
     const survey = await apiClient.get(`/surveys/${id}`);
     const answers = survey.answers || [];
 
-    // 提取所有有评论的答案
-    const comments = answers
-      .filter((answer) => answer.comment && answer.comment.content)
-      .map((answer) => ({
-        id: answer.id,
-        surveyId: parseInt(id),
-        userId: answer.userId,
-        username: answer.username || "匿名用户",
-        avatar: answer.userAvatar || "",
-        content: answer.comment.content,
-        rating: answer.comment.rating || 5,
-        createdAt: answer.comment.createdAt || answer.submittedAt,
-      }));
+    // 提取所有有评论的答案 - 支持新的 comments 数组结构和旧的 comment 对象
+    const allComments = [];
+    
+    answers.forEach((answer) => {
+      // 新结构: comments 数组
+      if (answer.comments && Array.isArray(answer.comments)) {
+        answer.comments.forEach((comment) => {
+          allComments.push({
+            id: comment.id,
+            surveyId: parseInt(id),
+            answerId: answer.id,
+            userId: comment.userId || answer.userId,
+            username: comment.username || answer.username || "匿名用户",
+            avatar: comment.avatar || answer.userAvatar || "",
+            content: comment.content,
+            rating: comment.rating || 5,
+            createdAt: comment.createdAt || answer.submittedAt,
+          });
+        });
+      }
+      // 旧结构: 单个 comment 对象 (兼容性)
+      else if (answer.comment && answer.comment.content) {
+        allComments.push({
+          id: answer.id,
+          surveyId: parseInt(id),
+          answerId: answer.id,
+          userId: answer.userId,
+          username: answer.username || "匿名用户",
+          avatar: answer.userAvatar || "",
+          content: answer.comment.content,
+          rating: answer.comment.rating || 5,
+          createdAt: answer.comment.createdAt || answer.submittedAt,
+        });
+      }
+    });
+
+    // 按时间倒序排列
+    allComments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     return {
-      list: comments,
-      total: comments.length,
+      list: allComments,
+      total: allComments.length,
     };
   } catch (error) {
     console.error("获取评论失败:", error);
@@ -506,6 +531,52 @@ export async function getUserCommentApi(surveyId, userId) {
     return [];
   } catch (error) {
     console.error("获取用户评论失败:", error);
+    return [];
+  }
+}
+
+// 获取问卷的所有评论
+export async function getAllCommentsApi(surveyId) {
+  try {
+    // 获取问卷数据
+    const survey = await apiClient.get(`/surveys/${surveyId}`);
+    const answers = survey.answers || [];
+
+    // 收集所有评论
+    const allComments = [];
+    
+    answers.forEach((answer) => {
+      // 优先使用新的 comments 数组
+      if (answer.comments && Array.isArray(answer.comments) && answer.comments.length > 0) {
+        answer.comments.forEach(comment => {
+          allComments.push({
+            ...comment,
+            answerId: answer.id,
+            userId: answer.userId,
+            username: comment.username || answer.username,
+            avatar: comment.avatar || answer.userAvatar,
+          });
+        });
+      } 
+      // 兼容旧的单个 comment 结构
+      else if (answer.comment) {
+        allComments.push({
+          id: answer.id + '_comment',
+          answerId: answer.id,
+          userId: answer.userId,
+          username: answer.username,
+          avatar: answer.userAvatar,
+          content: answer.comment.content,
+          rating: answer.comment.rating,
+          createdAt: answer.comment.createdAt,
+        });
+      }
+    });
+
+    // 按时间倒序排序（最新的在前）
+    return allComments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  } catch (error) {
+    console.error("获取所有评论失败:", error);
     return [];
   }
 }

@@ -56,7 +56,7 @@
                 <el-icon>
                   <User />
                 </el-icon>
-                <span>{{ survey.participants }} 人参与</span>
+                <span>{{ survey.participantCount }} 人参与</span>
               </div>
 
               <el-button type="primary" @click="goToSurvey(survey.id)" class="participate-btn">

@@ -37,7 +37,7 @@
               <div class="participation-stats">
                 <div class="stat-item">
                   <el-icon><User /></el-icon>
-                  <span class="stat-value">{{ survey.participants }}</span>
+                  <span class="stat-value">{{ survey.participantCount }}</span>
                   <span class="stat-label">参与人数</span>
                 </div>
                 <div class="stat-item">

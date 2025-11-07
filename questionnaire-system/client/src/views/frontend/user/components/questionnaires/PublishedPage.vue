@@ -196,6 +196,9 @@
             </el-button>
             <template #dropdown>
               <el-dropdown-menu>
+                <el-dropdown-item :command="{ action: 'viewComments', data: survey }">
+                  查看评论
+                </el-dropdown-item>
                 <el-dropdown-item :command="{ action: 'edit', data: survey }">
                   编辑问卷
                 </el-dropdown-item>
@@ -230,128 +233,27 @@
     </div>
 
     <!-- 分享对话框 -->
-    <el-dialog v-model="shareDialogVisible" title="分享问卷" width="500px" :append-to-body="true" :destroy-on-close="true"
-      :z-index="3000">
-      <div class="share-content">
-        <div class="share-item">
-          <label>问卷链接：</label>
-          <el-input v-model="shareUrl" readonly @click="selectText">
-            <template #append>
-              <el-button @click="copyLink">复制</el-button>
-            </template>
-          </el-input>
-        </div>
-
-        <div class="share-item">
-          <label>二维码：</label>
-          <div class="qr-code">
-            <el-image :src="qrCodeUrl" alt="问卷二维码" style="width: 120px; height: 120px;" />
-          </div>
-        </div>
-
-        <div class="share-item">
-          <label>社交分享：</label>
-          <div class="social-share">
-            <el-button @click="shareToQQ">QQ</el-button>
-            <el-button @click="shareToWeibo">微博</el-button>
-          </div>
-        </div>
-      </div>
-    </el-dialog>
+    <ShareDialog
+      v-model:visible="shareDialogVisible"
+      :share-url="shareUrl"
+      :qr-code-url="qrCodeUrl"
+      :survey="currentSurvey"
+    />
 
     <!-- 数据统计对话框 -->
-    <el-dialog v-model="statsDialogVisible" :title="`${currentSurveyStats?.title} - 数据统计`" width="800px"
-      class="stats-dialog" :append-to-body="true" :destroy-on-close="true" :z-index="3000">
-      <div class="stats-container" v-if="currentSurveyStats">
-        <el-alert title="数据说明" description="以下数据展示了每个问题各选项的选择情况，包括选择次数和占比" type="info" :closable="false"
-          style="margin-bottom: 20px" />
+    <StatsDialog
+      v-model:visible="statsDialogVisible"
+      :stats="currentSurveyStats"
+    />
 
-        <div class="question-stats" v-for="(question, qIndex) in currentSurveyStats.questionList" :key="question.id">
-          <div class="question-header">
-            <h4>{{ qIndex + 1 }}. {{ question.title }}</h4>
-            <el-tag size="small">{{ getQuestionTypeLabel(question.type) }}</el-tag>
-          </div>
-
-          <div class="options-stats" v-if="question.type === 'single' || question.type === 'multiple'">
-            <div v-if="question.options && question.options.length > 0">
-              <div class="option-item" v-for="option in question.options" :key="option.id">
-                <div class="option-info">
-                  <span class="option-text">{{ option.text }}</span>
-                  <div class="option-stats-numbers">
-                    <span class="count">{{ option.selectedCount || 0 }}次</span>
-                    <span class="percentage">{{ calculatePercentage(option.selectedCount,
-                      currentSurveyStats.participantCount)
-                      }}</span>
-                  </div>
-                </div>
-                <el-progress
-                  :percentage="parseFloat(calculatePercentage(option.selectedCount, currentSurveyStats.participantCount))"
-                  :stroke-width="12"
-                  :color="getProgressColor(parseFloat(calculatePercentage(option.selectedCount, currentSurveyStats.participantCount)))" />
-              </div>
-            </div>
-            <div v-else class="no-options">
-              <el-empty description="暂无选项数据" :image-size="60" />
-            </div>
-          </div>
-
-          <!-- 文本题展示 -->
-          <div class="text-answers" v-else-if="question.type === 'text'">
-            <div v-if="currentSurveyStats.answers && currentSurveyStats.answers.length > 0">
-              <div class="text-answer-item" v-for="(answer, aIndex) in getTextAnswersForQuestion(question.id)" :key="aIndex">
-                <div class="answer-header">
-                  <el-icon><User /></el-icon>
-                  <span>用户 {{ aIndex + 1 }}</span>
-                  <span class="answer-time">{{ formatAnswerTime(answer.submittedAt) }}</span>
-                </div>
-                <div class="answer-content">{{ answer.text || '（未填写）' }}</div>
-              </div>
-            </div>
-            <div v-else class="no-answers">
-              <el-empty description="暂无回答" :image-size="60" />
-            </div>
-          </div>
-
-          <!-- 评分题展示 -->
-          <div class="rating-stats" v-else-if="question.type === 'rating'">
-            <div v-if="currentSurveyStats.answers && currentSurveyStats.answers.length > 0">
-              <div class="rating-summary">
-                <div class="rating-average">
-                  <span class="label">平均分：</span>
-                  <el-rate :model-value="Math.floor(getAverageRatingForQuestion(question.id))" disabled show-score :score-template="Math.floor(getAverageRatingForQuestion(question.id)) + ' 分'" />
-                </div>
-                <div class="rating-count">
-                  <span class="label">评分人数：</span>
-                  <span class="value">{{ getRatingCountForQuestion(question.id) }} 人</span>
-                </div>
-              </div>
-              
-              <div class="rating-distribution">
-                <div class="distribution-item" v-for="star in [5, 4, 3, 2, 1]" :key="star">
-                  <span class="star-label">{{ star }} 星</span>
-                  <el-progress 
-                    :percentage="getRatingPercentage(question.id, star)"
-                    :stroke-width="12"
-                    :color="getProgressColor(getRatingPercentage(question.id, star))"
-                  >
-                    <span>{{ getRatingCount(question.id, star) }} 人</span>
-                  </el-progress>
-                </div>
-              </div>
-            </div>
-            <div v-else class="no-ratings">
-              <el-empty description="暂无评分" :image-size="60" />
-            </div>
-          </div>
-
-          <el-divider v-if="qIndex < currentSurveyStats.questionList.length - 1" />
-        </div>
-
-        <div v-if="!currentSurveyStats.questionList || currentSurveyStats.questionList.length === 0" class="no-data">
-          <el-empty description="该问卷暂无问题数据" />
-        </div>
-      </div>
-    </el-dialog>
+    <!-- 评论管理对话框 -->
+    <CommentsDialog
+      v-model:visible="commentsDialogVisible"
+      :survey="currentSurvey"
+      :comments="allComments"
+      :loading="loadingComments"
+      @refresh="refreshComments"
+    />
   </div>
 </template>
 
@@ -375,13 +277,18 @@ import {
   ArrowDown,
 } from "@element-plus/icons-vue";
 
+// 导入对话框组件
+import ShareDialog from './components/ShareDialog.vue';
+import StatsDialog from './components/StatsDialog.vue';
+import CommentsDialog from './components/CommentsDialog.vue';
 
 import {
   getUserSurveysApi,
   updateSurveyApi,
   deleteSurveyApi,
   getCategoriesApi,
-  getSurveyDetail
+  getSurveyDetail,
+  getAllCommentsApi
 } from "@/api/survey";
 import { useUserStore } from "@/store/user";
 import { useListFilter } from "@/hooks/useListFilter";
@@ -421,6 +328,11 @@ const currentSurvey = ref(null);
 // 数据统计相关
 const statsDialogVisible = ref(false);
 const currentSurveyStats = ref(null);
+
+// 评论管理相关
+const commentsDialogVisible = ref(false);
+const loadingComments = ref(false);
+const allComments = ref([]);
 
 // 计算属性
 const totalAnswers = computed(() => {
@@ -514,8 +426,6 @@ const loadPublishedSurveys = async () => {
   }
 };
 
-// handleSearch/handleFilter/handlePageChange 已由 useListFilter 返回并绑定到模板
-// 对于排序，我们在组件内更新 sortBy（模板绑定）并在 watcher 中处理排序与翻页重置
 
 const refreshData = () => {
   loadPublishedSurveys();
@@ -530,97 +440,6 @@ const formatDate = (date) => {
   } catch (error) {
     return '未知';
   }
-};
-
-const formatAnswerTime = (date) => {
-  if (!date) return '';
-  try {
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return '';
-    return d.toLocaleString("zh-CN");
-  } catch (error) {
-    return '';
-  }
-};
-
-// 获取文本题的所有回答
-const getTextAnswersForQuestion = (questionId) => {
-  if (!currentSurveyStats.value || !currentSurveyStats.value.answers) return [];
-  
-  const answers = [];
-  currentSurveyStats.value.answers.forEach(answer => {
-    const questionAnswer = answer.answers?.find(a => a.questionId == questionId);
-    if (questionAnswer) {
-      answers.push({
-        text: questionAnswer.text || questionAnswer.answer,
-        submittedAt: answer.submittedAt
-      });
-    }
-  });
-  
-  return answers;
-};
-
-// 获取评分题的平均分（向下取整）
-const getAverageRatingForQuestion = (questionId) => {
-  if (!currentSurveyStats.value || !currentSurveyStats.value.answers) return 0;
-  
-  const ratings = [];
-  currentSurveyStats.value.answers.forEach(answer => {
-    const questionAnswer = answer.answers?.find(a => a.questionId == questionId);
-    if (questionAnswer && questionAnswer.answer !== null && questionAnswer.answer !== undefined) {
-      const rating = parseFloat(questionAnswer.answer);
-      if (!isNaN(rating)) {
-        ratings.push(Math.floor(rating)); // 向下取整
-      }
-    }
-  });
-  
-  if (ratings.length === 0) return 0;
-  const average = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
-  return Math.floor(average); // 平均分也向下取整
-};
-
-// 获取评分题的评分人数
-const getRatingCountForQuestion = (questionId) => {
-  if (!currentSurveyStats.value || !currentSurveyStats.value.answers) return 0;
-  
-  let count = 0;
-  currentSurveyStats.value.answers.forEach(answer => {
-    const questionAnswer = answer.answers?.find(a => a.questionId == questionId);
-    if (questionAnswer && questionAnswer.answer !== null && questionAnswer.answer !== undefined) {
-      count++;
-    }
-  });
-  
-  return count;
-};
-
-// 获取特定星级的评分数量
-const getRatingCount = (questionId, star) => {
-  if (!currentSurveyStats.value || !currentSurveyStats.value.answers) return 0;
-  
-  let count = 0;
-  currentSurveyStats.value.answers.forEach(answer => {
-    const questionAnswer = answer.answers?.find(a => a.questionId == questionId);
-    if (questionAnswer && questionAnswer.answer !== null && questionAnswer.answer !== undefined) {
-      const rating = Math.floor(parseFloat(questionAnswer.answer)); // 向下取整
-      if (rating === star) {
-        count++;
-      }
-    }
-  });
-  
-  return count;
-};
-
-// 获取特定星级的评分百分比
-const getRatingPercentage = (questionId, star) => {
-  const total = getRatingCountForQuestion(questionId);
-  if (total === 0) return 0;
-  
-  const count = getRatingCount(questionId, star);
-  return parseFloat(((count / total) * 100).toFixed(1));
 };
 
 const viewResults = async (id) => {
@@ -644,48 +463,29 @@ const shareSurvey = (survey) => {
   shareDialogVisible.value = true;
 };
 
-const selectText = (event) => {
-  event.target.select();
+// 评论管理相关函数
+const viewComments = async (survey) => {
+  currentSurvey.value = survey;
+  commentsDialogVisible.value = true;
+  await loadAllComments(survey.id);
 };
 
-const copyLink = () => {
-  navigator.clipboard.writeText(shareUrl.value).then(() => {
-    ElMessage.success("链接已复制到剪贴板");
-  });
+const loadAllComments = async (surveyId) => {
+  try {
+    loadingComments.value = true;
+    allComments.value = await getAllCommentsApi(surveyId);
+  } catch (error) {
+    ElMessage.error('加载评论失败：' + error.message);
+    allComments.value = [];
+  } finally {
+    loadingComments.value = false;
+  }
 };
 
-const shareToQQ = () => {
-  const url = `https://connect.qq.com/widget/shareqq/index.html?url=${encodeURIComponent(shareUrl.value)}&title=${encodeURIComponent(currentSurvey.value.title)}`;
-  window.open(url, '_blank');
-};
-
-const shareToWeibo = () => {
-  const url = `https://service.weibo.com/share/share.php?url=${encodeURIComponent(shareUrl.value)}&title=${encodeURIComponent(currentSurvey.value.title)}`;
-  window.open(url, '_blank');
-};
-
-// 统计相关辅助函数
-const calculatePercentage = (count, total) => {
-  if (!total || total === 0) return '0%';
-  const percentage = ((count || 0) / total * 100).toFixed(1);
-  return `${percentage}%`;
-};
-
-const getQuestionTypeLabel = (type) => {
-  const typeMap = {
-    'single': '单选题',
-    'multiple': '多选题',
-    'text': '文本题',
-    'rating': '评分题',
-    'dropdown': '下拉题'
-  };
-  return typeMap[type] || type;
-};
-
-const getProgressColor = (percentage) => {
-  if (percentage >= 60) return '#67C23A';
-  if (percentage >= 30) return '#E6A23C';
-  return '#F56C6C';
+const refreshComments = async () => {
+  if (currentSurvey.value) {
+    await loadAllComments(currentSurvey.value.id);
+  }
 };
 
 const goToCreated = () => {
@@ -693,97 +493,103 @@ const goToCreated = () => {
 };
 
 const handleMoreAction = async ({ action, data }) => {
-  switch (action) {
-    case "edit":
-      try {
-        await ElMessageBox.confirm(
-          '编辑已发布的问卷后需要重新提交审核，审核通过后才会重新发布。确定要编辑吗？',
-          '编辑提示',
-          {
-            confirmButtonText: '继续编辑',
-            cancelButtonText: '取消',
-            type: 'info'
-          }
-        );
-        router.push(`/questionnaires/edit/${data.id}`);
-      } catch (error) {
-        // 用户取消
-      }
-      break;
-
-    case "stopCollecting":
-      try {
-        await ElMessageBox.confirm(
-          '停止收集后，该问卷将不再在首页和问卷列表展示，用户无法填写。确定要停止收集吗？',
-          '确认停止收集',
-          {
-            confirmButtonText: '确定停止',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }
-        );
-
-        await updateSurveyApi(data.id, {
-          isCollecting: false,
-          updatedAt: new Date().toISOString()
-        });
-
-        ElMessage.success('已停止收集，问卷将不再对外展示');
-        loadPublishedSurveys();
-      } catch (error) {
-        if (error !== 'cancel') {
-          ElMessage.error('操作失败：' + error.message);
+  if (action === 'viewComments') {
+    viewComments(data);
+    return;
+  }
+  
+  if (action === 'edit') {
+    try {
+      await ElMessageBox.confirm(
+        '编辑已发布的问卷后需要重新提交审核，审核通过后才会重新发布。确定要编辑吗？',
+        '编辑提示',
+        {
+          confirmButtonText: '继续编辑',
+          cancelButtonText: '取消',
+          type: 'info'
         }
-      }
-      break;
-
-    case "resumeCollecting":
-      try {
-        await ElMessageBox.confirm(
-          '继续收集后，问卷将重新在首页和问卷列表展示，用户可以填写。确定要继续收集吗？',
-          '确认继续收集',
-          {
-            confirmButtonText: '确定继续',
-            cancelButtonText: '取消',
-            type: 'success'
-          }
-        );
-
-        await updateSurveyApi(data.id, {
-          isCollecting: true,
-          updatedAt: new Date().toISOString()
-        });
-
-        ElMessage.success('已恢复收集，问卷将重新对外展示');
-        loadPublishedSurveys();
-      } catch (error) {
-        if (error !== 'cancel') {
-          ElMessage.error('操作失败：' + error.message);
+      );
+      router.push(`/questionnaires/edit/${data.id}`);
+    } catch (error) {
+      // 用户取消
+    }
+    return;
+  }
+  
+  if (action === 'stopCollecting') {
+    try {
+      await ElMessageBox.confirm(
+        '停止收集后，该问卷将不再在首页和问卷列表展示，用户无法填写。确定要停止收集吗？',
+        '确认停止收集',
+        {
+          confirmButtonText: '确定停止',
+          cancelButtonText: '取消',
+          type: 'warning'
         }
+      );
+
+      await updateSurveyApi(data.id, {
+        isCollecting: false,
+        updatedAt: new Date().toISOString()
+      });
+
+      ElMessage.success('已停止收集，问卷将不再对外展示');
+      loadPublishedSurveys();
+    } catch (error) {
+      if (error !== 'cancel') {
+        ElMessage.error('操作失败：' + error.message);
       }
-      break;
-
-    case "delete":
-      try {
-        await ElMessageBox.confirm(
-          '确定要删除这个问卷吗？删除后所有数据将无法恢复！',
-          '确认删除',
-          {
-            confirmButtonText: '确定删除',
-            cancelButtonText: '取消',
-            type: 'error'
-          }
-        );
-
-        await deleteSurveyApi(data.id);
-        ElMessage.success("问卷已删除");
-        loadPublishedSurveys();
-      } catch (error) {
-        if (error !== 'cancel') {
-          ElMessage.error("删除失败：" + error.message);
+    }
+    return;
+  }
+  
+  if (action === 'resumeCollecting') {
+    try {
+      await ElMessageBox.confirm(
+        '继续收集后，问卷将重新在首页和问卷列表展示，用户可以填写。确定要继续收集吗？',
+        '确认继续收集',
+        {
+          confirmButtonText: '确定继续',
+          cancelButtonText: '取消',
+          type: 'success'
         }
+      );
+
+      await updateSurveyApi(data.id, {
+        isCollecting: true,
+        updatedAt: new Date().toISOString()
+      });
+
+      ElMessage.success('已恢复收集，问卷将重新对外展示');
+      loadPublishedSurveys();
+    } catch (error) {
+      if (error !== 'cancel') {
+        ElMessage.error('操作失败：' + error.message);
       }
-      break;
+    }
+    return;
+  }
+  
+  if (action === 'delete') {
+    try {
+      await ElMessageBox.confirm(
+        '确定要删除这个问卷吗？删除后所有数据将无法恢复！',
+        '确认删除',
+        {
+          confirmButtonText: '确定删除',
+          cancelButtonText: '取消',
+          type: 'error'
+        }
+      );
+
+      await deleteSurveyApi(data.id);
+      ElMessage.success("问卷已删除");
+      loadPublishedSurveys();
+    } catch (error) {
+      if (error !== 'cancel') {
+        ElMessage.error("删除失败：" + error.message);
+      }
+    }
   }
 };
 

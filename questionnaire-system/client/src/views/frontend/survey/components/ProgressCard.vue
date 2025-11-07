@@ -13,18 +13,6 @@
       </div>
     </div>
 
-    <div class="question-nav">
-      <h5>题目导航</h5>
-      <div class="nav-grid">
-        <div v-for="(question, index) in questionnaire.questions" :key="question.id" class="nav-item" :class="{
-          'current': index === currentQuestionIndex,
-          'answered': answers[question.id] !== undefined,
-          'required': question.required
-        }" @click="$emit('go-to-question', index)">
-          {{ index + 1 }}
-        </div>
-      </div>
-    </div>
   </el-card>
 </template>
 
@@ -74,12 +62,8 @@ const emits = defineEmits(['go-to-question']);
   justify-content: center;
   align-items: center;
   padding: 10px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  /* background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); */
   border-radius: 12px;
-}
-
-.question-nav {
-  margin-top: 20px;
 }
 
 .nav-grid {
