@@ -488,3 +488,57 @@ export const recordAdminActivity = async (activityData) => {
     return { success: false };
   }
 };
+
+// 公告管理API
+export const getAnnouncementsApi = async (params = {}) => {
+  let url = '/announcements';
+  let queryParams = [];
+  
+  if (params.isActive !== undefined) {
+    queryParams.push(`isActive=${params.isActive}`);
+  }
+  if (params.sort) {
+    queryParams.push(`_sort=${params.sort}`);
+  }
+  if (params.order) {
+    queryParams.push(`_order=${params.order}`);
+  }
+  
+  if (queryParams.length > 0) {
+    url += '?' + queryParams.join('&');
+  }
+  
+  const announcements = await apiClient.get(url);
+  return announcements;
+};
+
+export const getAnnouncementByIdApi = async (id) => {
+  const announcement = await apiClient.get(`/announcements/${id}`);
+  return announcement;
+};
+
+export const createAnnouncementApi = async (data) => {
+  const newAnnouncement = {
+    ...data,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  
+  const announcement = await apiClient.post('/announcements', newAnnouncement);
+  return announcement;
+};
+
+export const updateAnnouncementApi = async (id, data) => {
+  const updatedData = {
+    ...data,
+    updatedAt: new Date().toISOString()
+  };
+  
+  const announcement = await apiClient.patch(`/announcements/${id}`, updatedData);
+  return announcement;
+};
+
+export const deleteAnnouncementApi = async (id) => {
+  await apiClient.delete(`/announcements/${id}`);
+  return { success: true, message: "公告删除成功" };
+};

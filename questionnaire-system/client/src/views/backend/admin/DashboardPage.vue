@@ -265,6 +265,8 @@ import {
   getDashboardStatsApi,
   getSystemStatusApi,
   getAdminActivitiesApi,
+  getAllUsersApi,
+  getSurveysApi,
 } from "@/api/admin";
 
 const router = useRouter();
@@ -302,13 +304,13 @@ const loadDashboardData = async () => {
   loading.value = true;
   try {
     // 从db.json加载数据
-    const [usersRes, surveysRes] = await Promise.all([
-      fetch('http://localhost:3002/users'),
-      fetch('http://localhost:3002/surveys')
+    const [usersResult, surveysResult] = await Promise.all([
+      getAllUsersApi(),
+      getSurveysApi({})
     ]);
 
-    const users = await usersRes.json();
-    const surveys = await surveysRes.json();
+    const users = usersResult.list;
+    const surveys = surveysResult.list;
 
     // 统计数据
     dashboardData.totalUsers = users.length;
@@ -378,8 +380,8 @@ const loadAdminActions = async () => {
 
 const loadHotSurveys = async () => {
   try {
-    const response = await fetch('http://localhost:3002/surveys?status=published');
-    const surveys = await response.json();
+    const result = await getSurveysApi({ status: 'published' });
+    const surveys = result.list;
     
     // 按参与人数和评分排序,取前10
     hotSurveys.value = surveys

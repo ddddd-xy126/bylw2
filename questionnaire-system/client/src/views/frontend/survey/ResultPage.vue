@@ -241,6 +241,7 @@ import {
   getUserCommentApi,
   getUserAnswerApi 
 } from '@/api/survey';
+import apiClient from '@/api/index';
 
 const route = useRoute();
 const router = useRouter();
@@ -402,11 +403,14 @@ const loadReportData = async () => {
     }
     
     // 兼容旧的answerId方式（从独立的answers表查询）
-    const response = await fetch(`http://localhost:3002/answers/${answerId}`);
-    if (!response.ok) throw new Error('报告不存在');
-    
-    const data = await response.json();
-    reportData.value = data;
+    // 注意：新版本已不再使用独立的answers表，数据存储在survey的answers数组中
+    // 这里作为降级方案保留
+    try {
+      const data = await apiClient.get(`/answers/${answerId}`);
+      reportData.value = data;
+    } catch (error) {
+      throw new Error('报告不存在');
+    }
 
     // 加载用户的评论
     await loadMyComments();

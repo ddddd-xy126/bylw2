@@ -210,16 +210,36 @@ const loadUserData = async () => {
     // 获取用户已解锁的徽章ID列表
     userUnlockedBadgeIds.value = userInfo.unlockedBadges || [];
 
-    // 获取答题记录
-    const answers = await getUserAnsweredSurveysApi(userId);
-    userStats.value.completedSurveys = answers.length;
+    // 获取所有问卷,统计用户的答题记录
+    const allSurveys = await apiClient.get('/surveys');
+    let userAnswers = [];
+    
+    // 从所有问卷的 answers 中提取该用户的答案
+    allSurveys.forEach(survey => {
+      if (Array.isArray(survey.answers)) {
+        const answers = survey.answers.filter(answer => answer.userId == userId);
+        answers.forEach(answer => {
+          userAnswers.push({
+            ...answer,
+            survey: {
+              title: survey.title,
+              duration: survey.duration,
+              category: survey.category
+            },
+            category: survey.category
+          });
+        });
+      }
+    });
+
+    userStats.value.completedSurveys = userAnswers.length;
 
     // 统计各种成就
-    answerStats.value.perfectScoreCount = answers.filter(a => a.score === 100).length;
-    answerStats.value.highScoreCount = answers.filter(a => a.score >= 90).length;
+    answerStats.value.perfectScoreCount = userAnswers.filter(a => a.score === 100).length;
+    answerStats.value.highScoreCount = userAnswers.filter(a => a.score >= 90).length;
     
     // 统计速通满分次数（假设问卷预计时间的70%内完成且满分）
-    const speedPerfects = answers.filter(a => {
+    const speedPerfects = userAnswers.filter(a => {
       if (!a.survey || !a.survey.duration || !a.duration) return false;
       const expectedTime = a.survey.duration * 60;
       const actualTime = a.duration;
@@ -228,7 +248,7 @@ const loadUserData = async () => {
     answerStats.value.speedPerfectCount = speedPerfects.length;
 
     // 统计快速完成次数（假设问卷预计时间的80%内完成）
-    const fastCompletes = answers.filter(a => {
+    const fastCompletes = userAnswers.filter(a => {
       if (!a.survey || !a.survey.duration || !a.duration) return false;
       const expectedTime = a.survey.duration * 60;
       const actualTime = a.duration;
@@ -237,11 +257,11 @@ const loadUserData = async () => {
     answerStats.value.fastCompleteCount = fastCompletes.length;
 
     // 统计不同分类数量
-    const categories = new Set(answers.map(a => a.category).filter(Boolean));
+    const categories = new Set(userAnswers.map(a => a.category).filter(Boolean));
     answerStats.value.categoryCount = categories.size;
 
     // 统计早起鸟次数(6-8点)
-    const earlyBirds = answers.filter(a => {
+    const earlyBirds = userAnswers.filter(a => {
       if (!a.submittedAt) return false;
       const hour = new Date(a.submittedAt).getHours();
       return hour >= 6 && hour < 8;
@@ -249,8 +269,8 @@ const loadUserData = async () => {
     answerStats.value.earlyBirdCount = earlyBirds.length;
 
     // 计算连续答题天数
-    if (answers.length > 0) {
-      const sortedDates = answers
+    if (userAnswers.length > 0) {
+      const sortedDates = userAnswers
         .map(a => new Date(a.submittedAt).toDateString())
         .sort()
         .reverse();
@@ -282,7 +302,7 @@ const loadUserData = async () => {
       answerStats.value.registerDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     }
 
-    // 分享次数（模拟数据，实际应从后端获取）
+    // 分享次数（从用户数据获取）
     answerStats.value.shareCount = userInfo.shareCount || 0;
 
     // 检查并自动解锁徽章

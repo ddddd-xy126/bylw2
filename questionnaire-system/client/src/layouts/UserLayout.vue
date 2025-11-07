@@ -68,6 +68,7 @@ import { useDataStore } from "@/store/data";
 import { useRoute, useRouter } from "vue-router";
 import { User, ArrowDown, SwitchButton, Search, Bell } from "@element-plus/icons-vue";
 import { ElNotification, ElMessageBox } from "element-plus";
+import { getAnnouncementsApi } from '@/api/admin';
 
 const userStore = useUserStore();
 const dataStore = useDataStore();
@@ -107,10 +108,11 @@ const loadAnnouncements = async () => {
   if (!isAuthed.value) return;
 
   try {
-    const response = await fetch('http://localhost:3002/announcements?isActive=true&_sort=publishedAt&_order=desc');
-    if (!response.ok) return;
-
-    const data = await response.json();
+    const data = await getAnnouncementsApi({
+      isActive: true,
+      sort: 'publishedAt',
+      order: 'desc'
+    });
     announcements.value = data;
 
     // 从localStorage获取已读公告ID列表

@@ -280,7 +280,7 @@ import {
 // 导入对话框组件
 import ShareDialog from './components/ShareDialog.vue';
 import StatsDialog from './components/StatsDialog.vue';
-import CommentsDialog from './components/CommentsDialog.vue';
+import CommentsDialog from '@/components/CommentsDialog.vue';
 
 import {
   getUserSurveysApi,

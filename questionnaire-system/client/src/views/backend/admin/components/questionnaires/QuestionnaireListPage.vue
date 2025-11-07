@@ -110,6 +110,7 @@
                       <el-dropdown-item command="offline" v-if="questionnaire.status === 'published'">下架</el-dropdown-item>
                       <el-dropdown-item command="online" v-if="questionnaire.status === 'stopped'">上架</el-dropdown-item>
                       <el-dropdown-item command="setTemplate" v-if="!questionnaire.isTemplate">设为模板</el-dropdown-item>
+                      <el-dropdown-item command="viewComments">问卷评论</el-dropdown-item>
                       <el-dropdown-item command="removeTemplate" v-if="questionnaire.isTemplate">取消模板</el-dropdown-item>
                       <el-dropdown-item divided command="delete">删除</el-dropdown-item>
                     </el-dropdown-menu>
@@ -197,7 +198,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="操作" width="280" fixed="right">
+          <el-table-column label="操作" width="320" fixed="right">
             <template #default="{row}">
               <div class="table-actions">
                 <el-button type="primary" size="small" @click="editQuestionnaire(row.id)">
@@ -205,6 +206,9 @@
                 </el-button>
                 <el-button type="info" size="small" @click="viewStatistics(row.id)">
                   统计
+                </el-button>
+                <el-button type="success" size="small" @click="viewComments(row)">
+                  评论
                 </el-button>
                 <el-button type="success" size="small" @click="copyQuestionnaire(row.id)">
                   复制
@@ -300,6 +304,15 @@
         <el-button @click="statisticsDialogVisible = false">关闭</el-button>
       </template>
     </el-dialog>
+
+    <!-- 评论管理对话框 -->
+    <CommentsDialog
+      v-model:visible="commentsDialogVisible"
+      :survey="currentSurvey"
+      :comments="allComments"
+      :loading="loadingComments"
+      @refresh="refreshComments"
+    />
   </div>
 </template>
 
@@ -317,8 +330,11 @@ import {
   View,
   EditPen
 } from '@element-plus/icons-vue'
-import { getSurveysApi, deleteAdminSurveyApi, updateSurveyStatusApi, recordAdminActivity } from '@/api/admin'
+import { getSurveysApi, deleteAdminSurveyApi, updateSurveyStatusApi, recordAdminActivity, getCategoriesApi, getSurveyDetailApi } from '@/api/admin'
+import { getAllCommentsApi } from '@/api/survey'
 import { useUserStore } from '@/store/user'
+import CommentsDialog from '@/components/CommentsDialog.vue'
+import apiClient from '@/api/index.js'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -333,6 +349,12 @@ const statisticsDialogVisible = ref(false)
 const loadingStatistics = ref(false)
 const currentStats = ref({})
 const categories = ref([])
+
+// 评论相关
+const commentsDialogVisible = ref(false)
+const loadingComments = ref(false)
+const allComments = ref([])
+const currentSurvey = ref(null)
 
 // 从 json-server 获取的问卷列表
 const questionnaireList = ref([])
@@ -446,9 +468,8 @@ const viewStatistics = async (id) => {
     statisticsDialogVisible.value = true
     loadingStatistics.value = true
     
-    // 从 db.json 获取问卷详情
-    const response = await fetch(`http://localhost:3002/surveys/${id}`)
-    const survey = await response.json()
+    // 使用 API 获取问卷详情
+    const survey = await getSurveyDetailApi(id)
     
     currentStats.value = survey
   } catch (error) {
@@ -472,9 +493,8 @@ const copyQuestionnaire = async (id) => {
       }
     )
     
-    // 获取原问卷数据
-    const response = await fetch(`http://localhost:3002/surveys/${id}`)
-    const originalSurvey = await response.json()
+    // 使用 API 获取原问卷数据
+    const originalSurvey = await getSurveyDetailApi(id)
     
     // 创建新问卷(复制数据)
     const newSurvey = {
@@ -489,12 +509,8 @@ const copyQuestionnaire = async (id) => {
       responseCount: 0
     }
     
-    // 保存新问卷
-    await fetch('http://localhost:3002/surveys', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newSurvey)
-    })
+    // 使用 API 保存新问卷
+    await apiClient.post('/surveys', newSurvey)
     
     // 记录管理员操作
     await recordAdminActivity({
@@ -571,9 +587,8 @@ const deleteQuestionnaire = async (id) => {
     }
   ).then(async () => {
     try {
-      // 先获取问卷信息用于记录
-      const response = await fetch(`http://localhost:3002/surveys/${id}`)
-      const survey = await response.json()
+      // 使用 API 获取问卷信息用于记录
+      const survey = await getSurveyDetailApi(id)
       
       await deleteAdminSurveyApi(id)
       
@@ -609,16 +624,11 @@ const setTemplate = async (id) => {
     }
   ).then(async () => {
     try {
-      // 获取问卷信息
-      const response = await fetch(`http://localhost:3002/surveys/${id}`)
-      const survey = await response.json()
+      // 使用 API 获取问卷信息
+      const survey = await getSurveyDetailApi(id)
       
-      // 更新 isTemplate 字段
-      await fetch(`http://localhost:3002/surveys/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isTemplate: true })
-      })
+      // 使用 API 更新 isTemplate 字段
+      await apiClient.patch(`/surveys/${id}`, { isTemplate: true })
       
       // 记录管理员操作
       await recordAdminActivity({
@@ -651,16 +661,11 @@ const removeTemplate = async (id) => {
     }
   ).then(async () => {
     try {
-      // 获取问卷信息
-      const response = await fetch(`http://localhost:3002/surveys/${id}`)
-      const survey = await response.json()
+      // 使用 API 获取问卷信息
+      const survey = await getSurveyDetailApi(id)
       
-      // 更新 isTemplate 字段
-      await fetch(`http://localhost:3002/surveys/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isTemplate: false })
-      })
+      // 使用 API 更新 isTemplate 字段
+      await apiClient.patch(`/surveys/${id}`, { isTemplate: false })
       
       // 记录管理员操作
       await recordAdminActivity({
@@ -682,34 +687,48 @@ const removeTemplate = async (id) => {
 }
 
 const handleAction = (command, questionnaire) => {
-  switch (command) {
-    case 'edit':
-      editQuestionnaire(questionnaire.id)
-      break
-    case 'preview':
-      // 删除预览功能
-      break
-    case 'copy':
-      copyQuestionnaire(questionnaire.id)
-      break
-    case 'statistics':
-      viewStatistics(questionnaire.id)
-      break
-    case 'offline':
-      offlineQuestionnaire(questionnaire.id)
-      break
-    case 'online':
-      onlineQuestionnaire(questionnaire.id)
-      break
-    case 'setTemplate':
-      setTemplate(questionnaire.id)
-      break
-    case 'removeTemplate':
-      removeTemplate(questionnaire.id)
-      break
-    case 'delete':
-      deleteQuestionnaire(questionnaire.id)
-      break
+  if (command === 'viewComments') {
+    viewComments(questionnaire)
+    return
+  }
+  
+  if (command === 'edit') {
+    editQuestionnaire(questionnaire.id)
+    return
+  }
+  
+  if (command === 'copy') {
+    copyQuestionnaire(questionnaire.id)
+    return
+  }
+  
+  if (command === 'statistics') {
+    viewStatistics(questionnaire.id)
+    return
+  }
+  
+  if (command === 'offline') {
+    offlineQuestionnaire(questionnaire.id)
+    return
+  }
+  
+  if (command === 'online') {
+    onlineQuestionnaire(questionnaire.id)
+    return
+  }
+  
+  if (command === 'setTemplate') {
+    setTemplate(questionnaire.id)
+    return
+  }
+  
+  if (command === 'removeTemplate') {
+    removeTemplate(questionnaire.id)
+    return
+  }
+  
+  if (command === 'delete') {
+    deleteQuestionnaire(questionnaire.id)
   }
 }
 
@@ -735,11 +754,35 @@ const loadQuestionnaires = async () => {
 // 加载分类列表
 const loadCategories = async () => {
   try {
-    const response = await fetch('http://localhost:3002/categories')
-    categories.value = await response.json()
+    categories.value = await getCategoriesApi()
   } catch (error) {
     console.error('加载分类失败:', error)
     categories.value = []
+  }
+}
+
+// 评论管理相关函数
+const viewComments = async (survey) => {
+  currentSurvey.value = survey
+  commentsDialogVisible.value = true
+  await loadAllComments(survey.id)
+}
+
+const loadAllComments = async (surveyId) => {
+  try {
+    loadingComments.value = true
+    allComments.value = await getAllCommentsApi(surveyId)
+  } catch (error) {
+    ElMessage.error('加载评论失败：' + error.message)
+    allComments.value = []
+  } finally {
+    loadingComments.value = false
+  }
+}
+
+const refreshComments = async () => {
+  if (currentSurvey.value) {
+    await loadAllComments(currentSurvey.value.id)
   }
 }
 

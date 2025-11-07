@@ -333,6 +333,8 @@ import {
 } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
 import { useUserStore } from '@/store/user'
+import { getSurveyDetailApi, updateSurveyStatusApi } from '@/api/admin'
+import apiClient from '@/api/index'
 
 const router = useRouter()
 const route = useRoute()
@@ -566,14 +568,7 @@ const loadQuestionnaireForEdit = async (id) => {
 
     // 从服务器加载问卷数据
     console.log('[编辑模式] 从服务器加载数据...')
-    const response = await fetch(`http://localhost:3002/surveys/${id}`)
-    console.log('[编辑模式] 服务器响应状态:', response.status)
-
-    if (!response.ok) {
-      throw new Error('问卷不存在或加载失败')
-    }
-
-    const questionnaireData = await response.json()
+    const questionnaireData = await getSurveyDetailApi(id)
     console.log('[编辑模式] 服务器返回的数据:', questionnaireData)
 
     // 保存原始数据
@@ -1040,23 +1035,11 @@ const saveAsDraft = async () => {
 
     if (isEditMode.value && currentQuestionnaireId.value) {
       // 编辑模式：更新现有问卷
-      const response = await fetch(`http://localhost:3002/surveys/${currentQuestionnaireId.value}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(questionnaireData)
-      })
-      
-      if (!response.ok) throw new Error('保存失败')
+      await apiClient.put(`/surveys/${currentQuestionnaireId.value}`, questionnaireData)
       ElMessage.success('草稿更新成功')
     } else {
       // 创建模式：创建新问卷
-      const response = await fetch('http://localhost:3002/surveys', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(questionnaireData)
-      })
-      
-      if (!response.ok) throw new Error('保存失败')
+      await apiClient.post('/surveys', questionnaireData)
       ElMessage.success('草稿保存成功')
     }
 
@@ -1093,13 +1076,7 @@ const publishQuestionnaire = async () => {
 
     if (isEditMode.value && currentQuestionnaireId.value) {
       // 编辑模式：直接更新到 db.json
-      const response = await fetch(`http://localhost:3002/surveys/${currentQuestionnaireId.value}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(questionnaireData)
-      })
-      
-      if (!response.ok) throw new Error('更新失败')
+      await apiClient.put(`/surveys/${currentQuestionnaireId.value}`, questionnaireData)
       
       ElMessage.success('问卷更新成功！')
 
@@ -1114,13 +1091,7 @@ const publishQuestionnaire = async () => {
       })
     } else {
       // 创建模式：直接保存到 db.json
-      const response = await fetch('http://localhost:3002/surveys', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(questionnaireData)
-      })
-      
-      if (!response.ok) throw new Error('发布失败')
+      await apiClient.post('/surveys', questionnaireData)
       
       ElMessage.success('问卷发布成功！')
 

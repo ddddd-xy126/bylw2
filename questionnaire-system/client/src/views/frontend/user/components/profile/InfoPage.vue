@@ -350,21 +350,36 @@ const loadUserInfo = () => {
 
 const loadUserStats = async () => {
   try {
+    // 动态导入 API client
+    const apiClient = (await import('@/api/index.js')).default;
+    
     // 从用户store获取基本统计
     const profile = userStore.profile;
-    if (profile) {
-      userStats.totalPoints = profile.points || 0;
+    if (!profile) {
+      console.warn('用户未登录');
+      return;
     }
+
+    // 获取积分
+    userStats.totalPoints = profile.points || 0;
 
     // 获取收藏数量
     userStats.totalCollections = userStore.favorites?.length || 0;
 
-    // 获取答题数量 - 从answers数据获取
-    userStats.totalAnswers = userStore.answers?.length || 0;
+    // 从 surveys 数据获取该用户创建的问卷数量
+    const allSurveys = await apiClient.get('/surveys');
+    const userCreatedSurveys = allSurveys.filter(s => s.userId == profile.id || s.authorId == profile.id);
+    userStats.totalQuestionnaires = userCreatedSurveys.length;
 
-    // 获取创建问卷数量 - 这里可以通过API获取
-    // 暂时设为0，后续可以添加API调用
-    userStats.totalQuestionnaires = 0;
+    // 从所有 surveys 的 answers 中统计该用户参与的答题数量
+    let answerCount = 0;
+    allSurveys.forEach(survey => {
+      if (Array.isArray(survey.answers)) {
+        const userAnswers = survey.answers.filter(answer => answer.userId == profile.id);
+        answerCount += userAnswers.length;
+      }
+    });
+    userStats.totalAnswers = answerCount;
 
     console.log('用户统计已加载:', userStats);
   } catch (error) {

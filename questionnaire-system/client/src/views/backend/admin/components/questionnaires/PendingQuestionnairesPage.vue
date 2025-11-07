@@ -257,6 +257,7 @@ import {
   WarningFilled
 } from '@element-plus/icons-vue'
 import { getSurveysApi, updateSurveyStatusApi, deleteAdminSurveyApi } from '@/api/admin'
+import apiClient from '@/api/index'
 
 // 响应式数据
 const loading = ref(false)
@@ -457,21 +458,14 @@ const submitReview = async () => {
       removeFromPendingList(currentQuestionnaire.value.id)
     } else if (reviewForm.result === 'reject') {
       // 审核拒绝 - 状态改为 rejected，并记录拒绝原因
-      const response = await fetch(`http://localhost:3002/surveys/${currentQuestionnaire.value.id}`)
-      const survey = await response.json()
+      const survey = await apiClient.get(`/surveys/${currentQuestionnaire.value.id}`)
 
-      await fetch(`http://localhost:3002/surveys/${currentQuestionnaire.value.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ...survey,
-          status: 'rejected',
-          rejectedReason: reviewForm.comment,
-          rejectedAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        })
+      await apiClient.put(`/surveys/${currentQuestionnaire.value.id}`, {
+        ...survey,
+        status: 'rejected',
+        rejectedReason: reviewForm.comment,
+        rejectedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       })
 
       // 记录审核活动
@@ -492,20 +486,13 @@ const submitReview = async () => {
       removeFromPendingList(currentQuestionnaire.value.id)
     } else if (reviewForm.result === 'request_changes') {
       // 要求修改 - 更新问卷添加修改意见，保持 pending 状态
-      const response = await fetch(`http://localhost:3002/surveys/${currentQuestionnaire.value.id}`)
-      const survey = await response.json()
+      const survey = await apiClient.get(`/surveys/${currentQuestionnaire.value.id}`)
 
-      await fetch(`http://localhost:3002/surveys/${currentQuestionnaire.value.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ...survey,
-          reviewComment: reviewForm.comment,
-          reviewedAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        })
+      await apiClient.put(`/surveys/${currentQuestionnaire.value.id}`, {
+        ...survey,
+        reviewComment: reviewForm.comment,
+        reviewedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       })
 
       // 记录审核活动
@@ -614,21 +601,14 @@ const batchReject = async () => {
 
       // 批量调用审核 API，将状态改为 rejected
       const promises = selectedItems.value.map(async item => {
-        const response = await fetch(`http://localhost:3002/surveys/${item.id}`)
-        const survey = await response.json()
+        const survey = await apiClient.get(`/surveys/${item.id}`)
 
-        return fetch(`http://localhost:3002/surveys/${item.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            ...survey,
-            status: 'rejected',
-            rejectedReason: '批量审核不通过',
-            rejectedAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          })
+        return apiClient.put(`/surveys/${item.id}`, {
+          ...survey,
+          status: 'rejected',
+          rejectedReason: '批量审核不通过',
+          rejectedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         })
       })
       await Promise.all(promises)

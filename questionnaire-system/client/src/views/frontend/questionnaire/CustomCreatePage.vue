@@ -597,14 +597,7 @@ const loadQuestionnaireForEdit = async (id) => {
 
     // 从服务器加载问卷数据
     console.log('[编辑模式] 从服务器加载数据...')
-    const response = await fetch(`http://localhost:3002/surveys/${id}`)
-    console.log('[编辑模式] 服务器响应状态:', response.status)
-
-    if (!response.ok) {
-      throw new Error('问卷不存在或加载失败')
-    }
-
-    const questionnaireData = await response.json()
+    const questionnaireData = await getSurveyDetail(id)
     console.log('[编辑模式] 服务器返回的数据:', questionnaireData)
 
     // 保存原始数据

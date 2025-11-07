@@ -9,36 +9,18 @@
     <el-card class="filter-card" shadow="never">
       <el-row :gutter="16" align="middle">
         <el-col :span="8">
-          <el-input
-            v-model="searchKeyword"
-            placeholder="搜索收藏的问卷..."
-            prefix-icon="Search"
-            clearable
-            @input="handleSearch"
-          />
+          <el-input v-model="searchKeyword" placeholder="搜索收藏的问卷..." prefix-icon="Search" clearable
+            @input="handleSearch" />
         </el-col>
         <el-col :span="6">
-          <el-select
-            v-model="categoryFilter"
-            placeholder="选择分类"
-            clearable
-            @change="handleCategoryChange"
-          >
+          <el-select v-model="categoryFilter" placeholder="选择分类" clearable @change="handleCategoryChange">
             <el-option label="全部分类" value="" />
-            <el-option
-              v-for="category in categories"
-              :key="category.id"
-              :label="category.name"
-              :value="category.name"
-            />
+            <el-option v-for="category in categories" :key="category.id" :label="category.name"
+              :value="category.name" />
           </el-select>
         </el-col>
         <el-col :span="6">
-          <el-select
-            v-model="sortBy"
-            placeholder="排序方式"
-            @change="handleSortChange"
-          >
+          <el-select v-model="sortBy" placeholder="排序方式" @change="handleSortChange">
             <el-option label="收藏时间（最新）" value="newest" />
             <el-option label="收藏时间（最早）" value="oldest" />
             <el-option label="问卷标题" value="title" />
@@ -47,7 +29,9 @@
         </el-col>
         <el-col :span="4">
           <el-button type="danger" :disabled="selectedItems.length === 0" @click="batchRemove">
-            <el-icon><Delete /></el-icon>
+            <el-icon>
+              <Delete />
+            </el-icon>
             批量删除 ({{ selectedItems.length }})
           </el-button>
         </el-col>
@@ -59,8 +43,8 @@
       <div v-if="loading" class="loading-container">
         <el-skeleton :rows="5" animated />
       </div>
-      
-  <div v-else-if="filteredTotal === 0" class="empty-container">
+
+      <div v-else-if="filteredTotal === 0" class="empty-container">
         <el-empty description="暂无收藏的问卷">
           <template #description>
             <p v-if="searchKeyword || categoryFilter">
@@ -74,37 +58,26 @@
       </div>
 
       <div v-else class="collections-list">
-          <div class="list-header">
-          <el-checkbox
-            v-model="selectAll"
-            :indeterminate="indeterminate"
-            @change="handleSelectAll"
-          >
+        <div class="list-header">
+          <el-checkbox v-model="selectAll" :indeterminate="indeterminate" @change="handleSelectAll">
             全选
           </el-checkbox>
           <span class="total-count">共 {{ filteredTotal }} 个收藏</span>
         </div>
 
         <div class="survey-grid">
-          <div
-            v-for="collection in paginatedCollections"
-            :key="collection.id"
-            class="survey-item"
-            :class="{ selected: selectedItems.includes(collection.id) }"
-          >
-            <el-checkbox
-              :model-value="selectedItems.includes(collection.id)"
-              @change="(checked) => handleItemSelect(collection.id, checked)"
-              class="item-checkbox"
-            />
-            
+          <div v-for="collection in paginatedCollections" :key="collection.id" class="survey-item"
+            :class="{ selected: selectedItems.includes(collection.id) }">
+            <el-checkbox :model-value="selectedItems.includes(collection.id)"
+              @change="(checked) => handleItemSelect(collection.id, checked)" class="item-checkbox" />
+
             <div class="survey-main" @click="goToSurvey(collection.surveyId)">
               <div class="survey-icon">
                 <el-icon size="24" color="#F56C6C">
                   <Star />
                 </el-icon>
               </div>
-              
+
               <div class="survey-info">
                 <div class="survey-header">
                   <h3 class="survey-title" :title="collection.title">
@@ -116,53 +89,59 @@
                     </el-tag>
                   </div>
                 </div>
-                
+
                 <div class="survey-meta">
                   <span class="meta-item">
-                    <el-icon><User /></el-icon>
+                    <el-icon>
+                      <User />
+                    </el-icon>
                     作者：{{ collection.author }}
                   </span>
                   <span class="meta-item">
-                    <el-icon><User /></el-icon>
+                    <el-icon>
+                      <User />
+                    </el-icon>
                     参与人数：{{ collection.participants || 0 }}
                   </span>
                   <span class="meta-item">
-                    <el-icon><Clock /></el-icon>
+                    <el-icon>
+                      <Clock />
+                    </el-icon>
                     {{ collection.duration }}分钟
                   </span>
                   <span class="meta-item">
-                    <el-icon><Star /></el-icon>
+                    <el-icon>
+                      <Star />
+                    </el-icon>
                     评分：{{ collection.rating || 0 }}
                   </span>
                   <span class="meta-item difficulty">
                     难度：{{ collection.difficulty }}
                   </span>
                 </div>
-                
+
                 <div class="survey-description">
                   {{ collection.description }}
                 </div>
-                
+
                 <div class="collected-time">
                   收藏于 {{ formatDate(collection.createdAt) }}
                 </div>
               </div>
             </div>
-            
+
             <div class="survey-actions">
-              <el-button
-                type="primary"
-                @click.stop="goToSurvey(collection.surveyId)"
-              >
-                <el-icon><View /></el-icon>
+              <el-button type="primary" @click.stop="goToSurvey(collection.surveyId)">
+                <el-icon>
+                  <View />
+                </el-icon>
                 开始答题
               </el-button>
-              <el-button
-                type="danger"
-                @click.stop="removeFavorite(collection.id, collection.surveyId)"
-                :loading="removingItems.includes(collection.id)"
-              >
-                <el-icon><Delete /></el-icon>
+              <el-button type="danger" @click.stop="removeFavorite(collection.id, collection.surveyId)"
+                :loading="removingItems.includes(collection.id)">
+                <el-icon>
+                  <Delete />
+                </el-icon>
                 取消收藏
               </el-button>
             </div>
@@ -171,15 +150,9 @@
 
         <!-- 分页 -->
         <div class="pagination-container" v-if="filteredTotal > pageSize">
-          <el-pagination
-            v-model:current-page="currentPage"
-            v-model:page-size="pageSize"
-            :page-sizes="[12, 24, 48]"
-            :total="filteredTotal"
-            layout="total, sizes, prev, pager, next, jumper"
-            @current-change="handlePageChangeLocal"
-            @size-change="handleSizeChange"
-          />
+          <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[12, 24, 48]"
+            :total="filteredTotal" layout="total, sizes, prev, pager, next, jumper"
+            @current-change="handlePageChangeLocal" @size-change="handleSizeChange" />
         </div>
       </div>
     </el-card>
@@ -281,10 +254,10 @@ const loadCollections = async () => {
       ElMessage.error('请先登录');
       return;
     }
-    
+
     const favoriteSurveys = await getFavoritesApi(userId);
     collections.value = favoriteSurveys;
-    
+
   } catch (error) {
     console.error('加载收藏失败:', error);
     ElMessage.error('加载收藏失败');
@@ -304,20 +277,20 @@ const removeFavorite = async (collectionId, surveyId) => {
         type: 'warning',
       }
     );
-    
+
     removingItems.value.push(collectionId);
-    
+
     const userId = userStore.profile?.id;
     await removeFavoriteApi(userId, surveyId);
-    
+
     // 从列表中移除
     collections.value = collections.value.filter(item => item.id !== collectionId);
-    
+
     // 从选中项中移除
     selectedItems.value = selectedItems.value.filter(id => id !== collectionId);
-    
+
     ElMessage.success('取消收藏成功');
-    
+
   } catch (error) {
     if (error !== 'cancel') {
       console.error('取消收藏失败:', error);
@@ -339,20 +312,20 @@ const batchRemove = async () => {
         type: 'warning',
       }
     );
-    
+
     const userId = userStore.profile?.id;
     const itemsToRemove = collections.value.filter(item => selectedItems.value.includes(item.id));
-    
+
     // 批量删除
     const promises = itemsToRemove.map(item => removeFavoriteApi(userId, item.surveyId));
     await Promise.all(promises);
-    
+
     // 从列表中移除
     collections.value = collections.value.filter(item => !selectedItems.value.includes(item.id));
-    
+
     selectedItems.value = [];
     ElMessage.success(`成功取消收藏 ${itemsToRemove.length} 个问卷`);
-    
+
   } catch (error) {
     if (error !== 'cancel') {
       console.error('批量取消收藏失败:', error);
@@ -692,7 +665,7 @@ onMounted(() => {
       width: 100%;
     }
 
-    .el-button + .el-button {
+    .el-button+.el-button {
       margin-left: 0;
     }
 

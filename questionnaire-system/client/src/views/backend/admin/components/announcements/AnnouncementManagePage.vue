@@ -282,6 +282,12 @@ import {
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/user'
 import { useListFilter } from '@/hooks/useListFilter'
+import { 
+  getAnnouncementsApi, 
+  createAnnouncementApi, 
+  updateAnnouncementApi, 
+  deleteAnnouncementApi 
+} from '@/api/admin'
 
 const userStore = useUserStore()
 
@@ -436,11 +442,11 @@ const formatDateTime = (dateString) => {
 const loadAnnouncements = async () => {
   loading.value = true
   try {
-    const response = await fetch('http://localhost:3002/announcements?_sort=publishedAt&_order=desc')
-    if (!response.ok) {
-      throw new Error('加载公告失败')
-    }
-    announcements.value = await response.json()
+    const data = await getAnnouncementsApi({
+      sort: 'publishedAt',
+      order: 'desc'
+    })
+    announcements.value = data
   } catch (error) {
     ElMessage.error('加载公告失败：' + error.message)
   } finally {
@@ -497,38 +503,18 @@ const submitAnnouncement = async () => {
       
       if (isEditing.value) {
         // 编辑公告
-        const response = await fetch(`http://localhost:3002/announcements/${announcementForm.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            ...data,
-            id: announcementForm.id,
-            publishedAt: announcements.value.find(a => a.id === announcementForm.id)?.publishedAt || new Date().toISOString()
-          })
+        await updateAnnouncementApi(announcementForm.id, {
+          ...data,
+          id: announcementForm.id,
+          publishedAt: announcements.value.find(a => a.id === announcementForm.id)?.publishedAt || new Date().toISOString()
         })
-        
-        if (!response.ok) {
-          throw new Error('更新公告失败')
-        }
         
         ElMessage.success('公告已更新')
       } else {
         // 创建新公告
         data.publishedAt = new Date().toISOString()
         
-        const response = await fetch('http://localhost:3002/announcements', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        })
-        
-        if (!response.ok) {
-          throw new Error('发布公告失败')
-        }
+        await createAnnouncementApi(data)
         
         ElMessage.success('公告已发布')
       }
@@ -543,19 +529,9 @@ const submitAnnouncement = async () => {
 
 const toggleStatus = async (announcement) => {
   try {
-    const response = await fetch(`http://localhost:3002/announcements/${announcement.id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        isActive: !announcement.isActive
-      })
+    await updateAnnouncementApi(announcement.id, {
+      isActive: !announcement.isActive
     })
-    
-    if (!response.ok) {
-      throw new Error('更新状态失败')
-    }
     
     ElMessage.success(`公告已${announcement.isActive ? '停用' : '启用'}`)
     await loadAnnouncements()
@@ -576,13 +552,7 @@ const deleteAnnouncement = async (announcement) => {
       }
     )
     
-    const response = await fetch(`http://localhost:3002/announcements/${announcement.id}`, {
-      method: 'DELETE'
-    })
-    
-    if (!response.ok) {
-      throw new Error('删除公告失败')
-    }
+    await deleteAnnouncementApi(announcement.id)
     
     ElMessage.success('公告已删除')
     await loadAnnouncements()
