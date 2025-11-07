@@ -2590,7 +2590,8 @@
       "creatorId": "ec9c",
       "responses": 0,
       "rating": 0,
-      "thumbnail": "/images/default.jpg"
+      "thumbnail": "/images/default.jpg",
+      "favoriteCount": 0
     }
   ],
   "answers": [],

@@ -99,61 +99,11 @@
     </div>
 
     <!-- 预览对话框 -->
-    <el-dialog 
-      v-model="previewVisible" 
-      :title="previewTemplate?.title" 
-      width="80%" 
-      class="preview-dialog"
-      :modal="true"
-      :close-on-click-modal="true"
-      :append-to-body="true"
-    >
-      <div v-if="previewTemplate" class="template-preview">
-        <div class="preview-info">
-          <div class="info-row">
-            <span class="info-label">分类：</span>
-            <span>{{ previewTemplate.category }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">问题数：</span>
-            <span>{{ previewTemplate.questions }}题</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">预计时长：</span>
-            <span>{{ previewTemplate.duration }}分钟</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">评分：</span>
-            <el-rate v-model="previewTemplate.rating" disabled size="small" />
-            <span>{{ previewTemplate.rating }}分</span>
-          </div>
-        </div>
-
-        <div class="preview-sections">
-          <div class="preview-section">
-            <h4>问题列表</h4>
-            <div v-for="(question, qIndex) in (previewTemplate.questionList || [])" :key="qIndex" class="preview-question">
-              <div class="question-header">
-                <span class="question-number">{{ qIndex + 1 }}.</span>
-                <span class="question-title">{{ question.title }}</span>
-                <span v-if="question.required" class="required-mark">*</span>
-              </div>
-              <div class="question-type">{{ getQuestionTypeText(question.type) }}</div>
-            </div>
-            <div v-if="!previewTemplate.questionList || previewTemplate.questionList.length === 0" class="no-questions">
-              暂无问题
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <template #footer>
-        <el-button @click="previewVisible = false">关闭</el-button>
-        <el-button type="primary" @click="usePreviewTemplate">
-          使用此模板
-        </el-button>
-      </template>
-    </el-dialog>
+    <TemplatePreviewDialog
+      v-model="previewVisible"
+      :template="previewTemplate"
+      @use="useTemplate"
+    />
   </div>
 </template>
 
@@ -170,32 +120,27 @@ import {
   StarFilled
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import TemplateCard from '@/components/TemplateCard.vue'
-import { getTemplatesApi } from '@/api/survey'
+import TemplateCard from './components/TemplateCard.vue'
+import TemplatePreviewDialog from './components/TemplatePreviewDialog.vue'
+import { useTemplates } from '@/composables/useTemplates'
 
 const router = useRouter()
 
 // 响应式数据
 const sortBy = ref('popular')
-const loading = ref(false)
-const previewVisible = ref(false)
-const previewTemplate = ref(null)
 const userFavorites = ref([])
 
-// 从 db.json 获取的模板数据
-const templates = ref([])
-
-// 分类数据
-const categories = ref([
-  { label: '企业管理', value: 'enterprise' },
-  { label: '产品研发', value: 'product' },
-  { label: '心理健康', value: 'psychology' },
-  { label: '教育培训', value: 'education' },
-  { label: '市场调研', value: 'market' },
-  { label: '用户体验', value: 'ux' },
-  { label: '学术研究', value: 'academic' },
-  { label: '活动反馈', value: 'event' }
-])
+// 使用 composable
+const {
+  templates,
+  categories,
+  loading,
+  previewVisible,
+  previewTemplate,
+  loadTemplates,
+  loadCategories,
+  showPreview: handleShowPreview
+} = useTemplates()
 
 const popularCategories = computed(() => categories.value.slice(0, 6))
 
@@ -247,52 +192,22 @@ const {
   handlePageChange,
 } = useListFilter({ sourceList, searchFields: ['searchText'], sortFn })
 
-// page size change
-
 const handleSizeChange = (size) => {
   pageSize.value = size
   currentPage.value = 1
 }
 
 // 生命周期
-onMounted(() => {
-  loadData()
+onMounted(async () => {
+  await Promise.all([
+    loadData(),
+    loadCategories()
+  ])
 })
 
 // 方法
 const loadData = async () => {
-  loading.value = true
-  try {
-    // 使用 API 获取模板
-    const templateData = await getTemplatesApi()
-    
-    console.log('[模板选择] 获取到的原始模板数据:', templateData)
-    
-    // 处理数据格式
-    templates.value = templateData.map(t => {
-      console.log('[模板选择] 处理模板:', t.title, 'questionList:', t.questionList)
-      return {
-        ...t,
-        category: t.category || '其他',
-        categoryValue: t.categoryValue || t.category,
-        // 保留 questionList 用于预览
-        questionList: t.questionList || [],
-        // questions 字段表示问题数量
-        questions: t.questionList?.length || t.questions || 0,
-        tags: t.tags || [],
-        isHot: t.participants > 1500 || false,
-        isNew: new Date(t.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        isPro: t.isPro || false
-      }
-    })
-    
-    console.log('[模板选择] 处理后的模板数据:', templates.value)
-  } catch (error) {
-    ElMessage.error('加载模板失败：' + error.message)
-    templates.value = []
-  } finally {
-    loading.value = false
-  }
+  await loadTemplates()
 }
 
 const goBack = () => {
@@ -317,40 +232,15 @@ const clearFilters = () => {
 }
 
 const selectTemplate = (template) => {
-  console.log('选择模板:', template)
   router.push(`/create/template/${template.id}`)
 }
 
 const useTemplate = (template) => {
-  console.log('使用模板:', template)
-  ElMessage.success(`正在使用模板：${template.title}`)
   router.push(`/create/template/${template.id}`)
 }
 
 const showPreview = (template) => {
-  console.log('[预览] 显示模板预览:', template)
-  console.log('[预览] questionList:', template.questionList)
-  console.log('[预览] questionList 长度:', template.questionList?.length)
-  previewTemplate.value = template
-  previewVisible.value = true
-}
-
-const usePreviewTemplate = () => {
-  if (previewTemplate.value) {
-    useTemplate(previewTemplate.value)
-    previewVisible.value = false
-  }
-}
-
-const getQuestionTypeText = (type) => {
-  const typeMap = {
-    'single': '单选题',
-    'multiple': '多选题',
-    'text': '文本题',
-    'rating': '评分题',
-    'likert': '量表题'
-  }
-  return typeMap[type] || '未知题型'
+  handleShowPreview(template)
 }
 </script>
 
@@ -508,96 +398,5 @@ const getQuestionTypeText = (type) => {
   display: flex;
   justify-content: center;
   margin-top: 32px;
-}
-
-.preview-dialog {
-  .template-preview {
-    max-height: 60vh;
-    overflow-y: auto;
-  }
-
-  .preview-info {
-    background: #f8f9fa;
-    padding: 16px;
-    border-radius: 8px;
-    margin-bottom: 24px;
-
-    .info-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-
-      .info-label {
-        font-weight: 500;
-        color: #333;
-        min-width: 80px;
-      }
-    }
-  }
-
-  .preview-sections {
-    display: flex;
-    flex-direction: column;
-
-    .preview-section {
-      margin-bottom: 24px;
-
-      h4 {
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 16px;
-        padding-bottom: 8px;
-        border-bottom: 2px solid #e5e7eb;
-      }
-    }
-
-    .preview-question {
-      background: #f9fafb;
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-
-      .question-header {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 4px;
-
-        .question-number {
-          font-weight: 600;
-          color: var(--color-primary-light-3);
-        }
-
-        .question-title {
-          flex: 1;
-          font-weight: 500;
-          color: #333;
-        }
-
-        .required-mark {
-          color: #f56c6c;
-          font-weight: 600;
-        }
-      }
-
-      .question-type {
-        font-size: 0.875rem;
-        color: #888;
-      }
-    }
-
-    .no-questions {
-      text-align: center;
-      color: #999;
-      font-style: italic;
-      padding: 20px;
-    }
-  }
 }
 </style>

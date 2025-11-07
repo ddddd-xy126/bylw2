@@ -51,62 +51,19 @@
         <p>精选专业问卷模板，助您快速创建高质量调研</p>
       </div>
 
-      <div class="template-grid">
-        <div 
+      <div v-if="loading" class="loading-section">
+        <el-skeleton :rows="3" animated />
+      </div>
+
+      <div v-else class="template-grid">
+        <TemplateCard
           v-for="template in featuredTemplates" 
           :key="template.id"
-          class="template-card"
-          @click="selectTemplate(template)"
-        >
-          <div class="template-header">
-            <div class="template-category">{{ template.category }}</div>
-            <div class="template-rating">
-              <el-rate v-model="template.rating" disabled size="small" />
-              <span class="rating-text">({{ template.rating }})</span>
-            </div>
-          </div>
-          
-          <div class="template-content">
-            <h4>{{ template.title }}</h4>
-            <p>{{ template.description }}</p>
-            
-            <div class="template-stats">
-              <div class="stat-item">
-                <el-icon><Document /></el-icon>
-                <span>{{ template.questions }}题</span>
-              </div>
-              <div class="stat-item">
-                <el-icon><Clock /></el-icon>
-                <span>{{ template.duration }}分钟</span>
-              </div>
-              <div class="stat-item">
-                <el-icon><User /></el-icon>
-                <span>{{ template.usageCount }}人使用</span>
-              </div>
-            </div>
-
-            <div class="template-tags">
-              <el-tag 
-                v-for="tag in template.tags.slice(0, 3)" 
-                :key="tag"
-                size="small"
-                type="info"
-                effect="plain"
-              >
-                {{ tag }}
-              </el-tag>
-            </div>
-          </div>
-
-          <div class="template-actions">
-            <el-button type="primary" size="small" @click.stop="useTemplate(template)">
-              使用模板
-            </el-button>
-            <el-button size="small" @click.stop="previewTemplate(template)">
-              预览
-            </el-button>
-          </div>
-        </div>
+          :template="template"
+          @click="selectTemplate"
+          @use="useTemplate"
+          @preview="showPreview"
+        />
       </div>
 
       <div class="view-all-templates">
@@ -115,6 +72,13 @@
         </el-button>
       </div>
     </div>
+
+    <!-- 预览对话框 -->
+    <TemplatePreviewDialog
+      v-model="previewVisible"
+      :template="previewTemplate"
+      @use="useTemplate"
+    />
   </div>
 </template>
 
@@ -129,139 +93,27 @@ import {
   User
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import TemplateCard from './components/TemplateCard.vue'
+import TemplatePreviewDialog from './components/TemplatePreviewDialog.vue'
+import { useTemplates } from '@/composables/useTemplates'
 
 const router = useRouter()
 const showTemplates = ref(true)
 const featuredTemplates = ref([])
 
-// 模拟的问卷模板数据
-const mockTemplates = [
-  {
-    id: 1,
-    title: '员工满意度调查',
-    description: '全面了解员工对工作环境、薪酬福利、职业发展等方面的满意度',
-    category: '企业管理',
-    questions: 25,
-    duration: 15,
-    rating: 4.8,
-    usageCount: 1250,
-    tags: ['员工', '满意度', '企业管理', '人力资源'],
-    template: {
-      sections: [
-        {
-          title: '基本信息',
-          questions: [
-            { type: 'single', title: '您的工作部门是？', required: true },
-            { type: 'single', title: '您的工作年限是？', required: true }
-          ]
-        },
-        {
-          title: '工作满意度',
-          questions: [
-            { type: 'rating', title: '您对当前工作内容的满意度', required: true },
-            { type: 'rating', title: '您对工作环境的满意度', required: true }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    id: 2,
-    title: '产品用户体验调研',
-    description: '收集用户对产品功能、界面设计、使用体验的反馈和建议',
-    category: '产品研发',
-    questions: 20,
-    duration: 12,
-    rating: 4.6,
-    usageCount: 980,
-    tags: ['用户体验', '产品', '反馈', '优化'],
-    template: {
-      sections: [
-        {
-          title: '用户画像',
-          questions: [
-            { type: 'single', title: '您的年龄段是？', required: true },
-            { type: 'single', title: '您使用我们产品多长时间了？', required: true }
-          ]
-        },
-        {
-          title: '使用体验',
-          questions: [
-            { type: 'rating', title: '产品整体满意度', required: true },
-            { type: 'multiple', title: '您最喜欢的功能有哪些？', required: false }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    id: 3,
-    title: '心理健康状况评估',
-    description: '专业的心理健康评估量表，帮助了解个人心理状况',
-    category: '心理健康',
-    questions: 30,
-    duration: 20,
-    rating: 4.9,
-    usageCount: 2340,
-    tags: ['心理健康', '评估', '量表', '专业'],
-    template: {
-      sections: [
-        {
-          title: '基本情况',
-          questions: [
-            { type: 'single', title: '您的性别是？', required: true },
-            { type: 'single', title: '您的年龄段是？', required: true }
-          ]
-        },
-        {
-          title: '心理状况',
-          questions: [
-            { type: 'likert', title: '我感到心情愉快', required: true },
-            { type: 'likert', title: '我对未来充满希望', required: true }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    id: 4,
-    title: '课程教学效果评价',
-    description: '评价课程内容、教学方法、学习效果的综合调研问卷',
-    category: '教育培训',
-    questions: 18,
-    duration: 10,
-    rating: 4.7,
-    usageCount: 756,
-    tags: ['教学', '课程', '评价', '教育'],
-    template: {
-      sections: [
-        {
-          title: '课程信息',
-          questions: [
-            { type: 'single', title: '您参加的课程名称是？', required: true },
-            { type: 'single', title: '您的学习背景是？', required: true }
-          ]
-        },
-        {
-          title: '教学评价',
-          questions: [
-            { type: 'rating', title: '课程内容的实用性', required: true },
-            { type: 'rating', title: '教师的教学水平', required: true }
-          ]
-        }
-      ]
-    }
-  }
-]
+// 使用 composable
+const { 
+  loading, 
+  previewVisible, 
+  previewTemplate, 
+  loadFeaturedTemplates: loadFeatured,
+  showPreview: handleShowPreview 
+} = useTemplates()
 
-onMounted(() => {
-  loadFeaturedTemplates()
+onMounted(async () => {
+  // 加载推荐模板
+  featuredTemplates.value = await loadFeatured(3)
 })
-
-const loadFeaturedTemplates = () => {
-  // 取前3个作为推荐模板
-  featuredTemplates.value = mockTemplates.slice(0, 3)
-}
 
 const goToCustomCreate = () => {
   router.push('/create/custom')
@@ -272,19 +124,16 @@ const goToTemplateSelect = () => {
 }
 
 const selectTemplate = (template) => {
-  // 跳转到模板创建页面，传递模板ID
   router.push(`/create/template/${template.id}`)
 }
 
 const useTemplate = (template) => {
-  ElMessage.success(`正在使用模板:${template.title}`)
-  // 跳转到模板创建页面,传递模板ID
+  ElMessage.success(`正在使用模板：${template.title}`)
   router.push(`/create/template/${template.id}`)
 }
 
-const previewTemplate = (template) => {
-  ElMessage.info(`预览模板:${template.title}`)
-  // 这里可以打开预览对话框或跳转到预览页面
+const showPreview = (template) => {
+  handleShowPreview(template)
 }
 
 </script>
@@ -399,97 +248,23 @@ const previewTemplate = (template) => {
       }
     }
 
+    .loading-section {
+      padding: 40px 0;
+      text-align: center;
+    }
+
     .template-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 24px;
       margin-bottom: 32px;
 
-      .template-card {
-        background: white;
-        border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border: 2px solid transparent;
+      @media (max-width: 1400px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
 
-        &:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-          border-color: #67c23a;
-        }
-
-        .template-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 16px;
-        }
-
-        .template-category {
-          background: #f0f9ff;
-          color: #0369a1;
-          padding: 4px 12px;
-          border-radius: 12px;
-          font-size: 0.75rem;
-          font-weight: 500;
-        }
-
-        .template-rating {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        }
-
-        .rating-text {
-          font-size: 0.875rem;
-          color: #666;
-        }
-
-        .template-content {
-          h4 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-          }
-          p {
-            color: #666;
-            line-height: 1.5;
-            margin-bottom: 16px;
-          }
-        }
-
-        .template-stats {
-          display: flex;
-          gap: 16px;
-          margin-bottom: 16px;
-
-          .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.875rem;
-            color: #888;
-          }
-        }
-
-        .template-tags {
-          display: flex;
-          gap: 8px;
-          flex-wrap: wrap;
-          margin-bottom: 20px;
-        }
-
-        .template-actions {
-          display: flex;
-          gap: 12px;
-
-          .el-button {
-            flex: 1;
-          }
-        }
+      @media (max-width: 900px) {
+        grid-template-columns: 1fr;
       }
     }
 

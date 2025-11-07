@@ -7,19 +7,16 @@
       <div class="list-search">
         <el-input v-model="searchQuery" placeholder="搜索问卷标题或描述或标签" clearable @input="handleSearch" size="small">
           <template #prefix>
-            <el-icon><Search /></el-icon>
+            <el-icon>
+              <Search />
+            </el-icon>
           </template>
         </el-input>
         <div class="category-buttons">
-          <el-button :type="isSelected(null) ? 'primary' : 'default'" @click="selectCategory(null)" size="small" class="category-btn">全部</el-button>
-          <el-button
-            v-for="cat in categories"
-            :key="cat.id"
-            :type="isSelected(cat.id) ? 'primary' : 'default'"
-            @click="selectCategory(cat.id)"
-            size="small"
-            class="category-btn"
-          >
+          <el-button :type="isSelected(null) ? 'primary' : 'default'" @click="selectCategory(null)" size="small"
+            class="category-btn">全部</el-button>
+          <el-button v-for="cat in categories" :key="cat.id" :type="isSelected(cat.id) ? 'primary' : 'default'"
+            @click="selectCategory(cat.id)" size="small" class="category-btn">
             {{ cat.name }}
           </el-button>
         </div>
@@ -27,18 +24,9 @@
     </div>
 
     <div class="surveys-area">
-      <!-- 复用 SurveyList 组件作为公共展示组件 -->
-      <SurveyList
-        v-model:sort-by="sortBy"
-        :surveys="surveysToShow"
-        :loading="loading"
-        :is-favorite="isFavorite"
-        :show-favorite="userStore.isLoggedIn"
-        :show-sort="false"
-        @toggle-favorite="toggleFavorite"
-        @survey-click="goToSurvey"
-        @survey-start="goToSurvey"
-      />
+      <SurveyList v-model:sort-by="sortBy" :surveys="surveysToShow" :loading="loading" :is-favorite="isFavorite"
+        :show-favorite="userStore.isLoggedIn" :show-sort="false" @toggle-favorite="toggleFavorite"
+        @survey-click="goToSurvey" @survey-start="goToSurvey" />
     </div>
   </div>
 </template>
@@ -93,8 +81,8 @@ const isSelected = (catId) => {
 
 // 根据 selectedCategory 过滤(不分页,展示全部)
 const surveysToShow = computed(() => {
-  const list = Array.isArray(surveys.value) 
-    ? surveys.value.filter(s => s.status === 'published' && s.isCollecting !== false) 
+  const list = Array.isArray(surveys.value)
+    ? surveys.value.filter(s => s.status === 'published' && s.isCollecting !== false)
     : [];
   // 如果选择了分类,通过统一的 categoryId 字符串进行匹配(兼容数字/字符串以及缺失 categoryId 的问卷)
   if (selectedCategory.value) {
@@ -140,7 +128,7 @@ onMounted(() => {
   min-height: 100vh;
 
   .list-header {
-    background:  var(--text-inverse);
+    background: var(--text-inverse);
     border-radius: 12px;
     padding: 25px 30px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -194,7 +182,7 @@ onMounted(() => {
   }
 
   .surveys-area {
-    background:  var(--text-inverse);
+    background: var(--text-inverse);
     border-radius: 12px;
     padding: 25px 30px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
