@@ -308,7 +308,6 @@
 
     <!-- 底部操作栏 -->
     <div class="footer-actions">
-      <!-- 预览按钮已移除 -->
       <el-button @click="saveAsDraft">
         <el-icon>
           <DocumentCopy />
@@ -369,7 +368,7 @@ const lastSavedData = ref(null)
 onMounted(() => {
   // 加载分类数据
   loadCategories()
-  
+
   // 检查模式
   if (route.path.includes('/edit/')) {
     isEditMode.value = true
@@ -416,14 +415,14 @@ const checkLocalDraft = async () => {
 const loadTemplate = async (templateId) => {
   try {
     console.log('[加载模板] 模板ID:', templateId)
-    
+
     // 从API获取模板数据
     const templateData = await getSurveyDetail(templateId)
-    
+
     console.log('[加载模板] 获取到的模板数据:', templateData)
     console.log('[加载模板] questionList:', templateData?.questionList)
     console.log('[加载模板] questionList 长度:', templateData?.questionList?.length)
-    
+
     if (!templateData) {
       ElMessage.error('模板不存在')
       router.push('/questionnaires/create')
@@ -708,13 +707,15 @@ const formRules = {
     { required: true, message: '请设置预估时长', trigger: 'blur' }
   ],
   tags: [
-    { required: true, message: '请至少添加一个标签', trigger: 'change', validator: (rule, value, callback) => {
-      if (!value || value.length === 0) {
-        callback(new Error('请至少添加一个标签'))
-      } else {
-        callback()
+    {
+      required: true, message: '请至少添加一个标签', trigger: 'change', validator: (rule, value, callback) => {
+        if (!value || value.length === 0) {
+          callback(new Error('请至少添加一个标签'))
+        } else {
+          callback()
+        }
       }
-    }}
+    }
   ]
 }
 
