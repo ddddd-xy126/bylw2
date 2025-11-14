@@ -32,7 +32,7 @@
             <el-icon>
               <Delete />
             </el-icon>
-            批量删除 ({{ selectedItems.length }})
+            批量取消 ({{ selectedItems.length }})
           </el-button>
         </el-col>
       </el-row>
@@ -114,9 +114,6 @@
                       <Star />
                     </el-icon>
                     评分：{{ collection.rating || 0 }}
-                  </span>
-                  <span class="meta-item difficulty">
-                    难度：{{ collection.difficulty }}
                   </span>
                 </div>
 

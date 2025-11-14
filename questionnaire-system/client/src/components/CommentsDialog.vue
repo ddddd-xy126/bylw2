@@ -1,7 +1,7 @@
 <template>
   <el-dialog :model-value="visible" @update:model-value="$emit('update:visible', $event)"
     :title="`${survey?.title} - 问卷评论管理`" width="700px" class="comments-dialog" :append-to-body="true"
-    :destroy-on-close="true" :z-index="3000">
+    :destroy-on-close="true" :z-index="200">
     <div class="comments-container" v-loading="loading">
       <div class="comments-header">
         <el-statistic title="评论总数" :value="comments.length" />
@@ -88,12 +88,13 @@ const handleDeleteComment = async (comment) => {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
-        zIndex: 100000,            // 很大，确保在最上层
+        zIndex: 2000,            // 很大，确保在最上层
         appendTo: document.body // 确保挂载到 body
       }
     );
 
-    await deleteCommentApi(comment.surveyId, comment.answerId, comment.commentId);
+    // deleteCommentApi 参数: (surveyId, userId, commentId)
+    await deleteCommentApi(props.survey.id, comment.userId, comment.id);
     ElMessage.success('评论删除成功');
     emit('refresh');
   } catch (error) {

@@ -137,11 +137,11 @@
         </div>
 
         <div class="survey-actions">
-          <el-button @click="viewSurvey(survey.id)">
+          <el-button type="success" @click="viewSurvey(survey.id)">
             <el-icon><View /></el-icon>
             预览
           </el-button>
-          <el-button @click="withdrawSurvey(survey.id)">
+          <el-button type="warning" @click="withdrawSurvey(survey.id)">
             <el-icon><RefreshLeft /></el-icon>
             撤回
           </el-button>

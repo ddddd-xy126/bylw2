@@ -91,30 +91,38 @@
         </div>
 
         <div class="survey-actions">
-          <el-button type="info"  @click="viewResult(answer)" :disabled="!answer.score">
+          <el-button type="success"  @click="viewResult(answer)" :disabled="!answer.score">
             <el-icon>
               <View />
             </el-icon>
             查看结果
           </el-button>
-          <el-button type="primary" @click="retakeSurvey(answer.surveyId)" :disabled="!answer.survey">
-            <el-icon>
-              <RefreshRight />
-            </el-icon>
-            重新答题
-          </el-button>
-          <el-button type="danger" @click="handleDelete(answer)">
-            <el-icon>
-              <Delete />
-            </el-icon>
-            删除记录
-          </el-button>
-          <el-button type="warning" @click="handleFavorite(answer)">
-            <el-icon>
-              <Star />
-            </el-icon>
-            收藏问卷
-          </el-button>
+          <el-dropdown @command="handleMoreAction">
+            <el-button type="other">
+              更多 <el-icon><ArrowDown /></el-icon>
+            </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item
+                  :command="{ action: 'retake', data: answer }"
+                  :disabled="!answer.survey"
+                >
+                  重新答题
+                </el-dropdown-item>
+                <el-dropdown-item
+                  :command="{ action: 'favorite', data: answer }"
+                >
+                  收藏问卷
+                </el-dropdown-item>
+                <el-dropdown-item
+                  :command="{ action: 'delete', data: answer }"
+                  divided
+                >
+                  <span style="color: #F56C6C">删除记录</span>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
       </div>
 
@@ -147,7 +155,8 @@ import {
   User,
   View,
   RefreshRight,
-  Delete
+  Delete,
+  ArrowDown
 } from "@element-plus/icons-vue";
 
 import { getUserAnsweredSurveysApi, addFavoriteApi, moveAnsweredToRecycleApi } from "@/api/user";
@@ -251,6 +260,17 @@ const retakeSurvey = (surveyId) => {
 
 const goToSurveys = () => {
   router.push("/");
+};
+
+// 处理更多操作菜单
+const handleMoreAction = async ({ action, data }) => {
+  if (action === 'retake') {
+    retakeSurvey(data.surveyId);
+  } else if (action === 'favorite') {
+    await handleFavorite(data);
+  } else if (action === 'delete') {
+    await handleDelete(data);
+  }
 };
 
 // 删除答题记录

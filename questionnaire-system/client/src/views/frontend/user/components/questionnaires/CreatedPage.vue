@@ -263,7 +263,6 @@
                 </el-dropdown-item>
                 <el-dropdown-item
                   :command="{ action: 'copy', data: survey }"
-                  :divided="survey.status === 'published' || survey.status === 'pending'"
                 >
                   复制问卷
                 </el-dropdown-item>

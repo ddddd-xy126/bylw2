@@ -65,7 +65,12 @@
     <el-card class="filter-card" shadow="never">
       <el-row :gutter="16">
         <el-col :span="6">
-          <el-input v-model="searchKeyword" placeholder="搜索问卷标题" clearable @input="handleSearch">
+          <el-input
+            v-model="searchKeyword"
+            placeholder="搜索问卷标题"
+            clearable
+            @input="handleSearch"
+          >
             <template #prefix>
               <el-icon>
                 <Search />
@@ -74,18 +79,27 @@
           </el-input>
         </el-col>
         <el-col :span="5">
-          <el-select v-model="filterCategory" placeholder="问卷分类" clearable @change="handleFilter">
+          <el-select
+            v-model="filterCategory"
+            placeholder="问卷分类"
+            clearable
+            @change="handleFilter"
+          >
             <el-option label="全部分类" value="" />
-            <el-option 
-              v-for="category in categories" 
-              :key="category.id" 
-              :label="category.name" 
-              :value="category.name" 
+            <el-option
+              v-for="category in categories"
+              :key="category.id"
+              :label="category.name"
+              :value="category.name"
             />
           </el-select>
         </el-col>
         <el-col :span="5">
-          <el-select v-model="sortBy" placeholder="排序方式" @change="handleSort">
+          <el-select
+            v-model="sortBy"
+            placeholder="排序方式"
+            @change="handleSort"
+          >
             <el-option label="发布时间" value="publishedAt" />
             <el-option label="回答数量" value="answerCount" />
             <el-option label="浏览量" value="views" />
@@ -105,8 +119,12 @@
 
     <!-- 问卷列表 -->
     <div class="survey-list" v-loading="loading">
-      <div v-for="survey in filteredSurveys" :key="survey.id" class="survey-item published-item"
-        :class="{ 'status-stopped': survey.isCollecting === false }">
+      <div
+        v-for="survey in filteredSurveys"
+        :key="survey.id"
+        class="survey-item published-item"
+        :class="{ 'status-stopped': survey.isCollecting === false }"
+      >
         <div class="survey-main">
           <div class="survey-icon">
             <el-icon size="24" color="#67C23A">
@@ -118,9 +136,16 @@
             <div class="survey-header">
               <h3 class="survey-title">{{ survey.title }}</h3>
               <div class="survey-badges">
-                <el-tag size="small" type="primary">{{ survey.category }}</el-tag>
+                <el-tag size="small" type="primary">{{
+                  survey.category
+                }}</el-tag>
                 <el-tag size="small" type="success">已发布</el-tag>
-                <el-tag v-if="survey.isHot" size="small" type="danger" effect="dark">
+                <el-tag
+                  v-if="survey.isHot"
+                  size="small"
+                  type="danger"
+                  effect="dark"
+                >
                   热门
                 </el-tag>
               </div>
@@ -156,19 +181,27 @@
               <div class="stats-row">
                 <div class="stat-item">
                   <span class="stat-label">回答数</span>
-                  <span class="stat-value highlight-success">{{ survey.answerCount }}</span>
+                  <span class="stat-value highlight-success">{{
+                    survey.answerCount
+                  }}</span>
                 </div>
                 <div class="stat-item">
                   <span class="stat-label">浏览量</span>
-                  <span class="stat-value highlight-info">{{ survey.views }}</span>
+                  <span class="stat-value highlight-info">{{
+                    survey.views
+                  }}</span>
                 </div>
                 <div class="stat-item">
                   <span class="stat-label">平均分</span>
-                  <span class="stat-value highlight-normal">{{ (survey.averageRating ?? 0).toFixed(1) }}</span>
+                  <span class="stat-value highlight-normal">{{
+                    (survey.averageRating ?? 0).toFixed(1)
+                  }}</span>
                 </div>
                 <div class="stat-item">
                   <span class="stat-label">收藏数</span>
-                  <span class="stat-value highlight-collect">{{ survey.favoriteCount }}</span>
+                  <span class="stat-value highlight-collect">{{
+                    survey.favoriteCount
+                  }}</span>
                 </div>
               </div>
             </div>
@@ -176,41 +209,50 @@
         </div>
 
         <div class="survey-actions">
-          <el-button @click="viewResults(survey.id)">
+          <el-button type="success" @click="viewResults(survey.id)">
             <el-icon>
               <DataAnalysis />
             </el-icon>
             查看数据
           </el-button>
-          <el-button @click="shareSurvey(survey)">
+          <el-button type="success" plain @click="viewComments(survey)">
             <el-icon>
-              <Share />
+              <ChatDotRound />
             </el-icon>
-            分享
+            查看评论
           </el-button>
+
           <el-dropdown @command="handleMoreAction">
             <el-button type="other">
-              更多 <el-icon>
+              更多
+              <el-icon>
                 <ArrowDown />
               </el-icon>
             </el-button>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item :command="{ action: 'viewComments', data: survey }">
-                  查看评论
+                <el-dropdown-item :command="{ action: 'share', data: survey }">
+                  分享问卷
                 </el-dropdown-item>
                 <el-dropdown-item :command="{ action: 'edit', data: survey }">
                   编辑问卷
                 </el-dropdown-item>
-                <el-dropdown-item v-if="survey.isCollecting !== false"
-                  :command="{ action: 'stopCollecting', data: survey }" divided>
-                  <span style="color: #E6A23C">停止收集</span>
+                <el-dropdown-item
+                  v-if="survey.isCollecting !== false"
+                  :command="{ action: 'stopCollecting', data: survey }"
+                  divided
+                >
+                  <span style="color: #e6a23c">停止收集</span>
                 </el-dropdown-item>
-                <el-dropdown-item v-else :command="{ action: 'resumeCollecting', data: survey }" divided>
-                  <span style="color: #67C23A">继续收集</span>
+                <el-dropdown-item
+                  v-else
+                  :command="{ action: 'resumeCollecting', data: survey }"
+                  divided
+                >
+                  <span style="color: #67c23a">继续收集</span>
                 </el-dropdown-item>
                 <el-dropdown-item :command="{ action: 'delete', data: survey }">
-                  <span style="color: #F56C6C">删除问卷</span>
+                  <span style="color: #f56c6c">删除问卷</span>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -219,17 +261,24 @@
       </div>
 
       <!-- 空状态 -->
-      <el-empty v-if="!loading && filteredSurveys.length === 0" description="暂无已发布的问卷" class="empty-state">
-        <el-button type="primary" @click="goToCreated">
-          创建新问卷
-        </el-button>
+      <el-empty
+        v-if="!loading && filteredSurveys.length === 0"
+        description="暂无已发布的问卷"
+        class="empty-state"
+      >
+        <el-button type="primary" @click="goToCreated"> 创建新问卷 </el-button>
       </el-empty>
     </div>
 
     <!-- 分页 -->
     <div class="pagination-wrapper" v-if="publishedSurveys.length > pageSize">
-      <el-pagination v-model:current-page="currentPage" :page-size="pageSize" :total="publishedSurveys.length"
-        layout="prev, pager, next, jumper, total" @current-change="handlePageChange" />
+      <el-pagination
+        v-model:current-page="currentPage"
+        :page-size="pageSize"
+        :total="publishedSurveys.length"
+        layout="prev, pager, next, jumper, total"
+        @current-change="handlePageChange"
+      />
     </div>
 
     <!-- 分享对话框 -->
@@ -275,12 +324,13 @@ import {
   DataAnalysis,
   Share,
   ArrowDown,
+  ChatDotRound,
 } from "@element-plus/icons-vue";
 
 // 导入对话框组件
-import ShareDialog from './components/ShareDialog.vue';
-import StatsDialog from './components/StatsDialog.vue';
-import CommentsDialog from '@/components/CommentsDialog.vue';
+import ShareDialog from "./components/ShareDialog.vue";
+import StatsDialog from "./components/StatsDialog.vue";
+import CommentsDialog from "@/components/CommentsDialog.vue";
 
 import {
   getUserSurveysApi,
@@ -288,7 +338,7 @@ import {
   deleteSurveyApi,
   getCategoriesApi,
   getSurveyDetail,
-  getAllCommentsApi
+  getAllCommentsApi,
 } from "@/api/survey";
 import { useUserStore } from "@/store/user";
 import { useListFilter } from "@/hooks/useListFilter";
@@ -336,7 +386,10 @@ const allComments = ref([]);
 
 // 计算属性
 const totalAnswers = computed(() => {
-  return publishedSurveys.value.reduce((sum, survey) => sum + survey.answerCount, 0);
+  return publishedSurveys.value.reduce(
+    (sum, survey) => sum + survey.answerCount,
+    0
+  );
 });
 
 const totalViews = computed(() => {
@@ -344,12 +397,18 @@ const totalViews = computed(() => {
 });
 
 const totalParticipants = computed(() => {
-  return publishedSurveys.value.reduce((sum, survey) => sum + survey.participantCount, 0);
+  return publishedSurveys.value.reduce(
+    (sum, survey) => sum + survey.participantCount,
+    0
+  );
 });
 
 const averageRating = computed(() => {
   if (publishedSurveys.value.length === 0) return 0;
-  const total = publishedSurveys.value.reduce((sum, survey) => sum + (survey.averageRating || 0), 0);
+  const total = publishedSurveys.value.reduce(
+    (sum, survey) => sum + (survey.averageRating || 0),
+    0
+  );
   return total / publishedSurveys.value.length;
 });
 
@@ -381,7 +440,7 @@ const loadCategories = async () => {
   try {
     categories.value = await getCategoriesApi();
   } catch (error) {
-    console.error('加载分类失败:', error);
+    console.error("加载分类失败:", error);
   }
 };
 
@@ -394,14 +453,14 @@ const loadPublishedSurveys = async () => {
       return;
     }
 
-    const data = await getUserSurveysApi(userId, 'published');
+    const data = await getUserSurveysApi(userId, "published");
     // 处理数据
-    publishedSurveys.value = data.map(survey => {
+    publishedSurveys.value = data.map((survey) => {
       const answerCount = survey.answerCount || 0;
       // 浏览量 = 回答数 + 随机数(100-500)
       const randomViews = Math.floor(Math.random() * 401) + 100; // 100-500
       const calculatedViews = answerCount + randomViews;
-      
+
       return {
         ...survey,
         // 确保必要字段存在
@@ -414,7 +473,7 @@ const loadPublishedSurveys = async () => {
         publishedAt: survey.publishedAt || survey.updatedAt || survey.createdAt,
         // 根据真实数据判断
         isHot: answerCount > 100 || calculatedViews > 500,
-        needsAttention: answerCount === 0
+        needsAttention: answerCount === 0,
       };
     });
     // 应用初始排序
@@ -426,19 +485,18 @@ const loadPublishedSurveys = async () => {
   }
 };
 
-
 const refreshData = () => {
   loadPublishedSurveys();
 };
 
 const formatDate = (date) => {
-  if (!date) return '未知';
+  if (!date) return "未知";
   try {
     const d = new Date(date);
-    if (isNaN(d.getTime())) return '未知';
+    if (isNaN(d.getTime())) return "未知";
     return d.toLocaleDateString("zh-CN");
   } catch (error) {
-    return '未知';
+    return "未知";
   }
 };
 
@@ -450,7 +508,7 @@ const viewResults = async (id) => {
     currentSurveyStats.value = surveyData;
     statsDialogVisible.value = true;
   } catch (error) {
-    ElMessage.error('加载数据失败：' + error.message);
+    ElMessage.error("加载数据失败：" + error.message);
   } finally {
     loading.value = false;
   }
@@ -459,7 +517,9 @@ const viewResults = async (id) => {
 const shareSurvey = (survey) => {
   currentSurvey.value = survey;
   shareUrl.value = `${window.location.origin}/surveys/${survey.id}`;
-  qrCodeUrl.value = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(shareUrl.value)}`;
+  qrCodeUrl.value = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(
+    shareUrl.value
+  )}`;
   shareDialogVisible.value = true;
 };
 
@@ -475,7 +535,7 @@ const loadAllComments = async (surveyId) => {
     loadingComments.value = true;
     allComments.value = await getAllCommentsApi(surveyId);
   } catch (error) {
-    ElMessage.error('加载评论失败：' + error.message);
+    ElMessage.error("加载评论失败：" + error.message);
     allComments.value = [];
   } finally {
     loadingComments.value = false;
@@ -493,20 +553,20 @@ const goToCreated = () => {
 };
 
 const handleMoreAction = async ({ action, data }) => {
-  if (action === 'viewComments') {
-    viewComments(data);
+  if (action === "share") {
+    shareSurvey(data);
     return;
   }
-  
-  if (action === 'edit') {
+
+  if (action === "edit") {
     try {
       await ElMessageBox.confirm(
-        '编辑已发布的问卷后需要重新提交审核，审核通过后才会重新发布。确定要编辑吗？',
-        '编辑提示',
+        "编辑已发布的问卷后需要重新提交审核,审核通过后才会重新发布。确定要编辑吗？",
+        "编辑提示",
         {
-          confirmButtonText: '继续编辑',
-          cancelButtonText: '取消',
-          type: 'info'
+          confirmButtonText: "继续编辑",
+          cancelButtonText: "取消",
+          type: "info",
         }
       );
       router.push(`/questionnaires/edit/${data.id}`);
@@ -515,70 +575,70 @@ const handleMoreAction = async ({ action, data }) => {
     }
     return;
   }
-  
-  if (action === 'stopCollecting') {
+
+  if (action === "stopCollecting") {
     try {
       await ElMessageBox.confirm(
-        '停止收集后，该问卷将不再在首页和问卷列表展示，用户无法填写。确定要停止收集吗？',
-        '确认停止收集',
+        "停止收集后，该问卷将不再在首页和问卷列表展示，用户无法填写。确定要停止收集吗？",
+        "确认停止收集",
         {
-          confirmButtonText: '确定停止',
-          cancelButtonText: '取消',
-          type: 'warning'
+          confirmButtonText: "确定停止",
+          cancelButtonText: "取消",
+          type: "warning",
         }
       );
 
       await updateSurveyApi(data.id, {
         isCollecting: false,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
 
-      ElMessage.success('已停止收集，问卷将不再对外展示');
+      ElMessage.success("已停止收集，问卷将不再对外展示");
       loadPublishedSurveys();
     } catch (error) {
-      if (error !== 'cancel') {
-        ElMessage.error('操作失败：' + error.message);
+      if (error !== "cancel") {
+        ElMessage.error("操作失败：" + error.message);
       }
     }
     return;
   }
-  
-  if (action === 'resumeCollecting') {
+
+  if (action === "resumeCollecting") {
     try {
       await ElMessageBox.confirm(
-        '继续收集后，问卷将重新在首页和问卷列表展示，用户可以填写。确定要继续收集吗？',
-        '确认继续收集',
+        "继续收集后，问卷将重新在首页和问卷列表展示，用户可以填写。确定要继续收集吗？",
+        "确认继续收集",
         {
-          confirmButtonText: '确定继续',
-          cancelButtonText: '取消',
-          type: 'success'
+          confirmButtonText: "确定继续",
+          cancelButtonText: "取消",
+          type: "success",
         }
       );
 
       await updateSurveyApi(data.id, {
         isCollecting: true,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
 
-      ElMessage.success('已恢复收集，问卷将重新对外展示');
+      ElMessage.success("已恢复收集，问卷将重新对外展示");
       loadPublishedSurveys();
     } catch (error) {
-      if (error !== 'cancel') {
-        ElMessage.error('操作失败：' + error.message);
+      if (error !== "cancel") {
+        ElMessage.error("操作失败：" + error.message);
       }
     }
     return;
   }
-  
-  if (action === 'delete') {
+
+  if (action === "delete") {
     try {
       await ElMessageBox.confirm(
-        '确定要删除这个问卷吗？删除后所有数据将无法恢复！',
-        '确认删除',
+        "确定要删除这个问卷吗？删除后所有数据将无法恢复！",
+        "确认删除",
         {
-          confirmButtonText: '确定删除',
-          cancelButtonText: '取消',
-          type: 'error'
+          confirmButtonText: "确定删除",
+          cancelButtonText: "取消",
+          type: "error",
         }
       );
 
@@ -586,7 +646,7 @@ const handleMoreAction = async ({ action, data }) => {
       ElMessage.success("问卷已删除");
       loadPublishedSurveys();
     } catch (error) {
-      if (error !== 'cancel') {
+      if (error !== "cancel") {
         ElMessage.error("删除失败：" + error.message);
       }
     }
@@ -612,7 +672,11 @@ onMounted(() => {
     align-items: center;
     margin-bottom: 20px;
     padding: 20px;
-     background: linear-gradient(135deg, var(--color-primary-light-5) 0%, white 100%);
+    background: linear-gradient(
+      135deg,
+      var(--color-primary-light-5) 0%,
+      white 100%
+    );
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
@@ -676,28 +740,32 @@ onMounted(() => {
 
     .stat-label {
       font-size: 14px;
-      opacity: .9;
+      opacity: 0.9;
       margin-top: 4px;
     }
   }
 
   .success-card {
-    background: linear-gradient(135deg, #67C23A 0%, #85ce61 100%);
+    background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
     color: #fff;
   }
 
   .info-card {
-    background: linear-gradient(135deg, var(--color-primary-light-3) 0%, #66b1ff 100%);
+    background: linear-gradient(
+      135deg,
+      var(--color-primary-light-3) 0%,
+      #66b1ff 100%
+    );
     color: #fff;
   }
 
   .warning-card {
-    background: linear-gradient(135deg, #E6A23C 0%, #ebb563 100%);
+    background: linear-gradient(135deg, #e6a23c 0%, #ebb563 100%);
     color: #fff;
   }
 
   .primary-card {
-    background: linear-gradient(135deg, #F56C6C 0%, #f78989 100%);
+    background: linear-gradient(135deg, #f56c6c 0%, #f78989 100%);
     color: #fff;
   }
 
@@ -716,11 +784,11 @@ onMounted(() => {
   }
 
   .survey-item {
-    background: var(--text-inverse)ff;
+    background: var(--text-inverse) ff;
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    transition: all .3s ease;
+    transition: all 0.3s ease;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -732,7 +800,7 @@ onMounted(() => {
     }
 
     &.published-item {
-      border-left: 4px solid #67C23A;
+      border-left: 4px solid #67c23a;
     }
 
     &.status-stopped {
@@ -809,19 +877,19 @@ onMounted(() => {
     }
 
     .meta-item {
-    .survey-description {
-      color: #909399;
-      font-size: 14px;
-      line-height: 1.5;
-      margin-bottom: 16px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      .survey-description {
+        color: #909399;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 16px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
     }
-  }
 
     .survey-description {
       color: #909399;
@@ -874,7 +942,6 @@ onMounted(() => {
     .highlight-collect {
       color: var(--color-accent-3);
     }
-
   }
 
   .survey-actions {
