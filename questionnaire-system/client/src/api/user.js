@@ -129,7 +129,19 @@ export const addFavoriteApi = async (userId, surveyId) => {
     console.error('更新收藏数失败:', error);
   }
   
-  return { success: true, message: "收藏成功" };
+  // 增加用户积分
+  try {
+    const user = await apiClient.get(`/users/${userId}`);
+    if (user) {
+      await apiClient.patch(`/users/${userId}`, {
+        points: (user.points || 0) + 3  // 收藏问卷 +3 积分
+      });
+    }
+  } catch (error) {
+    console.error('增加收藏积分失败:', error);
+  }
+  
+  return { success: true, message: "收藏成功", pointsEarned: 3 };
 };
 
 export const removeFavoriteApi = async (userId, surveyId) => {

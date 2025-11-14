@@ -5,20 +5,30 @@ export async function login(data) {
   const users = await apiClient.get('/users');
   const loginField = data.email || data.username;
   
-  const user = users.find(u => 
-    (u.username === loginField || u.email === loginField) && 
-    u.password === data.password &&
-    !u.banned
+  // 先查找用户（不考虑密码和封禁状态）
+  const foundUser = users.find(u => 
+    u.username === loginField || u.email === loginField
   );
   
-  if (!user) {
+  // 检查用户是否存在
+  if (!foundUser) {
     throw new Error("用户名或密码错误");
+  }
+  
+  // 检查密码是否正确
+  if (foundUser.password !== data.password) {
+    throw new Error("用户名或密码错误");
+  }
+  
+  // 检查用户是否被封禁
+  if (foundUser.banned) {
+    throw new Error("您的账号已被封禁，如有异议请联系管理员");
   }
   
   // 返回完整的用户信息
   return {
-    token: `mock-jwt-token-${user.id}`,
-    user: user  // 返回完整的用户对象,包含所有字段
+    token: `mock-jwt-token-${foundUser.id}`,
+    user: foundUser  // 返回完整的用户对象,包含所有字段
   };
 }
 
@@ -54,7 +64,12 @@ export async function register(data) {
     joinedDate: new Date().toISOString().split('T')[0],
     createdAt: new Date().toISOString(),
     lastLoginAt: new Date().toISOString(),
-    lastLoginIp: ''
+    lastLoginIp: '',
+    // 积分系统相关字段
+    continuousLoginDays: 0,
+    unlockedBadges: [],
+    completedSurveys: [],
+    tags: []
   };
   
   const createdUser = await apiClient.post('/users', newUser);

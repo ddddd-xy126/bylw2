@@ -210,18 +210,29 @@ export async function submitSurveyApi(id, data) {
       updatedAt: new Date().toISOString(),
     });
 
-    // 7. 更新用户的已完成问卷列表
+    // 7. 更新用户的已完成问卷列表并增加积分
     if (data.userId) {
       try {
         const user = await apiClient.get(`/users/${data.userId}`);
         const completedSurveys = user.completedSurveys || [];
 
-        // 如果还没有这个问卷ID，添加进去
+        // 如果还没有这个问卷ID，添加进去并增加积分
         if (!completedSurveys.includes(parseInt(id))) {
+          // 判断是否是首次完成问卷
+          const isFirstSurvey = completedSurveys.length === 0;
+          const basePoints = 10; // 完成问卷基础积分
+          const bonusPoints = isFirstSurvey ? 20 : 0; // 首次完成额外奖励
+          const totalPoints = (user.points || 0) + basePoints + bonusPoints;
+
           await apiClient.patch(`/users/${data.userId}`, {
             completedSurveys: [...completedSurveys, parseInt(id)],
+            points: totalPoints,
             updatedAt: new Date().toISOString(),
           });
+
+          // 返回积分信息，供前端显示
+          newAnswer.pointsEarned = basePoints + bonusPoints;
+          newAnswer.isFirstSurvey = isFirstSurvey;
         }
       } catch (error) {
         console.error("更新用户已完成问卷列表失败:", error);
@@ -234,6 +245,8 @@ export async function submitSurveyApi(id, data) {
       score: newAnswer.score,
       result: newAnswer.result,
       analysis: "根据您的回答，我们为您生成了个性化的分析报告...",
+      pointsEarned: newAnswer.pointsEarned || 0,
+      isFirstSurvey: newAnswer.isFirstSurvey || false,
     };
   } catch (error) {
     console.error("提交答案失败:", error);
@@ -362,7 +375,19 @@ export async function createCommentApi(id, data) {
       });
     }
 
-    return newComment;
+    // 增加评论者积分
+    try {
+      const user = await apiClient.get(`/users/${data.userId}`);
+      if (user) {
+        await apiClient.patch(`/users/${data.userId}`, {
+          points: (user.points || 0) + 5  // 发表评论 +5 积分
+        });
+      }
+    } catch (error) {
+      console.error('增加评论积分失败:', error);
+    }
+
+    return { ...newComment, pointsEarned: 5 };
   } catch (error) {
     console.error("创建评论失败:", error);
     throw error;
@@ -636,6 +661,20 @@ export async function createSurveyApi(data) {
   };
 
   const survey = await apiClient.post("/surveys", newSurvey);
+  
+  // 创建问卷奖励50积分
+  if (data.authorId) {
+    try {
+      const user = await apiClient.get(`/users/${data.authorId}`);
+      await apiClient.patch(`/users/${data.authorId}`, {
+        points: (user.points || 0) + 50
+      });
+      survey.pointsEarned = 50;
+    } catch (error) {
+      console.error('更新创建问卷积分失败:', error);
+    }
+  }
+  
   return survey;
 }
 
@@ -650,20 +689,55 @@ export async function updateSurveyApi(id, data) {
 }
 
 export async function publishSurveyApi(id) {
+  // 获取问卷信息
+  const currentSurvey = await apiClient.get(`/surveys/${id}`);
+  
   const survey = await apiClient.patch(`/surveys/${id}`, {
     status: "pending",
     updatedAt: new Date().toISOString(),
   });
+  
+  // 发布问卷奖励30积分
+  if (currentSurvey.authorId) {
+    try {
+      const user = await apiClient.get(`/users/${currentSurvey.authorId}`);
+      await apiClient.patch(`/users/${currentSurvey.authorId}`, {
+        points: (user.points || 0) + 30
+      });
+      survey.pointsEarned = 30;
+    } catch (error) {
+      console.error('更新发布问卷积分失败:', error);
+    }
+  }
+  
   return survey;
 }
 
 export async function approveSurveyApi(id) {
+  // 获取问卷信息
+  const currentSurvey = await apiClient.get(`/surveys/${id}`);
+  
   const survey = await apiClient.patch(`/surveys/${id}`, {
     status: "published",
     updatedAt: new Date().toISOString(),
   });
+  
+  // 问卷审核通过奖励20积分
+  if (currentSurvey.authorId) {
+    try {
+      const user = await apiClient.get(`/users/${currentSurvey.authorId}`);
+      await apiClient.patch(`/users/${currentSurvey.authorId}`, {
+        points: (user.points || 0) + 20
+      });
+      survey.pointsEarned = 20;
+    } catch (error) {
+      console.error('更新审核通过积分失败:', error);
+    }
+  }
+  
   return survey;
 }
+
 
 export async function deleteSurveyApi(id) {
   await apiClient.delete(`/surveys/${id}`);

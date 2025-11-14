@@ -91,6 +91,9 @@ const submitLogin = async () => {
 
     ElMessage.success('登录成功！');
 
+    // 检查每日登录奖励
+    await userStore.checkDailyLogin();
+
     // 检查是否有被退回的问卷
     await checkRejectedSurveys(user);
 

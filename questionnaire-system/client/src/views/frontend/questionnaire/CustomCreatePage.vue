@@ -1048,8 +1048,20 @@ const saveAsDraft = async () => {
       ElMessage.success('草稿更新成功')
     } else {
       // 创建模式：创建新问卷
-      await createQuestionnaire(questionnaireData)
-      ElMessage.success('草稿保存成功')
+      const result = await createQuestionnaire(questionnaireData)
+      
+      // 显示积分奖励
+      if (result.pointsEarned) {
+        const { useUserStore } = await import('@/store/user')
+        const userStore = useUserStore()
+        // 更新本地用户积分
+        if (userStore.profile) {
+          userStore.profile.points = (userStore.profile.points || 0) + result.pointsEarned
+        }
+        ElMessage.success(`草稿保存成功！获得 ${result.pointsEarned} 积分`)
+      } else {
+        ElMessage.success('草稿保存成功')
+      }
     }
 
     // 清除本地存储
@@ -1113,7 +1125,19 @@ const publishQuestionnaire = async () => {
     } else {
       // 创建模式：创建新问卷
       const result = await createQuestionnaire(questionnaireData)
-      ElMessage.success(isAdmin ? '问卷已成功发布！' : '问卷已提交审核！')
+      
+      // 显示积分奖励
+      const { useUserStore } = await import('@/store/user')
+      const userStore = useUserStore()
+      if (result.pointsEarned) {
+        // 更新本地用户积分
+        if (userStore.profile) {
+          userStore.profile.points = (userStore.profile.points || 0) + result.pointsEarned
+        }
+        ElMessage.success(isAdmin ? `问卷已成功发布！获得 ${result.pointsEarned} 积分` : `问卷已提交审核！获得 ${result.pointsEarned} 积分`)
+      } else {
+        ElMessage.success(isAdmin ? '问卷已成功发布！' : '问卷已提交审核！')
+      }
 
       // 如果是管理员创建，记录操作
       if (isAdmin) {

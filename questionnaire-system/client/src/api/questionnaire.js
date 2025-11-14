@@ -54,7 +54,23 @@ export const createQuestionnaire = async (data) => {
     updatedAt: new Date().toISOString()
   };
   
-  return await apiClient.post('/surveys', newQuestionnaire);
+  const result = await apiClient.post('/surveys', newQuestionnaire);
+  
+  // 创建问卷奖励50积分
+  const userId = data.userId || data.authorId || data.creatorId;
+  if (userId) {
+    try {
+      const user = await apiClient.get(`/users/${userId}`);
+      await apiClient.patch(`/users/${userId}`, {
+        points: (user.points || 0) + 50
+      });
+      result.pointsEarned = 50;
+    } catch (error) {
+      console.error('更新创建问卷积分失败:', error);
+    }
+  }
+  
+  return result;
 };
 
 // 更新问卷

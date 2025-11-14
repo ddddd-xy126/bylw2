@@ -339,13 +339,24 @@ const submitComment = async () => {
 
     myComments.value.push(newComment);
     
+    // 更新用户积分
+    if (newComment.pointsEarned) {
+      const currentProfile = userStore.profile;
+      if (currentProfile) {
+        currentProfile.points = (currentProfile.points || 0) + newComment.pointsEarned;
+        userStore.setProfile(currentProfile);
+      }
+      ElMessage.success(`评论发表成功！获得 ${newComment.pointsEarned} 积分`);
+    } else {
+      ElMessage.success('评论发表成功');
+    }
+    
     // 清空表单
     ratingForm.value = {
       rating: 5,
       content: ''
     };
     
-    ElMessage.success('评论发表成功');
   } catch (error) {
     console.error('提交评论失败:', error);
     ElMessage.error('操作失败：' + error.message);

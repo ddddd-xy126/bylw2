@@ -331,6 +331,7 @@ import {
 
 import { useUserStore } from "@/store/user";
 import { useListFilter } from "@/hooks/useListFilter";
+import apiClient from "@/api/index";
 import { 
   getUserSurveysApi, 
   updateSurveyApi, 
@@ -338,7 +339,8 @@ import {
   deleteSurveyApi,
   getCategoriesApi,
   addToRecycleBinApi,
-  getSurveyDetail
+  getSurveyDetail,
+  publishSurveyApi
 } from "@/api/survey";
 
 const router = useRouter();
@@ -477,13 +479,21 @@ const publishSurvey = async (id) => {
       }
     );
     
-    // 使用 API 更新问卷状态
-    await updateSurveyApi(id, {
-      status: 'pending',
-      updatedAt: new Date().toISOString()
-    });
+    // 使用发布API获取积分奖励
+    const result = await publishSurveyApi(id);
     
-    ElMessage.success("问卷已提交审核");
+    // 更新用户积分
+    if (result.pointsEarned) {
+      const currentProfile = userStore.profile;
+      if (currentProfile) {
+        currentProfile.points = (currentProfile.points || 0) + result.pointsEarned;
+        userStore.setProfile(currentProfile);
+      }
+      ElMessage.success(`问卷已提交审核！获得 ${result.pointsEarned} 积分`);
+    } else {
+      ElMessage.success("问卷已提交审核");
+    }
+    
     await loadCreatedSurveys();
   } catch (error) {
     if (error !== 'cancel') {
@@ -503,7 +513,26 @@ const handleMoreAction = async ({ action, data }) => {
       navigator.clipboard.writeText(
         `${window.location.origin}/surveys/${data.id}`
       );
-      ElMessage.success("问卷链接已复制到剪贴板");
+      
+      // 分享问卷奖励5积分
+      try {
+        const user = await apiClient.get(`/users/${userStore.profile.id}`);
+        await apiClient.patch(`/users/${userStore.profile.id}`, {
+          points: (user.points || 0) + 5
+        });
+        
+        // 更新本地用户积分
+        const currentProfile = userStore.profile;
+        if (currentProfile) {
+          currentProfile.points = (currentProfile.points || 0) + 5;
+          userStore.setProfile(currentProfile);
+        }
+        
+        ElMessage.success("问卷链接已复制到剪贴板！获得 5 积分");
+      } catch (error) {
+        console.error('更新分享积分失败:', error);
+        ElMessage.success("问卷链接已复制到剪贴板");
+      }
       break;
 
     case "copy":

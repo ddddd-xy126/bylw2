@@ -1,5 +1,94 @@
 <template>
   <div class="achievements-page">
+    <!-- 积分机制说明面板 -->
+    <el-card class="points-guide-card">
+      <template #header>
+        <div class="guide-header">
+          <el-icon :size="20"><InfoFilled /></el-icon>
+          <span class="guide-title">积分机制说明</span>
+        </div>
+      </template>
+      <el-collapse v-model="activeGuide">
+        <el-collapse-item name="earn" title="💰 如何获得积分">
+          <div class="guide-content">
+            <div class="guide-section">
+              <h4>📝 完成问卷</h4>
+              <ul>
+                <li><strong>完成问卷:</strong> 每完成一份问卷获得 <el-tag type="success" size="small">10积分</el-tag></li>
+                <li><strong>首次完成:</strong> 首次完成问卷额外奖励 <el-tag type="warning" size="small">20积分</el-tag></li>
+              </ul>
+            </div>
+            <div class="guide-section">
+              <h4>✏️ 创建与发布</h4>
+              <ul>
+                <li><strong>创建问卷:</strong> 每创建一份问卷获得 <el-tag type="success" size="small">50积分</el-tag></li>
+                <li><strong>发布问卷:</strong> 提交审核时获得 <el-tag type="success" size="small">30积分</el-tag></li>
+                <li><strong>审核通过:</strong> 问卷审核通过获得 <el-tag type="success" size="small">20积分</el-tag></li>
+              </ul>
+            </div>
+            <div class="guide-section">
+              <h4>🎯 互动行为</h4>
+              <ul>
+                <li><strong>收藏问卷:</strong> 每收藏一份问卷获得 <el-tag type="success" size="small">3积分</el-tag></li>
+                <li><strong>发表评论:</strong> 每发表一条评论获得 <el-tag type="success" size="small">5积分</el-tag></li>
+                <li><strong>分享问卷:</strong> 每分享一次问卷获得 <el-tag type="success" size="small">5积分</el-tag></li>
+              </ul>
+            </div>
+            <div class="guide-section">
+              <h4>🌟 每日登录</h4>
+              <ul>
+                <li><strong>每日登录:</strong> 每天首次登录获得 <el-tag type="success" size="small">5积分</el-tag></li>
+                <li><strong>连续3天:</strong> 额外奖励 <el-tag type="warning" size="small">5积分</el-tag></li>
+                <li><strong>连续7天:</strong> 额外奖励 <el-tag type="warning" size="small">10积分</el-tag></li>
+                <li><strong>连续30天:</strong> 额外奖励 <el-tag type="danger" size="small">50积分</el-tag></li>
+              </ul>
+            </div>
+            <div class="guide-section">
+              <h4>👤 完善资料</h4>
+              <ul>
+                <li><strong>完善资料:</strong> 首次完善所有必填信息获得 <el-tag type="success" size="small">15积分</el-tag></li>
+                <li class="info-note">必填信息包括：用户名、邮箱、手机、性别、年龄、城市、职业、简介、标签</li>
+              </ul>
+            </div>
+          </div>
+        </el-collapse-item>
+        <el-collapse-item name="level" title="🏆 等级系统">
+          <div class="guide-content">
+            <div class="level-formula">
+              <p><strong>等级计算公式:</strong></p>
+              <div class="formula-box">
+                等级 = ⌊积分 ÷ 500⌋ + 1
+              </div>
+            </div>
+            <div class="level-table">
+              <el-table :data="levelData" stripe border size="small">
+                <el-table-column prop="level" label="等级" width="80" align="center" />
+                <el-table-column prop="points" label="所需积分" align="center" />
+                <el-table-column prop="badge" label="徽章" width="100" align="center">
+                  <template #default="{ row }">
+                    <span style="font-size: 24px">{{ row.badge }}</span>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
+        </el-collapse-item>
+        <el-collapse-item name="badges" title="🎖️ 成就徽章">
+          <div class="guide-content">
+            <p class="badge-intro">通过完成特定任务可以解锁成就徽章并获得额外积分奖励！</p>
+            <div class="badge-categories">
+              <el-tag type="primary" effect="plain">每日登录</el-tag>
+              <el-tag type="success" effect="plain">完成问卷</el-tag>
+              <el-tag type="warning" effect="plain">创建发布</el-tag>
+              <el-tag type="danger" effect="plain">互动行为</el-tag>
+              <el-tag type="info" effect="plain">积分等级</el-tag>
+            </div>
+            <p class="badge-note">解锁徽章的同时会自动获得对应的积分奖励，快去探索吧！</p>
+          </div>
+        </el-collapse-item>
+      </el-collapse>
+    </el-card>
+
     <!-- 统计卡片 -->
     <el-row :gutter="20" class="stats-row">
       <!-- 积分总数 -->
@@ -105,9 +194,22 @@ import { useUserStore } from '@/store/user';
 import { getUserAnsweredSurveysApi } from '@/api/user';
 import apiClient from '@/api/index.js';
 import { ElMessage } from 'element-plus';
-import { Lock, Star } from '@element-plus/icons-vue';
+import { Lock, Star, InfoFilled } from '@element-plus/icons-vue';
 
 const userStore = useUserStore();
+
+// 积分指南折叠面板
+const activeGuide = ref(['earn']);
+
+// 等级数据
+const levelData = [
+  { level: 1, points: '0-499', badge: '🎯' },
+  { level: 2, points: '500-999', badge: '🥉' },
+  { level: 3, points: '1000-1499', badge: '🥈' },
+  { level: 4, points: '1500-1999', badge: '🥇' },
+  { level: 5, points: '2000-2499', badge: '🏆' },
+  { level: 10, points: '4500-4999', badge: '👑' },
+];
 
 // 用户统计数据
 const userStats = ref({
@@ -134,7 +236,15 @@ const answerStats = ref({
   categoryCount: 0,
   earlyBirdCount: 0,
   registerDays: 0,
-  shareCount: 0
+  shareCount: 0,
+  loginCount: 0,
+  continuousLoginDays: 0,
+  createCount: 0,
+  publishCount: 0,
+  approvedCount: 0,
+  favoriteCount: 0,
+  commentCount: 0,
+  profileComplete: 0
 });
 
 // 已解锁徽章列表（从json-server读取）
@@ -179,12 +289,30 @@ const getCurrentProgress = (badge) => {
       return answerStats.value.categoryCount;
     case 'early_bird':
       return answerStats.value.earlyBirdCount;
-    case 'points':
+    case 'total_points':
       return userStats.value.points;
     case 'register_days':
       return answerStats.value.registerDays;
     case 'share_count':
       return answerStats.value.shareCount;
+    case 'login_count':
+      return answerStats.value.loginCount;
+    case 'continuous_login':
+      return answerStats.value.continuousLoginDays;
+    case 'create_count':
+      return answerStats.value.createCount;
+    case 'publish_count':
+      return answerStats.value.publishCount;
+    case 'approved_count':
+      return answerStats.value.approvedCount;
+    case 'favorite_count':
+      return answerStats.value.favoriteCount;
+    case 'comment_count':
+      return answerStats.value.commentCount;
+    case 'profile_complete':
+      return answerStats.value.profileComplete;
+    case 'user_level':
+      return userStore.profile?.level || 1;
     default:
       return 0;
   }
@@ -304,6 +432,50 @@ const loadUserData = async () => {
 
     // 分享次数（从用户数据获取）
     answerStats.value.shareCount = userInfo.shareCount || 0;
+    
+    // 连续登录天数
+    answerStats.value.continuousLoginDays = userInfo.continuousLoginDays || 0;
+    
+    // 登录次数（可以根据lastLoginAt计算）
+    answerStats.value.loginCount = userInfo.loginCount || 0;
+    
+    // 获取用户创建的问卷数量
+    const userCreatedSurveys = allSurveys.filter(s => s.authorId == userId || s.creatorId == userId);
+    answerStats.value.createCount = userCreatedSurveys.length;
+    
+    // 统计发布数量（status为pending或published）
+    answerStats.value.publishCount = userCreatedSurveys.filter(s => 
+      s.status === 'pending' || s.status === 'published'
+    ).length;
+    
+    // 统计审核通过数量
+    answerStats.value.approvedCount = userCreatedSurveys.filter(s => 
+      s.status === 'published'
+    ).length;
+    
+    // 获取收藏数量
+    try {
+      const favorites = await apiClient.get('/favorites');
+      answerStats.value.favoriteCount = favorites.filter(f => f.userId == userId).length;
+    } catch (error) {
+      console.error('获取收藏数据失败:', error);
+    }
+    
+    // 统计评论数量（从Surveys中的comments统计）
+    let commentCount = 0;
+    allSurveys.forEach(survey => {
+      if (Array.isArray(survey.comments)) {
+        commentCount += survey.comments.filter(c => c.userId == userId).length;
+      }
+    });
+    answerStats.value.commentCount = commentCount;
+    
+    // 检查资料是否完善
+    const isProfileComplete = userInfo.username && userInfo.email && userInfo.phone && 
+                             userInfo.gender && userInfo.age && userInfo.city && 
+                             userInfo.profession && userInfo.bio && 
+                             Array.isArray(userInfo.tags) && userInfo.tags.length > 0;
+    answerStats.value.profileComplete = isProfileComplete ? 1 : 0;
 
     // 检查并自动解锁徽章
     await checkAndUnlockBadges();
@@ -381,6 +553,108 @@ onMounted(() => {
 
   @media (max-width: 768px) {
     padding: 10px;
+  }
+}
+
+/* 积分指南卡片 */
+.points-guide-card {
+  margin-bottom: 30px;
+  
+  .guide-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #303133;
+  }
+  
+  .guide-content {
+    .guide-section {
+      margin-bottom: 20px;
+      
+      h4 {
+        margin: 0 0 10px 0;
+        font-size: 16px;
+        color: #409EFF;
+        font-weight: 600;
+      }
+      
+      ul {
+        margin: 0;
+        padding-left: 20px;
+        
+        li {
+          margin-bottom: 8px;
+          line-height: 1.8;
+          color: #606266;
+          
+          strong {
+            color: #303133;
+          }
+          
+          &.info-note {
+            font-size: 12px;
+            color: #909399;
+            list-style: none;
+            margin-left: -20px;
+            padding: 8px 12px;
+            background: #f4f4f5;
+            border-radius: 4px;
+            margin-top: 5px;
+          }
+        }
+      }
+    }
+    
+    .level-formula {
+      margin-bottom: 20px;
+      
+      p {
+        margin: 0 0 10px 0;
+        font-size: 14px;
+        color: #303133;
+      }
+      
+      .formula-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        text-align: center;
+        font-family: 'Courier New', monospace;
+      }
+    }
+    
+    .level-table {
+      margin-top: 15px;
+    }
+    
+    .badge-intro {
+      margin: 0 0 15px 0;
+      font-size: 14px;
+      color: #606266;
+      line-height: 1.6;
+    }
+    
+    .badge-categories {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .badge-note {
+      margin: 15px 0 0 0;
+      padding: 10px 15px;
+      background: #fff9e6;
+      border-left: 3px solid #E6A23C;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #606266;
+    }
   }
 }
 

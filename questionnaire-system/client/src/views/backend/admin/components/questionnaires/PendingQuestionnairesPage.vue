@@ -257,6 +257,7 @@ import {
   WarningFilled
 } from '@element-plus/icons-vue'
 import { getSurveysApi, updateSurveyStatusApi, deleteAdminSurveyApi } from '@/api/admin'
+import { approveSurveyApi } from '@/api/survey'
 import apiClient from '@/api/index'
 
 // 响应式数据
@@ -437,9 +438,11 @@ const submitReview = async () => {
 
     // 根据审核结果调用不同的 API
     if (reviewForm.result === 'approve') {
-      // 审核通过 - 状态改为 published
-      await updateSurveyStatusApi(currentQuestionnaire.value.id, 'published')
-
+      // 审核通过 - 使用approveSurveyApi获取积分奖励
+      const result = await approveSurveyApi(currentQuestionnaire.value.id)
+      
+      // 如果返回了积分奖励,更新问卷作者的积分(已在API中处理)
+      
       // 记录审核活动
       const { recordAdminActivity } = await import('@/api/admin')
       const { useUserStore } = await import('@/store/user')
@@ -454,7 +457,11 @@ const submitReview = async () => {
       })
 
       loading.close()
-      ElMessage.success('审核通过，问卷已发布')
+      
+      const successMessage = result.pointsEarned 
+        ? `审核通过，问卷已发布（作者获得 ${result.pointsEarned} 积分）`
+        : '审核通过，问卷已发布'
+      ElMessage.success(successMessage)
       removeFromPendingList(currentQuestionnaire.value.id)
     } else if (reviewForm.result === 'reject') {
       // 审核拒绝 - 状态改为 rejected，并记录拒绝原因

@@ -353,7 +353,23 @@ const submitSurvey = async () => {
     // 停止计时器
     stopTimer()
     
-    ElMessage.success('问卷提交成功！')
+    // 更新用户积分状态
+    if (result.pointsEarned && result.pointsEarned > 0) {
+      const currentProfile = userStore.profile;
+      if (currentProfile) {
+        currentProfile.points = (currentProfile.points || 0) + result.pointsEarned;
+        userStore.setProfile(currentProfile);
+      }
+      
+      // 显示积分奖励提示
+      let message = `问卷提交成功！获得 ${result.pointsEarned} 积分`;
+      if (result.isFirstSurvey) {
+        message += '（包含首次完成奖励 +20）';
+      }
+      ElMessage.success(message);
+    } else {
+      ElMessage.success('问卷提交成功！');
+    }
     
     const surveyId = route.params.id
     const userId = userStore.profile?.id

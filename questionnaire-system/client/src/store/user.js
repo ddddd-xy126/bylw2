@@ -1,4 +1,34 @@
 import { defineStore } from "pinia";
+import { ElMessage } from "element-plus";
+import apiClient from "@/api/index";
+
+// 积分奖励配置
+export const POINTS_CONFIG = {
+  // 问卷相关
+  COMPLETE_SURVEY: 10,           // 完成问卷
+  CREATE_SURVEY: 50,             // 创建问卷
+  PUBLISH_SURVEY: 30,            // 发布问卷
+  SURVEY_APPROVED: 20,           // 问卷审核通过
+  
+  // 互动相关
+  ADD_COMMENT: 5,                // 发表评论
+  RECEIVE_RATING: 2,             // 收到评分
+  ADD_FAVORITE: 3,               // 收藏问卷
+  
+  // 登录相关
+  DAILY_LOGIN: 5,                // 每日登录
+  CONTINUOUS_LOGIN_3: 10,        // 连续登录3天
+  CONTINUOUS_LOGIN_7: 30,        // 连续登录7天
+  CONTINUOUS_LOGIN_30: 100,      // 连续登录30天
+  
+  // 社交相关
+  SHARE_SURVEY: 5,               // 分享问卷
+  INVITE_USER: 20,               // 邀请用户
+  
+  // 其他
+  PROFILE_COMPLETE: 15,          // 完善个人资料
+  FIRST_SURVEY: 20,              // 首次完成问卷（额外奖励）
+};
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -18,12 +48,19 @@ export const useUserStore = defineStore("user", {
     answers: [],
     achievements: null,
     reports: [],
+    // 积分相关统计
+    todayPoints: 0,                // 今日获得积分
+    pointsHistory: [],             // 积分历史记录
+    lastLoginDate: null,           // 上次登录日期
+    continuousLoginDays: 0,        // 连续登录天数
   }),
   getters: {
     isLoggedIn: (state) => !!state.token,
     isAdmin: (state) => state.profile?.role === "admin",
     userName: (state) => state.profile?.username || "用户",
     userId: (state) => state.profile?.id || null,
+    userPoints: (state) => state.profile?.points || 0,
+    userLevel: (state) => state.profile?.level || 1,
   },
   actions: {
     setToken(token) {
@@ -50,6 +87,149 @@ export const useUserStore = defineStore("user", {
       const favoritesArray = Array.isArray(this.favorites) ? this.favorites : [];
       this.favorites = favoritesArray.filter(fav => fav.questionnaireId !== surveyId);
     },
+    
+    /**
+     * 增加用户积分
+     * @param {number} points - 要增加的积分数
+     * @param {string} reason - 获得积分的原因
+     * @param {boolean} showMessage - 是否显示提示消息
+     * @returns {Promise<boolean>} - 是否成功
+     */
+    async addPoints(points, reason = "获得积分", showMessage = true) {
+      if (!this.profile?.id) {
+        console.error("用户未登录，无法增加积分");
+        return false;
+      }
+
+      try {
+        const currentPoints = this.profile.points || 0;
+        const newPoints = currentPoints + points;
+        
+        // 计算新等级（每500积分升一级）
+        const newLevel = Math.floor(newPoints / 500) + 1;
+
+        // 更新数据库
+        await apiClient.patch(`/users/${this.profile.id}`, {
+          points: newPoints,
+          level: newLevel,
+          updatedAt: new Date().toISOString(),
+        });
+
+        // 更新本地状态
+        this.profile = {
+          ...this.profile,
+          points: newPoints,
+          level: newLevel,
+        };
+        
+        // 保存到 localStorage
+        localStorage.setItem("profile", JSON.stringify(this.profile));
+
+        // 更新今日积分
+        this.todayPoints += points;
+
+        // 记录积分历史
+        this.pointsHistory.unshift({
+          points,
+          reason,
+          timestamp: new Date().toISOString(),
+          totalPoints: newPoints,
+        });
+
+        // 显示提示消息
+        if (showMessage) {
+          ElMessage.success({
+            message: `${reason} +${points}积分`,
+            duration: 2000,
+          });
+        }
+
+        // 检查是否升级
+        if (newLevel > (this.profile.level || 1)) {
+          setTimeout(() => {
+            ElMessage.success({
+              message: `🎉 恭喜升级到 Lv.${newLevel}！`,
+              duration: 3000,
+            });
+          }, 500);
+        }
+
+        return true;
+      } catch (error) {
+        console.error("增加积分失败:", error);
+        return false;
+      }
+    },
+
+    /**
+     * 检查并奖励每日登录积分
+     */
+    async checkDailyLogin() {
+      if (!this.profile?.id) return;
+
+      try {
+        const today = new Date().toDateString();
+        const lastLogin = this.profile.lastLoginAt 
+          ? new Date(this.profile.lastLoginAt).toDateString() 
+          : null;
+
+        // 如果今天还没有登录过
+        if (lastLogin !== today) {
+          // 检查连续登录天数
+          let continuousDays = this.profile.continuousLoginDays || 0;
+          
+          if (lastLogin) {
+            const lastLoginDate = new Date(lastLogin);
+            const todayDate = new Date(today);
+            const diffTime = todayDate - lastLoginDate;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) {
+              // 连续登录
+              continuousDays += 1;
+            } else {
+              // 中断了，重新开始
+              continuousDays = 1;
+            }
+          } else {
+            continuousDays = 1;
+          }
+
+          // 更新数据库
+          await apiClient.patch(`/users/${this.profile.id}`, {
+            lastLoginAt: new Date().toISOString(),
+            continuousLoginDays: continuousDays,
+          });
+
+          // 更新本地状态
+          this.profile.lastLoginAt = new Date().toISOString();
+          this.profile.continuousLoginDays = continuousDays;
+          this.continuousLoginDays = continuousDays;
+
+          // 每日登录奖励
+          await this.addPoints(POINTS_CONFIG.DAILY_LOGIN, "每日登录奖励");
+
+          // 连续登录额外奖励
+          if (continuousDays === 3) {
+            await this.addPoints(POINTS_CONFIG.CONTINUOUS_LOGIN_3, "连续登录3天奖励");
+          } else if (continuousDays === 7) {
+            await this.addPoints(POINTS_CONFIG.CONTINUOUS_LOGIN_7, "连续登录7天奖励");
+          } else if (continuousDays === 30) {
+            await this.addPoints(POINTS_CONFIG.CONTINUOUS_LOGIN_30, "连续登录30天奖励");
+          }
+        }
+      } catch (error) {
+        console.error("每日登录检查失败:", error);
+      }
+    },
+
+    /**
+     * 重置每日统计
+     */
+    resetDailyStats() {
+      this.todayPoints = 0;
+    },
+    
     logout() {
       this.token = "";
       this.profile = null;
@@ -57,6 +237,9 @@ export const useUserStore = defineStore("user", {
       this.answers = [];
       this.achievements = null;
       this.reports = [];
+      this.todayPoints = 0;
+      this.pointsHistory = [];
+      this.continuousLoginDays = 0;
       localStorage.removeItem("token");
       localStorage.removeItem("profile");
     },

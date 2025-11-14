@@ -56,12 +56,19 @@
 
           <el-row :gutter="24">
             <el-col :span="12">
-              <el-form-item label="生日" prop="birthday">
-                <el-date-picker v-model="userInfo.birthday" type="date" placeholder="选择生日" format="YYYY-MM-DD"
-                  value-format="YYYY-MM-DD" />
+              <el-form-item label="年龄" prop="age">
+                <el-input-number v-model="userInfo.age" :min="0" :max="150" placeholder="请输入年龄" style="width: 100%" />
               </el-form-item>
             </el-col>
 
+            <el-col :span="12">
+              <el-form-item label="城市" prop="city">
+                <el-input v-model="userInfo.city" placeholder="请输入所在城市" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row :gutter="24">
             <el-col :span="12">
               <el-form-item label="职业" prop="occupation">
                 <el-input v-model="userInfo.occupation" placeholder="请输入职业" />
@@ -221,7 +228,8 @@ const userInfo = reactive({
   email: '',
   phone: '',
   gender: '',
-  birthday: '',
+  age: 0,
+  city: '',
   occupation: '',
   bio: '',
   // 个人标签，多选字符串数组
@@ -339,7 +347,8 @@ const loadUserInfo = () => {
       email: profile.email || '',
       phone: profile.phone || '',
       gender: profile.gender || '',
-      birthday: profile.birthday || '',
+      age: profile.age || 0,
+      city: profile.city || '',
       occupation: profile.profession || '',
       bio: profile.bio || '',
       tags: profile.tags || []
@@ -407,12 +416,39 @@ const saveUserInfo = async () => {
       email: userInfo.email,
       phone: userInfo.phone,
       gender: userInfo.gender,
+      age: userInfo.age || 0,
+      city: userInfo.city || '',
       profession: userInfo.occupation,
       bio: userInfo.bio,
       // 将 tags 字段保存到 json-server
       tags: Array.isArray(userInfo.tags) ? userInfo.tags : [],
       updatedAt: new Date().toISOString()
     };
+
+    // 检查资料是否完整
+    const isProfileComplete = (data) => {
+      return data.username && 
+             data.email && 
+             data.phone && 
+             data.gender && 
+             data.age > 0 && 
+             data.city && 
+             data.profession && 
+             data.bio && 
+             Array.isArray(data.tags) && 
+             data.tags.length > 0;
+    };
+
+    // 检查之前资料是否完整
+    const wasComplete = isProfileComplete(currentProfile);
+    const isComplete = isProfileComplete(updatedData);
+    
+    // 如果之前不完整,现在完整了,奖励15积分
+    let profileCompleteBonus = 0;
+    if (!wasComplete && isComplete) {
+      profileCompleteBonus = 15;
+      updatedData.points = (updatedData.points || 0) + profileCompleteBonus;
+    }
 
     // 调用API更新用户信息
     const { updateProfileApi } = await import('@/api/user.js');
@@ -421,7 +457,12 @@ const saveUserInfo = async () => {
     // 更新store中的用户信息
     userStore.setProfile(updatedData);
 
-    ElMessage.success('个人信息更新成功');
+    if (profileCompleteBonus > 0) {
+      ElMessage.success(`个人信息更新成功！资料完整度达到100%，获得 ${profileCompleteBonus} 积分`);
+    } else {
+      ElMessage.success('个人信息更新成功');
+    }
+    
     editMode.value = false;
 
     console.log('用户信息已保存:', updatedData);
