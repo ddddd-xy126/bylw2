@@ -228,7 +228,7 @@
       "role": "user",
       "banned": false,
       "isActive": true,
-      "points": 565,
+      "points": 235,
       "level": 1,
       "bio": "钱钱钱钱钱钱",
       "city": "成都",
@@ -241,17 +241,12 @@
       "lastLoginIp": "",
       "password": "admin123..",
       "unlockedBadges": [
-        "badge_3",
-        "badge_4",
-        "badge_6",
-        "badge_13",
-        "badge_14",
-        "badge_9",
         "badge_5",
         "badge_8",
         "badge_10",
         "badge_11",
-        "badge_15"
+        "badge_15",
+        "badge_19"
       ],
       "updatedAt": "2025-11-14T09:18:56.767Z",
       "tags": [
@@ -3501,7 +3496,6 @@
       "name": "首次登录",
       "description": "完成首次登录",
       "icon": "🎯",
-      "image": "/badges/first-login.png",
       "requirement": 1,
       "type": "login_count",
       "points": 5
@@ -3511,7 +3505,6 @@
       "name": "坚持三天",
       "description": "连续登录3天",
       "icon": "📅",
-      "image": "/badges/login-3days.png",
       "requirement": 3,
       "type": "continuous_login",
       "points": 5
@@ -3521,7 +3514,6 @@
       "name": "一周常客",
       "description": "连续登录7天",
       "icon": "🌟",
-      "image": "/badges/login-7days.png",
       "requirement": 7,
       "type": "continuous_login",
       "points": 10
@@ -3531,7 +3523,6 @@
       "name": "月度达人",
       "description": "连续登录30天",
       "icon": "👑",
-      "image": "/badges/login-30days.png",
       "requirement": 30,
       "type": "continuous_login",
       "points": 50
@@ -3541,7 +3532,6 @@
       "name": "问卷新手",
       "description": "完成第一份问卷",
       "icon": "📝",
-      "image": "/badges/first-survey.png",
       "requirement": 1,
       "type": "survey_count",
       "points": 30
@@ -3551,7 +3541,6 @@
       "name": "勤奋答题",
       "description": "完成10份问卷",
       "icon": "📚",
-      "image": "/badges/survey-10.png",
       "requirement": 10,
       "type": "survey_count",
       "points": 100
@@ -3561,7 +3550,6 @@
       "name": "问卷达人",
       "description": "完成50份问卷",
       "icon": "🏆",
-      "image": "/badges/survey-50.png",
       "requirement": 50,
       "type": "survey_count",
       "points": 500
@@ -3571,7 +3559,6 @@
       "name": "创作启航",
       "description": "创建第一份问卷",
       "icon": "✨",
-      "image": "/badges/create-first.png",
       "requirement": 1,
       "type": "create_count",
       "points": 50
@@ -3581,7 +3568,6 @@
       "name": "创作高产",
       "description": "创建5份问卷",
       "icon": "🎨",
-      "image": "/badges/create-5.png",
       "requirement": 5,
       "type": "create_count",
       "points": 250
@@ -3591,7 +3577,6 @@
       "name": "发布先锋",
       "description": "发布第一份问卷",
       "icon": "🚀",
-      "image": "/badges/publish-first.png",
       "requirement": 1,
       "type": "publish_count",
       "points": 30
@@ -3601,7 +3586,6 @@
       "name": "审核达标",
       "description": "问卷审核通过3次",
       "icon": "✅",
-      "image": "/badges/approved-3.png",
       "requirement": 3,
       "type": "approved_count",
       "points": 60
@@ -3611,7 +3595,6 @@
       "name": "收藏爱好者",
       "description": "收藏10份问卷",
       "icon": "❤️",
-      "image": "/badges/favorite-10.png",
       "requirement": 10,
       "type": "favorite_count",
       "points": 30
@@ -3621,7 +3604,6 @@
       "name": "评论活跃",
       "description": "发表10条评论",
       "icon": "💬",
-      "image": "/badges/comment-10.png",
       "requirement": 10,
       "type": "comment_count",
       "points": 50
@@ -3631,7 +3613,6 @@
       "name": "分享达人",
       "description": "分享问卷10次",
       "icon": "🎉",
-      "image": "/badges/share-10.png",
       "requirement": 10,
       "type": "share_count",
       "points": 50
@@ -3641,7 +3622,6 @@
       "name": "资料完善",
       "description": "完善个人资料",
       "icon": "👤",
-      "image": "/badges/profile-complete.png",
       "requirement": 1,
       "type": "profile_complete",
       "points": 15
@@ -3651,7 +3631,6 @@
       "name": "积分新星",
       "description": "累计获得500积分",
       "icon": "⭐",
-      "image": "/badges/points-500.png",
       "requirement": 500,
       "type": "total_points",
       "points": 50
@@ -3661,7 +3640,6 @@
       "name": "积分达人",
       "description": "累计获得1000积分",
       "icon": "💎",
-      "image": "/badges/points-1000.png",
       "requirement": 1000,
       "type": "total_points",
       "points": 100
@@ -3671,7 +3649,6 @@
       "name": "积分富豪",
       "description": "累计获得5000积分",
       "icon": "💰",
-      "image": "/badges/points-5000.png",
       "requirement": 5000,
       "type": "total_points",
       "points": 500
@@ -3681,7 +3658,6 @@
       "name": "二级用户",
       "description": "等级达到2级（500积分）",
       "icon": "🥉",
-      "image": "/badges/level-2.png",
       "requirement": 2,
       "type": "user_level",
       "points": 50
@@ -3691,7 +3667,6 @@
       "name": "五级用户",
       "description": "等级达到5级（2000积分）",
       "icon": "🥈",
-      "image": "/badges/level-5.png",
       "requirement": 5,
       "type": "user_level",
       "points": 200
@@ -3701,7 +3676,6 @@
       "name": "十级大师",
       "description": "等级达到10级（4500积分）",
       "icon": "🥇",
-      "image": "/badges/level-10.png",
       "requirement": 10,
       "type": "user_level",
       "points": 500
