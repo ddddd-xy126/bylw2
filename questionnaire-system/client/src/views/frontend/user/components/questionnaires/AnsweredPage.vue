@@ -231,18 +231,6 @@ const formatDuration = (duration) => {
   return `${minutes}分${seconds}秒`;
 };
 
-const formatAnswerValue = (value) => {
-  // 如果没有值，返回"未作答"
-  if (!value) return "未作答";
-
-  // 如果是数组，用顿号连接
-  if (Array.isArray(value)) {
-    return value.length > 0 ? value.join("、") : "未作答";
-  }
-
-  // 返回字符串值
-  return value;
-};
 
 const viewResult = (answer) => {
   // 跳转到结果页，带上 surveyId 参数

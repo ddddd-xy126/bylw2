@@ -7,7 +7,9 @@
           <div class="header-content">
             <span class="header-title">问卷详情</span>
             <el-breadcrumb separator="/">
-              <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+              <el-breadcrumb-item :to="{ path: '/home' }"
+                >首页</el-breadcrumb-item
+              >
               <el-breadcrumb-item>问卷详情</el-breadcrumb-item>
             </el-breadcrumb>
           </div>
@@ -21,7 +23,7 @@
         <el-card class="survey-info-card" shadow="hover">
           <div class="survey-header">
             <div class="header-left">
-              <h1 class="survey-title">{{ detail.title || '问卷标题' }}</h1>
+              <h1 class="survey-title">{{ detail.title || "问卷标题" }}</h1>
               <div class="survey-meta">
                 <el-tag :type="getStatusTagType(detail.status)" size="small">
                   {{ getStatusText(detail.status) }}
@@ -30,7 +32,7 @@
                   <el-icon>
                     <User />
                   </el-icon>
-                  {{ detail.creator?.nickname || detail.author || '匿名作者' }}
+                  {{ detail.creator?.nickname || detail.author || "匿名作者" }}
                 </span>
                 <span class="meta-item">
                   <el-icon>
@@ -47,7 +49,12 @@
               </div>
             </div>
             <div class="header-right">
-              <el-button type="primary" size="large" :loading="startLoading" @click="startSurvey">
+              <el-button
+                type="primary"
+                size="large"
+                :loading="startLoading"
+                @click="startSurvey"
+              >
                 <el-icon>
                   <CaretRight />
                 </el-icon>
@@ -57,7 +64,7 @@
           </div>
 
           <div class="survey-description">
-            <p>{{ detail.description || '暂无描述' }}</p>
+            <p>{{ detail.description || "暂无描述" }}</p>
           </div>
 
           <!-- 统计信息 -->
@@ -71,7 +78,9 @@
                     </el-icon>
                   </div>
                   <div class="stat-content">
-                    <div class="stat-number">{{ detail.participantCount || 0 }}</div>
+                    <div class="stat-number">
+                      {{ detail.participantCount || 0 }}
+                    </div>
                     <div class="stat-label">参与人数</div>
                   </div>
                 </div>
@@ -84,7 +93,9 @@
                     </el-icon>
                   </div>
                   <div class="stat-content">
-                    <div class="stat-number">{{ detail.estimatedTime || 5 }}分钟</div>
+                    <div class="stat-number">
+                      {{ detail.estimatedTime || 5 }}分钟
+                    </div>
                     <div class="stat-label">预计用时</div>
                   </div>
                 </div>
@@ -110,7 +121,9 @@
                     </el-icon>
                   </div>
                   <div class="stat-content">
-                    <div class="stat-number">{{ detail.averageRating || 4.5 }}</div>
+                    <div class="stat-number">
+                      {{ detail.averageRating || 4.5 }}
+                    </div>
                     <div class="stat-label">平均评分</div>
                   </div>
                 </div>
@@ -129,13 +142,19 @@
                 </el-icon>
                 问题预览
               </h3>
-              <span class="question-count">共 {{ getQuestionCount() }} 道题</span>
+              <span class="question-count"
+                >共 {{ getQuestionCount() }} 道题</span
+              >
             </div>
           </template>
 
           <div class="questions-overview">
             <div class="question-types">
-              <div class="type-item" v-for="type in questionTypes" :key="type.type">
+              <div
+                class="type-item"
+                v-for="type in questionTypes"
+                :key="type.type"
+              >
                 <div class="type-icon">
                   <el-icon>
                     <component :is="type.icon" />
@@ -151,12 +170,21 @@
             <el-divider />
 
             <div class="sample-questions">
-              <div v-for="(question, index) in getSampleQuestions()" :key="question.id" class="sample-question">
+              <div
+                v-for="(question, index) in getSampleQuestions()"
+                :key="question.id"
+                class="sample-question"
+              >
                 <div class="question-number">{{ index + 1 }}.</div>
                 <div class="question-content">
-                  <div class="question-title">{{ question.title || question.content }}</div>
+                  <div class="question-title">
+                    {{ question.title || question.content }}
+                  </div>
                   <div class="question-type-tag">
-                    <el-tag size="small" :type="getQuestionTypeColor(question.type)">
+                    <el-tag
+                      size="small"
+                      :type="getQuestionTypeColor(question.type)"
+                    >
                       {{ getQuestionTypeName(question.type) }}
                     </el-tag>
                   </div>
@@ -164,9 +192,15 @@
               </div>
             </div>
 
-            <div class="view-all-questions" v-if="(detail.questions || []).length > 3">
-              <el-button type="text" @click="showAllQuestions = !showAllQuestions">
-                {{ showAllQuestions ? '收起' : '查看全部题目' }}
+            <div
+              class="view-all-questions"
+              v-if="(detail.questions || []).length > 3"
+            >
+              <el-button
+                type="text"
+                @click="showAllQuestions = !showAllQuestions"
+              >
+                {{ showAllQuestions ? "收起" : "查看全部题目" }}
                 <el-icon>
                   <component :is="showAllQuestions ? 'ArrowUp' : 'ArrowDown'" />
                 </el-icon>
@@ -185,7 +219,9 @@
                 </el-icon>
                 用户评价
               </h3>
-              <span class="comment-count">{{ comments.total || 0 }} 条评论</span>
+              <span class="comment-count"
+                >{{ comments.total || 0 }} 条评论</span
+              >
             </div>
           </template>
 
@@ -194,19 +230,28 @@
             <div class="rating-overview">
               <div class="overall-rating">
                 <div class="rating-score">{{ detail.averageRating || 0 }}</div>
-                <el-rate :model-value="detail.averageRating || 0" disabled show-score text-color="#ff9900" />
-                <div class="rating-count">{{ detail.ratingCount || 0 }} 人评价</div>
+                <el-rate
+                  :model-value="detail.averageRating || 0"
+                  disabled
+                  show-score
+                  text-color="#ff9900"
+                />
+                <div class="rating-count">
+                  {{ detail.ratingCount || 0 }} 人评价
+                </div>
               </div>
               <div class="rating-distribution">
                 <div v-for="i in 5" :key="i" class="rating-bar">
                   <span class="star-count">{{ 6 - i }}星</span>
-                  <el-progress 
-                    :percentage="getRatingPercentage(6 - i)" 
-                    :stroke-width="8" 
+                  <el-progress
+                    :percentage="getRatingPercentage(6 - i)"
+                    :stroke-width="8"
                     :show-text="false"
                     color="#67d474"
                   />
-                  <span class="percentage">{{ getRatingPercentage(6 - i) }}%</span>
+                  <span class="percentage"
+                    >{{ getRatingPercentage(6 - i) }}%</span
+                  >
                 </div>
               </div>
             </div>
@@ -216,12 +261,7 @@
 
           <!-- 评价提示 -->
           <div class="comment-tip">
-            <el-alert
-              title="温馨提示"
-              type="info"
-              :closable="false"
-              show-icon
-            >
+            <el-alert title="温馨提示" type="info" :closable="false" show-icon>
               <template #default>
                 <p>完成问卷答题后，您可以在测评报告页面发表评价和打分。</p>
               </template>
@@ -230,7 +270,11 @@
 
           <!-- 评论列表 -->
           <div class="comments-list" v-loading="loadingComments">
-            <div v-for="comment in comments.list" :key="comment.id" class="comment-item">
+            <div
+              v-for="comment in comments.list"
+              :key="comment.id"
+              class="comment-item"
+            >
               <div class="comment-avatar">
                 <el-avatar :src="comment.avatar" :size="40">
                   {{ comment.username?.charAt(0) }}
@@ -240,13 +284,19 @@
                 <div class="comment-header">
                   <span class="comment-author">{{ comment.username }}</span>
                   <el-rate :model-value="comment.rating" disabled :size="16" />
-                  <span class="comment-time">{{ formatDate(comment.createdAt) }}</span>
+                  <span class="comment-time">{{
+                    formatDate(comment.createdAt)
+                  }}</span>
                 </div>
                 <div class="comment-text">{{ comment.content }}</div>
               </div>
             </div>
 
-            <el-empty v-if="!comments.list?.length && !loadingComments" description="暂无评论" :image-size="80" />
+            <el-empty
+              v-if="!comments.list?.length && !loadingComments"
+              description="暂无评论"
+              :image-size="80"
+            />
           </div>
         </el-card>
       </div>
@@ -259,19 +309,36 @@
             <h4>快速操作</h4>
           </template>
           <div class="action-buttons">
-            <el-button type="primary" size="large" block :loading="startLoading" @click="startSurvey">
+            <el-button
+              type="primary"
+              size="large"
+              block
+              :loading="startLoading"
+              @click="startSurvey"
+            >
               <el-icon>
                 <CaretRight />
               </el-icon>
               开始测试
             </el-button>
-            <el-button type="success" size="default" block @click="toggleFavorite" :loading="favoriteLoading">
+            <el-button
+              type="success"
+              size="default"
+              block
+              @click="toggleFavorite"
+              :loading="favoriteLoading"
+            >
               <el-icon>
                 <Star />
               </el-icon>
-              {{ detail.isFavorite ? '取消收藏' : '收藏问卷' }}
+              {{ detail.isFavorite ? "取消收藏" : "收藏问卷" }}
             </el-button>
-            <el-button type="info" size="default" block @click="shareQuestionnaire">
+            <el-button
+              type="info"
+              size="default"
+              block
+              @click="shareQuestionnaire"
+            >
               <el-icon>
                 <Share />
               </el-icon>
@@ -296,7 +363,9 @@
               <div class="author-stats">
                 <div class="stat">
                   <span class="label">创建问卷</span>
-                  <span class="value">{{ detail.creator.surveyCount || 0 }}</span>
+                  <span class="value">{{
+                    detail.creator.surveyCount || 0
+                  }}</span>
                 </div>
                 <div class="stat">
                   <span class="label">获得赞数</span>
@@ -316,16 +385,18 @@
             </div>
           </template>
           <div class="recommend-list">
-            <div 
-              v-for="survey in recommendedSurveys" 
-              :key="survey.id" 
+            <div
+              v-for="survey in recommendedSurveys"
+              :key="survey.id"
               class="recommend-item"
               @click="navigateToSurvey(survey.id)"
             >
               <div class="recommend-content">
                 <div class="recommend-header">
                   <h5 class="recommend-title">{{ survey.title }}</h5>
-                  <el-tag size="small" type="success" effect="plain">推荐</el-tag>
+                  <el-tag size="small" type="success" effect="plain"
+                    >推荐</el-tag
+                  >
                 </div>
                 <div class="recommend-meta">
                   <span class="meta-info">
@@ -333,28 +404,30 @@
                     {{ survey.participantCount || 0 }}人
                   </span>
                   <div class="rating-info">
-                    <el-rate 
-                      :model-value="survey.averageRating || 4.0" 
-                      disabled 
+                    <el-rate
+                      :model-value="survey.averageRating || 4.0"
+                      disabled
                       :size="14"
                       :show-score="false"
                     />
-                    <span class="rating-text">{{ survey.averageRating || 4.0 }}</span>
+                    <span class="rating-text">{{
+                      survey.averageRating || 4.0
+                    }}</span>
                   </div>
                 </div>
                 <div class="recommend-actions">
-                  <el-button 
-                    size="small" 
-                    type="primary" 
+                  <el-button
+                    size="small"
+                    type="primary"
                     text
                     @click.stop="quickStart(survey.id)"
                   >
                     <el-icon><CaretRight /></el-icon>
                     开始测试
                   </el-button>
-                  <el-button 
-                    size="small" 
-                    type="success" 
+                  <el-button
+                    size="small"
+                    type="success"
                     text
                     @click.stop="quickFavorite(survey.id)"
                   >
@@ -364,10 +437,10 @@
                 </div>
               </div>
             </div>
-            
-            <el-empty 
-              v-if="recommendedSurveys.length === 0" 
-              description="暂无相关推荐" 
+
+            <el-empty
+              v-if="recommendedSurveys.length === 0"
+              description="暂无相关推荐"
               :image-size="80"
             />
           </div>
@@ -392,15 +465,16 @@ import {
   List,
   ChatLineRound,
   Share,
-  ArrowUp,
-  ArrowDown,
-  CircleCheck,
-  Edit,
   MoreFilled as More,
-  Collection
+  Collection,
 } from "@element-plus/icons-vue";
 
-import { getSurveyDetail, getSurveyCommentsApi, createCommentApi } from "@/api/survey";
+import {
+  getSurveyDetail,
+  getSurveyCommentsApi,
+  createCommentApi,
+  listSurveys,
+} from "@/api/survey";
 import { useUserStore } from "@/store/user";
 
 const route = useRoute();
@@ -417,48 +491,29 @@ const favoriteLoading = ref(false);
 const loadingComments = ref(false);
 
 // 推荐问卷
-const recommendedSurveys = ref([
-  {
-    id: 2,
-    title: "职业兴趣测试",
-    participantCount: 856,
-    averageRating: 4.3
-  },
-  {
-    id: 3,
-    title: "学习方式评估",
-    participantCount: 642,
-    averageRating: 4.1
-  },
-  {
-    id: 4,
-    title: "压力管理能力测试",
-    participantCount: 734,
-    averageRating: 4.4
-  }
-]);
+const recommendedSurveys = ref([]);
 
 // 计算属性
 const questionTypes = computed(() => {
   const questions = detail.value.questions || [];
   const types = {};
 
-  questions.forEach(q => {
-    const type = q.type || 'single';
+  questions.forEach((q) => {
+    const type = q.type || "single";
     types[type] = (types[type] || 0) + 1;
   });
 
   const typeMap = {
-    single: { name: '单选题', icon: 'CircleCheck' },
-    multiple: { name: '多选题', icon: 'More' },
-    text: { name: '文本题', icon: 'Edit' },
-    rating: { name: '评分题', icon: 'Star' }
+    single: { name: "单选题", icon: "CircleCheck" },
+    multiple: { name: "多选题", icon: "More" },
+    text: { name: "文本题", icon: "Edit" },
+    rating: { name: "评分题", icon: "Star" },
   };
 
   return Object.entries(types).map(([type, count]) => ({
     type,
     count,
-    ...typeMap[type] || { name: '其他', icon: 'Document' }
+    ...(typeMap[type] || { name: "其他", icon: "Document" }),
   }));
 });
 
@@ -474,40 +529,40 @@ const getSampleQuestions = () => {
 
 const getStatusTagType = (status) => {
   const typeMap = {
-    published: 'success',
-    draft: 'info',
-    closed: 'danger'
+    published: "success",
+    draft: "info",
+    closed: "danger",
   };
-  return typeMap[status] || 'info';
+  return typeMap[status] || "info";
 };
 
 const getStatusText = (status) => {
   const textMap = {
-    published: '进行中',
-    draft: '草稿',
-    closed: '已结束'
+    published: "进行中",
+    draft: "草稿",
+    closed: "已结束",
   };
-  return textMap[status] || '未知';
+  return textMap[status] || "未知";
 };
 
 const getQuestionTypeName = (type) => {
   const nameMap = {
-    single: '单选题',
-    multiple: '多选题',
-    text: '文本题',
-    rating: '评分题'
+    single: "单选题",
+    multiple: "多选题",
+    text: "文本题",
+    rating: "评分题",
   };
-  return nameMap[type] || '其他';
+  return nameMap[type] || "其他";
 };
 
 const getQuestionTypeColor = (type) => {
   const colorMap = {
-    single: 'primary',
-    multiple: 'success',
-    text: 'warning',
-    rating: 'danger'
+    single: "primary",
+    multiple: "success",
+    text: "warning",
+    rating: "danger",
   };
-  return colorMap[type] || 'info';
+  return colorMap[type] || "info";
 };
 
 const getRatingPercentage = (rating) => {
@@ -517,14 +572,14 @@ const getRatingPercentage = (rating) => {
     4: 25,
     3: 10,
     2: 3,
-    1: 2
+    1: 2,
   };
   return distribution[rating] || 0;
 };
 
 const formatDate = (date) => {
-  if (!date) return '未知时间';
-  return new Date(date).toLocaleDateString('zh-CN');
+  if (!date) return "未知时间";
+  return new Date(date).toLocaleDateString("zh-CN");
 };
 
 const startSurvey = async () => {
@@ -532,22 +587,22 @@ const startSurvey = async () => {
   try {
     // 检查问卷是否已停止收集
     if (detail.value.isCollecting === false) {
-      ElMessage.warning('该问卷已停止收集，暂时无法填写');
+      ElMessage.warning("该问卷已停止收集，暂时无法填写");
       return;
     }
 
     // 检查登录状态
     if (!userStore.isLoggedIn) {
       const result = await ElMessageBox.confirm(
-        '开始测试需要登录，是否前往登录？',
-        '提示',
+        "开始测试需要登录，是否前往登录？",
+        "提示",
         {
-          confirmButtonText: '去登录',
-          cancelButtonText: '取消',
-          type: 'info'
+          confirmButtonText: "去登录",
+          cancelButtonText: "取消",
+          type: "info",
         }
       );
-      if (result === 'confirm') {
+      if (result === "confirm") {
         router.push(`/login?redirect=/surveys/${route.params.id}`);
       }
       return;
@@ -556,8 +611,8 @@ const startSurvey = async () => {
     // 跳转到答题页面
     router.push(`/surveys/answer/${route.params.id}`);
   } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('操作失败，请重试');
+    if (error !== "cancel") {
+      ElMessage.error("操作失败，请重试");
     }
   } finally {
     startLoading.value = false;
@@ -566,18 +621,18 @@ const startSurvey = async () => {
 
 const toggleFavorite = async () => {
   if (!userStore.isLoggedIn) {
-    ElMessage.warning('请先登录');
+    ElMessage.warning("请先登录");
     return;
   }
 
   favoriteLoading.value = true;
   try {
     // 模拟收藏/取消收藏
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
     detail.value.isFavorite = !detail.value.isFavorite;
-    ElMessage.success(detail.value.isFavorite ? '收藏成功' : '取消收藏成功');
+    ElMessage.success(detail.value.isFavorite ? "收藏成功" : "取消收藏成功");
   } catch (error) {
-    ElMessage.error('操作失败，请重试');
+    ElMessage.error("操作失败，请重试");
   } finally {
     favoriteLoading.value = false;
   }
@@ -585,11 +640,14 @@ const toggleFavorite = async () => {
 
 const shareQuestionnaire = () => {
   const url = window.location.href;
-  navigator.clipboard.writeText(url).then(() => {
-    ElMessage.success('链接已复制到剪贴板');
-  }).catch(() => {
-    ElMessage.error('复制失败，请手动复制链接');
-  });
+  navigator.clipboard
+    .writeText(url)
+    .then(() => {
+      ElMessage.success("链接已复制到剪贴板");
+    })
+    .catch(() => {
+      ElMessage.error("复制失败，请手动复制链接");
+    });
 };
 
 // 相关推荐跳转
@@ -603,37 +661,37 @@ const navigateToSurvey = (surveyId) => {
 const quickStart = async (surveyId) => {
   if (!userStore.isLoggedIn) {
     const result = await ElMessageBox.confirm(
-      '开始测试需要登录，是否前往登录？',
-      '提示',
+      "开始测试需要登录，是否前往登录？",
+      "提示",
       {
-        confirmButtonText: '去登录',
-        cancelButtonText: '取消',
-        type: 'info'
+        confirmButtonText: "去登录",
+        cancelButtonText: "取消",
+        type: "info",
       }
-    ).catch(() => 'cancel');
-    
-    if (result === 'confirm') {
+    ).catch(() => "cancel");
+
+    if (result === "confirm") {
       router.push(`/login?redirect=/surveys/${surveyId}`);
     }
     return;
   }
-  
+
   router.push(`/surveys/answer/${surveyId}`);
 };
 
 // 快速收藏
 const quickFavorite = async (surveyId) => {
   if (!userStore.isLoggedIn) {
-    ElMessage.warning('请先登录');
+    ElMessage.warning("请先登录");
     return;
   }
-  
+
   try {
     // 模拟收藏操作
-    await new Promise(resolve => setTimeout(resolve, 300));
-    ElMessage.success('收藏成功');
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    ElMessage.success("收藏成功");
   } catch (error) {
-    ElMessage.error('收藏失败，请重试');
+    ElMessage.error("收藏失败，请重试");
   }
 };
 
@@ -643,9 +701,50 @@ const loadComments = async () => {
     const data = await getSurveyCommentsApi(route.params.id);
     comments.value = data;
   } catch (error) {
-    console.error('加载评论失败:', error);
+    console.error("加载评论失败:", error);
   } finally {
     loadingComments.value = false;
+  }
+};
+
+// 加载推荐问卷
+const loadRecommendedSurveys = async (category, currentId) => {
+  try {
+    // 获取所有问卷
+    const allSurveys = await listSurveys();
+
+    // 筛选相同分类且不是当前问卷的问卷
+    let recommended = allSurveys
+      .filter(
+        (survey) =>
+          survey.category === category &&
+          survey.id !== currentId &&
+          survey.status === "published"
+      )
+      // 按参与人数排序
+      .sort((a, b) => (b.participantCount || 0) - (a.participantCount || 0))
+      // 只取前3个
+      .slice(0, 3);
+
+    // 如果相同分类的问卷不足3个，用其他热门问卷补充
+    if (recommended.length < 3) {
+      const otherSurveys = allSurveys
+        .filter(
+          (survey) =>
+            survey.id !== currentId &&
+            survey.status === "published" &&
+            !recommended.some((r) => r.id === survey.id)
+        )
+        .sort((a, b) => (b.participantCount || 0) - (a.participantCount || 0))
+        .slice(0, 3 - recommended.length);
+
+      recommended = [...recommended, ...otherSurveys];
+    }
+
+    recommendedSurveys.value = recommended;
+  } catch (error) {
+    console.error("加载推荐问卷失败:", error);
+    recommendedSurveys.value = [];
   }
 };
 
@@ -655,18 +754,21 @@ onMounted(async () => {
     // 并行加载问卷详情和评论
     const [surveyData] = await Promise.all([
       getSurveyDetail(route.params.id),
-      loadComments()
+      loadComments(),
     ]);
 
     detail.value = surveyData;
-    
+
+    // 加载推荐问卷（基于当前问卷的分类）
+    await loadRecommendedSurveys(surveyData.category, surveyData.id);
+
     // 检查问卷是否已停止收集
     if (surveyData.isCollecting === false) {
-      ElMessage.warning('该问卷已停止收集，暂时无法填写');
+      ElMessage.warning("该问卷已停止收集，暂时无法填写");
     }
   } catch (error) {
-    ElMessage.error('加载问卷详情失败：' + error.message);
-    console.error('加载详情失败:', error);
+    ElMessage.error("加载问卷详情失败：" + error.message);
+    console.error("加载详情失败:", error);
   } finally {
     loading.value = false;
   }
@@ -681,7 +783,11 @@ onMounted(async () => {
 
   // ===== 页面头部 =====
   .page-header {
-    background: linear-gradient(135deg, var(--color-primary-light-3) 0%, var(--color-primary) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--color-primary-light-3) 0%,
+      var(--color-primary) 100%
+    );
     padding: var(--spacing-lg) var(--spacing-xl);
     margin-bottom: var(--spacing-lg);
     border-radius: var(--radius-lg);
@@ -692,7 +798,7 @@ onMounted(async () => {
         color: var(--text-inverse);
         font-weight: var(--font-weight-semibold);
         transition: all var(--transition-base);
-        
+
         &:hover {
           color: var(--color-primary-dark-4);
           transform: translateX(-4px);
@@ -723,7 +829,7 @@ onMounted(async () => {
 
       .el-breadcrumb {
         font-size: var(--font-size-sm);
-        
+
         :deep(.el-breadcrumb__separator) {
           color: rgba(255, 255, 255, 0.7);
         }
@@ -765,7 +871,8 @@ onMounted(async () => {
     .el-card {
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-base);
-      transition: transform var(--transition-base), box-shadow var(--transition-base);
+      transition: transform var(--transition-base),
+        box-shadow var(--transition-base);
 
       &:hover {
         transform: translateY(-2px);
@@ -845,7 +952,8 @@ onMounted(async () => {
         border-radius: var(--radius-md);
         padding: var(--spacing-md);
         box-shadow: var(--shadow-sm);
-        transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+        transition: transform var(--transition-fast),
+          box-shadow var(--transition-fast);
 
         &:hover {
           transform: translateY(-2px);
@@ -1127,9 +1235,9 @@ onMounted(async () => {
       }
 
       .el-button--success {
-        background: linear-gradient(135deg, #67C23A 0%, #409EFF 100%);
+        background: linear-gradient(135deg, #67c23a 0%, #409eff 100%);
         border: none;
-        
+
         &:hover {
           background: linear-gradient(135deg, #5daf34 0%, #3a8ee6 100%);
         }
@@ -1138,7 +1246,7 @@ onMounted(async () => {
       .el-button--info {
         background: linear-gradient(135deg, #909399 0%, #606266 100%);
         border: none;
-        
+
         &:hover {
           background: linear-gradient(135deg, #82848a 0%, #565a5e 100%);
         }
@@ -1291,5 +1399,4 @@ onMounted(async () => {
     font-weight: 600;
   }
 }
-
 </style>

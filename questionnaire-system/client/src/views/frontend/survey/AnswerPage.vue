@@ -200,11 +200,9 @@ const {
   answers,
   committedAnswers,
   currentQuestionIndex,
-  visitedQuestions,
   totalQuestions,
   currentQuestion,
   progressPercentage,
-  expectedPath,
   initializeLogic,
   setAnswer,
   commitAnswer,
@@ -216,12 +214,9 @@ const {
 } = useQuestionnaireLogic();
 
 const {
-  startTime,
   elapsedTime,
   formatTime,
   startTimer,
-  pauseTimer,
-  resumeTimer,
   resetTimer,
   stopTimer,
 } = useAnswerTimer();

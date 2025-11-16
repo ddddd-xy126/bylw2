@@ -368,8 +368,17 @@ const handleItemSelect = (itemId, checked) => {
   }
 };
 
-const getCategoryTagType = (category) => {
-  const types = {
+const getCategoryTagType = (categoryName) => {
+  // 从 API 获取的分类数据中查找对应的分类
+  const categoryObj = categories.value.find(cat => cat.name === categoryName);
+  
+  // 如果找到分类且有 color 属性，使用它；否则根据分类名称使用默认颜色
+  if (categoryObj?.color) {
+    return categoryObj.color;
+  }
+  
+  // 默认颜色映射（备用方案）
+  const defaultTypes = {
     '心理健康': 'success',
     '学习能力': 'primary',
     '职业发展': 'warning',
@@ -379,7 +388,7 @@ const getCategoryTagType = (category) => {
     '情绪管理': 'danger',
     '认知能力': 'primary'
   };
-  return types[category] || 'info';
+  return defaultTypes[categoryName] || 'info';
 };
 
 const formatDate = (dateString) => {
