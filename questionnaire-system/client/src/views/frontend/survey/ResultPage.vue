@@ -7,7 +7,9 @@
           <div class="header-content">
             <h2>测评报告</h2>
             <el-breadcrumb separator="/">
-              <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+              <el-breadcrumb-item :to="{ path: '/home' }"
+                >首页</el-breadcrumb-item
+              >
               <el-breadcrumb-item>测评报告</el-breadcrumb-item>
             </el-breadcrumb>
           </div>
@@ -21,11 +23,15 @@
         <template #header>
           <div class="card-header">
             <div class="header-info">
-              <h3>{{ reportData.surveyTitle || '问卷标题' }}</h3>
-              <p>{{ reportData.category || '问卷分类' }}</p>
+              <h3>{{ reportData.surveyTitle || "问卷标题" }}</h3>
+              <p>{{ reportData.category || "问卷分类" }}</p>
             </div>
             <div class="header-actions">
-              <el-button type="primary" :icon="Download" @click="downloadReport">
+              <el-button
+                type="primary"
+                :icon="Download"
+                @click="downloadReport"
+              >
                 下载报告
               </el-button>
             </div>
@@ -42,7 +48,9 @@
                 </div>
                 <div class="item-content">
                   <div class="item-label">完成时间</div>
-                  <div class="item-value">{{ formatDateTime(reportData.submittedAt) }}</div>
+                  <div class="item-value">
+                    {{ formatDateTime(reportData.submittedAt) }}
+                  </div>
                 </div>
               </div>
             </el-col>
@@ -53,7 +61,9 @@
                 </div>
                 <div class="item-content">
                   <div class="item-label">答题用时</div>
-                  <div class="item-value">{{ formatDuration(reportData.duration) }}</div>
+                  <div class="item-value">
+                    {{ formatDuration(reportData.duration) }}
+                  </div>
                 </div>
               </div>
             </el-col>
@@ -64,7 +74,9 @@
                 </div>
                 <div class="item-content">
                   <div class="item-label">测评得分</div>
-                  <div class="item-value score">{{ reportData.score || 0 }} 分</div>
+                  <div class="item-value score">
+                    {{ reportData.score || 0 }} 分
+                  </div>
                 </div>
               </div>
             </el-col>
@@ -75,7 +87,9 @@
                 </div>
                 <div class="item-content">
                   <div class="item-label">题目数量</div>
-                  <div class="item-value">{{ reportData.totalQuestions || 0 }} 题</div>
+                  <div class="item-value">
+                    {{ reportData.totalQuestions || 0 }} 题
+                  </div>
                 </div>
               </div>
             </el-col>
@@ -86,7 +100,7 @@
         <div class="evaluation-result" v-if="reportData.result">
           <el-divider content-position="left">
             <el-icon><Medal /></el-icon>
-            <span style="margin-left: 8px;">评估结果</span>
+            <span style="margin-left: 8px">评估结果</span>
           </el-divider>
           <div class="result-content">
             <el-alert
@@ -96,27 +110,32 @@
               show-icon
             >
               <template #default>
-                <p>{{ reportData.resultDescription || '恭喜您完成测评！' }}</p>
+                <p>{{ reportData.resultDescription || "恭喜您完成测评！" }}</p>
               </template>
             </el-alert>
           </div>
         </div>
 
         <!-- 答题详情预览 -->
-        <div class="answer-preview" v-if="reportData.answers && reportData.answers.length > 0">
+        <div
+          class="answer-preview"
+          v-if="reportData.answers && reportData.answers.length > 0"
+        >
           <el-divider content-position="left">
             <el-icon><List /></el-icon>
-            <span style="margin-left: 8px;">答题详情</span>
+            <span style="margin-left: 8px">答题详情</span>
           </el-divider>
           <div class="answers-grid">
-            <div 
-              v-for="(answer, index) in reportData.answers" 
-              :key="index" 
+            <div
+              v-for="(answer, index) in reportData.answers"
+              :key="index"
               class="answer-card"
             >
               <div class="answer-header">
                 <span class="question-num">Q{{ index + 1 }}</span>
-                <span class="question-text">{{ answer.question || '题目' }}</span>
+                <span class="question-text">{{
+                  answer.question || "题目"
+                }}</span>
               </div>
               <div class="answer-body">
                 <el-icon><Check /></el-icon>
@@ -133,7 +152,7 @@
           <div class="card-header">
             <h3>
               <el-icon><ChatDotRound /></el-icon>
-              <span style="margin-left: 8px;">我的评论</span>
+              <span style="margin-left: 8px">我的评论</span>
             </h3>
             <el-tag v-if="myComments.length > 0" type="success" size="small">
               {{ myComments.length }} 条评论
@@ -143,19 +162,26 @@
 
         <!-- 已有评论列表 -->
         <div v-if="myComments.length > 0" class="comments-list">
-          <div 
-            v-for="comment in myComments" 
-            :key="comment.id" 
+          <div
+            v-for="comment in myComments"
+            :key="comment.id"
             class="comment-item"
           >
             <div class="comment-header">
               <div class="comment-meta">
-                <el-rate :model-value="comment.rating" disabled show-score :size="20" />
-                <span class="comment-time">{{ formatDateTime(comment.createdAt) }}</span>
+                <el-rate
+                  :model-value="comment.rating"
+                  disabled
+                  show-score
+                  :size="20"
+                />
+                <span class="comment-time">{{
+                  formatDateTime(comment.createdAt)
+                }}</span>
               </div>
-              <el-button 
-                type="danger" 
-                size="small" 
+              <el-button
+                type="danger"
+                size="small"
                 text
                 @click="deleteComment(comment.id)"
               >
@@ -172,14 +198,14 @@
         <!-- 添加新评论表单 -->
         <div class="add-comment-form">
           <el-divider v-if="myComments.length > 0" content-position="left">
-            <span style="font-size: 14px; color: #909399;">添加新评论</span>
+            <span style="font-size: 14px; color: #909399">添加新评论</span>
           </el-divider>
-          
+
           <el-form label-width="80px">
             <el-form-item label="评分" required>
               <div class="rating-input">
-                <el-rate 
-                  v-model="ratingForm.rating" 
+                <el-rate
+                  v-model="ratingForm.rating"
                   :size="32"
                   show-text
                   :texts="['极差', '失望', '一般', '满意', '惊喜']"
@@ -197,9 +223,9 @@
               />
             </el-form-item>
             <el-form-item>
-              <el-button 
-                type="primary" 
-                @click="submitComment" 
+              <el-button
+                type="primary"
+                @click="submitComment"
                 :loading="submitting"
                 :disabled="!canSubmit"
                 size="large"
@@ -216,9 +242,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ref, computed, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { ElMessage, ElMessageBox } from "element-plus";
 import {
   Download,
   CircleCheck,
@@ -231,17 +257,17 @@ import {
   ChatDotRound,
   Edit,
   Delete,
-  ChatLineRound
-} from '@element-plus/icons-vue';
-import { useUserStore } from '@/store/user';
-import { 
-  createCommentApi, 
-  updateCommentApi, 
-  deleteCommentApi, 
+  ChatLineRound,
+} from "@element-plus/icons-vue";
+import { useUserStore } from "@/store/user";
+import {
+  createCommentApi,
+  updateCommentApi,
+  deleteCommentApi,
   getUserCommentApi,
-  getUserAnswerApi 
-} from '@/api/survey';
-import apiClient from '@/api/index';
+  getUserAnswerApi,
+} from "@/api/survey";
+import apiClient from "@/api/index";
 
 const route = useRoute();
 const router = useRouter();
@@ -255,7 +281,7 @@ const submitting = ref(false);
 
 const ratingForm = ref({
   rating: 5,
-  content: ''
+  content: "",
 });
 
 // 计算属性
@@ -269,12 +295,12 @@ const handleGoBack = () => {
 };
 
 const formatDateTime = (date) => {
-  if (!date) return '未知时间';
-  return new Date(date).toLocaleString('zh-CN');
+  if (!date) return "未知时间";
+  return new Date(date).toLocaleString("zh-CN");
 };
 
 const formatDuration = (duration) => {
-  if (!duration) return '0分0秒';
+  if (!duration) return "0分0秒";
   const minutes = Math.floor(duration / 60);
   const seconds = duration % 60;
   return `${minutes}分${seconds}秒`;
@@ -282,84 +308,87 @@ const formatDuration = (duration) => {
 
 const formatAnswer = (answerObj) => {
   // answerObj 是整个答案对象，包含 answer, text, question 等字段
-  
+
   // 优先使用 text 字段（新数据结构）
   if (answerObj.text !== undefined && answerObj.text !== null) {
     if (Array.isArray(answerObj.text)) {
-      return answerObj.text.join('、');
+      return answerObj.text.join("、");
     }
     return String(answerObj.text);
   }
-  
+
   // 兼容旧数据：使用 answer 字段
   const answer = answerObj.answer;
-  if (answer === undefined || answer === null || answer === '') {
-    return '未作答';
+  if (answer === undefined || answer === null || answer === "") {
+    return "未作答";
   }
-  
+
   if (Array.isArray(answer)) {
-    return answer.join('、');
+    return answer.join("、");
   }
-  
+
   return String(answer);
 };
 
 const downloadReport = () => {
-  ElMessage.info('报告下载功能开发中...');
+  ElMessage.info("报告下载功能开发中...");
 };
 
 // 提交评论
 const submitComment = async () => {
   // 检查登录状态
   if (!userStore.isLoggedIn) {
-    ElMessage.warning('请先登录后再发表评论');
+    ElMessage.warning("请先登录后再发表评论");
     router.push(`/login?redirect=/survey/result/${route.params.id}`);
     return;
   }
 
   if (!ratingForm.value.content.trim()) {
-    ElMessage.warning('请填写评论内容');
+    ElMessage.warning("请填写评论内容");
     return;
   }
 
   submitting.value = true;
   try {
     const userId = userStore.profile?.id || userStore.userId;
-    const username = userStore.profile?.nickname || userStore.profile?.username || userStore.userName;
+    const username =
+      userStore.profile?.nickname ||
+      userStore.profile?.username ||
+      userStore.userName;
     const surveyId = reportData.value.surveyId;
 
     // 创建新评论
     const newComment = await createCommentApi(surveyId, {
       userId: userId,
       username: username,
-      avatar: userStore.profile?.avatar || '',
+      avatar: userStore.profile?.avatar || "",
       rating: ratingForm.value.rating,
-      content: ratingForm.value.content
+      content: ratingForm.value.content,
     });
 
     myComments.value.push(newComment);
-    
+
     // 更新用户积分
     if (newComment.pointsEarned) {
       const currentProfile = userStore.profile;
       if (currentProfile) {
-        currentProfile.points = (currentProfile.points || 0) + newComment.pointsEarned;
+        currentProfile.points =
+          (currentProfile.points || 0) + newComment.pointsEarned;
         userStore.setProfile(currentProfile);
       }
       ElMessage.success(`评论发表成功！获得 ${newComment.pointsEarned} 积分`);
     } else {
-      ElMessage.success('评论发表成功');
+      ElMessage.success("评论发表成功");
     }
-    
+
     // 清空表单
     ratingForm.value = {
       rating: 5,
-      content: ''
+      content: "",
     };
-    
   } catch (error) {
-    console.error('提交评论失败:', error);
-    ElMessage.error('操作失败：' + error.message);
+    console.error("提交评论失败:", error);
+    ElMessage.error("操作失败：" + error.message);
   } finally {
     submitting.value = false;
   }
@@ -369,26 +398,26 @@ const submitComment = async () => {
 const deleteComment = async (commentId) => {
   try {
     await ElMessageBox.confirm(
-      '确定要删除此评论吗？删除后不可恢复。',
-      '确认删除',
+      "确定要删除此评论吗？删除后不可恢复。",
+      "确认删除",
       {
-        confirmButtonText: '删除',
-        cancelButtonText: '取消',
-        type: 'warning'
+        confirmButtonText: "删除",
+        cancelButtonText: "取消",
+        type: "warning",
       }
     );
 
     const userId = userStore.profile?.id || userStore.userId;
     const surveyId = reportData.value.surveyId;
-    
+
     await deleteCommentApi(surveyId, userId, commentId);
 
     // 从列表中移除
-    myComments.value = myComments.value.filter(c => c.id !== commentId);
-    ElMessage.success('评论已删除');
+    myComments.value = myComments.value.filter((c) => c.id !== commentId);
+    ElMessage.success("评论已删除");
   } catch (err) {
-    if (err && (err === 'cancel' || err.type === 'cancel')) return;
-    ElMessage.error('删除失败：' + (err.message || err));
+    if (err && (err === "cancel" || err.type === "cancel")) return;
+    ElMessage.error("删除失败：" + (err.message || err));
   }
 };
 
@@ -397,11 +426,11 @@ const loadReportData = async () => {
   loading.value = true;
   try {
     const answerId = route.params.id;
-    
+
     // 尝试从URL参数获取surveyId和userId
     const surveyId = route.query.surveyId;
     const userId = userStore.profile?.id || userStore.userId;
-    
+
     if (surveyId && userId) {
       // 从问卷的answers中获取用户的答题记录
       const userAnswer = await getUserAnswerApi(surveyId, userId);
@@ -412,7 +441,7 @@ const loadReportData = async () => {
         return;
       }
     }
-    
+
     // 兼容旧的answerId方式（从独立的answers表查询）
     // 注意：新版本已不再使用独立的answers表，数据存储在survey的answers数组中
     // 这里作为降级方案保留
@@ -420,14 +449,14 @@ const loadReportData = async () => {
       const data = await apiClient.get(`/answers/${answerId}`);
       reportData.value = data;
     } catch (error) {
-      throw new Error('报告不存在');
+      throw new Error("报告不存在");
     }
 
     // 加载用户的评论
     await loadMyComments();
   } catch (error) {
-    console.error('加载报告失败:', error);
-    ElMessage.error('加载报告失败：' + error.message);
+    console.error("加载报告失败:", error);
+    ElMessage.error("加载报告失败：" + error.message);
   } finally {
     loading.value = false;
   }
@@ -444,7 +473,7 @@ const loadMyComments = async () => {
     const comments = await getUserCommentApi(surveyId, userId);
     myComments.value = comments || [];
   } catch (error) {
-    console.error('加载评论失败:', error);
+    console.error("加载评论失败:", error);
   }
 };
 
@@ -461,7 +490,11 @@ onMounted(() => {
   padding: 20px;
 
   .page-header {
-    background: linear-gradient(135deg, var(--color-primary-light-3) 0%, var(--color-primary) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--color-primary-light-3) 0%,
+      var(--color-primary) 100%
+    );
     padding: var(--spacing-lg) var(--spacing-xl);
     margin-bottom: 24px;
     border-radius: var(--radius-lg);
@@ -472,7 +505,7 @@ onMounted(() => {
         color: var(--text-inverse);
         font-weight: var(--font-weight-semibold);
         transition: all var(--transition-base);
-        
+
         &:hover {
           color: var(--color-primary-dark-4);
           transform: translateX(-4px);
@@ -587,7 +620,7 @@ onMounted(() => {
               color: #303133;
 
               &.score {
-                color: #E6A23C;
+                color: #e6a23c;
                 font-size: 24px;
               }
             }
@@ -645,7 +678,11 @@ onMounted(() => {
                 justify-content: center;
                 min-width: 32px;
                 height: 32px;
-                background: linear-gradient(135deg, var(--color-primary-light-2) 0%, var(--color-primary) 100%);
+                background: linear-gradient(
+                  135deg,
+                  var(--color-primary-light-2) 0%,
+                  var(--color-primary) 100%
+                );
                 color: var(--text-inverse);
                 border-radius: var(--radius-sm);
                 font-size: var(--font-size-sm);
