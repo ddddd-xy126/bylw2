@@ -4,22 +4,11 @@
       <!-- 左侧导航栏 -->
       <div class="profile-sidebar">
         <div class="user-info-mini">
-          <div class="avatar-wrapper" @click="handleAvatarClick">
+          <div class="avatar-wrapper">
             <el-avatar :size="60" :src="userAvatar">
               {{ userStore.userName?.charAt(0) }}
             </el-avatar>
-            <div class="avatar-overlay">
-              <el-icon><Camera /></el-icon>
-              <span>更换头像</span>
-            </div>
           </div>
-          <input
-            ref="avatarInput"
-            type="file"
-            accept="image/*"
-            style="display: none"
-            @change="handleAvatarUpload"
-          />
           <div class="user-details">
             <h3>{{ userStore.userName || '用户' }}</h3>
             <p>{{ userStore.profile?.email || '暂无邮箱' }}</p>
@@ -107,17 +96,13 @@ import {
   Delete,
   Trophy,
   DataAnalysis,
-  Camera
 } from "@element-plus/icons-vue";
-import { ElMessage } from "element-plus";
 
 import { useUserStore } from "@/store/user";
-import { updateProfileApi } from "@/api/user";
 
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
-const avatarInput = ref(null);
 
 // 计算属性
 const userAvatar = computed(() => {
@@ -132,80 +117,8 @@ const activeMenu = computed(() => {
   return route.path;
 });
 
-// 方法
-const handleAvatarClick = () => {
-  avatarInput.value?.click();
-};
-
-const handleAvatarUpload = async (event) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
-
-  // 验证文件类型
-  if (!file.type.startsWith('image/')) {
-    ElMessage.error('请选择图片文件');
-    return;
-  }
-
-  // 验证文件大小（限制为 2MB）
-  if (file.size > 2 * 1024 * 1024) {
-    ElMessage.error('图片大小不能超过 2MB');
-    return;
-  }
-
-  try {
-    // 将图片转换为 Base64
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const base64Avatar = e.target.result;
-      
-      // 更新用户头像到后端
-      const currentProfile = userStore.profile;
-      if (!currentProfile) {
-        ElMessage.error('用户未登录');
-        return;
-      }
-
-      await updateProfileApi(currentProfile.id, {
-        ...currentProfile,
-        avatar: base64Avatar,
-        updatedAt: new Date().toISOString()
-      });
-
-      // 更新 store
-      userStore.setProfile({
-        ...currentProfile,
-        avatar: base64Avatar
-      });
-
-      ElMessage.success('头像更新成功');
-    };
-    
-    reader.onerror = () => {
-      ElMessage.error('图片读取失败');
-    };
-    
-    reader.readAsDataURL(file);
-  } catch (error) {
-    console.error('上传头像失败:', error);
-    ElMessage.error('头像上传失败，请重试');
-  }
-
-  // 清空 input，允许重复选择同一文件
-  event.target.value = '';
-};
-
 const handleMenuSelect = (index) => {
   router.push(index);
-};
-
-const goToHome = () => {
-  // 根据用户角色智能导航
-  if (userStore.isAdmin) {
-    router.push("/admin/dashboard");
-  } else {
-    router.push("/home");
-  }
 };
 
 // 生命周期

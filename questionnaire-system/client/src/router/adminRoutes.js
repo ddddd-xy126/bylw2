@@ -11,7 +11,8 @@ import CompletionPage from "@/views/backend/admin/components/statistics/Completi
 import DistributionPage from "@/views/backend/admin/components/statistics/DistributionPage.vue";
 import QuestionnaireListPage from "@/views/backend/admin/components/questionnaires/QuestionnaireListPage.vue";
 import PendingQuestionnairesPage from "@/views/backend/admin/components/questionnaires/PendingQuestionnairesPage.vue";
-import QuestionnaireEditorPage from "@/views/backend/admin/components/questionnaires/QuestionnaireEditorPage.vue";
+// 使用统一的问卷编辑器组件
+import QuestionnaireEditor from "@/components/QuestionnaireEditor.vue";
 import AnnouncementManagePage from "@/views/backend/admin/components/announcements/AnnouncementManagePage.vue";
 import AdminProfilePage from "@/views/backend/admin/components/profile/AdminProfilePage.vue";
 
@@ -32,8 +33,8 @@ export default [
       { path: "surveys/edit/:id", component: SurveyEditorPage },
       { path: "surveys/review", component: SurveyReviewPage },
       { path: "questionnaires/list", component: QuestionnaireListPage },
-      { path: "questionnaires/create", component: QuestionnaireEditorPage },
-      { path: "questionnaires/edit/:id", component: QuestionnaireEditorPage },
+      { path: "questionnaires/create", component: QuestionnaireEditor },
+      { path: "questionnaires/edit/:id", component: QuestionnaireEditor },
       { path: "questionnaires/pending", component: PendingQuestionnairesPage },
       { path: "announcements", component: AnnouncementManagePage },
       { path: "profile", component: AdminProfilePage },

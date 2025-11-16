@@ -18,7 +18,7 @@
               <h3>基本信息</h3>
               <el-button type="primary" @click="editMode = !editMode">
                 <el-icon><Edit /></el-icon>
-                {{ editMode ? '取消编辑' : '编辑资料' }}
+                {{ editMode ? "取消编辑" : "编辑资料" }}
               </el-button>
             </div>
           </template>
@@ -26,13 +26,22 @@
           <!-- 头像部分 -->
           <div class="avatar-section-inline">
             <div class="avatar-container">
-              <el-avatar :size="80" :src="profileForm.avatar" class="profile-avatar">
-                {{ profileForm.nickname?.charAt(0) || profileForm.username?.charAt(0) }}
+              <el-avatar
+                :size="80"
+                :src="profileForm.avatar"
+                class="profile-avatar"
+              >
+                {{
+                  profileForm.nickname?.charAt(0) ||
+                  profileForm.username?.charAt(0)
+                }}
               </el-avatar>
               <div class="avatar-info">
                 <h3>{{ profileForm.nickname || profileForm.username }}</h3>
                 <p class="role-badge">
-                  <el-tag :type="profileForm.role === 'admin' ? 'danger' : 'primary'">
+                  <el-tag
+                    :type="profileForm.role === 'admin' ? 'danger' : 'primary'"
+                  >
                     {{ getRoleText(profileForm.role) }}
                   </el-tag>
                 </p>
@@ -46,6 +55,10 @@
               <el-button type="text" @click="changeAvatar">
                 <el-icon><Camera /></el-icon>
                 更换头像
+              </el-button>
+              <el-button type="text" @click="passwordDialogVisible = true">
+                <el-icon><Lock /></el-icon>
+                修改密码
               </el-button>
             </div>
           </div>
@@ -83,7 +96,10 @@
             <el-row :gutter="24">
               <el-col :span="12">
                 <el-form-item label="昵称" prop="nickname">
-                  <el-input v-model="profileForm.nickname" placeholder="请输入昵称">
+                  <el-input
+                    v-model="profileForm.nickname"
+                    placeholder="请输入昵称"
+                  >
                     <template #prepend>
                       <el-icon><User /></el-icon>
                     </template>
@@ -92,7 +108,10 @@
               </el-col>
               <el-col :span="12">
                 <el-form-item label="邮箱" prop="email">
-                  <el-input v-model="profileForm.email" placeholder="请输入邮箱地址">
+                  <el-input
+                    v-model="profileForm.email"
+                    placeholder="请输入邮箱地址"
+                  >
                     <template #prepend>
                       <el-icon><Message /></el-icon>
                     </template>
@@ -104,22 +123,14 @@
             <el-row :gutter="24">
               <el-col :span="12">
                 <el-form-item label="手机号" prop="phone">
-                  <el-input v-model="profileForm.phone" placeholder="请输入手机号">
+                  <el-input
+                    v-model="profileForm.phone"
+                    placeholder="请输入手机号"
+                  >
                     <template #prepend>
                       <el-icon><Phone /></el-icon>
                     </template>
                   </el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="部门" prop="department">
-                  <el-select v-model="profileForm.department" placeholder="请选择部门">
-                    <el-option label="技术部" value="tech" />
-                    <el-option label="运营部" value="operations" />
-                    <el-option label="产品部" value="product" />
-                    <el-option label="市场部" value="marketing" />
-                    <el-option label="人事部" value="hr" />
-                  </el-select>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -149,11 +160,11 @@
         </el-card>
 
         <!-- 最近活动 -->
-        <el-card class="activity-card" shadow="never" style="margin-top: 24px;">
+        <el-card class="activity-card" shadow="never" style="margin-top: 24px">
           <template #header>
             <h4>最近活动</h4>
           </template>
-          
+
           <el-timeline>
             <el-timeline-item
               v-for="activity in recentActivities"
@@ -169,128 +180,25 @@
           </el-timeline>
         </el-card>
       </el-col>
-
-
     </el-row>
 
-    <!-- 密码修改对话框 -->
-    <el-dialog
+    <!-- 修改密码对话框 -->
+    <ChangePasswordDialog
       v-model="passwordDialogVisible"
-      title="修改密码"
-      width="500px"
-      :destroy-on-close="true"
-    >
-      <el-form
-        :model="passwordForm"
-        :rules="passwordRules"
-        ref="passwordFormRef"
-        label-width="100px"
-      >
-        <el-form-item label="当前密码" prop="currentPassword">
-          <el-input
-            v-model="passwordForm.currentPassword"
-            type="password"
-            placeholder="请输入当前密码"
-            show-password
-          />
-        </el-form-item>
+      @success="handlePasswordChanged"
+    />
 
-        <el-form-item label="新密码" prop="newPassword">
-          <el-input
-            v-model="passwordForm.newPassword"
-            type="password"
-            placeholder="请输入新密码"
-            show-password
-          />
-        </el-form-item>
-
-        <el-form-item label="确认密码" prop="confirmPassword">
-          <el-input
-            v-model="passwordForm.confirmPassword"
-            type="password"
-            placeholder="请再次输入新密码"
-            show-password
-          />
-        </el-form-item>
-      </el-form>
-
-      <template #footer>
-        <el-button @click="passwordDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="changePassword" :loading="changingPassword">
-          确认修改
-        </el-button>
-      </template>
-    </el-dialog>
-
-    <!-- 头像上传对话框 -->
-    <el-dialog
+    <!-- 更换头像对话框 -->
+    <ChangeAvatarDialog
       v-model="avatarDialogVisible"
-      title="更换头像"
-      width="600px"
-      :destroy-on-close="true"
-    >
-      <div class="avatar-upload-section">
-        <div class="current-avatar">
-          <h4>当前头像</h4>
-          <el-avatar :size="80" :src="profileForm.avatar">
-            {{ profileForm.nickname?.charAt(0) || profileForm.username?.charAt(0) }}
-          </el-avatar>
-        </div>
-
-        <div class="upload-area">
-          <el-upload
-            class="avatar-uploader"
-            action="#"
-            :show-file-list="false"
-            :before-upload="beforeAvatarUpload"
-            :http-request="handleAvatarUpload"
-          >
-            <el-button type="primary">
-              <el-icon><Upload /></el-icon>
-              选择图片
-            </el-button>
-            <div class="upload-tip">
-              支持 JPG、PNG 格式，建议尺寸 200x200px，大小不超过 2MB
-            </div>
-          </el-upload>
-        </div>
-
-        <div class="preset-avatars">
-          <h4>选择预设头像</h4>
-          <div class="avatars-grid">
-            <div
-              v-for="avatar in presetAvatars"
-              :key="avatar.id"
-              class="preset-avatar"
-              :class="{ active: selectedAvatar === avatar.url }"
-              @click="selectPresetAvatar(avatar.url)"
-            >
-              <el-avatar :size="60" :src="avatar.url" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <template #footer>
-        <el-button @click="avatarDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="saveAvatar" :loading="savingAvatar">
-          保存头像
-        </el-button>
-      </template>
-    </el-dialog>
-
-    <!-- 快捷操作浮动按钮 -->
-    <div class="floating-actions">
-      <el-button circle type="primary" @click="passwordDialogVisible = true">
-        <el-icon><Lock /></el-icon>
-      </el-button>
-    </div>
+      @success="handleAvatarChanged"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, onMounted } from "vue";
+import { ElMessage } from "element-plus";
 import {
   Edit,
   User,
@@ -301,315 +209,180 @@ import {
   Refresh,
   Camera,
   Calendar,
-  Document,
-  Warning,
-  Clock,
   Lock,
-  Upload
-} from '@element-plus/icons-vue'
+} from "@element-plus/icons-vue";
 import {
   getAdminProfileApi,
   updateAdminProfileApi,
-  changeAdminPasswordApi,
-  updateAdminAvatarApi,
   getAdminActivitiesApi,
-  recordAdminActivity
-} from '@/api/admin'
-import { useUserStore } from '@/store/user'
+  recordAdminActivity,
+} from "@/api/admin";
+import { useUserStore } from "@/store/user";
+import ChangePasswordDialog from "@/components/ChangePasswordDialog.vue";
+import ChangeAvatarDialog from "@/components/ChangeAvatarDialog.vue";
 
 // 响应式数据
-const userStore = useUserStore()
-const editMode = ref(false)
-const saving = ref(false)
-const passwordDialogVisible = ref(false)
-const avatarDialogVisible = ref(false)
-const changingPassword = ref(false)
-const savingAvatar = ref(false)
-const selectedAvatar = ref('')
+const userStore = useUserStore();
+const editMode = ref(false);
+const saving = ref(false);
+const passwordDialogVisible = ref(false);
+const avatarDialogVisible = ref(false);
 
-const profileFormRef = ref()
-const passwordFormRef = ref()
+const profileFormRef = ref();
 
 // 表单数据
 const profileForm = reactive({
-  id: 3,
-  username: 'admin',
-  nickname: '系统管理员',
-  email: 'admin@example.com',
-  phone: '13800000000',
-  department: 'tech',
-  bio: '负责系统维护和用户管理，确保平台稳定运行。',
-  avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=admin',
-  role: 'admin',
-  createdAt: '2024-01-01T08:00:00Z'
-})
-
-const passwordForm = reactive({
-  currentPassword: '',
-  newPassword: '',
-  confirmPassword: ''
-})
-
-
+  id: null,
+  username: "",
+  nickname: "",
+  email: "",
+  phone: "",
+  bio: "",
+  avatar: "",
+  role: "",
+  createdAt: "",
+});
 
 // 最近活动
-const recentActivities = ref([])
-
-// 预设头像
-const presetAvatars = ref([
-  { id: 1, url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin1' },
-  { id: 2, url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin2' },
-  { id: 3, url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin3' },
-  { id: 4, url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin4' },
-  { id: 5, url: 'https://api.dicebear.com/7.x/initials/svg?seed=admin&backgroundColor=3b82f6' },
-  { id: 6, url: 'https://api.dicebear.com/7.x/initials/svg?seed=admin&backgroundColor=10b981' },
-  { id: 7, url: 'https://api.dicebear.com/7.x/initials/svg?seed=admin&backgroundColor=f59e0b' },
-  { id: 8, url: 'https://api.dicebear.com/7.x/initials/svg?seed=admin&backgroundColor=ef4444' }
-])
+const recentActivities = ref([]);
 
 // 验证规则
 const profileRules = {
   nickname: [
-    { required: true, message: '请输入昵称', trigger: 'blur' },
-    { min: 2, max: 20, message: '昵称长度在 2 到 20 个字符', trigger: 'blur' }
+    { required: true, message: "请输入昵称", trigger: "blur" },
+    { min: 2, max: 20, message: "昵称长度在 2 到 20 个字符", trigger: "blur" },
   ],
   email: [
-    { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+    { required: true, message: "请输入邮箱地址", trigger: "blur" },
+    { type: "email", message: "请输入正确的邮箱地址", trigger: "blur" },
   ],
   phone: [
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
-  ]
-}
-
-const passwordRules = {
-  currentPassword: [
-    { required: true, message: '请输入当前密码', trigger: 'blur' }
-  ],
-  newPassword: [
-    { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
-  ],
-  confirmPassword: [
-    { required: true, message: '请确认新密码', trigger: 'blur' },
     {
-      validator: (rule, value, callback) => {
-        if (value !== passwordForm.newPassword) {
-          callback(new Error('两次输入密码不一致'))
-        } else {
-          callback()
-        }
-      },
-      trigger: 'blur'
-    }
-  ]
-}
+      pattern: /^1[3-9]\d{9}$/,
+      message: "请输入正确的手机号",
+      trigger: "blur",
+    },
+  ],
+};
 
 // 方法
 const getRoleText = (role) => {
   const roleMap = {
-    admin: '系统管理员',
-    user: '普通用户',
-    moderator: '版主'
-  }
-  return roleMap[role] || '未知角色'
-}
+    admin: "系统管理员",
+    user: "普通用户",
+    moderator: "版主",
+  };
+  return roleMap[role] || "未知角色";
+};
 
 const formatDate = (dateString) => {
-  if (!dateString) return ''
-  return new Date(dateString).toLocaleDateString('zh-CN')
-}
+  if (!dateString) return "";
+  return new Date(dateString).toLocaleDateString("zh-CN");
+};
 
 const formatDateTime = (dateString) => {
-  if (!dateString) return ''
-  const date = new Date(dateString)
-  const now = new Date()
-  const diff = now - date
-  const minutes = Math.floor(diff / 60000)
-  const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(diff / 86400000)
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const now = new Date();
+  const diff = now - date;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
 
   if (days > 0) {
-    return `${days}天前`
+    return `${days}天前`;
   } else if (hours > 0) {
-    return `${hours}小时前`
+    return `${hours}小时前`;
   } else if (minutes > 0) {
-    return `${minutes}分钟前`
+    return `${minutes}分钟前`;
   } else {
-    return '刚刚'
+    return "刚刚";
   }
-}
+};
 
 const saveProfile = async () => {
   try {
-    await profileFormRef.value.validate()
-    saving.value = true
-    
-    const result = await updateAdminProfileApi(profileForm)
-    
+    await profileFormRef.value.validate();
+    saving.value = true;
+
+    const result = await updateAdminProfileApi(profileForm);
+
     // 记录操作
     await recordAdminActivity({
       adminId: profileForm.id,
       adminName: profileForm.nickname || profileForm.username,
-      title: '更新个人资料',
-      description: '修改了个人资料信息',
-      type: 'profile_update'
-    })
-    
-    ElMessage.success(result.message || '个人资料更新成功')
-    editMode.value = false
-    
+      title: "更新个人资料",
+      description: "修改了个人资料信息",
+      type: "profile_update",
+    });
+
+    ElMessage.success(result.message || "个人资料更新成功");
+    editMode.value = false;
+
     // 重新加载活动记录
-    await loadActivitiesData()
+    await loadActivitiesData();
   } catch (error) {
-    ElMessage.error(error.message || '保存失败，请检查输入信息')
+    ElMessage.error(error.message || "保存失败，请检查输入信息");
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 const resetForm = () => {
-  profileFormRef.value.resetFields()
-}
-
-const changePassword = async () => {
-  try {
-    await passwordFormRef.value.validate()
-    changingPassword.value = true
-    
-    const result = await changeAdminPasswordApi(passwordForm)
-    
-    // 记录操作
-    await recordAdminActivity({
-      adminId: profileForm.id,
-      adminName: profileForm.nickname || profileForm.username,
-      title: '修改密码',
-      description: '更新了登录密码',
-      type: 'password_change'
-    })
-    
-    ElMessage.success(result.message || '密码修改成功')
-    passwordDialogVisible.value = false
-    
-    // 重置表单
-    passwordForm.currentPassword = ''
-    passwordForm.newPassword = ''
-    passwordForm.confirmPassword = ''
-    
-    // 重新加载活动记录
-    await loadActivitiesData()
-  } catch (error) {
-    ElMessage.error(error.message || '密码修改失败')
-  } finally {
-    changingPassword.value = false
-  }
-}
+  profileFormRef.value.resetFields();
+};
 
 const changeAvatar = () => {
-  selectedAvatar.value = profileForm.avatar
-  avatarDialogVisible.value = true
-}
+  avatarDialogVisible.value = true;
+};
 
-const selectPresetAvatar = (url) => {
-  selectedAvatar.value = url
-}
+// 密码修改成功回调
+const handlePasswordChanged = async () => {
+  console.log("密码修改成功");
+  await loadActivitiesData();
+};
 
-const beforeAvatarUpload = (file) => {
-  const isJPG = file.type === 'image/jpeg' || file.type === 'image/png'
-  const isLt2M = file.size / 1024 / 1024 < 2
-
-  if (!isJPG) {
-    ElMessage.error('头像图片只能是 JPG 或 PNG 格式!')
-    return false
-  }
-  if (!isLt2M) {
-    ElMessage.error('头像图片大小不能超过 2MB!')
-    return false
-  }
-  return true
-}
-
-const handleAvatarUpload = ({ file }) => {
-  // 这里应该上传到服务器，现在只是预览
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    selectedAvatar.value = e.target.result
-  }
-  reader.readAsDataURL(file)
-}
-
-const saveAvatar = async () => {
-  if (!selectedAvatar.value) {
-    ElMessage.warning('请选择头像')
-    return
-  }
-
-  try {
-    savingAvatar.value = true
-    
-    // 传入用户ID
-    const result = await updateAdminAvatarApi(
-      { avatar: selectedAvatar.value },
-      profileForm.id || userStore.profile.id
-    )
-    profileForm.avatar = selectedAvatar.value
-    
-    // 同步更新 userStore 中的头像
-    if (result.user) {
-      userStore.setProfile(result.user)
-    }
-    
-    ElMessage.success(result.message || '头像更新成功')
-    avatarDialogVisible.value = false
-    
-    // 重新加载活动记录
-    await loadActivitiesData()
-  } catch (error) {
-    console.error('头像更新错误:', error)
-    ElMessage.error(error.message || '头像更新失败')
-  } finally {
-    savingAvatar.value = false
-  }
-}
+// 头像修改成功回调
+const handleAvatarChanged = async () => {
+  console.log("头像修改成功");
+  // 重新加载个人资料
+  await loadProfileData();
+  await loadActivitiesData();
+};
 
 // 加载数据的方法
 const loadProfileData = async () => {
   try {
-    const profile = await getAdminProfileApi()
+    const profile = await getAdminProfileApi();
     // 更新表单数据
-    Object.assign(profileForm, profile)
+    Object.assign(profileForm, profile);
   } catch (error) {
-    console.error('加载个人资料失败:', error)
+    console.error("加载个人资料失败:", error);
   }
-}
-
-
+};
 
 const loadActivitiesData = async () => {
   try {
     // 获取当前用户ID，优先使用 profileForm.id，其次使用 userStore
-    const userId = profileForm.id || userStore.profile?.id
+    const userId = profileForm.id || userStore.profile?.id;
     if (!userId) {
-      console.warn('无法获取用户ID，跳过加载活动记录')
-      return
+      console.warn("无法获取用户ID，跳过加载活动记录");
+      return;
     }
-    
+
     // 只加载当前管理员的活动记录，传入字符串类型的ID
-    const result = await getAdminActivitiesApi(10, String(userId))
-    recentActivities.value = result.list || []
-    console.log('加载的活动记录:', result)
+    const result = await getAdminActivitiesApi(10, String(userId));
+    recentActivities.value = result.list || [];
+    console.log("加载的活动记录:", result);
   } catch (error) {
-    console.error('加载活动数据失败:', error)
+    console.error("加载活动数据失败:", error);
   }
-}
+};
 
 onMounted(async () => {
   // 并行加载所有数据
-  await Promise.all([
-    loadProfileData(),
-    loadActivitiesData()
-  ])
-})
+  await Promise.all([loadProfileData(), loadActivitiesData()]);
+});
 </script>
 
 <style lang="scss" scoped>
@@ -619,7 +392,9 @@ onMounted(async () => {
   margin: 0 auto;
 
   /* 页面头部 */
-  .page-header { margin-bottom: 24px; }
+  .page-header {
+    margin-bottom: 24px;
+  }
 
   .header-content {
     h1 {
@@ -671,7 +446,9 @@ onMounted(async () => {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
-  .avatar-actions { margin-top: 12px; }
+  .avatar-actions {
+    margin-top: 12px;
+  }
 
   .profile-info {
     text-align: center;
@@ -684,7 +461,9 @@ onMounted(async () => {
     }
   }
 
-  .role-badge { margin: 8px 0; }
+  .role-badge {
+    margin: 8px 0;
+  }
 
   .join-date {
     margin: 8px 0 0 0;
@@ -717,7 +496,9 @@ onMounted(async () => {
       font-size: 20px;
     }
 
-    .role-badge { margin: 8px 0; }
+    .role-badge {
+      margin: 8px 0;
+    }
 
     .join-date {
       margin: 8px 0 0 0;
@@ -731,7 +512,9 @@ onMounted(async () => {
   }
 
   /* 活动时间线 */
-  .activity-content { padding-left: 8px; }
+  .activity-content {
+    padding-left: 8px;
+  }
 
   .activity-title {
     font-weight: 500;
@@ -739,68 +522,20 @@ onMounted(async () => {
     margin-bottom: 4px;
   }
 
-  .activity-desc { font-size: 12px; color: #666; }
+  .activity-desc {
+    font-size: 12px;
+    color: #666;
+  }
 
   /* 表单样式 */
-  .input-tip { font-size: 12px; color: #999; }
-
-  /* 头像上传 */
-  .avatar-upload-section {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .current-avatar { text-align: center;
-    h4 { margin: 0 0 16px 0; color: #1a202c; }
-  }
-
-  .upload-area { text-align: center; }
-
-  .upload-tip { margin-top: 8px; font-size: 12px; color: #666; }
-
-  .preset-avatars {
-    h4 { margin: 0 0 16px 0; color: #1a202c; }
-
-    .avatars-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-
-    .preset-avatar {
-      padding: 8px;
-      border: 2px solid transparent;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &:hover, &.active {
-        border-color: var(--color-primary-light-3);
-        background: rgba(64, 158, 255, 0.1);
-      }
-    }
-  }
-
-  /* 浮动按钮 */
-  .floating-actions {
-    position: fixed;
-    right: 24px;
-    bottom: 24px;
-    z-index: 1000;
-
-    .el-button { box-shadow: 0 4px 16px rgba(64, 158, 255, 0.3); }
+  .input-tip {
+    font-size: 12px;
+    color: #999;
   }
 
   /* 响应式设计 */
   @media (max-width: 768px) {
     padding: 16px;
-
-    .stats-grid { grid-template-columns: 1fr; }
-
-    .avatars-grid { grid-template-columns: repeat(3, 1fr); }
-
-    .floating-actions { right: 16px; bottom: 16px; }
   }
 }
 </style>

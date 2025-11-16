@@ -11,28 +11,48 @@
 
         <el-row :gutter="16">
           <el-col :span="6">
-            <el-button type="primary" size="large" class="quick-btn" @click="$router.push('/admin/questionnaires/list')">
+            <el-button
+              type="primary"
+              size="large"
+              class="quick-btn"
+              @click="$router.push('/admin/questionnaires/list')"
+            >
               <el-icon><DocumentAdd /></el-icon>
               问卷管理
             </el-button>
           </el-col>
 
           <el-col :span="6">
-            <el-button type="success" size="large" class="quick-btn" @click="$router.push('/admin/users')">
+            <el-button
+              type="success"
+              size="large"
+              class="quick-btn"
+              @click="$router.push('/admin/users')"
+            >
               <el-icon><UserFilled /></el-icon>
               人员管理
             </el-button>
           </el-col>
 
           <el-col :span="6">
-            <el-button type="warning" size="large" class="quick-btn" @click="$router.push('/admin/questionnaires/pending')">
+            <el-button
+              type="warning"
+              size="large"
+              class="quick-btn"
+              @click="$router.push('/admin/questionnaires/pending')"
+            >
               <el-icon><Clock /></el-icon>
               待审核问卷
             </el-button>
           </el-col>
 
           <el-col :span="6">
-            <el-button type="info" size="large" class="quick-btn" @click="$router.push('/admin/profile')">
+            <el-button
+              type="info"
+              size="large"
+              class="quick-btn"
+              @click="$router.push('/admin/profile')"
+            >
               <el-icon><User /></el-icon>
               个人资料
             </el-button>
@@ -148,9 +168,19 @@
 
             <div class="chart-container" v-loading="chartsLoading">
               <div class="trend-chart">
-                <div v-for="(count, index) in userGrowthData" :key="index" class="trend-bar">
+                <div
+                  v-for="(count, index) in userGrowthData"
+                  :key="index"
+                  class="trend-bar"
+                >
                   <div class="bar-value">{{ count }}</div>
-                  <div class="bar-fill" :style="{ height: getBarHeight(count, Math.max(...userGrowthData)) + '%' }"></div>
+                  <div
+                    class="bar-fill"
+                    :style="{
+                      height:
+                        getBarHeight(count, Math.max(...userGrowthData)) + '%',
+                    }"
+                  ></div>
                   <div class="bar-label">{{ getDayLabel(index) }}</div>
                 </div>
               </div>
@@ -169,9 +199,20 @@
 
             <div class="chart-container" v-loading="chartsLoading">
               <div class="trend-chart">
-                <div v-for="(count, index) in surveyGrowthData" :key="index" class="trend-bar">
+                <div
+                  v-for="(count, index) in surveyGrowthData"
+                  :key="index"
+                  class="trend-bar"
+                >
                   <div class="bar-value">{{ count }}</div>
-                  <div class="bar-fill" :style="{ height: getBarHeight(count, Math.max(...surveyGrowthData)) + '%' }"></div>
+                  <div
+                    class="bar-fill"
+                    :style="{
+                      height:
+                        getBarHeight(count, Math.max(...surveyGrowthData)) +
+                        '%',
+                    }"
+                  ></div>
                   <div class="bar-label">{{ getDayLabel(index) }}</div>
                 </div>
               </div>
@@ -195,22 +236,26 @@
 
             <div class="action-timeline" v-loading="loading">
               <el-timeline>
-                <el-timeline-item 
-                  v-for="action in adminActions" 
+                <el-timeline-item
+                  v-for="action in adminActions"
                   :key="action.id"
                   :timestamp="formatDateTime(action.timestamp)"
                   :type="getActionType(action.type)"
                 >
                   <div class="action-content">
                     <div class="action-title">
-                      <span class="admin-name">{{ action.adminName }}</span> - {{ action.title }}
+                      <span class="admin-name">{{ action.adminName }}</span> -
+                      {{ action.title }}
                     </div>
                     <div class="action-desc">{{ action.description }}</div>
                   </div>
                 </el-timeline-item>
               </el-timeline>
 
-              <el-empty v-if="!adminActions.length" description="暂无操作记录" />
+              <el-empty
+                v-if="!adminActions.length"
+                description="暂无操作记录"
+              />
             </div>
           </el-card>
         </el-col>
@@ -227,13 +272,23 @@
             </template>
 
             <div class="hot-surveys-list" v-loading="loading">
-              <div v-for="(survey, index) in hotSurveys" :key="survey.id" class="hot-survey-item">
-                <div class="rank-badge" :class="'rank-' + (index + 1)">{{ index + 1 }}</div>
+              <div
+                v-for="(survey, index) in hotSurveys"
+                :key="survey.id"
+                class="hot-survey-item"
+              >
+                <div class="rank-badge" :class="'rank-' + (index + 1)">
+                  {{ index + 1 }}
+                </div>
                 <div class="survey-info">
                   <div class="survey-title">{{ survey.title }}</div>
                   <div class="survey-stats">
-                    <el-tag size="small" type="success">参与: {{ survey.participants || 0 }}</el-tag>
-                    <el-tag size="small" type="warning">评分: {{ (survey.rating || 0).toFixed(1) }}</el-tag>
+                    <el-tag size="small" type="success"
+                      >参与: {{ survey.participants || 0 }}</el-tag
+                    >
+                    <el-tag size="small" type="warning"
+                      >评分: {{ (survey.rating || 0).toFixed(1) }}</el-tag
+                    >
                   </div>
                 </div>
               </div>
@@ -262,8 +317,6 @@ import {
 } from "@element-plus/icons-vue";
 
 import {
-  getDashboardStatsApi,
-  getSystemStatusApi,
   getAdminActivitiesApi,
   getAllUsersApi,
   getSurveysApi,
@@ -306,7 +359,7 @@ const loadDashboardData = async () => {
     // 从db.json加载数据
     const [usersResult, surveysResult] = await Promise.all([
       getAllUsersApi(),
-      getSurveysApi({})
+      getSurveysApi({}),
     ]);
 
     const users = usersResult.list;
@@ -315,11 +368,17 @@ const loadDashboardData = async () => {
     // 统计数据
     dashboardData.totalUsers = users.length;
     dashboardData.totalSurveys = surveys.length;
-    dashboardData.totalAnswers = surveys.reduce((sum, s) => sum + (s.participants || 0), 0);
-    
+    dashboardData.totalAnswers = surveys.reduce(
+      (sum, s) => sum + (s.participants || 0),
+      0
+    );
+
     // 计算完成率(已发布的问卷/总问卷)
-    const publishedCount = surveys.filter(s => s.status === 'published').length;
-    dashboardData.completionRate = surveys.length > 0 ? (publishedCount / surveys.length) * 100 : 0;
+    const publishedCount = surveys.filter(
+      (s) => s.status === "published"
+    ).length;
+    dashboardData.completionRate =
+      surveys.length > 0 ? (publishedCount / surveys.length) * 100 : 0;
 
     // 计算7天增长趋势
     calculateGrowthTrends(users, surveys);
@@ -327,10 +386,10 @@ const loadDashboardData = async () => {
     // 加载管理员操作记录和热门问卷
     loadAdminActions();
     loadHotSurveys();
-    
+
     systemStatus.lastUpdate = new Date();
   } catch (error) {
-    console.error('加载数据失败:', error);
+    console.error("加载数据失败:", error);
     ElMessage.error("加载仪表板数据失败");
   } finally {
     loading.value = false;
@@ -347,18 +406,18 @@ const calculateGrowthTrends = (users, surveys) => {
     const targetDate = new Date(today);
     targetDate.setDate(today.getDate() - (6 - i));
     targetDate.setHours(0, 0, 0, 0);
-    
+
     const nextDate = new Date(targetDate);
     nextDate.setDate(targetDate.getDate() + 1);
 
     // 统计该天创建的用户
-    userCounts[i] = users.filter(u => {
+    userCounts[i] = users.filter((u) => {
       const createdAt = new Date(u.createdAt);
       return createdAt >= targetDate && createdAt < nextDate;
     }).length;
 
     // 统计该天创建的问卷
-    surveyCounts[i] = surveys.filter(s => {
+    surveyCounts[i] = surveys.filter((s) => {
       const createdAt = new Date(s.createdAt);
       return createdAt >= targetDate && createdAt < nextDate;
     }).length;
@@ -374,18 +433,18 @@ const loadAdminActions = async () => {
     const result = await getAdminActivitiesApi(20, null); // null 表示不过滤管理员ID，获取全量
     adminActions.value = result.list;
   } catch (error) {
-    console.error('加载操作记录失败:', error);
+    console.error("加载操作记录失败:", error);
   }
 };
 
 const loadHotSurveys = async () => {
   try {
-    const result = await getSurveysApi({ status: 'published' });
+    const result = await getSurveysApi({ status: "published" });
     const surveys = result.list;
-    
+
     // 按参与人数和评分排序,取前10
     hotSurveys.value = surveys
-      .filter(s => s.status === 'published')
+      .filter((s) => s.status === "published")
       .sort((a, b) => {
         const scoreA = (a.participants || 0) * 0.6 + (a.rating || 0) * 0.4;
         const scoreB = (b.participants || 0) * 0.6 + (b.rating || 0) * 0.4;
@@ -393,7 +452,7 @@ const loadHotSurveys = async () => {
       })
       .slice(0, 10);
   } catch (error) {
-    console.error('加载热门问卷失败:', error);
+    console.error("加载热门问卷失败:", error);
   }
 };
 
@@ -418,7 +477,7 @@ const getBarHeight = (value, max) => {
 };
 
 const getDayLabel = (index) => {
-  const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  const days = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
   const today = new Date();
   const targetDate = new Date(today);
   targetDate.setDate(today.getDate() - (6 - index));
@@ -427,13 +486,13 @@ const getDayLabel = (index) => {
 
 const getActionType = (type) => {
   const typeMap = {
-    create: 'success',
-    edit: 'primary',
-    delete: 'danger',
-    approve: 'success',
-    reject: 'warning'
+    create: "success",
+    edit: "primary",
+    delete: "danger",
+    approve: "success",
+    reject: "warning",
   };
-  return typeMap[type] || 'info';
+  return typeMap[type] || "info";
 };
 
 const getTrendClass = (trend) => {
@@ -448,32 +507,20 @@ const formatTrend = (trend) => {
   return `${symbol}${trend.toFixed(1)}%`;
 };
 
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString("zh-CN");
-};
-
-const formatTime = (date) => {
-  return new Date(date).toLocaleTimeString("zh-CN");
-};
-
 const formatDateTime = (dateString) => {
   const date = new Date(dateString);
   const now = new Date();
   const diff = now - date;
   const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
-  
+
   if (hours < 1) {
     return `${minutes}分钟前`;
   } else if (hours < 24) {
     return `${hours}小时前`;
   } else {
-    return date.toLocaleString('zh-CN');
+    return date.toLocaleString("zh-CN");
   }
-};
-
-const viewSurvey = (surveyId) => {
-  router.push(`/survey/${surveyId}`);
 };
 
 // 定时刷新
@@ -617,7 +664,11 @@ onUnmounted(() => {
 
   .bar-fill {
     width: 100%;
-    background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-light-3) 100%);
+    background: linear-gradient(
+      180deg,
+      var(--color-primary) 0%,
+      var(--color-primary-light-3) 100%
+    );
     border-radius: 4px 4px 0 0;
     transition: height 0.3s ease;
     min-height: 4px;
@@ -684,17 +735,17 @@ onUnmounted(() => {
       color: #666;
 
       &.rank-1 {
-        background: linear-gradient(135deg, #FFD700, #FFA500);
+        background: linear-gradient(135deg, #ffd700, #ffa500);
         color: #fff;
       }
 
       &.rank-2 {
-        background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+        background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
         color: #fff;
       }
 
       &.rank-3 {
-        background: linear-gradient(135deg, #CD7F32, #B8860B);
+        background: linear-gradient(135deg, #cd7f32, #b8860b);
         color: #fff;
       }
     }
@@ -738,7 +789,7 @@ onUnmounted(() => {
     &::-webkit-scrollbar-thumb {
       background: #c1c1c1;
       border-radius: 3px;
-      
+
       &:hover {
         background: #a8a8a8;
       }
@@ -897,17 +948,17 @@ onUnmounted(() => {
       color: #666;
 
       &.rank-1 {
-        background: linear-gradient(135deg, #FFD700, #FFA500);
+        background: linear-gradient(135deg, #ffd700, #ffa500);
         color: #fff;
       }
 
       &.rank-2 {
-        background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+        background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
         color: #fff;
       }
 
       &.rank-3 {
-        background: linear-gradient(135deg, #CD7F32, #B8860B);
+        background: linear-gradient(135deg, #cd7f32, #b8860b);
         color: #fff;
       }
     }

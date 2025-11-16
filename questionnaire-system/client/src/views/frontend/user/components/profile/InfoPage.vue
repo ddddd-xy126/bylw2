@@ -3,9 +3,24 @@
     <div class="page-header">
       <h2>个人信息</h2>
       <p>管理您的个人资料和账户设置</p>
-      <el-button type="success" plain @click="showPasswordDialog = true" class="password-button">
-        修改密码
-      </el-button>
+      <div class="header-buttons">
+        <el-button
+          type="primary"
+          plain
+          @click="showAvatarDialog = true"
+          class="avatar-button"
+        >
+          更换头像
+        </el-button>
+        <el-button
+          type="success"
+          plain
+          @click="showPasswordDialog = true"
+          class="password-button"
+        >
+          修改密码
+        </el-button>
+      </div>
     </div>
 
     <div class="info-content">
@@ -17,17 +32,31 @@
               <User />
             </el-icon>
             <span>基本信息</span>
-            <el-button type="success" size="small" :icon="Edit" @click="editMode = !editMode">
-              {{ editMode ? '取消编辑' : '编辑资料' }}
+            <el-button
+              type="success"
+              size="small"
+              :icon="Edit"
+              @click="editMode = !editMode"
+            >
+              {{ editMode ? "取消编辑" : "编辑资料" }}
             </el-button>
           </div>
         </template>
 
-        <el-form ref="userInfoForm" :model="userInfo" :rules="formRules" label-width="100px" :disabled="!editMode">
+        <el-form
+          ref="userInfoForm"
+          :model="userInfo"
+          :rules="formRules"
+          label-width="100px"
+          :disabled="!editMode"
+        >
           <el-row :gutter="24">
             <el-col :span="12">
               <el-form-item label="用户名" prop="username">
-                <el-input v-model="userInfo.username" placeholder="请输入用户名" />
+                <el-input
+                  v-model="userInfo.username"
+                  placeholder="请输入用户名"
+                />
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -57,13 +86,22 @@
           <el-row :gutter="24">
             <el-col :span="12">
               <el-form-item label="年龄" prop="age">
-                <el-input-number v-model="userInfo.age" :min="0" :max="150" placeholder="请输入年龄" style="width: 100%" />
+                <el-input-number
+                  v-model="userInfo.age"
+                  :min="0"
+                  :max="150"
+                  placeholder="请输入年龄"
+                  style="width: 100%"
+                />
               </el-form-item>
             </el-col>
 
             <el-col :span="12">
               <el-form-item label="城市" prop="city">
-                <el-input v-model="userInfo.city" placeholder="请输入所在城市" />
+                <el-input
+                  v-model="userInfo.city"
+                  placeholder="请输入所在城市"
+                />
               </el-form-item>
             </el-col>
           </el-row>
@@ -71,14 +109,23 @@
           <el-row :gutter="24">
             <el-col :span="12">
               <el-form-item label="职业" prop="occupation">
-                <el-input v-model="userInfo.occupation" placeholder="请输入职业" />
+                <el-input
+                  v-model="userInfo.occupation"
+                  placeholder="请输入职业"
+                />
               </el-form-item>
             </el-col>
           </el-row>
 
           <el-form-item label="个人简介" prop="bio">
-            <el-input v-model="userInfo.bio" type="textarea" :rows="4" placeholder="介绍一下自己吧..." maxlength="500"
-              show-word-limit />
+            <el-input
+              v-model="userInfo.bio"
+              type="textarea"
+              :rows="4"
+              placeholder="介绍一下自己吧..."
+              maxlength="500"
+              show-word-limit
+            />
           </el-form-item>
 
           <el-form-item label="个人标签" prop="tags">
@@ -140,78 +187,35 @@
     </div>
 
     <!-- 修改密码对话框 -->
-    <el-dialog 
-      v-model="showPasswordDialog" 
-      :append-to-body="true"
-      :destroy-on-close="true"
-      :z-index="3000"
-      width="480px"
-      class="password-dialog"
-    >
-      <template #header>
-        <div class="dialog-header">
-          <div class="header-icon">
-            <el-icon><Lock /></el-icon>
-          </div>
-          <div class="header-text">
-            <h3>修改密码</h3>
-            <p>为了您的账户安全，请定期更换密码</p>
-          </div>
-        </div>
-      </template>
+    <ChangePasswordDialog
+      v-model="showPasswordDialog"
+      @success="handlePasswordChanged"
+    />
 
-      <el-form ref="passwordFormRef" :model="passwordForm" :rules="passwordRules" label-width="80px" class="password-form">
-        <el-form-item label="新密码" prop="newPassword">
-          <el-input 
-            v-model="passwordForm.newPassword" 
-            type="password" 
-            placeholder="请输入6位以上的新密码" 
-            show-password 
-            size="large"
-          >
-            <template #prefix>
-              <el-icon><Lock /></el-icon>
-            </template>
-          </el-input>
-        </el-form-item>
-        <el-form-item label="确认密码" prop="confirmPassword">
-          <el-input 
-            v-model="passwordForm.confirmPassword" 
-            type="password" 
-            placeholder="请再次输入新密码" 
-            show-password
-            size="large"
-          >
-            <template #prefix>
-              <el-icon><Lock /></el-icon>
-            </template>
-          </el-input>
-        </el-form-item>
-        
-        <div class="password-tips">
-          <el-icon><InfoFilled /></el-icon>
-          <span>密码强度建议：包含字母、数字和特殊字符，长度不少于8位</span>
-        </div>
-      </el-form>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="showPasswordDialog = false" size="large">取消</el-button>
-          <el-button type="primary" @click="changePassword" :loading="changingPassword" size="large">
-            <el-icon v-if="!changingPassword"><Check /></el-icon>
-            确认修改
-          </el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <!-- 更换头像对话框 -->
+    <ChangeAvatarDialog
+      v-model="showAvatarDialog"
+      @success="handleAvatarChanged"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { User, Edit, DataAnalysis, Lock, InfoFilled, Check } from '@element-plus/icons-vue';
-import { useUserStore } from '@/store/user';
+import { ref, reactive, onMounted } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
+import {
+  User,
+  Edit,
+  DataAnalysis,
+  Lock,
+  InfoFilled,
+  Check,
+} from "@element-plus/icons-vue";
+import { useUserStore } from "@/store/user";
+import ChangePasswordDialog from "@/components/ChangePasswordDialog.vue";
+import ChangeAvatarDialog from "@/components/ChangeAvatarDialog.vue";
+import { updateProfileApi } from "@/api/user.js";
+import apiClient from "@/api/index.js";
 
 const userStore = useUserStore();
 
@@ -219,21 +223,21 @@ const userStore = useUserStore();
 const editMode = ref(false);
 const saving = ref(false);
 const sendingEmail = ref(false);
-const changingPassword = ref(false);
 const showPasswordDialog = ref(false);
+const showAvatarDialog = ref(false);
 
 // 用户信息 - 从store获取真实数据
 const userInfo = reactive({
-  username: '',
-  email: '',
-  phone: '',
-  gender: '',
+  username: "",
+  email: "",
+  phone: "",
+  gender: "",
   age: 0,
-  city: '',
-  occupation: '',
-  bio: '',
+  city: "",
+  occupation: "",
+  bio: "",
   // 个人标签，多选字符串数组
-  tags: []
+  tags: [],
 });
 
 // 用户统计 - 从API获取真实数据
@@ -241,7 +245,7 @@ const userStats = reactive({
   totalQuestionnaires: 0,
   totalAnswers: 0,
   totalPoints: 0,
-  totalCollections: 0
+  totalCollections: 0,
 });
 
 // 预设标签选项（表示个人爱好/喜好/风格），改为从后端加载
@@ -250,92 +254,82 @@ const tagOptions = ref([]);
 // 从 json-server 加载现有标签（从 surveys 和 users 两个资源收集 tags 字段作为预设）
 const loadTagOptions = async () => {
   try {
-    // 动态导入 api client，避免循环依赖
-    const apiClient = (await import('@/api/index.js')).default;
-
     const [surveys, users] = await Promise.all([
-      apiClient.get('/surveys'),
-      apiClient.get('/users')
+      apiClient.get("/surveys"),
+      apiClient.get("/users"),
     ]);
 
     const set = new Set();
 
     // 收集 surveys.tags
     if (Array.isArray(surveys)) {
-      surveys.forEach(s => {
+      surveys.forEach((s) => {
         if (Array.isArray(s.tags)) {
-          s.tags.forEach(t => t && set.add(String(t)));
+          s.tags.forEach((t) => t && set.add(String(t)));
         }
       });
     }
 
     // 收集 users.tags
     if (Array.isArray(users)) {
-      users.forEach(u => {
+      users.forEach((u) => {
         if (Array.isArray(u.tags)) {
-          u.tags.forEach(t => t && set.add(String(t)));
+          u.tags.forEach((t) => t && set.add(String(t)));
         }
       });
     }
 
     // 如果没有收集到任何标签，提供少量默认项作为兜底
     if (set.size === 0) {
-      ['音乐', '电影', '阅读', '旅行', '摄影', '运动', '美食', '游戏'].forEach(t => set.add(t));
+      ["音乐", "电影", "阅读", "旅行", "摄影", "运动", "美食", "游戏"].forEach(
+        (t) => set.add(t)
+      );
     }
 
     tagOptions.value = Array.from(set);
-    console.log('标签预设已加载:', tagOptions.value);
+    console.log("标签预设已加载:", tagOptions.value);
   } catch (err) {
-    console.error('加载标签预设失败:', err);
+    console.error("加载标签预设失败:", err);
     // 兜底默认标签
-    tagOptions.value = ['音乐', '电影', '阅读', '旅行', '摄影', '运动', '美食', '游戏'];
+    tagOptions.value = [
+      "音乐",
+      "电影",
+      "阅读",
+      "旅行",
+      "摄影",
+      "运动",
+      "美食",
+      "游戏",
+    ];
   }
 };
-
-// 密码修改表单
-const passwordForm = reactive({
-  newPassword: '',
-  confirmPassword: ''
-});
 
 // 表单验证规则
 const formRules = {
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 2, max: 20, message: '用户名长度在 2 到 20 个字符', trigger: 'blur' }
+    { required: true, message: "请输入用户名", trigger: "blur" },
+    {
+      min: 2,
+      max: 20,
+      message: "用户名长度在 2 到 20 个字符",
+      trigger: "blur",
+    },
   ],
   email: [
-    { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+    { required: true, message: "请输入邮箱地址", trigger: "blur" },
+    { type: "email", message: "请输入正确的邮箱地址", trigger: "blur" },
   ],
   phone: [
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
-  ]
-};
-
-const passwordRules = {
-  newPassword: [
-    { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
-  ],
-  confirmPassword: [
-    { required: true, message: '请确认新密码', trigger: 'blur' },
     {
-      validator: (rule, value, callback) => {
-        if (value !== passwordForm.newPassword) {
-          callback(new Error('两次输入密码不一致'));
-        } else {
-          callback();
-        }
-      },
-      trigger: 'blur'
-    }
-  ]
+      pattern: /^1[3-9]\d{9}$/,
+      message: "请输入正确的手机号",
+      trigger: "blur",
+    },
+  ],
 };
 
 // 表单引用
 const userInfoForm = ref();
-const passwordFormRef = ref();
 
 // 方法 - 从store和API获取真实数据
 const loadUserInfo = () => {
@@ -343,29 +337,26 @@ const loadUserInfo = () => {
   const profile = userStore.profile;
   if (profile) {
     Object.assign(userInfo, {
-      username: profile.username || '',
-      email: profile.email || '',
-      phone: profile.phone || '',
-      gender: profile.gender || '',
+      username: profile.username || "",
+      email: profile.email || "",
+      phone: profile.phone || "",
+      gender: profile.gender || "",
       age: profile.age || 0,
-      city: profile.city || '',
-      occupation: profile.profession || '',
-      bio: profile.bio || '',
-      tags: profile.tags || []
+      city: profile.city || "",
+      occupation: profile.profession || "",
+      bio: profile.bio || "",
+      tags: profile.tags || [],
     });
   }
-  console.log('用户信息已加载:', userInfo);
+  console.log("用户信息已加载:", userInfo);
 };
 
 const loadUserStats = async () => {
   try {
-    // 动态导入 API client
-    const apiClient = (await import('@/api/index.js')).default;
-    
     // 从用户store获取基本统计
     const profile = userStore.profile;
     if (!profile) {
-      console.warn('用户未登录');
+      console.warn("用户未登录");
       return;
     }
 
@@ -376,23 +367,27 @@ const loadUserStats = async () => {
     userStats.totalCollections = userStore.favorites?.length || 0;
 
     // 从 surveys 数据获取该用户创建的问卷数量
-    const allSurveys = await apiClient.get('/surveys');
-    const userCreatedSurveys = allSurveys.filter(s => s.userId == profile.id || s.authorId == profile.id);
+    const allSurveys = await apiClient.get("/surveys");
+    const userCreatedSurveys = allSurveys.filter(
+      (s) => s.userId == profile.id || s.authorId == profile.id
+    );
     userStats.totalQuestionnaires = userCreatedSurveys.length;
 
     // 从所有 surveys 的 answers 中统计该用户参与的答题数量
     let answerCount = 0;
-    allSurveys.forEach(survey => {
+    allSurveys.forEach((survey) => {
       if (Array.isArray(survey.answers)) {
-        const userAnswers = survey.answers.filter(answer => answer.userId == profile.id);
+        const userAnswers = survey.answers.filter(
+          (answer) => answer.userId == profile.id
+        );
         answerCount += userAnswers.length;
       }
     });
     userStats.totalAnswers = answerCount;
 
-    console.log('用户统计已加载:', userStats);
+    console.log("用户统计已加载:", userStats);
   } catch (error) {
-    console.error('加载用户统计失败:', error);
+    console.error("加载用户统计失败:", error);
   }
 };
 
@@ -406,7 +401,7 @@ const saveUserInfo = async () => {
     // 获取当前用户信息
     const currentProfile = userStore.profile;
     if (!currentProfile) {
-      throw new Error('用户未登录');
+      throw new Error("用户未登录");
     }
 
     // 准备更新数据
@@ -417,32 +412,34 @@ const saveUserInfo = async () => {
       phone: userInfo.phone,
       gender: userInfo.gender,
       age: userInfo.age || 0,
-      city: userInfo.city || '',
+      city: userInfo.city || "",
       profession: userInfo.occupation,
       bio: userInfo.bio,
       // 将 tags 字段保存到 json-server
       tags: Array.isArray(userInfo.tags) ? userInfo.tags : [],
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
     // 检查资料是否完整
     const isProfileComplete = (data) => {
-      return data.username && 
-             data.email && 
-             data.phone && 
-             data.gender && 
-             data.age > 0 && 
-             data.city && 
-             data.profession && 
-             data.bio && 
-             Array.isArray(data.tags) && 
-             data.tags.length > 0;
+      return (
+        data.username &&
+        data.email &&
+        data.phone &&
+        data.gender &&
+        data.age > 0 &&
+        data.city &&
+        data.profession &&
+        data.bio &&
+        Array.isArray(data.tags) &&
+        data.tags.length > 0
+      );
     };
 
     // 检查之前资料是否完整
     const wasComplete = isProfileComplete(currentProfile);
     const isComplete = isProfileComplete(updatedData);
-    
+
     // 如果之前不完整,现在完整了,奖励15积分
     let profileCompleteBonus = 0;
     if (!wasComplete && isComplete) {
@@ -451,24 +448,25 @@ const saveUserInfo = async () => {
     }
 
     // 调用API更新用户信息
-    const { updateProfileApi } = await import('@/api/user.js');
     await updateProfileApi(currentProfile.id, updatedData);
 
     // 更新store中的用户信息
     userStore.setProfile(updatedData);
 
     if (profileCompleteBonus > 0) {
-      ElMessage.success(`个人信息更新成功！资料完整度达到100%，获得 ${profileCompleteBonus} 积分`);
+      ElMessage.success(
+        `个人信息更新成功！资料完整度达到100%，获得 ${profileCompleteBonus} 积分`
+      );
     } else {
-      ElMessage.success('个人信息更新成功');
+      ElMessage.success("个人信息更新成功");
     }
-    
+
     editMode.value = false;
 
-    console.log('用户信息已保存:', updatedData);
+    console.log("用户信息已保存:", updatedData);
   } catch (error) {
-    console.error('保存用户信息失败:', error);
-    ElMessage.error(error.message || '保存失败，请重试');
+    console.error("保存用户信息失败:", error);
+    ElMessage.error(error.message || "保存失败，请重试");
   } finally {
     saving.value = false;
   }
@@ -482,60 +480,15 @@ const resetForm = () => {
   }
 };
 
-const sendVerificationEmail = async () => {
-  try {
-    sendingEmail.value = true;
-
-    // 模拟发送邮件延迟
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    ElMessage.success('验证邮件已发送，请检查您的邮箱');
-    console.log('验证邮件已发送（模拟）');
-  } catch (error) {
-    console.error('发送验证邮件失败:', error);
-    ElMessage.error('发送失败，请重试');
-  } finally {
-    sendingEmail.value = false;
-  }
+// 密码修改成功回调
+const handlePasswordChanged = () => {
+  console.log("密码修改成功");
 };
 
-const changePassword = async () => {
-  if (!passwordFormRef.value) return;
-
-  try {
-    await passwordFormRef.value.validate();
-    changingPassword.value = true;
-
-    // 调用后端 API 直接更新用户密码（不再校验当前密码）
-    const currentProfile = userStore.profile;
-    if (!currentProfile) {
-      throw new Error('用户未登录');
-    }
-
-    const { updateProfileApi } = await import('@/api/user.js');
-    // 只 patch 密码字段，json-server 会持久化到 db.json
-    await updateProfileApi(currentProfile.id, { password: passwordForm.newPassword });
-
-    // 同步更新本地 store（保留其他字段）
-    const updatedProfile = { ...currentProfile, password: passwordForm.newPassword };
-    userStore.setProfile(updatedProfile);
-
-    ElMessage.success('密码修改成功');
-    showPasswordDialog.value = false;
-
-    // 清空表单
-    Object.assign(passwordForm, {
-      newPassword: '',
-      confirmPassword: ''
-    });
-
-    console.log('密码已修改并已同步到 json-server');
-  } catch (error) {
-    console.error('修改密码失败:', error);
-    ElMessage.error(error.message || '修改密码失败，请重试');
-  } finally {
-    changingPassword.value = false;
-  }
+// 头像修改成功回调
+const handleAvatarChanged = () => {
+  console.log("头像修改成功");
+  loadUserInfo(); // 重新加载用户信息
 };
 
 // 生命周期
@@ -556,11 +509,17 @@ onMounted(() => {
   margin-bottom: 24px;
 }
 
-.password-button {
+.header-buttons {
   position: absolute;
-  font-size: 12px;
   top: 40px;
   right: 40px;
+  display: flex;
+  gap: 12px;
+
+  .avatar-button,
+  .password-button {
+    font-size: 12px;
+  }
 }
 
 .page-header h2 {
@@ -662,102 +621,6 @@ onMounted(() => {
 
 .dialog-footer {
   text-align: right;
-}
-
-/* 密码弹窗样式 */
-:deep(.password-dialog) {
-  border-radius: 16px;
-  overflow: hidden;
-
-  .el-dialog__header {
-    padding: 0;
-    margin: 0;
-  }
-
-  .el-dialog__body {
-    padding: 24px 32px;
-  }
-
-  .el-dialog__footer {
-    padding: 16px 32px 24px;
-    border-top: 1px solid #f0f2f5;
-  }
-}
-
-.dialog-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 24px 32px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-
-  .header-icon {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    font-size: 24px;
-  }
-
-  .header-text {
-    flex: 1;
-
-    h3 {
-      margin: 0 0 4px 0;
-      font-size: 18px;
-      font-weight: 600;
-    }
-
-    p {
-      margin: 0;
-      font-size: 13px;
-      opacity: 0.9;
-    }
-  }
-}
-
-.password-form {
-  .el-form-item {
-    margin-bottom: 20px;
-  }
-
-  .el-input {
-    border-radius: 8px;
-  }
-
-  .password-tips {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 16px;
-    background: #f0f9ff;
-    border-left: 3px solid #67d474d5;
-    border-radius: 4px;
-    color: #606266;
-    font-size: 13px;
-    margin-top: 8px;
-
-    .el-icon {
-      color: #67d474d5;
-      font-size: 16px;
-    }
-  }
-}
-
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-
-  .el-button {
-    border-radius: 8px;
-    padding: 10px 24px;
-    font-weight: 500;
-  }
 }
 
 /* 响应式设计 */

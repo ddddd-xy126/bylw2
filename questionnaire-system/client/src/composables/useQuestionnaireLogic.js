@@ -1,4 +1,4 @@
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch } from "vue";
 
 /**
  * 答题逻辑 Composable
@@ -6,186 +6,227 @@ import { ref, reactive, computed, watch } from 'vue'
  */
 export function useQuestionnaireLogic() {
   // 状态管理
-  const answers = ref({})
-  const committedAnswers = ref({})
-  const currentQuestionIndex = ref(0)
-  const visitedQuestions = ref(new Set())
-  const questions = ref([])
+  const answers = ref({});
+  const committedAnswers = ref({});
+  const currentQuestionIndex = ref(0);
+  const visitedQuestions = ref(new Set());
+  const questions = ref([]);
 
   // 初始化方法
   const initializeLogic = (questionList) => {
-    questions.value = questionList || []
-  }
+    questions.value = questionList || [];
+  };
 
   // 计算属性
   const totalQuestions = computed(() => {
-    return questions.value?.length || 0
-  })
+    return questions.value?.length || 0;
+  });
 
   const currentQuestion = computed(() => {
-    const ordered = getOrderedQuestions()
-    return ordered[currentQuestionIndex.value] || null
-  })
+    const ordered = getOrderedQuestions();
+    return ordered[currentQuestionIndex.value] || null;
+  });
 
   const isLastQuestion = computed(() => {
-    return currentQuestionIndex.value === totalQuestions.value - 1
-  })
+    return currentQuestionIndex.value === totalQuestions.value - 1;
+  });
 
   const answeredCount = computed(() => {
-    return Object.keys(committedAnswers.value).length
-  })
+    return Object.keys(committedAnswers.value).length;
+  });
 
   // 获取排序后的问题列表
   const getOrderedQuestions = () => {
-    if (!questions.value) return []
+    if (!questions.value) return [];
     return [...questions.value].sort((a, b) => {
-      const orderA = a.order !== undefined ? a.order : a.id
-      const orderB = b.order !== undefined ? b.order : b.id
-      return orderA - orderB
-    })
-  }
+      const orderA = a.order !== undefined ? a.order : a.id;
+      const orderB = b.order !== undefined ? b.order : b.id;
+      return orderA - orderB;
+    });
+  };
 
   // 计算预期路径（用于进度计算）
   const computeExpectedPath = () => {
-    const orderedQuestions = getOrderedQuestions()
-    const path = []
-    const seen = new Set()
-    let idx = 0
+    const orderedQuestions = getOrderedQuestions();
+    const path = [];
+    const seen = new Set();
+    let idx = 0;
 
     while (idx >= 0 && idx < orderedQuestions.length) {
-      const q = orderedQuestions[idx]
-      if (!q || seen.has(String(q.id))) break
-      path.push(String(q.id))
-      seen.add(String(q.id))
+      const q = orderedQuestions[idx];
+      if (!q || seen.has(String(q.id))) break;
+      path.push(String(q.id));
+      seen.add(String(q.id));
 
       // 检查跳转逻辑
       if (q.enableLogic && q.logicRules && q.logicRules.length > 0) {
-        const userAnswer = committedAnswers.value[q.id]
-        let matchedRule = null
+        const userAnswer = committedAnswers.value[q.id];
+        let matchedRule = null;
 
-        if (q.type === 'single') {
-          matchedRule = q.logicRules.find(rule => rule.optionId === userAnswer)
-        } else if (q.type === 'multiple' && Array.isArray(userAnswer)) {
-          matchedRule = q.logicRules.find(rule => userAnswer.includes(rule.optionId))
+        if (q.type === "single") {
+          matchedRule = q.logicRules.find(
+            (rule) => rule.optionId === userAnswer
+          );
+        } else if (q.type === "multiple" && Array.isArray(userAnswer)) {
+          matchedRule = q.logicRules.find((rule) =>
+            userAnswer.includes(rule.optionId)
+          );
         }
 
         if (matchedRule) {
-          const targetIndex = matchedRule.targetQuestion - 1
+          // 如果规则标记为结束问卷，路径到此为止
+          if (matchedRule.isEnd) {
+            break;
+          }
+
+          // 跳转到指定题目
+          const targetIndex = matchedRule.targetQuestion - 1;
           if (targetIndex >= 0 && targetIndex < orderedQuestions.length) {
-            idx = targetIndex
-            continue
+            idx = targetIndex;
+            continue;
           } else {
-            break
+            break;
           }
         }
       }
 
-      idx++
+      idx++;
     }
 
-    return path
-  }
+    return path;
+  };
 
-  const expectedPath = computed(() => computeExpectedPath())
+  const expectedPath = computed(() => computeExpectedPath());
 
   const progressPercentage = computed(() => {
-    const path = expectedPath.value
-    if (!path || path.length === 0) return 0
-    const answeredOnPath = path.filter(id => committedAnswers.value[id] !== undefined).length
-    return (answeredOnPath / path.length) * 100
-  })
+    const path = expectedPath.value;
+    if (!path || path.length === 0) return 0;
+    const answeredOnPath = path.filter(
+      (id) => committedAnswers.value[id] !== undefined
+    ).length;
+    return (answeredOnPath / path.length) * 100;
+  });
 
   // 答案管理
   const setAnswer = (questionId, value) => {
-    answers.value[questionId] = value
-  }
+    answers.value[questionId] = value;
+  };
 
   const commitAnswer = (questionId) => {
-    const value = answers.value[questionId]
-    committedAnswers.value[questionId] = value
-    visitedQuestions.value.add(String(questionId))
-  }
+    const value = answers.value[questionId];
+    committedAnswers.value[questionId] = value;
+    visitedQuestions.value.add(String(questionId));
+  };
 
   const getAnswer = (questionId) => {
-    return answers.value[questionId]
-  }
+    return answers.value[questionId];
+  };
 
   // 题目导航
   const goToQuestion = (index) => {
     if (index >= 0 && index < totalQuestions.value) {
-      currentQuestionIndex.value = index
+      currentQuestionIndex.value = index;
     }
-  }
+  };
 
   const nextQuestion = (questionList) => {
     // 使用传入的问题列表或默认的
-    const qs = questionList || questions.value
-    
-    // 检查跳转逻辑
-    const question = currentQuestion.value
-    if (question?.enableLogic && question.logicRules && question.logicRules.length > 0) {
-      const userAnswer = answers.value[question.id]
-      let matchedRule = null
+    const qs = questionList || questions.value;
 
-      if (question.type === 'single') {
-        matchedRule = question.logicRules.find(rule => rule.optionId === userAnswer)
-      } else if (question.type === 'multiple' && Array.isArray(userAnswer)) {
-        matchedRule = question.logicRules.find(rule => userAnswer.includes(rule.optionId))
+    // 检查跳转逻辑
+    const question = currentQuestion.value;
+    if (
+      question?.enableLogic &&
+      question.logicRules &&
+      question.logicRules.length > 0
+    ) {
+      const userAnswer = answers.value[question.id];
+      let matchedRule = null;
+
+      if (question.type === "single") {
+        matchedRule = question.logicRules.find(
+          (rule) => rule.optionId === userAnswer
+        );
+      } else if (question.type === "multiple" && Array.isArray(userAnswer)) {
+        matchedRule = question.logicRules.find((rule) =>
+          userAnswer.includes(rule.optionId)
+        );
       }
 
       if (matchedRule) {
-        const targetIndex = matchedRule.targetQuestion - 1
+        // 检查是否选择了"结束问卷"
+        if (matchedRule.isEnd) {
+          return "complete";
+        }
+
+        // 跳转到指定题目
+        const targetIndex = matchedRule.targetQuestion - 1;
         if (targetIndex >= 0 && targetIndex < totalQuestions.value) {
-          currentQuestionIndex.value = targetIndex
-          return 'jumped'
+          currentQuestionIndex.value = targetIndex;
+          return "jumped";
         }
       }
     }
 
     // 正常进入下一题
     if (isLastQuestion.value) {
-      return 'complete'
+      return "complete";
     } else {
-      currentQuestionIndex.value++
-      return 'next'
+      currentQuestionIndex.value++;
+      return "next";
     }
-  }
+  };
 
   const prevQuestion = () => {
     if (currentQuestionIndex.value > 0) {
-      currentQuestionIndex.value--
-      return true
+      currentQuestionIndex.value--;
+      return true;
     }
-    return false
-  }
+    return false;
+  };
 
-  // 验证所有必答题
+  // 验证必答题（只验证预期路径上的题目）
   const validateRequiredQuestions = (questionList) => {
-    const qs = questionList || questions.value
-    const unansweredRequired = qs.filter(q =>
-      q.required && (answers.value[q.id] === undefined || answers.value[q.id] === null || answers.value[q.id] === '')
-    )
-    
+    const qs = questionList || questions.value;
+
+    // 获取预期路径上的题目ID
+    const pathIds = new Set(expectedPath.value);
+
+    // 只验证在预期路径上的必答题
+    const unansweredRequired = qs.filter((q) => {
+      // 必须在预期路径上
+      const isInPath = pathIds.has(String(q.id));
+      // 必须是必答题
+      const isRequired = q.required;
+      // 必须未回答
+      const isUnanswered =
+        answers.value[q.id] === undefined ||
+        answers.value[q.id] === null ||
+        answers.value[q.id] === "";
+
+      return isInPath && isRequired && isUnanswered;
+    });
+
     return {
       isValid: unansweredRequired.length === 0,
-      unansweredRequired
-    }
-  }
+      unansweredRequired,
+    };
+  };
 
   // 重置答题
   const resetAnswers = () => {
-    answers.value = {}
-    committedAnswers.value = {}
-    currentQuestionIndex.value = 0
-    visitedQuestions.value.clear()
-  }
+    answers.value = {};
+    committedAnswers.value = {};
+    currentQuestionIndex.value = 0;
+    visitedQuestions.value.clear();
+  };
 
   // 监听当前题目变化
   watch(currentQuestion, (q) => {
     if (q && q.id !== undefined && q.id !== null) {
-      visitedQuestions.value.add(String(q.id))
+      visitedQuestions.value.add(String(q.id));
     }
-  })
+  });
 
   return {
     // 状态
@@ -212,6 +253,6 @@ export function useQuestionnaireLogic() {
     nextQuestion,
     prevQuestion,
     validateRequiredQuestions,
-    resetAnswers
-  }
+    resetAnswers,
+  };
 }

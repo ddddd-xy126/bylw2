@@ -18,7 +18,7 @@ import AchievementsPage from "@/views/frontend/user/components/profile/Achieveme
 import ReportsPage from "@/views/frontend/user/components/profile/ReportsPage.vue";
 import CreateQuestionnairePage from "@/views/frontend/questionnaire/CreatePage.vue";
 import TemplateSelectionPage from "@/views/frontend/questionnaire/TemplateSelectionPage.vue";
-import CustomCreatePage from "@/views/frontend/questionnaire/CustomCreatePage.vue";
+import QuestionnaireEditor from "@/components/QuestionnaireEditor.vue";
 import AnsweredPage from "@/views/frontend/user/components/questionnaires/AnsweredPage.vue";
 import CreatedPage from "@/views/frontend/user/components/questionnaires/CreatedPage.vue";
 import PendingPage from "@/views/frontend/user/components/questionnaires/PendingPage.vue";
@@ -78,22 +78,22 @@ export default [
       },
       {
         path: "create/custom",
-        component: CustomCreatePage,
+        component: QuestionnaireEditor,
         meta: { requiresAuth: true },
       },
       {
         path: "create/template/:id",
-        component: CustomCreatePage,
+        component: QuestionnaireEditor,
         meta: { requiresAuth: true },
       },
       {
         path: "create/edit/:id",
-        component: CustomCreatePage,
+        component: QuestionnaireEditor,
         meta: { requiresAuth: true },
       },
       {
         path: "questionnaires/edit/:id",
-        component: CustomCreatePage,
+        component: QuestionnaireEditor,
         meta: { requiresAuth: true },
       },
     ],
