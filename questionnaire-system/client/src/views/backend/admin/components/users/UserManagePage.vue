@@ -460,14 +460,6 @@ const editForm = reactive({
   banned: false,
 });
 
-const editRules = {
-  username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
-  email: [
-    { required: true, message: "请输入邮箱", trigger: "blur" },
-    { type: "email", message: "请输入正确的邮箱格式", trigger: "blur" },
-  ],
-};
-
 const editFormRef = ref();
 
 // 计算属性
@@ -532,13 +524,6 @@ const loadUsers = async () => {
     loading.value = false;
   }
 };
-
-// hook 已提供 handleSearch/handleFilter/handlePageChange
-// 将本地筛选控件的 change 事件指向 hook 的 handleFilter
-// page/size 改为由 hook 管理（handleSizeChange 自实现）
-const handlePageChangeLocal = (page) => {
-  handlePageChange(page)
-}
 
 const handleSelectionChange = (selection) => {
   selectedUsers.value = selection;
@@ -615,7 +600,6 @@ const saveUser = async () => {
     await editFormRef.value.validate();
     saving.value = true;
 
-    const isCreate = !editForm.id;
     const userName = editForm.nickname || editForm.username;
 
     if (editForm.id) {
