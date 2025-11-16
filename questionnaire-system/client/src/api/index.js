@@ -1,10 +1,11 @@
 import axios from "axios";
 import { useUserStore } from "@/store/user";
+import router from "@/router";
 
-// 使用 json-server 作为后端 API
-const instance = axios.create({ 
-  baseURL: "http://localhost:3002",
-  timeout: 10000 
+// Express 后端 API
+const instance = axios.create({
+  baseURL: "http://localhost:3000/api",
+  timeout: 10000,
 });
 
 instance.interceptors.request.use((config) => {
@@ -16,9 +17,26 @@ instance.interceptors.request.use((config) => {
 });
 
 instance.interceptors.response.use(
-  (res) => res.data,
+  (res) => {
+    // 后端返回格式: { success, message, data }
+    // 如果有 data 字段，返回 data，否则返回整个响应
+    return res.data?.data !== undefined ? res.data.data : res.data;
+  },
   (err) => {
     const message = err.response?.data?.message || err.message;
+
+    // 401 未授权，清除 token 并跳转登录
+    if (err.response?.status === 401) {
+      const store = useUserStore();
+      store.logout();
+      router.push("/login");
+    }
+
+    // 403 无权限
+    if (err.response?.status === 403) {
+      router.push("/403");
+    }
+
     return Promise.reject(new Error(message));
   }
 );
@@ -29,7 +47,7 @@ const apiClient = {
   post: (url, data, config) => instance.post(url, data, config),
   put: (url, data, config) => instance.put(url, data, config),
   patch: (url, data, config) => instance.patch(url, data, config),
-  delete: (url, config) => instance.delete(url, config)
+  delete: (url, config) => instance.delete(url, config),
 };
 
 export default apiClient;

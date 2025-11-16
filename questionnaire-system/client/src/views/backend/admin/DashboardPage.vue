@@ -287,7 +287,7 @@
                       >参与: {{ survey.participants || 0 }}</el-tag
                     >
                     <el-tag size="small" type="warning"
-                      >评分: {{ (survey.rating || 0).toFixed(1) }}</el-tag
+                      >评分: {{ Number(survey.rating || 0).toFixed(1) }}</el-tag
                     >
                   </div>
                 </div>

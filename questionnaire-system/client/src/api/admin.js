@@ -1,8 +1,8 @@
-import apiClient from './index.js';
+import apiClient from "./index.js";
 
 // 系统管理
 export const healthCheckApi = async () => {
-  const status = await apiClient.get('/systemStatus');
+  const status = await apiClient.get("/systemStatus");
   return status;
 };
 
@@ -18,73 +18,56 @@ export const seedAdminApi = async (data) => {
     points: 0,
     level: 1,
     avatar: "/avatars/admin.jpg",
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
   };
-  
-  const admin = await apiClient.post('/users', newAdmin);
-  
-  return { 
-    success: true, 
+
+  const admin = await apiClient.post("/users", newAdmin);
+
+  return {
+    success: true,
     message: "管理员账户创建成功",
     admin: {
       username: admin.username,
       role: admin.role,
-      createdAt: admin.createdAt
-    }
+      createdAt: admin.createdAt,
+    },
   };
 };
 
 // 用户管理
 export const getAllUsersApi = async () => {
-  const users = await apiClient.get('/users');
+  const response = await apiClient.get("/admin/users");
   return {
-    list: users,
-    total: users.length
+    list: response.data || [],
+    total: response.pagination?.total || 0,
   };
 };
 
 export const createUserApi = async (data) => {
-  const newUser = {
+  // 注册新用户通过 auth API
+  const response = await apiClient.post("/auth/register", {
     username: data.username,
     nickname: data.nickname || data.username,
     email: data.email,
-    phone: data.phone || '',
     password: data.password,
-    avatar: "/avatars/default.jpg",
-    role: data.role || "user",
-    banned: false,
-    isActive: true,
-    points: 0,
-    level: 1,
-    bio: '',
-    city: '',
-    gender: '',
-    age: 0,
-    profession: '',
-    joinedDate: new Date().toISOString().split('T')[0],
-    createdAt: new Date().toISOString(),
-    lastLoginAt: new Date().toISOString(),
-    lastLoginIp: ''
-  };
-  
-  const user = await apiClient.post('/users', newUser);
-  return user;
+  });
+  return response.data.user;
 };
 
 export const deleteUserApi = async (id) => {
-  await apiClient.delete(`/users/${id}`);
+  await apiClient.delete(`/admin/users/${id}`);
   return { success: true, message: "用户删除成功" };
 };
 
 export const banUserApi = async (id) => {
-  const user = await apiClient.get(`/users/${id}`);
-  await apiClient.put(`/users/${id}`, { ...user, banned: true, isActive: false });
+  // 通过更新用户角色来禁用 - 可以设为 banned 或其他状态
+  await apiClient.put(`/admin/users/${id}/role`, { role: "user" });
   return { success: true, message: "用户已被禁用" };
 };
 
 export const unbanUserApi = async (id) => {
-  const user = await apiClient.get(`/users/${id}`);
-  await apiClient.put(`/users/${id}`, { ...user, banned: false, isActive: true });
+  // 通过更新用户角色来启用
+  await apiClient.put(`/admin/users/${id}/role`, { role: "user" });
   return { success: true, message: "用户已被启用" };
 };
 
@@ -98,10 +81,10 @@ export const createAdminSurveyApi = async (data) => {
     rating: 0,
     status: "draft",
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   };
-  
-  const survey = await apiClient.post('/surveys', newSurvey);
+
+  const survey = await apiClient.post("/surveys", newSurvey);
   return survey;
 };
 
@@ -112,52 +95,56 @@ export const deleteAdminSurveyApi = async (id) => {
 
 // Dashboard 相关API
 export const getDashboardStatsApi = async () => {
-  const stats = await apiClient.get('/adminStats');
-  return stats;
+  const response = await apiClient.get("/admin/dashboard/stats");
+  return response.data || {};
 };
 
 export const getRecentSurveysApi = async (limit = 5) => {
-  const surveys = await apiClient.get(`/surveys?_sort=createdAt&_order=desc&_limit=${limit}`);
+  const surveys = await apiClient.get(
+    `/surveys?_sort=createdAt&_order=desc&_limit=${limit}`
+  );
   return {
     list: surveys,
-    total: surveys.length
+    total: surveys.length,
   };
 };
 
 export const getRecentUsersApi = async (limit = 5) => {
-  const users = await apiClient.get(`/users?_sort=createdAt&_order=desc&_limit=${limit}`);
+  const users = await apiClient.get(
+    `/users?_sort=createdAt&_order=desc&_limit=${limit}`
+  );
   return {
     list: users,
-    total: users.length
+    total: users.length,
   };
 };
 
 export const getSystemStatusApi = async () => {
-  const status = await apiClient.get('/systemStatus');
+  const status = await apiClient.get("/systemStatus");
   return status;
 };
 
 export const getActivityDataApi = async () => {
-  const data = await apiClient.get('/activityData');
+  const data = await apiClient.get("/activityData");
   return {
     list: data,
-    total: data.length
+    total: data.length,
   };
 };
 
 export const getCategoryDistributionApi = async () => {
-  const categories = await apiClient.get('/categories');
+  const categories = await apiClient.get("/categories");
   return {
     list: categories,
-    total: categories.length
+    total: categories.length,
   };
 };
 
 // 用户管理扩展
 export const getUsersApi = async (params = {}) => {
-  let url = '/users';
+  let url = "/users";
   let queryParams = [];
-  
+
   if (params.role) {
     queryParams.push(`role=${params.role}`);
   }
@@ -167,18 +154,18 @@ export const getUsersApi = async (params = {}) => {
   if (params.page && params.pageSize) {
     queryParams.push(`_page=${params.page}&_limit=${params.pageSize}`);
   }
-  
+
   if (queryParams.length > 0) {
-    url += '?' + queryParams.join('&');
+    url += "?" + queryParams.join("&");
   }
-  
+
   const users = await apiClient.get(url);
-  
+
   return {
     list: users,
     total: users.length,
     page: params.page || 1,
-    pageSize: params.pageSize || 10
+    pageSize: params.pageSize || 10,
   };
 };
 
@@ -187,36 +174,36 @@ export const getUserDetailApi = async (id) => {
   if (!user) {
     throw new Error("用户不存在");
   }
-  
+
   // 获取用户的统计数据
   const [answers, favorites] = await Promise.all([
     apiClient.get(`/answers?userId=${id}`),
-    apiClient.get(`/favorites?userId=${id}`)
+    apiClient.get(`/favorites?userId=${id}`),
   ]);
-  
+
   // 增强用户详情数据
   const enhancedUser = {
     ...user,
     stats: {
       totalAnswers: answers.length,
       totalFavorites: favorites.length,
-      totalPoints: user.points || 0
-    }
+      totalPoints: user.points || 0,
+    },
   };
-  
+
   return enhancedUser;
 };
 
 export const updateUserApi = async (id, data) => {
   const updatedUser = await apiClient.put(`/users/${id}`, {
     ...data,
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   });
-  
-  return { 
-    success: true, 
+
+  return {
+    success: true,
     message: "用户信息更新成功",
-    user: updatedUser
+    user: updatedUser,
   };
 };
 
@@ -225,21 +212,21 @@ export const resetPasswordApi = async (id) => {
   await apiClient.put(`/users/${id}`, {
     ...user,
     password: "admin123",
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   });
-  
-  return { 
-    success: true, 
+
+  return {
+    success: true,
     message: "密码重置成功",
-    newPassword: "admin123"
+    newPassword: "admin123",
   };
 };
 
 // 问卷管理扩展
 export const getSurveysApi = async (params = {}) => {
-  let url = '/surveys';
+  let url = "/surveys";
   let queryParams = [];
-  
+
   if (params.status) {
     queryParams.push(`status=${params.status}`);
   }
@@ -252,18 +239,18 @@ export const getSurveysApi = async (params = {}) => {
   if (params.page && params.pageSize) {
     queryParams.push(`_page=${params.page}&_limit=${params.pageSize}`);
   }
-  
+
   if (queryParams.length > 0) {
-    url += '?' + queryParams.join('&');
+    url += "?" + queryParams.join("&");
   }
-  
+
   const surveys = await apiClient.get(url);
-  
+
   return {
     list: surveys,
     total: surveys.length,
     page: params.page || 1,
-    pageSize: params.pageSize || 10
+    pageSize: params.pageSize || 10,
   };
 };
 
@@ -280,13 +267,13 @@ export const updateSurveyStatusApi = async (id, status) => {
   const updatedSurvey = await apiClient.put(`/surveys/${id}`, {
     ...survey,
     status,
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   });
-  
-  return { 
-    success: true, 
+
+  return {
+    success: true,
     message: "问卷状态更新成功",
-    survey: updatedSurvey
+    survey: updatedSurvey,
   };
 };
 
@@ -295,7 +282,7 @@ export const copySurveyApi = async (id) => {
   if (!originalSurvey) {
     throw new Error("原始问卷不存在");
   }
-  
+
   const copiedSurvey = {
     ...originalSurvey,
     id: undefined, // 让json-server自动生成ID
@@ -303,157 +290,161 @@ export const copySurveyApi = async (id) => {
     status: "draft",
     participants: 0,
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   };
-  
-  const newSurvey = await apiClient.post('/surveys', copiedSurvey);
+
+  const newSurvey = await apiClient.post("/surveys", copiedSurvey);
   return newSurvey;
 };
 
 export const getCategoriesApi = async () => {
-  const categories = await apiClient.get('/categories');
+  const categories = await apiClient.get("/categories");
   return {
     list: categories,
-    total: categories.length
+    total: categories.length,
   };
 };
 
 // 管理员个人资料相关API
 export const getAdminProfileApi = async () => {
   // 获取管理员用户信息
-  const users = await apiClient.get('/users?role=admin');
-  const adminProfile = users.find(user => user.username === 'admin');
-  
+  const users = await apiClient.get("/users?role=admin");
+  const adminProfile = users.find((user) => user.username === "admin");
+
   if (!adminProfile) {
-    throw new Error('管理员账户不存在');
+    throw new Error("管理员账户不存在");
   }
-  
+
   return adminProfile;
 };
 
 export const updateAdminProfileApi = async (data) => {
-  const users = await apiClient.get('/users?role=admin');
-  const admin = users.find(user => user.username === 'admin');
-  
+  const users = await apiClient.get("/users?role=admin");
+  const admin = users.find((user) => user.username === "admin");
+
   if (!admin) {
-    throw new Error('管理员账户不存在');
+    throw new Error("管理员账户不存在");
   }
-  
+
   const updatedAdmin = await apiClient.put(`/users/${admin.id}`, {
     ...admin,
     ...data,
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   });
-  
+
   return {
     success: true,
-    message: '个人资料更新成功',
-    profile: updatedAdmin
+    message: "个人资料更新成功",
+    profile: updatedAdmin,
   };
 };
 
 export const changeAdminPasswordApi = async (passwordData) => {
   // 从 localStorage 获取当前登录用户信息
-  const profileStr = localStorage.getItem('userProfile');
+  const profileStr = localStorage.getItem("userProfile");
   if (!profileStr) {
-    throw new Error('请先登录');
+    throw new Error("请先登录");
   }
-  
+
   const currentUser = JSON.parse(profileStr);
-  
+
   // 获取用户完整信息
   const user = await apiClient.get(`/users/${currentUser.id}`);
-  
+
   if (!user) {
-    throw new Error('用户不存在');
+    throw new Error("用户不存在");
   }
-  
+
   // 验证当前密码
   if (passwordData.currentPassword !== user.password) {
-    throw new Error('当前密码不正确');
+    throw new Error("当前密码不正确");
   }
-  
+
   // 更新密码到 db.json
   await apiClient.put(`/users/${user.id}`, {
     ...user,
     password: passwordData.newPassword,
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   });
-  
+
   return {
     success: true,
-    message: '密码修改成功,请妥善保管新密码'
+    message: "密码修改成功,请妥善保管新密码",
   };
 };
 
 export const updateAdminAvatarApi = async (avatarData, userId) => {
   try {
     if (!userId) {
-      throw new Error('用户ID不能为空');
+      throw new Error("用户ID不能为空");
     }
-    
+
     // 先获取数据库中的完整用户信息
     const existingUser = await apiClient.get(`/users/${userId}`);
-    
+
     // 更新头像到 db.json
     const updatedUser = await apiClient.put(`/users/${userId}`, {
       ...existingUser,
       avatar: avatarData.avatar,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
-    
+
     // 记录管理员操作
     await recordAdminActivity({
       adminId: userId,
       adminName: existingUser.nickname || existingUser.username,
-      title: '更换头像',
-      description: '更新了个人头像',
-      type: 'avatar_update'
+      title: "更换头像",
+      description: "更新了个人头像",
+      type: "avatar_update",
     });
-    
+
     return {
       success: true,
-      message: '头像更新成功',
-      user: updatedUser
+      message: "头像更新成功",
+      user: updatedUser,
     };
   } catch (error) {
-    console.error('更新头像失败:', error);
+    console.error("更新头像失败:", error);
     throw error;
   }
 };
 
 export const getAdminStatsApi = async () => {
   // 从adminStats获取统计数据
-  const stats = await apiClient.get('/adminStats');
+  const stats = await apiClient.get("/adminStats");
   return stats;
 };
 
 export const getAdminActivitiesApi = async (limit = 10, adminId = null) => {
   try {
-    // 从 db.json 获取管理员活动记录
-    let activities = await apiClient.get('/adminActivities');
-    
+    // 从后端 API 获取管理员活动记录
+    let activities = await apiClient.get("/admin/activities");
+
     if (!Array.isArray(activities)) {
-      console.warn('adminActivities 不是数组:', activities);
+      console.warn("adminActivities 不是数组:", activities);
       return { list: [], total: 0 };
     }
-    
+
     // 按时间倒序排列
     activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
+
     // 如果指定了 adminId，则过滤该管理员的活动（转换为字符串比较）
     if (adminId) {
       const adminIdStr = String(adminId);
-      activities = activities.filter(act => String(act.adminId) === adminIdStr);
-      console.log(`过滤管理员 ${adminIdStr} 的活动，找到 ${activities.length} 条`);
+      activities = activities.filter(
+        (act) => String(act.adminId) === adminIdStr
+      );
+      console.log(
+        `过滤管理员 ${adminIdStr} 的活动，找到 ${activities.length} 条`
+      );
     }
-    
+
     return {
       list: limit ? activities.slice(0, limit) : activities,
-      total: activities.length
+      total: activities.length,
     };
   } catch (error) {
-    console.error('获取管理员活动记录失败:', error);
+    console.error("获取管理员活动记录失败:", error);
     return { list: [], total: 0 };
   }
 };
@@ -463,7 +454,7 @@ export const recordAdminActivity = async (activityData) => {
   try {
     // 生成唯一ID
     const activityId = `act_${Date.now()}`;
-    
+
     const newActivity = {
       id: activityId,
       adminId: String(activityData.adminId), // 确保是字符串
@@ -471,29 +462,29 @@ export const recordAdminActivity = async (activityData) => {
       title: activityData.title,
       description: activityData.description,
       type: activityData.type,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
-    
-    console.log('记录管理员操作:', newActivity);
-    
+
+    console.log("记录管理员操作:", newActivity);
+
     // 添加到 adminActivities
-    await apiClient.post('/adminActivities', newActivity);
-    
+    await apiClient.post("/adminActivities", newActivity);
+
     return {
       success: true,
-      activity: newActivity
+      activity: newActivity,
     };
   } catch (error) {
-    console.error('记录管理员操作失败:', error);
+    console.error("记录管理员操作失败:", error);
     return { success: false };
   }
 };
 
 // 公告管理API
 export const getAnnouncementsApi = async (params = {}) => {
-  let url = '/announcements';
+  let url = "/announcements";
   let queryParams = [];
-  
+
   if (params.isActive !== undefined) {
     queryParams.push(`isActive=${params.isActive}`);
   }
@@ -503,11 +494,11 @@ export const getAnnouncementsApi = async (params = {}) => {
   if (params.order) {
     queryParams.push(`_order=${params.order}`);
   }
-  
+
   if (queryParams.length > 0) {
-    url += '?' + queryParams.join('&');
+    url += "?" + queryParams.join("&");
   }
-  
+
   const announcements = await apiClient.get(url);
   return announcements;
 };
@@ -521,20 +512,23 @@ export const createAnnouncementApi = async (data) => {
   const newAnnouncement = {
     ...data,
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   };
-  
-  const announcement = await apiClient.post('/announcements', newAnnouncement);
+
+  const announcement = await apiClient.post("/announcements", newAnnouncement);
   return announcement;
 };
 
 export const updateAnnouncementApi = async (id, data) => {
   const updatedData = {
     ...data,
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   };
-  
-  const announcement = await apiClient.patch(`/announcements/${id}`, updatedData);
+
+  const announcement = await apiClient.patch(
+    `/announcements/${id}`,
+    updatedData
+  );
   return announcement;
 };
 

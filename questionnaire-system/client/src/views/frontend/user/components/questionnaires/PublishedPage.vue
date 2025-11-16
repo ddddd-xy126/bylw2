@@ -194,7 +194,7 @@
                 <div class="stat-item">
                   <span class="stat-label">平均分</span>
                   <span class="stat-value highlight-normal">{{
-                    (survey.averageRating ?? 0).toFixed(1)
+                    Number(survey.averageRating ?? 0).toFixed(1)
                   }}</span>
                 </div>
                 <div class="stat-item">
@@ -354,6 +354,21 @@ const categories = ref([]);
 // 排序（保留在组件中）
 const sortBy = ref("publishedAt");
 
+// 分享相关 - 提前声明所有ref，避免TDZ问题
+const shareDialogVisible = ref(false);
+const shareUrl = ref("");
+const qrCodeUrl = ref("");
+const currentSurvey = ref(null);
+
+// 数据统计相关
+const statsDialogVisible = ref(false);
+const currentSurveyStats = ref(null);
+
+// 评论管理相关
+const commentsDialogVisible = ref(false);
+const loadingComments = ref(false);
+const allComments = ref([]);
+
 // 使用通用列表筛选 hooks
 const {
   searchKeyword,
@@ -368,21 +383,6 @@ const {
   handlePageChange,
   handleSort,
 } = useListFilter({ sourceList: publishedSurveys, searchFields: ["title"] });
-
-// 分享相关
-const shareDialogVisible = ref(false);
-const shareUrl = ref("");
-const qrCodeUrl = ref("");
-const currentSurvey = ref(null);
-
-// 数据统计相关
-const statsDialogVisible = ref(false);
-const currentSurveyStats = ref(null);
-
-// 评论管理相关
-const commentsDialogVisible = ref(false);
-const loadingComments = ref(false);
-const allComments = ref([]);
 
 // 计算属性
 const totalAnswers = computed(() => {
@@ -406,7 +406,7 @@ const totalParticipants = computed(() => {
 const averageRating = computed(() => {
   if (publishedSurveys.value.length === 0) return 0;
   const total = publishedSurveys.value.reduce(
-    (sum, survey) => sum + (survey.averageRating || 0),
+    (sum, survey) => sum + Number(survey.averageRating || 0),
     0
   );
   return total / publishedSurveys.value.length;
