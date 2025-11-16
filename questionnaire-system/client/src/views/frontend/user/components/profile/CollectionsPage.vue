@@ -9,18 +9,36 @@
     <el-card class="filter-card" shadow="never">
       <el-row :gutter="16" align="middle">
         <el-col :span="8">
-          <el-input v-model="searchKeyword" placeholder="搜索收藏的问卷..." prefix-icon="Search" clearable
-            @input="handleSearch" />
+          <el-input
+            v-model="searchKeyword"
+            placeholder="搜索收藏的问卷..."
+            prefix-icon="Search"
+            clearable
+            @input="handleSearch"
+          />
         </el-col>
         <el-col :span="6">
-          <el-select v-model="categoryFilter" placeholder="选择分类" clearable @change="handleCategoryChange">
+          <el-select
+            v-model="categoryFilter"
+            placeholder="选择分类"
+            clearable
+            @change="handleCategoryChange"
+          >
             <el-option label="全部分类" value="" />
-            <el-option v-for="category in categories" :key="category.id" :label="category.name"
-              :value="category.name" />
+            <el-option
+              v-for="category in categories"
+              :key="category.id"
+              :label="category.name"
+              :value="category.name"
+            />
           </el-select>
         </el-col>
         <el-col :span="6">
-          <el-select v-model="sortBy" placeholder="排序方式" @change="handleSortChange">
+          <el-select
+            v-model="sortBy"
+            placeholder="排序方式"
+            @change="handleSortChange"
+          >
             <el-option label="收藏时间（最新）" value="newest" />
             <el-option label="收藏时间（最早）" value="oldest" />
             <el-option label="问卷标题" value="title" />
@@ -28,7 +46,11 @@
           </el-select>
         </el-col>
         <el-col :span="4">
-          <el-button type="danger" :disabled="selectedItems.length === 0" @click="batchRemove">
+          <el-button
+            type="danger"
+            :disabled="selectedItems.length === 0"
+            @click="batchRemove"
+          >
             <el-icon>
               <Delete />
             </el-icon>
@@ -51,7 +73,8 @@
               未找到符合条件的收藏问卷，请尝试其他筛选条件
             </p>
             <p v-else>
-              您还没有收藏任何问卷，去<router-link to="/home">首页</router-link>发现更多精彩问卷吧！
+              您还没有收藏任何问卷，去<router-link to="/home">首页</router-link
+              >发现更多精彩问卷吧！
             </p>
           </template>
         </el-empty>
@@ -59,17 +82,28 @@
 
       <div v-else class="collections-list">
         <div class="list-header">
-          <el-checkbox v-model="selectAll" :indeterminate="indeterminate" @change="handleSelectAll">
+          <el-checkbox
+            v-model="selectAll"
+            :indeterminate="indeterminate"
+            @change="handleSelectAll"
+          >
             全选
           </el-checkbox>
           <span class="total-count">共 {{ filteredTotal }} 个收藏</span>
         </div>
 
         <div class="survey-grid">
-          <div v-for="collection in paginatedCollections" :key="collection.id" class="survey-item"
-            :class="{ selected: selectedItems.includes(collection.id) }">
-            <el-checkbox :model-value="selectedItems.includes(collection.id)"
-              @change="(checked) => handleItemSelect(collection.id, checked)" class="item-checkbox" />
+          <div
+            v-for="collection in paginatedCollections"
+            :key="collection.id"
+            class="survey-item"
+            :class="{ selected: selectedItems.includes(collection.id) }"
+          >
+            <el-checkbox
+              :model-value="selectedItems.includes(collection.id)"
+              @change="(checked) => handleItemSelect(collection.id, checked)"
+              class="item-checkbox"
+            />
 
             <div class="survey-main" @click="goToSurvey(collection.surveyId)">
               <div class="survey-icon">
@@ -84,7 +118,10 @@
                     {{ collection.title }}
                   </h3>
                   <div class="survey-badges">
-                    <el-tag :type="getCategoryTagType(collection.category)" size="small">
+                    <el-tag
+                      :type="getCategoryTagType(collection.category)"
+                      size="small"
+                    >
                       {{ collection.category }}
                     </el-tag>
                   </div>
@@ -128,14 +165,20 @@
             </div>
 
             <div class="survey-actions">
-              <el-button type="primary" @click.stop="goToSurvey(collection.surveyId)">
+              <el-button
+                type="primary"
+                @click.stop="goToSurvey(collection.surveyId)"
+              >
                 <el-icon>
                   <View />
                 </el-icon>
                 开始答题
               </el-button>
-              <el-button type="danger" @click.stop="removeFavorite(collection.id, collection.surveyId)"
-                :loading="removingItems.includes(collection.id)">
+              <el-button
+                type="danger"
+                @click.stop="removeFavorite(collection.id, collection.surveyId)"
+                :loading="removingItems.includes(collection.id)"
+              >
                 <el-icon>
                   <Delete />
                 </el-icon>
@@ -147,9 +190,15 @@
 
         <!-- 分页 -->
         <div class="pagination-container" v-if="filteredTotal > pageSize">
-          <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[12, 24, 48]"
-            :total="filteredTotal" layout="total, sizes, prev, pager, next, jumper"
-            @current-change="handlePageChangeLocal" @size-change="handleSizeChange" />
+          <el-pagination
+            v-model:current-page="currentPage"
+            v-model:page-size="pageSize"
+            :page-sizes="[12, 24, 48]"
+            :total="filteredTotal"
+            layout="total, sizes, prev, pager, next, jumper"
+            @current-change="handlePageChangeLocal"
+            @size-change="handleSizeChange"
+          />
         </div>
       </div>
     </el-card>
@@ -157,14 +206,21 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { Search, Delete, View, User, Clock, Star } from '@element-plus/icons-vue';
-import { useUserStore } from '@/store/user';
-import { getFavoritesApi, removeFavoriteApi } from '@/api/user';
-import { getCategoriesApi } from '@/api/survey';
-import { useListFilter } from '@/hooks/useListFilter';
+import { ref, reactive, computed, onMounted, watch } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessage, ElMessageBox } from "element-plus";
+import {
+  Search,
+  Delete,
+  View,
+  User,
+  Clock,
+  Star,
+} from "@element-plus/icons-vue";
+import { useUserStore } from "@/store/user";
+import { getFavoritesApi, removeFavoriteApi } from "@/api/user";
+import { getCategoriesApi } from "@/api/survey";
+import { useListFilter } from "@/hooks/useListFilter";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -173,8 +229,8 @@ const userStore = useUserStore();
 const loading = ref(true);
 const collections = ref([]);
 const categories = ref([]);
-const categoryFilter = ref('');
-const sortBy = ref('newest');
+const categoryFilter = ref("");
+const sortBy = ref("newest");
 const selectedItems = ref([]);
 const removingItems = ref([]);
 
@@ -183,7 +239,7 @@ const removingItems = ref([]);
 const sourceForFilter = computed(() => {
   let list = [...collections.value];
   if (categoryFilter.value) {
-    list = list.filter(item => item.category === categoryFilter.value);
+    list = list.filter((item) => item.category === categoryFilter.value);
   }
   return list;
 });
@@ -191,13 +247,13 @@ const sourceForFilter = computed(() => {
 // 根据 sortBy 返回比较函数（传入 hooks 使用）
 const sortFn = (a, b) => {
   switch (sortBy.value) {
-    case 'newest':
+    case "newest":
       return new Date(b.createdAt) - new Date(a.createdAt);
-    case 'oldest':
+    case "oldest":
       return new Date(a.createdAt) - new Date(b.createdAt);
-    case 'title':
+    case "title":
       return a.title.localeCompare(b.title);
-    case 'participants':
+    case "participants":
       return (b.participants || 0) - (a.participants || 0);
     default:
       return 0;
@@ -212,24 +268,34 @@ const {
   filteredTotal,
   handleSearch,
   handleFilter,
-  handlePageChange
-} = useListFilter({ sourceList: sourceForFilter, searchFields: ['title', 'description', 'author'], sortFn });
+  handlePageChange,
+} = useListFilter({
+  sourceList: sourceForFilter,
+  searchFields: ["title", "description", "author"],
+  sortFn,
+});
 
 const selectAll = computed({
   get() {
-    return selectedItems.value.length === paginatedCollections.value.length && paginatedCollections.value.length > 0;
+    return (
+      selectedItems.value.length === paginatedCollections.value.length &&
+      paginatedCollections.value.length > 0
+    );
   },
   set(value) {
     if (value) {
-      selectedItems.value = paginatedCollections.value.map(item => item.id);
+      selectedItems.value = paginatedCollections.value.map((item) => item.id);
     } else {
       selectedItems.value = [];
     }
-  }
+  },
 });
 
 const indeterminate = computed(() => {
-  return selectedItems.value.length > 0 && selectedItems.value.length < paginatedCollections.value.length;
+  return (
+    selectedItems.value.length > 0 &&
+    selectedItems.value.length < paginatedCollections.value.length
+  );
 });
 
 // 方法
@@ -237,8 +303,8 @@ const loadCategories = async () => {
   try {
     categories.value = await getCategoriesApi();
   } catch (error) {
-    console.error('加载分类失败:', error);
-    ElMessage.error('加载分类失败');
+    console.error("加载分类失败:", error);
+    ElMessage.error("加载分类失败");
     categories.value = [];
   }
 };
@@ -248,16 +314,15 @@ const loadCollections = async () => {
     loading.value = true;
     const userId = userStore.profile?.id;
     if (!userId) {
-      ElMessage.error('请先登录');
+      ElMessage.error("请先登录");
       return;
     }
 
     const favoriteSurveys = await getFavoritesApi(userId);
     collections.value = favoriteSurveys;
-
   } catch (error) {
-    console.error('加载收藏失败:', error);
-    ElMessage.error('加载收藏失败');
+    console.error("加载收藏失败:", error);
+    ElMessage.error("加载收藏失败");
   } finally {
     loading.value = false;
   }
@@ -265,15 +330,11 @@ const loadCollections = async () => {
 
 const removeFavorite = async (collectionId, surveyId) => {
   try {
-    await ElMessageBox.confirm(
-      '确定要取消收藏这个问卷吗？',
-      '确认操作',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-      }
-    );
+    await ElMessageBox.confirm("确定要取消收藏这个问卷吗？", "确认操作", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    });
 
     removingItems.value.push(collectionId);
 
@@ -281,20 +342,25 @@ const removeFavorite = async (collectionId, surveyId) => {
     await removeFavoriteApi(userId, surveyId);
 
     // 从列表中移除
-    collections.value = collections.value.filter(item => item.id !== collectionId);
+    collections.value = collections.value.filter(
+      (item) => item.id !== collectionId
+    );
 
     // 从选中项中移除
-    selectedItems.value = selectedItems.value.filter(id => id !== collectionId);
+    selectedItems.value = selectedItems.value.filter(
+      (id) => id !== collectionId
+    );
 
-    ElMessage.success('取消收藏成功');
-
+    ElMessage.success("取消收藏成功");
   } catch (error) {
-    if (error !== 'cancel') {
-      console.error('取消收藏失败:', error);
-      ElMessage.error('取消收藏失败');
+    if (error !== "cancel") {
+      console.error("取消收藏失败:", error);
+      ElMessage.error("取消收藏失败");
     }
   } finally {
-    removingItems.value = removingItems.value.filter(id => id !== collectionId);
+    removingItems.value = removingItems.value.filter(
+      (id) => id !== collectionId
+    );
   }
 };
 
@@ -302,31 +368,36 @@ const batchRemove = async () => {
   try {
     await ElMessageBox.confirm(
       `确定要取消收藏选中的 ${selectedItems.value.length} 个问卷吗？`,
-      '批量操作确认',
+      "批量操作确认",
       {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
       }
     );
 
     const userId = userStore.profile?.id;
-    const itemsToRemove = collections.value.filter(item => selectedItems.value.includes(item.id));
+    const itemsToRemove = collections.value.filter((item) =>
+      selectedItems.value.includes(item.id)
+    );
 
     // 批量删除
-    const promises = itemsToRemove.map(item => removeFavoriteApi(userId, item.surveyId));
+    const promises = itemsToRemove.map((item) =>
+      removeFavoriteApi(userId, item.surveyId)
+    );
     await Promise.all(promises);
 
     // 从列表中移除
-    collections.value = collections.value.filter(item => !selectedItems.value.includes(item.id));
+    collections.value = collections.value.filter(
+      (item) => !selectedItems.value.includes(item.id)
+    );
 
     selectedItems.value = [];
     ElMessage.success(`成功取消收藏 ${itemsToRemove.length} 个问卷`);
-
   } catch (error) {
-    if (error !== 'cancel') {
-      console.error('批量取消收藏失败:', error);
-      ElMessage.error('批量取消收藏失败');
+    if (error !== "cancel") {
+      console.error("批量取消收藏失败:", error);
+      ElMessage.error("批量取消收藏失败");
     }
   }
 };
@@ -364,40 +435,40 @@ const handleItemSelect = (itemId, checked) => {
   if (checked) {
     selectedItems.value.push(itemId);
   } else {
-    selectedItems.value = selectedItems.value.filter(id => id !== itemId);
+    selectedItems.value = selectedItems.value.filter((id) => id !== itemId);
   }
 };
 
 const getCategoryTagType = (categoryName) => {
   // 从 API 获取的分类数据中查找对应的分类
-  const categoryObj = categories.value.find(cat => cat.name === categoryName);
-  
+  const categoryObj = categories.value.find((cat) => cat.name === categoryName);
+
   // 如果找到分类且有 color 属性，使用它；否则根据分类名称使用默认颜色
   if (categoryObj?.color) {
     return categoryObj.color;
   }
-  
+
   // 默认颜色映射（备用方案）
   const defaultTypes = {
-    '心理健康': 'success',
-    '学习能力': 'primary',
-    '职业发展': 'warning',
-    '生活方式': 'info',
-    '兴趣爱好': 'success',
-    '人际关系': 'warning',
-    '情绪管理': 'danger',
-    '认知能力': 'primary'
+    心理健康: "success",
+    学习能力: "primary",
+    职业发展: "warning",
+    生活方式: "info",
+    兴趣爱好: "success",
+    人际关系: "warning",
+    情绪管理: "danger",
+    认知能力: "primary",
   };
-  return defaultTypes[categoryName] || 'info';
+  return defaultTypes[categoryName] || "info";
 };
 
 const formatDate = (dateString) => {
-  if (!dateString) return '';
+  if (!dateString) return "";
   const date = new Date(dateString);
-  return date.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
+  return date.toLocaleDateString("zh-CN", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 };
 
@@ -516,7 +587,7 @@ onMounted(() => {
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-  border-left: 4px solid #F56C6C;
+  border-left: 4px solid #f56c6c;
   gap: 20px;
 
   @media (max-width: 768px) {
@@ -671,7 +742,7 @@ onMounted(() => {
       width: 100%;
     }
 
-    .el-button+.el-button {
+    .el-button + .el-button {
       margin-left: 0;
     }
 
