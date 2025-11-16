@@ -7,7 +7,7 @@ const { authenticate } = require("../middleware/auth");
 router.get("/", authenticate, async (req, res, next) => {
   try {
     const { userId } = req.query;
-    
+
     const where = {};
     if (userId) {
       where.userId = userId;

@@ -42,7 +42,13 @@ const Survey = sequelize.define(
       comment: "问卷设置",
     },
     status: {
-      type: DataTypes.ENUM("draft", "pending", "published", "stopped", "rejected"),
+      type: DataTypes.ENUM(
+        "draft",
+        "pending",
+        "published",
+        "stopped",
+        "rejected"
+      ),
       defaultValue: "draft",
     },
     isTemplate: {

@@ -127,7 +127,11 @@ async function importData() {
           updatedAt: survey.updatedAt || survey.createdAt,
         }));
         await Survey.bulkCreate(surveys, { ignoreDuplicates: true });
-        console.log(`✅ 导入 ${surveys.length} 个问卷（包括 ${surveys.filter(s => s.isTemplate).length} 个模板）`);
+        console.log(
+          `✅ 导入 ${surveys.length} 个问卷（包括 ${
+            surveys.filter((s) => s.isTemplate).length
+          } 个模板）`
+        );
 
         // 提取嵌套的 answers 和 comments
         const allAnswers = [];

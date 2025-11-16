@@ -56,8 +56,16 @@ User.hasMany(AdminActivity, { foreignKey: "adminId", as: "activities" });
 AdminActivity.belongsTo(User, { foreignKey: "adminId", as: "admin" });
 
 // User - Badge (多对多 - 通过 UserBadge)
-User.belongsToMany(Badge, { through: UserBadge, foreignKey: "userId", as: "badges" });
-Badge.belongsToMany(User, { through: UserBadge, foreignKey: "badgeId", as: "users" });
+User.belongsToMany(Badge, {
+  through: UserBadge,
+  foreignKey: "userId",
+  as: "badges",
+});
+Badge.belongsToMany(User, {
+  through: UserBadge,
+  foreignKey: "badgeId",
+  as: "users",
+});
 
 // User - UserBadge (一对多)
 User.hasMany(UserBadge, { foreignKey: "userId", as: "userBadges" });

@@ -32,7 +32,8 @@ const Badge = sequelize.define(
     type: {
       type: DataTypes.STRING(50),
       allowNull: false,
-      comment: "徽章类型：login_count, continuous_login, survey_count, create_count, publish_count, approved_count, favorite_count, comment_count, share_count, profile_complete, total_points, user_level",
+      comment:
+        "徽章类型：login_count, continuous_login, survey_count, create_count, publish_count, approved_count, favorite_count, comment_count, share_count, profile_complete, total_points, user_level",
     },
     points: {
       type: DataTypes.INTEGER,
