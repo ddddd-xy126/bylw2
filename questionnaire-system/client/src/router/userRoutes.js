@@ -35,7 +35,7 @@ export default [
     children: [
       { path: "", redirect: "/home" },
       { path: "home", component: HomePage },
-  { path: "surveys", component: ListPage },
+      { path: "surveys", component: ListPage },
       { path: "surveys/:id", component: SurveyDetailPage },
       { path: "surveys/answer/:id", component: SurveyAnswerPage },
       { path: "surveys/result/:recordId", component: SurveyResultPage },
@@ -66,12 +66,36 @@ export default [
           { path: "reports", component: ReportsPage },
         ],
       },
-      { path: "create", component: CreateQuestionnairePage, meta: { requiresAuth: true } },
-      { path: "create/templates", component: TemplateSelectionPage, meta: { requiresAuth: true } },
-      { path: "create/custom", component: CustomCreatePage, meta: { requiresAuth: true } },
-      { path: "create/template/:id", component: CustomCreatePage, meta: { requiresAuth: true } },
-      { path: "create/edit/:id", component: CustomCreatePage, meta: { requiresAuth: true } },
-      { path: "questionnaires/edit/:id", component: CustomCreatePage, meta: { requiresAuth: true } },
+      {
+        path: "create",
+        component: CreateQuestionnairePage,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "create/templates",
+        component: TemplateSelectionPage,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "create/custom",
+        component: CustomCreatePage,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "create/template/:id",
+        component: CustomCreatePage,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "create/edit/:id",
+        component: CustomCreatePage,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "questionnaires/edit/:id",
+        component: CustomCreatePage,
+        meta: { requiresAuth: true },
+      },
     ],
   },
 ];

@@ -14,7 +14,7 @@ export function useStores() {
   };
 }
 
-// 在应用启动或路由切换时调用，确保登录状态下的用户资料已拉取
+// 户在应用启动或路由切换时调用，确保登录状态下的用资料已拉取
 export async function ensureUserProfileLoaded() {
   const userStore = useUserStore();
   if (userStore.token && !userStore.profile) {

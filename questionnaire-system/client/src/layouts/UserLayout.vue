@@ -65,25 +65,19 @@ import { ref, computed, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/store/user";
 import { useDataStore } from "@/store/data";
-import { useRoute, useRouter } from "vue-router";
-import { User, ArrowDown, SwitchButton, Search, Bell } from "@element-plus/icons-vue";
+import {useRouter } from "vue-router";
+import { User, ArrowDown, SwitchButton, Bell } from "@element-plus/icons-vue";
 import { ElNotification, ElMessageBox } from "element-plus";
 import { getAnnouncementsApi } from '@/api/admin';
 
 const userStore = useUserStore();
 const dataStore = useDataStore();
 const { profile, token } = storeToRefs(userStore);
-const route = useRoute();
 const router = useRouter();
-
-// 从 dataStore 获取分类列表
-const categories = computed(() => dataStore.categories || []);
 
 // 公告相关
 const announcements = ref([]);
 const unreadAnnouncementCount = ref(0);
-
-// 不再在 header 提供搜索/分类，相关功能移至问卷列表页面 List.vue
 
 const isAuthed = computed(() => !!token.value);
 const username = computed(() => profile.value?.username);

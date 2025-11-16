@@ -1,14 +1,8 @@
 # 智能问卷分析系统（Vue3 前端）# 智能问卷分析系统（Vue3 + Node.js）
 
-
-
 基于 Vue3 的纯前端问卷系统，支持用户端测评、个人中心与排行榜等功能展示。基于 Vue3 + Express + MySQL 的前后端分离问卷系统，支持用户端测评、个人中心与排行榜，及后台的问卷/用户/管理员管理与数据统计。已对接后端 API，前端通过 Vite 代理访问 `/api` 前缀，即可直连后端。
 
-
-
 ## 技术选型## 技术选型
-
-
 
 - 前端：Vue3、Vite、Pinia、Vue Router、Element Plus、Axios- 前端：Vue3、Vite、Pinia、Vue Router、Element Plus、Axios
 
@@ -18,7 +12,7 @@
 
 ## 目录结构（规整后）
 
-```text
+````text
 
 questionnaire-system/```text
 
@@ -328,7 +322,7 @@ npm run build  - `POST /api/user/login` 登录（也可 `POST /api/auth/login`�
 
 - 🎭 **动画效果** - 丰富的可视化组件# 运行在 http://localhost:3000，启动时会 sequelize.sync()
 
-```
+````
 
 ## 许可证
 

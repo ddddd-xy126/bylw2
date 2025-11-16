@@ -101,16 +101,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import {computed} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ElMessage } from 'element-plus'
 import {
   Platform,
   Odometer,
   Document,
-  List,
   Clock,
-  EditPen,
   UserFilled,
   SwitchButton,
   Bell,

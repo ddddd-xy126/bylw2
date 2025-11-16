@@ -10,8 +10,8 @@
       "role": "admin",
       "banned": false,
       "isActive": true,
-      "points": 8500,
-      "level": 5,
+      "points": 8505,
+      "level": 18,
       "bio": "系统管理员，负责平台维护和用户管理",
       "city": "北京市",
       "gender": "male",
@@ -19,7 +19,7 @@
       "profession": "系统管理员",
       "joinedDate": "2024-01-01",
       "createdAt": "2024-01-01T08:00:00Z",
-      "lastLoginAt": "2024-01-25T11:00:00Z",
+      "lastLoginAt": "2025-11-16T07:49:14.016Z",
       "lastLoginIp": "192.168.1.1",
       "password": "admin123",
       "unlockedBadges": [
@@ -30,13 +30,14 @@
         "badge_6",
         "badge_2"
       ],
-      "updatedAt": "2025-11-03T08:09:57.400Z",
+      "updatedAt": "2025-11-16T07:49:14.040Z",
       "tags": [
         "管理",
         "技术",
         "效率"
       ],
-      "completedSurveys": []
+      "completedSurveys": [],
+      "continuousLoginDays": 1
     },
     {
       "id": "4",

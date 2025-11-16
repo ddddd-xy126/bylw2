@@ -22,18 +22,15 @@ router.beforeEach((to, _from, next) => {
   const profile = profileRaw ? JSON.parse(profileRaw) : null;
   const role = profile?.role;
 
-  // protect routes that require authentication
   if (to.meta?.requiresAuth && !token) {
     const redirect = to.meta?.requiresAdmin ? "/admin/login" : "/login";
     return next(redirect);
   }
 
-  // ensure admin-only routes are restricted
   if (to.meta?.requiresAdmin && role !== "admin") {
     return next("/403");
   }
 
-  // if logged-in user is admin and tries to access public front pages, redirect to admin dashboard
   if (token && role === "admin") {
     const frontPaths = ["/", "/home", "/login", "/register"];
     if (frontPaths.includes(to.path)) {
