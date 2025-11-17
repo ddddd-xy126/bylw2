@@ -11,6 +11,17 @@ const Survey = sequelize.define(
     userId: {
       type: DataTypes.STRING(50),
       allowNull: false,
+      comment: "创建者/作者ID",
+    },
+    // authorId 作为 userId 的别名，提高代码可读性
+    authorId: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return this.userId;
+      },
+      set(value) {
+        this.setDataValue("userId", value);
+      },
     },
     title: {
       type: DataTypes.STRING(200),

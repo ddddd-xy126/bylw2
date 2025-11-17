@@ -351,6 +351,7 @@ import {
   createSurveyApi,
   getCategoriesApi,
   publishSurveyApi,
+  getSurveyDetail,
 } from "@/api/survey";
 
 const router = useRouter();

@@ -318,13 +318,20 @@ exports.deleteSurvey = async (req, res, next) => {
 
     // 将问卷移到回收站
     const RecycleBin = require("../models").RecycleBin;
+    const surveyData = survey.toJSON();
     await RecycleBin.create(
       {
         id: `rb_${Date.now()}`,
+        surveyId: survey.id,
+        title: survey.title,
+        description: survey.description,
+        category: survey.category,
+        originalStatus: survey.status,
+        questions: survey.questions,
         userId: survey.userId,
-        itemType: "survey",
-        itemId: survey.id,
-        itemData: survey.toJSON(),
+        authorId: survey.userId, // Survey模型中只有userId字段
+        surveyData: surveyData,
+        deletedBy: req.user.id,
         deletedAt: new Date(),
       },
       { transaction: t }
@@ -488,18 +495,11 @@ exports.toggleFavorite = async (req, res, next) => {
         data: { isFavorited: false },
       });
     } else {
-      // 添加收藏
+      // 添加收藏（只保存必要字段，其他信息从survey表获取）
       await Favorite.create({
         id: `fav_${Date.now()}_${req.user.id}`,
         userId: req.user.id,
         surveyId: id,
-        surveyTitle: survey.title,
-        category: survey.category,
-        author: req.user.username,
-        description: survey.description,
-        participants: survey.participantCount,
-        rating: survey.averageRating,
-        duration: survey.duration,
       });
       await survey.increment("favoriteCount");
 
