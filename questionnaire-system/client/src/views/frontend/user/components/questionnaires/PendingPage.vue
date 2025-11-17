@@ -47,11 +47,11 @@
             @change="handleFilter"
           >
             <el-option label="全部分类" value="" />
-            <el-option 
-              v-for="category in categories" 
-              :key="category.id" 
-              :label="category.name" 
-              :value="category.name" 
+            <el-option
+              v-for="category in categories"
+              :key="category.id"
+              :label="category.name"
+              :value="category.name"
             />
           </el-select>
         </el-col>
@@ -87,16 +87,18 @@
           <div class="survey-icon">
             <el-icon size="24" color="#E6A23C"><Clock /></el-icon>
           </div>
-          
+
           <div class="survey-info">
             <div class="survey-header">
               <h3 class="survey-title">{{ survey.title }}</h3>
               <div class="survey-badges">
-                <el-tag size="small" type="primary">{{ survey.category }}</el-tag>
+                <el-tag size="small" type="primary">{{
+                  survey.category
+                }}</el-tag>
                 <el-tag size="small" type="warning">待审核</el-tag>
               </div>
             </div>
-            
+
             <div class="survey-meta">
               <span class="meta-item">
                 <el-icon><Calendar /></el-icon>
@@ -115,7 +117,7 @@
                 等待审核：{{ getWaitingDays(survey.updatedAt) }}天
               </span>
             </div>
-            
+
             <div class="survey-description">
               {{ survey.description }}
             </div>
@@ -126,9 +128,9 @@
                 <span class="progress-label">审核进度</span>
                 <span class="progress-status">等待管理员审核中...</span>
               </div>
-              <el-progress 
-                :percentage="50" 
-                status="warning" 
+              <el-progress
+                :percentage="50"
+                status="warning"
                 :stroke-width="6"
                 :show-text="false"
               />
@@ -153,8 +155,8 @@
       </div>
 
       <!-- 空状态 -->
-      <el-empty 
-        v-if="!loading && filteredSurveys.length === 0" 
+      <el-empty
+        v-if="!loading && filteredSurveys.length === 0"
         description="暂无待审核的问卷"
         class="empty-state"
       >
@@ -188,7 +190,7 @@
           :closable="false"
           show-icon
         />
-        <br>
+        <br />
         <el-alert
           title="审核标准"
           description="问卷内容应当健康积极，题目表达清晰，选项设置合理，符合平台规范。"
@@ -196,7 +198,7 @@
           :closable="false"
           show-icon
         />
-        <br>
+        <br />
         <el-alert
           title="审核结果"
           description="审核通过后问卷将自动发布，审核不通过会退回到草稿状态并提供修改建议。"
@@ -225,10 +227,10 @@ import {
   ChatDotRound,
 } from "@element-plus/icons-vue";
 
-import { 
-  getUserSurveysApi, 
+import {
+  getUserSurveysApi,
   updateSurveyApi,
-  getCategoriesApi
+  getCategoriesApi,
 } from "@/api/survey";
 import { useUserStore } from "@/store/user";
 import { useListFilter } from "@/hooks/useListFilter";
@@ -263,7 +265,7 @@ const loadCategories = async () => {
   try {
     categories.value = await getCategoriesApi();
   } catch (error) {
-    console.error('加载分类失败:', error);
+    console.error("加载分类失败:", error);
   }
 };
 
@@ -276,12 +278,12 @@ const loadPendingSurveys = async () => {
       pendingSurveys.value = [];
       return;
     }
-    
+
     // 使用 API 获取当前用户的待审核问卷
-    const allSurveys = await getUserSurveysApi(userId, 'pending');
-    
+    const allSurveys = await getUserSurveysApi(userId, "pending");
+
     // 格式化数据
-    pendingSurveys.value = allSurveys.map(q => ({
+    pendingSurveys.value = allSurveys.map((q) => ({
       id: q.id,
       title: q.title,
       description: q.description,
@@ -291,12 +293,12 @@ const loadPendingSurveys = async () => {
       updatedAt: q.updatedAt,
       questions: q.questions || (q.questionList || []).length,
       duration: q.duration || 10,
-      participantCount: q.participantCount || 0
+      participantCount: q.participantCount || 0,
     }));
-    
-    console.log('Loaded pending surveys:', allSurveys);
+
+    console.log("Loaded pending surveys:", allSurveys);
   } catch (error) {
-    console.error('加载待审核问卷失败:', error);
+    console.error("加载待审核问卷失败:", error);
     ElMessage.error("加载待审核问卷失败：" + error.message);
     pendingSurveys.value = [];
   } finally {
@@ -315,7 +317,9 @@ const formatDate = (date) => {
 };
 
 const getWaitingDays = (submitDate) => {
-  const days = Math.floor((Date.now() - new Date(submitDate)) / (1000 * 60 * 60 * 24));
+  const days = Math.floor(
+    (Date.now() - new Date(submitDate)) / (1000 * 60 * 60 * 24)
+  );
   return Math.max(0, days);
 };
 
@@ -326,26 +330,26 @@ const viewSurvey = (id) => {
 const withdrawSurvey = async (id) => {
   try {
     await ElMessageBox.confirm(
-      '确定要撤回这个问卷吗？撤回后将回到草稿状态，可以继续编辑。',
-      '确认撤回',
+      "确定要撤回这个问卷吗？撤回后将回到草稿状态，可以继续编辑。",
+      "确认撤回",
       {
-        confirmButtonText: '确定撤回',
-        cancelButtonText: '取消',
-        type: 'warning'
+        confirmButtonText: "确定撤回",
+        cancelButtonText: "取消",
+        type: "warning",
       }
     );
-    
+
     // 使用 API 更新问卷状态
     await updateSurveyApi(id, {
-      status: 'draft',
-      updatedAt: new Date().toISOString()
+      status: "draft",
+      updatedAt: new Date().toISOString(),
     });
-    
+
     ElMessage.success("问卷已撤回到草稿状态");
     loadPendingSurveys();
   } catch (error) {
-    if (error !== 'cancel') {
-      console.error('撤回失败:', error);
+    if (error !== "cancel") {
+      console.error("撤回失败:", error);
       ElMessage.error("撤回失败：" + error.message);
     }
   }
@@ -359,10 +363,10 @@ const goToCreated = () => {
 const contactAdmin = (survey) => {
   ElMessageBox.alert(
     `如有疑问，请联系管理员邮箱：admin@example.com\n\n问卷名称：${survey.title}\n问卷ID：${survey.id}`,
-    '联系管理员',
+    "联系管理员",
     {
-      confirmButtonText: '确定',
-      type: 'info'
+      confirmButtonText: "确定",
+      type: "info",
     }
   );
 };
@@ -390,7 +394,11 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 20px;
   padding: 20px;
-  background: linear-gradient(135deg, var(--color-primary-light-5) 0%, white 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-light-5) 0%,
+    white 100%
+  );
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(37, 146, 52, 0.1);
   border: 1px solid var(--color-primary-light-5);
@@ -477,7 +485,7 @@ onMounted(() => {
     }
 
     &.pending-item {
-      border-left: 4px solid #E6A23C;
+      border-left: 4px solid #e6a23c;
     }
 
     .survey-main {

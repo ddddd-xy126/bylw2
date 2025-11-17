@@ -107,11 +107,11 @@
             @change="handleFilter"
           >
             <el-option label="全部分类" value="" />
-            <el-option 
-              v-for="category in categories" 
-              :key="category.id" 
-              :label="category.name" 
-              :value="category.name" 
+            <el-option
+              v-for="category in categories"
+              :key="category.id"
+              :label="category.name"
+              :value="category.name"
             />
           </el-select>
         </el-col>
@@ -134,7 +134,7 @@
           { 'status-draft': survey.status === 'draft' },
           { 'status-pending': survey.status === 'pending' },
           { 'status-rejected': survey.status === 'rejected' },
-          { 'status-published': survey.status === 'published' }
+          { 'status-published': survey.status === 'published' },
         ]"
       >
         <div class="survey-main">
@@ -147,18 +147,20 @@
               <Document v-else />
             </el-icon>
           </div>
-          
+
           <div class="survey-info">
             <div class="survey-header">
               <h3 class="survey-title">{{ survey.title }}</h3>
               <div class="survey-badges">
-                <el-tag size="small" type="primary">{{ survey.category }}</el-tag>
+                <el-tag size="small" type="primary">{{
+                  survey.category
+                }}</el-tag>
                 <el-tag size="small" :type="getStatusTagType(survey.status)">
                   {{ getStatusText(survey.status) }}
                 </el-tag>
               </div>
             </div>
-            
+
             <!-- 退回原因提示 -->
             <el-alert
               v-if="survey.status === 'rejected' && survey.rejectedReason"
@@ -172,7 +174,7 @@
                 </div>
               </template>
             </el-alert>
-            
+
             <div class="survey-meta">
               <span class="meta-item">
                 <el-icon><Calendar /></el-icon>
@@ -190,12 +192,17 @@
                 <el-icon><User /></el-icon>
                 参与人数：{{ survey.participantCount }}人
               </span>
-              <span class="meta-item" v-if="survey.status === 'published' && survey.averageRating > 0">
+              <span
+                class="meta-item"
+                v-if="survey.status === 'published' && survey.averageRating > 0"
+              >
                 <el-icon><Star /></el-icon>
-                评分：{{ survey.averageRating }}分 ({{ survey.ratingCount }}人评价)
+                评分：{{ survey.averageRating }}分 ({{
+                  survey.ratingCount
+                }}人评价)
               </span>
             </div>
-            
+
             <div class="survey-description">
               {{ survey.description }}
             </div>
@@ -205,16 +212,24 @@
         <div class="survey-actions">
           <!-- 草稿状态 -->
           <template v-if="survey.status === 'draft'">
-            <el-button type="primary" size="default" @click="editSurvey(survey.id)">
+            <el-button
+              type="primary"
+              size="default"
+              @click="editSurvey(survey.id)"
+            >
               <el-icon><Edit /></el-icon>
               继续编辑
             </el-button>
-            <el-button type="success" size="default" @click="publishSurvey(survey.id)">
+            <el-button
+              type="success"
+              size="default"
+              @click="publishSurvey(survey.id)"
+            >
               <el-icon><Upload /></el-icon>
               提交审核
             </el-button>
           </template>
-          
+
           <!-- 退回状态 -->
           <template v-else-if="survey.status === 'rejected'">
             <el-button type="primary" @click="editSurvey(survey.id)">
@@ -222,7 +237,7 @@
               修改后重新提交
             </el-button>
           </template>
-          
+
           <!-- 待审核状态 -->
           <template v-else-if="survey.status === 'pending'">
             <el-button type="warning" disabled>
@@ -234,7 +249,7 @@
               查看
             </el-button>
           </template>
-          
+
           <!-- 已发布状态 -->
           <template v-else-if="survey.status === 'published'">
             <el-button type="success" @click="viewSurvey(survey.id)">
@@ -261,9 +276,7 @@
                 >
                   分享问卷
                 </el-dropdown-item>
-                <el-dropdown-item
-                  :command="{ action: 'copy', data: survey }"
-                >
+                <el-dropdown-item :command="{ action: 'copy', data: survey }">
                   复制问卷
                 </el-dropdown-item>
                 <el-dropdown-item
@@ -280,8 +293,8 @@
       </div>
 
       <!-- 空状态 -->
-      <el-empty 
-        v-if="!loading && filteredSurveys.length === 0" 
+      <el-empty
+        v-if="!loading && filteredSurveys.length === 0"
         description="暂无创建的问卷"
         class="empty-state"
       >
@@ -332,12 +345,12 @@ import {
 import { useUserStore } from "@/store/user";
 import { useListFilter } from "@/hooks/useListFilter";
 import apiClient from "@/api/index";
-import { 
-  getUserSurveysApi, 
-  updateSurveyApi, 
-  createSurveyApi, 
+import {
+  getUserSurveysApi,
+  updateSurveyApi,
+  createSurveyApi,
   getCategoriesApi,
-  publishSurveyApi
+  publishSurveyApi,
 } from "@/api/survey";
 
 const router = useRouter();
@@ -351,7 +364,9 @@ const filterStatus = ref("");
 
 // 使用 useListFilter 处理搜索/分类/分页（status 单独保留）
 const sourceForFilter = computed(() => {
-  return surveys.value.filter(s => !filterStatus.value || s.status === filterStatus.value);
+  return surveys.value.filter(
+    (s) => !filterStatus.value || s.status === filterStatus.value
+  );
 });
 
 const {
@@ -368,17 +383,25 @@ const {
 } = useListFilter({ sourceList: sourceForFilter, searchFields: ["title"] });
 
 // 计算属性
-const draftCount = computed(() => surveys.value.filter(s => s.status === 'draft').length);
-const pendingCount = computed(() => surveys.value.filter(s => s.status === 'pending').length);
-const rejectedCount = computed(() => surveys.value.filter(s => s.status === 'rejected').length);
-const publishedCount = computed(() => surveys.value.filter(s => s.status === 'published').length);
+const draftCount = computed(
+  () => surveys.value.filter((s) => s.status === "draft").length
+);
+const pendingCount = computed(
+  () => surveys.value.filter((s) => s.status === "pending").length
+);
+const rejectedCount = computed(
+  () => surveys.value.filter((s) => s.status === "rejected").length
+);
+const publishedCount = computed(
+  () => surveys.value.filter((s) => s.status === "published").length
+);
 
 // 方法
 const loadCategories = async () => {
   try {
     categories.value = await getCategoriesApi();
   } catch (error) {
-    console.error('加载分类失败:', error);
+    console.error("加载分类失败:", error);
   }
 };
 
@@ -391,12 +414,12 @@ const loadCreatedSurveys = async () => {
       surveys.value = [];
       return;
     }
-    
+
     // 使用 API 获取当前用户创建的所有问卷
     const userSurveys = await getUserSurveysApi(userId);
-    
+
     // 格式化数据
-    surveys.value = userSurveys.map(q => ({
+    surveys.value = userSurveys.map((q) => ({
       id: q.id,
       title: q.title,
       description: q.description,
@@ -407,13 +430,13 @@ const loadCreatedSurveys = async () => {
       questions: q.questions || (q.questionList || []).length,
       participantCount: q.participantCount || 0,
       shareCount: q.shareCount || 0,
-      rejectedReason: q.rejectedReason || '',
+      rejectedReason: q.rejectedReason || "",
       rejectedAt: q.rejectedAt || null,
       averageRating: q.averageRating || 0,
-      ratingCount: q.ratingCount || 0
+      ratingCount: q.ratingCount || 0,
     }));
   } catch (error) {
-    console.error('加载问卷失败:', error);
+    console.error("加载问卷失败:", error);
     ElMessage.error("加载问卷失败：" + error.message);
     surveys.value = [];
   } finally {
@@ -436,7 +459,7 @@ const getStatusText = (status) => {
     draft: "草稿",
     pending: "待审核",
     rejected: "已退回",
-    published: "已发布"
+    published: "已发布",
   };
   return statusMap[status] || "未知";
 };
@@ -446,7 +469,7 @@ const getStatusTagType = (status) => {
     draft: "info",
     pending: "warning",
     rejected: "danger",
-    published: "success"
+    published: "success",
   };
   return typeMap[status] || "info";
 };
@@ -463,38 +486,38 @@ const viewSurvey = (id) => {
   router.push(`/surveys/${id}`);
 };
 
-
 const publishSurvey = async (id) => {
   try {
     await ElMessageBox.confirm(
-      '确定要提交此问卷进行审核吗？提交后将无法修改。',
-      '确认提交',
+      "确定要提交此问卷进行审核吗？提交后将无法修改。",
+      "确认提交",
       {
-        confirmButtonText: '确定提交',
-        cancelButtonText: '取消',
-        type: 'warning'
+        confirmButtonText: "确定提交",
+        cancelButtonText: "取消",
+        type: "warning",
       }
     );
-    
+
     // 使用发布API获取积分奖励
     const result = await publishSurveyApi(id);
-    
+
     // 更新用户积分
     if (result.pointsEarned) {
       const currentProfile = userStore.profile;
       if (currentProfile) {
-        currentProfile.points = (currentProfile.points || 0) + result.pointsEarned;
+        currentProfile.points =
+          (currentProfile.points || 0) + result.pointsEarned;
         userStore.setProfile(currentProfile);
       }
       ElMessage.success(`问卷已提交审核！获得 ${result.pointsEarned} 积分`);
     } else {
       ElMessage.success("问卷已提交审核");
     }
-    
+
     await loadCreatedSurveys();
   } catch (error) {
-    if (error !== 'cancel') {
-      console.error('发布问卷失败:', error);
+    if (error !== "cancel") {
+      console.error("发布问卷失败:", error);
       ElMessage.error("提交失败");
     }
   }
@@ -510,24 +533,24 @@ const handleMoreAction = async ({ action, data }) => {
       navigator.clipboard.writeText(
         `${window.location.origin}/surveys/${data.id}`
       );
-      
+
       // 分享问卷奖励5积分
       try {
         const user = await apiClient.get(`/users/${userStore.profile.id}`);
         await apiClient.patch(`/users/${userStore.profile.id}`, {
-          points: (user.points || 0) + 5
+          points: (user.points || 0) + 5,
         });
-        
+
         // 更新本地用户积分
         const currentProfile = userStore.profile;
         if (currentProfile) {
           currentProfile.points = (currentProfile.points || 0) + 5;
           userStore.setProfile(currentProfile);
         }
-        
+
         ElMessage.success("问卷链接已复制到剪贴板！获得 5 积分");
       } catch (error) {
-        console.error('更新分享积分失败:', error);
+        console.error("更新分享积分失败:", error);
         ElMessage.success("问卷链接已复制到剪贴板");
       }
       break;
@@ -536,7 +559,7 @@ const handleMoreAction = async ({ action, data }) => {
       try {
         // 使用 API 获取完整的问卷数据
         const surveyData = await getSurveyDetail(data.id);
-        
+
         // 创建新的问卷副本
         const newSurveyData = {
           title: `${surveyData.title} - 副本`,
@@ -550,46 +573,47 @@ const handleMoreAction = async ({ action, data }) => {
           difficulty: surveyData.difficulty,
           tags: surveyData.tags || [],
           thumbnail: surveyData.thumbnail,
-          questionList: surveyData.questionList?.map(question => ({
-            ...question,
-            options: question.options?.map(option => ({
-              ...option,
-              selectedCount: 0
-            }))
-          })) || []
+          questionList:
+            surveyData.questionList?.map((question) => ({
+              ...question,
+              options: question.options?.map((option) => ({
+                ...option,
+                selectedCount: 0,
+              })),
+            })) || [],
         };
-        
+
         // 使用 API 创建新问卷
         await createSurveyApi(newSurveyData);
-        
-        ElMessage.success('问卷已复制为草稿，可以在草稿中查看');
+
+        ElMessage.success("问卷已复制为草稿，可以在草稿中查看");
         await loadCreatedSurveys();
       } catch (error) {
-        console.error('复制问卷失败:', error);
-        ElMessage.error('复制失败：' + error.message);
+        console.error("复制问卷失败:", error);
+        ElMessage.error("复制失败：" + error.message);
       }
       break;
 
     case "delete":
       try {
         await ElMessageBox.confirm(
-          '确定要删除这个问卷吗？删除后将移至回收站，30天内可恢复。',
-          '确认删除',
+          "确定要删除这个问卷吗？删除后将移至回收站，30天内可恢复。",
+          "确认删除",
           {
-            confirmButtonText: '确定删除',
-            cancelButtonText: '取消',
-            type: 'warning'
+            confirmButtonText: "确定删除",
+            cancelButtonText: "取消",
+            type: "warning",
           }
         );
-        
+
         // 使用后端删除接口,后端会自动移到回收站
         await apiClient.delete(`/surveys/${data.id}`);
-        
+
         ElMessage.success("问卷已移至回收站");
         await loadCreatedSurveys();
       } catch (error) {
-        if (error !== 'cancel') {
-          console.error('删除问卷失败:', error);
+        if (error !== "cancel") {
+          console.error("删除问卷失败:", error);
           ElMessage.error("删除失败：" + error.message);
         }
       }
@@ -620,7 +644,11 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 20px;
   padding: 20px;
-  background: linear-gradient(135deg, var(--color-primary-light-5) 0%, white 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-light-5) 0%,
+    white 100%
+  );
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(37, 146, 52, 0.1);
   border: 1px solid var(--color-primary-light-5);
@@ -693,19 +721,23 @@ onMounted(() => {
         }
 
         &.pending {
-          background: linear-gradient(135deg, #E6A23C, #ebb563);
+          background: linear-gradient(135deg, #e6a23c, #ebb563);
         }
 
         &.rejected {
-          background: linear-gradient(135deg, #F56C6C, #f78989);
+          background: linear-gradient(135deg, #f56c6c, #f78989);
         }
 
         &.published {
-          background: linear-gradient(135deg, #67C23A, #85ce61);
+          background: linear-gradient(135deg, #67c23a, #85ce61);
         }
 
         &.total {
-          background: linear-gradient(135deg, var(--color-primary-light-3), #66b1ff);
+          background: linear-gradient(
+            135deg,
+            var(--color-primary-light-3),
+            #66b1ff
+          );
         }
       }
 
@@ -781,15 +813,15 @@ onMounted(() => {
     }
 
     &.status-pending {
-      border-left-color: #E6A23C;
+      border-left-color: #e6a23c;
     }
 
     &.status-rejected {
-      border-left-color: #F56C6C;
+      border-left-color: #f56c6c;
     }
 
     &.status-published {
-      border-left-color: #67C23A;
+      border-left-color: #67c23a;
     }
 
     .survey-main {
@@ -828,7 +860,7 @@ onMounted(() => {
         &.icon-pending {
           background: #fdf6ec;
           .el-icon {
-            color: #E6A23C;
+            color: #e6a23c;
           }
         }
 
@@ -836,7 +868,7 @@ onMounted(() => {
         &.icon-rejected {
           background: #fef0f0;
           .el-icon {
-            color: #F56C6C;
+            color: #f56c6c;
           }
         }
 
@@ -844,7 +876,7 @@ onMounted(() => {
         &.icon-published {
           background: #f0f9ff;
           .el-icon {
-            color: #67C23A;
+            color: #67c23a;
           }
         }
       }

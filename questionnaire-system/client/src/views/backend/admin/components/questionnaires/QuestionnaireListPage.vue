@@ -172,9 +172,7 @@
                 </span>
                 <span class="stat-item">
                   <el-icon><EditPen /></el-icon>
-                  {{
-                    questionnaire.responseCount || 0
-                  }}
+                  {{ questionnaire.responseCount || 0 }}
                 </span>
               </div>
               <div class="card-meta">

@@ -13,8 +13,8 @@
     <el-card class="rankings-card" v-loading="loading">
       <!-- 前三名特殊展示 -->
       <div class="top-three" v-if="topThree.length > 0">
-        <div 
-          v-for="(survey, index) in topThree" 
+        <div
+          v-for="(survey, index) in topThree"
           :key="survey.id"
           class="top-item"
           :class="`rank-${index + 1}`"
@@ -28,7 +28,9 @@
               <h3 class="survey-title">{{ survey.title }}</h3>
               <p class="survey-description">{{ survey.description }}</p>
               <div class="survey-meta">
-                <el-tag type="primary" size="small">{{ survey.category }}</el-tag>
+                <el-tag type="primary" size="small">{{
+                  survey.category
+                }}</el-tag>
                 <el-tag type="warning" size="small">
                   <el-icon><Star /></el-icon>
                   {{ survey.rating }}
@@ -47,8 +49,8 @@
               </div>
             </div>
           </div>
-          <el-button 
-            type="primary" 
+          <el-button
+            type="primary"
             class="participate-btn"
             @click="goToSurvey(survey.id)"
           >
@@ -66,8 +68,8 @@
           <span class="col-rating">评分</span>
           <span class="col-action">操作</span>
         </div>
-        <div 
-          v-for="(survey, index) in otherRankings" 
+        <div
+          v-for="(survey, index) in otherRankings"
           :key="survey.id"
           class="list-item"
         >
@@ -79,7 +81,9 @@
               <div class="brief-info">
                 <h4 class="brief-title">{{ survey.title }}</h4>
                 <div class="brief-meta">
-                  <el-tag type="info" size="small">{{ survey.category }}</el-tag>
+                  <el-tag type="info" size="small">{{
+                    survey.category
+                  }}</el-tag>
                   <span class="brief-author">{{ survey.author }}</span>
                 </div>
               </div>
@@ -98,8 +102,8 @@
             </div>
           </div>
           <div class="col-action">
-            <el-button 
-              type="primary" 
+            <el-button
+              type="primary"
               size="small"
               @click="goToSurvey(survey.id)"
             >
@@ -109,17 +113,20 @@
         </div>
       </div>
 
-      <el-empty v-if="!loading && rankings.length === 0" description="暂无排行数据" />
+      <el-empty
+        v-if="!loading && rankings.length === 0"
+        description="暂无排行数据"
+      />
     </el-card>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import apiClient from '@/api/index.js';
-import { ElMessage } from 'element-plus';
-import { Star, User, Clock } from '@element-plus/icons-vue';
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import apiClient from "@/api/index.js";
+import { ElMessage } from "element-plus";
+import { Star, User, Clock } from "@element-plus/icons-vue";
 
 const router = useRouter();
 const loading = ref(false);
@@ -133,8 +140,8 @@ const otherRankings = computed(() => rankings.value.slice(3, 10));
 
 // 获取奖牌图标
 const getMedalIcon = (index) => {
-  const medals = ['🥇', '🥈', '🥉'];
-  return medals[index] || '';
+  const medals = ["🥇", "🥈", "🥉"];
+  return medals[index] || "";
 };
 
 // 加载排行榜数据
@@ -142,20 +149,28 @@ const loadRankings = async () => {
   loading.value = true;
   try {
     // 获取所有已发布的问卷
-    const surveys = await apiClient.get('/surveys', {
+    const surveys = await apiClient.get("/surveys", {
       params: {
-        status: 'published',
-        _sort: 'participants',
-        _order: 'desc',
-        _limit: 10
-      }
+        status: "published",
+        _sort: "participants",
+        _order: "desc",
+        _limit: 10,
+      },
     });
     // 客户端再次排序确保正确（从大到小）
-    rankings.value = surveys.sort((a, b) => (b.participantCount || 0) - (a.participantCount || 0));
-    console.log('参与排行榜数据:', rankings.value.map(s => ({ title: s.title, participantCount: s.participantCount })));
+    rankings.value = surveys.sort(
+      (a, b) => (b.participantCount || 0) - (a.participantCount || 0)
+    );
+    console.log(
+      "参与排行榜数据:",
+      rankings.value.map((s) => ({
+        title: s.title,
+        participantCount: s.participantCount,
+      }))
+    );
   } catch (error) {
-    console.error('加载排行榜失败:', error);
-    ElMessage.error('加载排行榜失败');
+    console.error("加载排行榜失败:", error);
+    ElMessage.error("加载排行榜失败");
   } finally {
     loading.value = false;
   }
@@ -178,7 +193,11 @@ onMounted(() => {
 
 .header-card {
   margin-bottom: 20px;
-  background: linear-gradient(135deg, var(--color-primary-light-3) 0%, var(--color-primary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-light-3) 0%,
+    var(--color-primary) 100%
+  );
   border: none;
   box-shadow: var(--shadow-md);
   border-radius: var(--radius-lg);
@@ -289,7 +308,7 @@ onMounted(() => {
     transform: translateY(-5px);
   }
 
-    .survey-info {
+  .survey-info {
     padding: 15px;
 
     .survey-title {

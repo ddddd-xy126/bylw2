@@ -2,9 +2,9 @@ import apiClient from "./index";
 
 // 问卷管理
 export const listQuestionnaires = async (params) => {
-  let url = '/surveys';
+  let url = "/surveys";
   let queryParams = [];
-  
+
   // 根据参数构建查询
   if (params?.status) {
     queryParams.push(`status=${params.status}`);
@@ -12,18 +12,18 @@ export const listQuestionnaires = async (params) => {
   if (params?.search) {
     queryParams.push(`q=${params.search}`);
   }
-  
+
   if (queryParams.length > 0) {
-    url += '?' + queryParams.join('&');
+    url += "?" + queryParams.join("&");
   }
-  
+
   const surveys = await apiClient.get(url);
-  
+
   return {
     list: surveys,
     total: surveys.length,
     page: params?.page || 1,
-    pageSize: params?.pageSize || 10
+    pageSize: params?.pageSize || 10,
   };
 };
 
@@ -32,44 +32,47 @@ export const createQuestionnaire = async (data) => {
   let questionList = [];
   if (Array.isArray(data.questionList)) {
     questionList = data.questionList;
-  } else if (Array.isArray(data.questions) && typeof data.questions[0] === 'object') {
+  } else if (
+    Array.isArray(data.questions) &&
+    typeof data.questions[0] === "object"
+  ) {
     // 如果 questions 是对象数组，则它实际上是问题列表
     questionList = data.questions;
   }
-  
+
   const newQuestionnaire = {
     ...data,
     creatorId: data.userId || 1,
     authorId: data.userId || 1,
-    author: data.authorName || data.author || '匿名用户',
+    author: data.authorName || data.author || "匿名用户",
     status: data.status || "draft",
     responseCount: 0,
     participants: 0,
     participantCount: 0,
     rating: 0,
-    thumbnail: data.thumbnail || '/images/default.jpg',
-    questions: questionList.length,      // 问题数量
-    questionList: questionList,           // 问题详情列表
+    thumbnail: data.thumbnail || "/images/default.jpg",
+    questions: questionList.length, // 问题数量
+    questionList: questionList, // 问题详情列表
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   };
-  
-  const result = await apiClient.post('/surveys', newQuestionnaire);
-  
+
+  const result = await apiClient.post("/surveys", newQuestionnaire);
+
   // 创建问卷奖励50积分
   const userId = data.userId || data.authorId || data.creatorId;
   if (userId) {
     try {
       const user = await apiClient.get(`/users/${userId}`);
       await apiClient.patch(`/users/${userId}`, {
-        points: (user.points || 0) + 50
+        points: (user.points || 0) + 50,
       });
       result.pointsEarned = 50;
     } catch (error) {
-      console.error('更新创建问卷积分失败:', error);
+      console.error("更新创建问卷积分失败:", error);
     }
   }
-  
+
   return result;
 };
 
@@ -79,18 +82,21 @@ export const updateQuestionnaire = async (id, data) => {
   let questionList = [];
   if (Array.isArray(data.questionList)) {
     questionList = data.questionList;
-  } else if (Array.isArray(data.questions) && typeof data.questions[0] === 'object') {
+  } else if (
+    Array.isArray(data.questions) &&
+    typeof data.questions[0] === "object"
+  ) {
     // 如果 questions 是对象数组，则它实际上是问题列表
     questionList = data.questions;
   }
-  
+
   const updatedData = {
     ...data,
     questions: questionList.length, // 问题数量
-    questionList: questionList,      // 问题详情列表
-    updatedAt: new Date().toISOString()
+    questionList: questionList, // 问题详情列表
+    updatedAt: new Date().toISOString(),
   };
-  
+
   return await apiClient.patch(`/surveys/${id}`, updatedData);
 };
 

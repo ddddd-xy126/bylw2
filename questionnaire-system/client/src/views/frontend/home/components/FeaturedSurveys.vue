@@ -7,10 +7,10 @@
       </h2>
       <p>精选优质问卷，助您深入了解自己</p>
     </div>
-    
+
     <div class="featured-grid">
       <SurveyCardEnhanced
-        v-for="survey in featuredSurveys" 
+        v-for="survey in featuredSurveys"
         :key="survey.id"
         :survey="survey"
         :is-favorite="isFavorite(survey.id)"
@@ -24,39 +24,43 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { Star } from '@element-plus/icons-vue'
-import SurveyCardEnhanced from '@/components/SurveyCardEnhanced.vue'
+import { computed } from "vue";
+import { Star } from "@element-plus/icons-vue";
+import SurveyCardEnhanced from "@/components/SurveyCardEnhanced.vue";
 
 const props = defineProps({
   surveys: {
     type: Array,
-    required: true
+    required: true,
   },
   userFavorites: {
     type: Array,
-    default: () => []
-  }
-})
+    default: () => [],
+  },
+});
 
-const emit = defineEmits(['survey-click', 'survey-start', 'toggle-favorite'])
+const emit = defineEmits(["survey-click", "survey-start", "toggle-favorite"]);
 
 // 热门推荐问卷（取前6个高评分或高参与度的）
 const featuredSurveys = computed(() => {
   return props.surveys
     .sort((a, b) => {
       // 按评分和参与人数排序
-      const scoreA = (a.averageRating || 0) * 0.6 + ((a.participantCount || 0) / 1000) * 0.4
-      const scoreB = (b.averageRating || 0) * 0.6 + ((b.participantCount || 0) / 1000) * 0.4
-      return scoreB - scoreA
+      const scoreA =
+        (a.averageRating || 0) * 0.6 + ((a.participantCount || 0) / 1000) * 0.4;
+      const scoreB =
+        (b.averageRating || 0) * 0.6 + ((b.participantCount || 0) / 1000) * 0.4;
+      return scoreB - scoreA;
     })
-    .slice(0, 6)
-})
+    .slice(0, 6);
+});
 
 const isFavorite = (surveyId) => {
-  const favoritesArray = Array.isArray(props.userFavorites) ? props.userFavorites : []
-  return favoritesArray.some(fav => fav.questionnaireId === surveyId)
-}
+  const favoritesArray = Array.isArray(props.userFavorites)
+    ? props.userFavorites
+    : [];
+  return favoritesArray.some((fav) => fav.questionnaireId === surveyId);
+};
 </script>
 
 <style lang="scss" scoped>

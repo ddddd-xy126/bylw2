@@ -5,7 +5,13 @@
       <p class="sub">浏览平台上所有公开问卷，可按分类筛选并搜索</p>
 
       <div class="list-search">
-        <el-input v-model="searchQuery" placeholder="搜索问卷标题或描述或标签" clearable @input="handleSearch" size="small">
+        <el-input
+          v-model="searchQuery"
+          placeholder="搜索问卷标题或描述或标签"
+          clearable
+          @input="handleSearch"
+          size="small"
+        >
           <template #prefix>
             <el-icon>
               <Search />
@@ -13,10 +19,21 @@
           </template>
         </el-input>
         <div class="category-buttons">
-          <el-button :type="isSelected(null) ? 'primary' : 'default'" @click="selectCategory(null)" size="small"
-            class="category-btn">全部</el-button>
-          <el-button v-for="cat in categories" :key="cat.id" :type="isSelected(cat.id) ? 'primary' : 'default'"
-            @click="selectCategory(cat.id)" size="small" class="category-btn">
+          <el-button
+            :type="isSelected(null) ? 'primary' : 'default'"
+            @click="selectCategory(null)"
+            size="small"
+            class="category-btn"
+            >全部</el-button
+          >
+          <el-button
+            v-for="cat in categories"
+            :key="cat.id"
+            :type="isSelected(cat.id) ? 'primary' : 'default'"
+            @click="selectCategory(cat.id)"
+            size="small"
+            class="category-btn"
+          >
             {{ cat.name }}
           </el-button>
         </div>
@@ -24,19 +41,27 @@
     </div>
 
     <div class="surveys-area">
-      <SurveyList v-model:sort-by="sortBy" :surveys="surveysToShow" :loading="loading" :is-favorite="isFavorite"
-        :show-favorite="userStore.isLoggedIn" :show-sort="false" @toggle-favorite="toggleFavorite"
-        @survey-click="goToSurvey" @survey-start="goToSurvey" />
+      <SurveyList
+        v-model:sort-by="sortBy"
+        :surveys="surveysToShow"
+        :loading="loading"
+        :is-favorite="isFavorite"
+        :show-favorite="userStore.isLoggedIn"
+        :show-sort="false"
+        @toggle-favorite="toggleFavorite"
+        @survey-click="goToSurvey"
+        @survey-start="goToSurvey"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
-import { Search } from '@element-plus/icons-vue';
-import { useRouter } from 'vue-router';
-import SurveyList from './components/SurveyList.vue';
-import { useHomeLogic } from '@/composables/useHomeLogic';
+import { computed, onMounted } from "vue";
+import { Search } from "@element-plus/icons-vue";
+import { useRouter } from "vue-router";
+import SurveyList from "./components/SurveyList.vue";
+import { useHomeLogic } from "@/composables/useHomeLogic";
 
 const router = useRouter();
 const {
@@ -51,7 +76,7 @@ const {
   handleCategoryChange,
   searchQuery,
   handleSearch,
-  userStore
+  userStore,
 } = useHomeLogic();
 
 // 选择分类
@@ -63,11 +88,17 @@ const selectCategory = (catId) => {
 //将问卷的 categoryId 统一成字符串形式返回；如果缺失则尝试通过 survey.category 名称或 slug 在 categories 中查找
 const getSurveyCategoryId = (s) => {
   if (s == null) return undefined;
-  if (s.categoryId !== undefined && s.categoryId !== null) return String(s.categoryId);
+  if (s.categoryId !== undefined && s.categoryId !== null)
+    return String(s.categoryId);
   // 尝试匹配 category 字段（名称或 slug）
   const catField = s.category || s.categoryName || s.categorySlug;
   if (!catField) return undefined;
-  const found = (categories.value || []).find(c => String(c.id) === String(catField) || (c.name && c.name.toLowerCase() === String(catField).toLowerCase()) || (c.slug && c.slug.toLowerCase() === String(catField).toLowerCase()));
+  const found = (categories.value || []).find(
+    (c) =>
+      String(c.id) === String(catField) ||
+      (c.name && c.name.toLowerCase() === String(catField).toLowerCase()) ||
+      (c.slug && c.slug.toLowerCase() === String(catField).toLowerCase())
+  );
   return found ? String(found.id) : undefined;
 };
 
@@ -82,11 +113,13 @@ const isSelected = (catId) => {
 // 根据 selectedCategory 过滤(不分页,展示全部)
 const surveysToShow = computed(() => {
   const list = Array.isArray(surveys.value)
-    ? surveys.value.filter(s => s.status === 'published' && s.isCollecting !== false)
+    ? surveys.value.filter(
+        (s) => s.status === "published" && s.isCollecting !== false
+      )
     : [];
   // 如果选择了分类,通过统一的 categoryId 字符串进行匹配(兼容数字/字符串以及缺失 categoryId 的问卷)
   if (selectedCategory.value) {
-    return list.filter(s => {
+    return list.filter((s) => {
       const sid = getSurveyCategoryId(s);
       return sid ? sid === String(selectedCategory.value) : false;
     });
@@ -94,16 +127,22 @@ const surveysToShow = computed(() => {
   // 排序逻辑：和 useHomeLogic 保持一致
   const result = [...list];
   switch (sortBy.value) {
-    case 'latest':
+    case "latest":
       result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       break;
-    case 'hot':
-      result.sort((a, b) => (b.participantCount || 0) - (a.participantCount || 0));
+    case "hot":
+      result.sort(
+        (a, b) => (b.participantCount || 0) - (a.participantCount || 0)
+      );
       break;
-    case 'recommended':
+    case "recommended":
       result.sort((a, b) => {
-        const scoreA = (a.averageRating || 0) * 0.6 + ((a.participantCount || 0) / 1000) * 0.4;
-        const scoreB = (b.averageRating || 0) * 0.6 + ((b.participantCount || 0) / 1000) * 0.4;
+        const scoreA =
+          (a.averageRating || 0) * 0.6 +
+          ((a.participantCount || 0) / 1000) * 0.4;
+        const scoreB =
+          (b.averageRating || 0) * 0.6 +
+          ((b.participantCount || 0) / 1000) * 0.4;
         return scoreB - scoreA;
       });
       break;

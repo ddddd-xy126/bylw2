@@ -103,7 +103,7 @@
             <el-option label="发布时间" value="publishedAt" />
             <el-option label="回答数量" value="answerCount" />
             <el-option label="浏览量" value="views" />
-            <el-option label="评分" value="averageRating" />
+            <el-option label="评分" value="rating" />
           </el-select>
         </el-col>
         <el-col :span="4">
@@ -420,8 +420,8 @@ const sortPublishedSurveys = () => {
         return b.answerCount - a.answerCount;
       case "views":
         return b.views - a.views;
-      case "averageRating":
-        return (b.averageRating || 0) - (a.averageRating || 0);
+      case "rating":
+        return b.rating - a.rating;
       case "publishedAt":
       default:
         return new Date(b.publishedAt) - new Date(a.publishedAt);
