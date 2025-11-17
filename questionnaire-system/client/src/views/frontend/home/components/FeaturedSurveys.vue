@@ -46,8 +46,8 @@ const featuredSurveys = computed(() => {
   return props.surveys
     .sort((a, b) => {
       // 按评分和参与人数排序
-      const scoreA = a.rating * 0.6 + (a.participants / 1000) * 0.4
-      const scoreB = b.rating * 0.6 + (b.participants / 1000) * 0.4
+      const scoreA = (a.averageRating || 0) * 0.6 + ((a.participantCount || 0) / 1000) * 0.4
+      const scoreB = (b.averageRating || 0) * 0.6 + ((b.participantCount || 0) / 1000) * 0.4
       return scoreB - scoreA
     })
     .slice(0, 6)

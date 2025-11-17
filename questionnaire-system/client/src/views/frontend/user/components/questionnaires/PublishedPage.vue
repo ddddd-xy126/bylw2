@@ -103,7 +103,7 @@
             <el-option label="发布时间" value="publishedAt" />
             <el-option label="回答数量" value="answerCount" />
             <el-option label="浏览量" value="views" />
-            <el-option label="评分" value="rating" />
+            <el-option label="评分" value="averageRating" />
           </el-select>
         </el-col>
         <el-col :span="4">
@@ -123,7 +123,7 @@
         v-for="survey in filteredSurveys"
         :key="survey.id"
         class="survey-item published-item"
-        :class="{ 'status-stopped': survey.isCollecting === false }"
+        :class="{ 'status-stopped': survey.status === 'stopped' }"
       >
         <div class="survey-main">
           <div class="survey-icon">
@@ -238,7 +238,7 @@
                   编辑问卷
                 </el-dropdown-item>
                 <el-dropdown-item
-                  v-if="survey.isCollecting !== false"
+                  v-if="survey.status !== 'stopped'"
                   :command="{ action: 'stopCollecting', data: survey }"
                   divided
                 >
@@ -338,10 +338,10 @@ import {
   deleteSurveyApi,
   getCategoriesApi,
   getSurveyDetail,
-  getAllCommentsApi,
 } from "@/api/survey";
 import { useUserStore } from "@/store/user";
 import { useListFilter } from "@/hooks/useListFilter";
+import apiClient from "@/api/index";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -420,8 +420,8 @@ const sortPublishedSurveys = () => {
         return b.answerCount - a.answerCount;
       case "views":
         return b.views - a.views;
-      case "rating":
-        return b.rating - a.rating;
+      case "averageRating":
+        return (b.averageRating || 0) - (a.averageRating || 0);
       case "publishedAt":
       default:
         return new Date(b.publishedAt) - new Date(a.publishedAt);
@@ -503,12 +503,23 @@ const formatDate = (date) => {
 const viewResults = async (id) => {
   try {
     loading.value = true;
-    // 使用 API 获取问卷详细数据
+    // 1. 获取问卷详情
     const surveyData = await getSurveyDetail(id);
-    currentSurveyStats.value = surveyData;
+
+    // 2. 使用后端API获取该问卷的所有答案
+    const answersResponse = await apiClient.get(`/answers?surveyId=${id}`);
+
+    // 3. 组合数据
+    currentSurveyStats.value = {
+      ...surveyData,
+      answers: answersResponse || [], // 后端返回{success:true, data:[...]},axios拦截器已解包
+      participantCount: answersResponse?.length || 0,
+    };
+
     statsDialogVisible.value = true;
   } catch (error) {
     ElMessage.error("加载数据失败：" + error.message);
+    console.error("加载统计数据失败:", error);
   } finally {
     loading.value = false;
   }
@@ -533,7 +544,26 @@ const viewComments = async (survey) => {
 const loadAllComments = async (surveyId) => {
   try {
     loadingComments.value = true;
-    allComments.value = await getAllCommentsApi(surveyId);
+    // 使用后端API获取评论
+    const response = await apiClient.get(`/comments/survey/${surveyId}`);
+
+    // 后端返回 { comments: [], total: 0 }
+    // 处理数据结构,将user对象展平
+    const commentsList = (response.comments || []).map((comment) => ({
+      id: comment.id,
+      userId: comment.userId,
+      username:
+        comment.user?.nickname ||
+        comment.user?.username ||
+        comment.username ||
+        "匿名用户",
+      avatar: comment.user?.avatar || comment.avatar || "",
+      content: comment.content,
+      rating: comment.rating || 5,
+      createdAt: comment.createdAt,
+    }));
+
+    allComments.value = commentsList;
   } catch (error) {
     ElMessage.error("加载评论失败：" + error.message);
     allComments.value = [];
@@ -588,9 +618,9 @@ const handleMoreAction = async ({ action, data }) => {
         }
       );
 
-      await updateSurveyApi(data.id, {
-        isCollecting: false,
-        updatedAt: new Date().toISOString(),
+      // 使用后端API更新状态为stopped
+      await apiClient.patch(`/surveys/${data.id}`, {
+        status: "stopped",
       });
 
       ElMessage.success("已停止收集，问卷将不再对外展示");
@@ -615,9 +645,9 @@ const handleMoreAction = async ({ action, data }) => {
         }
       );
 
-      await updateSurveyApi(data.id, {
-        isCollecting: true,
-        updatedAt: new Date().toISOString(),
+      // 使用后端API更新状态为published
+      await apiClient.patch(`/surveys/${data.id}`, {
+        status: "published",
       });
 
       ElMessage.success("已恢复收集，问卷将重新对外展示");
@@ -633,7 +663,7 @@ const handleMoreAction = async ({ action, data }) => {
   if (action === "delete") {
     try {
       await ElMessageBox.confirm(
-        "确定要删除这个问卷吗？删除后所有数据将无法恢复！",
+        "确定要删除这个问卷吗？删除后将移入回收站。",
         "确认删除",
         {
           confirmButtonText: "确定删除",
@@ -642,7 +672,8 @@ const handleMoreAction = async ({ action, data }) => {
         }
       );
 
-      await deleteSurveyApi(data.id);
+      // 使用后端删除接口,后端会自动移到回收站
+      await apiClient.delete(`/surveys/${data.id}`);
       ElMessage.success("问卷已删除");
       loadPublishedSurveys();
     } catch (error) {

@@ -469,12 +469,7 @@ import {
   Collection,
 } from "@element-plus/icons-vue";
 
-import {
-  getSurveyDetail,
-  getSurveyCommentsApi,
-  createCommentApi,
-  listSurveys,
-} from "@/api/survey";
+import { getSurveyDetail, createCommentApi, listSurveys } from "@/api/survey";
 import { useUserStore } from "@/store/user";
 import apiClient from "@/api/index";
 
@@ -709,8 +704,23 @@ const loadComments = async () => {
     const response = await apiClient.get(`/comments/survey/${route.params.id}`);
 
     // 后端返回的是 { comments: [], total: 0, page: 1, totalPages: 1 }
+    // 需要处理评论数据,将user对象展平
+    const commentsList = (response.comments || []).map((comment) => ({
+      id: comment.id,
+      userId: comment.userId,
+      username:
+        comment.user?.nickname ||
+        comment.user?.username ||
+        comment.username ||
+        "匿名用户",
+      avatar: comment.user?.avatar || comment.avatar || "",
+      content: comment.content,
+      rating: comment.rating || 5,
+      createdAt: comment.createdAt,
+    }));
+
     comments.value = {
-      list: response.comments || [],
+      list: commentsList,
       total: response.total || 0,
     };
   } catch (error) {

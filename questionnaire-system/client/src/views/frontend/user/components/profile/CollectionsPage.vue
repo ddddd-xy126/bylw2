@@ -138,7 +138,7 @@
                     <el-icon>
                       <User />
                     </el-icon>
-                    参与人数：{{ collection.participants || 0 }}
+                    参与人数：{{ collection.participantCount || 0 }}
                   </span>
                   <span class="meta-item">
                     <el-icon>
@@ -150,7 +150,7 @@
                     <el-icon>
                       <Star />
                     </el-icon>
-                    评分：{{ collection.rating || 0 }}
+                    评分：{{ collection.averageRating || 0 }}
                   </span>
                 </div>
 
@@ -254,7 +254,7 @@ const sortFn = (a, b) => {
     case "title":
       return a.title.localeCompare(b.title);
     case "participants":
-      return (b.participants || 0) - (a.participants || 0);
+      return (b.participantCount || 0) - (a.participantCount || 0);
     default:
       return 0;
   }

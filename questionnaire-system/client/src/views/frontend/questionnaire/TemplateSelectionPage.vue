@@ -144,8 +144,8 @@ const sourceList = computed(() =>
     // 用于全文搜索（包括 tags）
     searchText: `${t.title} ${t.description} ${t.tags?.join(' ') || ''}`,
     // 确保数值字段存在
-    usageCount: t.usageCount || t.participants || 0,
-    isHot: t.isHot !== undefined ? t.isHot : (t.participants > 1500),
+    usageCount: t.usageCount || t.participantCount || 0,
+    isHot: t.isHot !== undefined ? t.isHot : ((t.participantCount || 0) > 1500),
     isNew: t.isNew !== undefined ? t.isNew : (new Date(t.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)),
     isPro: t.isPro || false
   }))

@@ -173,7 +173,7 @@
                 <span class="stat-item">
                   <el-icon><EditPen /></el-icon>
                   {{
-                    questionnaire.responseCount || questionnaire.responses || 0
+                    questionnaire.responseCount || 0
                   }}
                 </span>
               </div>
@@ -241,7 +241,7 @@
 
           <el-table-column prop="responseCount" label="回答数" width="100">
             <template #default="{ row }">
-              {{ row.responseCount || row.responses || 0 }}
+              {{ row.responseCount || 0 }}
             </template>
           </el-table-column>
 
@@ -361,10 +361,9 @@ import {
   deleteAdminSurveyApi,
   updateSurveyStatusApi,
   recordAdminActivity,
-  getCategoriesApi,
   getSurveyDetailApi,
 } from "@/api/admin";
-import { getAllCommentsApi, getSurveyDetail } from "@/api/survey";
+import { getSurveyDetail } from "@/api/survey";
 import { useUserStore } from "@/store/user";
 import CommentsDialog from "@/components/CommentsDialog.vue";
 import StatsDialog from "@/views/frontend/user/components/questionnaires/components/StatsDialog.vue";
@@ -404,8 +403,13 @@ const sourceForFilter = computed(() => {
     // 其他状态筛选
     list = list.filter((item) => item.status === filterStatus.value);
   }
-  if (filterCategory.value)
-    list = list.filter((item) => item.category === filterCategory.value);
+  // 分类筛选:后端返回的数据有categoryInfo对象(包含slug)和category字符串字段
+  if (filterCategory.value) {
+    list = list.filter((item) => {
+      const itemCategorySlug = item.categoryInfo?.slug || item.category;
+      return itemCategorySlug === filterCategory.value;
+    });
+  }
   return list;
 });
 
@@ -537,7 +541,7 @@ const copyQuestionnaire = async (id) => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       participants: 0,
-      responses: 0,
+      responseCount: 0,
       responseCount: 0,
     };
 
@@ -792,7 +796,9 @@ const loadQuestionnaires = async () => {
 // 加载分类列表
 const loadCategories = async () => {
   try {
-    categories.value = await getCategoriesApi();
+    // 使用后端API获取分类
+    const response = await apiClient.get("/categories");
+    categories.value = response || [];
   } catch (error) {
     console.error("加载分类失败:", error);
     categories.value = [];
@@ -809,7 +815,26 @@ const viewComments = async (survey) => {
 const loadAllComments = async (surveyId) => {
   try {
     loadingComments.value = true;
-    allComments.value = await getAllCommentsApi(surveyId);
+    // 使用后端API获取评论
+    const response = await apiClient.get(`/comments/survey/${surveyId}`);
+
+    // 后端返回 { comments: [], total: 0 }
+    // 处理数据结构,将user对象展平
+    const commentsList = (response.comments || []).map((comment) => ({
+      id: comment.id,
+      userId: comment.userId,
+      username:
+        comment.user?.nickname ||
+        comment.user?.username ||
+        comment.username ||
+        "匿名用户",
+      avatar: comment.user?.avatar || comment.avatar || "",
+      content: comment.content,
+      rating: comment.rating || 5,
+      createdAt: comment.createdAt,
+    }));
+
+    allComments.value = commentsList;
   } catch (error) {
     ElMessage.error("加载评论失败：" + error.message);
     allComments.value = [];

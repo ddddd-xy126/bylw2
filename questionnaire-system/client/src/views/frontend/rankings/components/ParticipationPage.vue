@@ -88,13 +88,13 @@
           <div class="col-participants">
             <div class="participants-count">
               <el-icon><User /></el-icon>
-              <span class="count-number">{{ survey.participants }}</span>
+              <span class="count-number">{{ survey.participantCount }}</span>
             </div>
           </div>
           <div class="col-rating">
             <div class="rating-display">
               <el-icon color="#fadb14"><Star /></el-icon>
-              <span class="rating-number">{{ survey.rating }}</span>
+              <span class="rating-number">{{ survey.averageRating }}</span>
             </div>
           </div>
           <div class="col-action">
@@ -151,8 +151,8 @@ const loadRankings = async () => {
       }
     });
     // 客户端再次排序确保正确（从大到小）
-    rankings.value = surveys.sort((a, b) => b.participants - a.participants);
-    console.log('参与排行榜数据:', rankings.value.map(s => ({ title: s.title, participants: s.participants })));
+    rankings.value = surveys.sort((a, b) => (b.participantCount || 0) - (a.participantCount || 0));
+    console.log('参与排行榜数据:', rankings.value.map(s => ({ title: s.title, participantCount: s.participantCount })));
   } catch (error) {
     console.error('加载排行榜失败:', error);
     ElMessage.error('加载排行榜失败');

@@ -102,8 +102,8 @@ const surveysToShow = computed(() => {
       break;
     case 'recommended':
       result.sort((a, b) => {
-        const scoreA = (a.rating || 0) * 0.6 + ((a.participants || 0) / 1000) * 0.4;
-        const scoreB = (b.rating || 0) * 0.6 + ((b.participants || 0) / 1000) * 0.4;
+        const scoreA = (a.averageRating || 0) * 0.6 + ((a.participantCount || 0) / 1000) * 0.4;
+        const scoreB = (b.averageRating || 0) * 0.6 + ((b.participantCount || 0) / 1000) * 0.4;
         return scoreB - scoreA;
       });
       break;

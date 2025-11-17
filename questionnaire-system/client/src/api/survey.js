@@ -83,7 +83,7 @@ export async function getSurveyDetail(id) {
   survey.isFavorite = false;
   survey.estimatedTime =
     survey.duration || Math.ceil(survey.questions.length * 1.5);
-  survey.averageRating = survey.rating || 4.5;
+  survey.averageRating = survey.averageRating || 4.5;
 
   return survey;
 }
@@ -131,52 +131,29 @@ export async function submitSurveyApi(id, data) {
 // 评论相关
 export async function getSurveyCommentsApi(id) {
   try {
-    // 从问卷的answers中获取所有评论
-    const survey = await apiClient.get(`/surveys/${id}`);
-    const answers = survey.answers || [];
+    // 使用后端API获取评论
+    const response = await apiClient.get(`/comments/survey/${id}`);
+    const comments = response.comments || [];
 
-    // 提取所有有评论的答案 - 支持新的 comments 数组结构和旧的 comment 对象
-    const allComments = [];
-
-    answers.forEach((answer) => {
-      // 新结构: comments 数组
-      if (answer.comments && Array.isArray(answer.comments)) {
-        answer.comments.forEach((comment) => {
-          allComments.push({
-            id: comment.id,
-            surveyId: parseInt(id),
-            answerId: answer.id,
-            userId: comment.userId || answer.userId,
-            username: comment.username || answer.username || "匿名用户",
-            avatar: comment.avatar || answer.userAvatar || "",
-            content: comment.content,
-            rating: comment.rating || 5,
-            createdAt: comment.createdAt || answer.submittedAt,
-          });
-        });
-      }
-      // 旧结构: 单个 comment 对象 (兼容性)
-      else if (answer.comment && answer.comment.content) {
-        allComments.push({
-          id: answer.id,
-          surveyId: parseInt(id),
-          answerId: answer.id,
-          userId: answer.userId,
-          username: answer.username || "匿名用户",
-          avatar: answer.userAvatar || "",
-          content: answer.comment.content,
-          rating: answer.comment.rating || 5,
-          createdAt: answer.comment.createdAt || answer.submittedAt,
-        });
-      }
-    });
-
-    // 按时间倒序排列
-    allComments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    // 处理数据结构,将user对象展平
+    const commentsList = comments.map((comment) => ({
+      id: comment.id,
+      surveyId: parseInt(id),
+      userId: comment.userId,
+      username:
+        comment.user?.nickname ||
+        comment.user?.username ||
+        comment.username ||
+        "匿名用户",
+      avatar: comment.user?.avatar || comment.avatar || "",
+      content: comment.content,
+      rating: comment.rating || 5,
+      createdAt: comment.createdAt,
+    }));
 
     return {
-      list: allComments,
-      total: allComments.length,
+      list: commentsList,
+      total: response.total || commentsList.length,
     };
   } catch (error) {
     console.error("获取评论失败:", error);
@@ -189,79 +166,15 @@ export async function getSurveyCommentsApi(id) {
 
 export async function createCommentApi(id, data) {
   try {
-    // 获取问卷数据
-    const survey = await apiClient.get(`/surveys/${id}`);
-    const answers = survey.answers || [];
-
-    // 查找该用户的答案记录
-    const answerIndex = answers.findIndex((a) => a.userId == data.userId);
-
-    if (answerIndex === -1) {
-      throw new Error("请先完成问卷答题后再评论");
-    }
-
-    // 创建新评论
-    const newComment = {
-      id: Date.now().toString(36) + Math.random().toString(36).substr(2),
-      userId: data.userId,
-      username: data.username,
-      avatar: data.avatar,
+    // 使用后端API创建评论
+    const response = await apiClient.post(`/comments/survey/${id}`, {
       content: data.content,
       rating: data.rating || 5,
-      createdAt: new Date().toISOString(),
-    };
-
-    // 更新该答案的评论信息（改为数组）
-    const updatedAnswers = [...answers];
-    const existingComments = updatedAnswers[answerIndex].comments || [];
-
-    updatedAnswers[answerIndex] = {
-      ...updatedAnswers[answerIndex],
-      username: data.username,
-      userAvatar: data.avatar,
-      comments: [...existingComments, newComment],
-      // 保留旧的 comment 字段用于兼容（存储最新评论）
-      comment: {
-        content: data.content,
-        rating: data.rating || 5,
-        createdAt: newComment.createdAt,
-      },
-    };
-
-    // 更新问卷数据
-    await apiClient.patch(`/surveys/${id}`, {
-      answers: updatedAnswers,
-      updatedAt: new Date().toISOString(),
     });
 
-    // 重新计算平均评分和评分数量
-    const allRatings = updatedAnswers
-      .filter((a) => a.comment && a.comment.rating)
-      .map((a) => a.comment.rating);
-
-    if (allRatings.length > 0) {
-      const averageRating = (
-        allRatings.reduce((sum, r) => sum + r, 0) / allRatings.length
-      ).toFixed(1);
-      await apiClient.patch(`/surveys/${id}`, {
-        averageRating: parseFloat(averageRating),
-        ratingCount: allRatings.length,
-      });
-    }
-
-    // 增加评论者积分
-    try {
-      const user = await apiClient.get(`/users/${data.userId}`);
-      if (user) {
-        await apiClient.patch(`/users/${data.userId}`, {
-          points: (user.points || 0) + 5, // 发表评论 +5 积分
-        });
-      }
-    } catch (error) {
-      console.error("增加评论积分失败:", error);
-    }
-
-    return { ...newComment, pointsEarned: 5 };
+    // 后端返回 {success: true, message: '', data: comment}
+    // axios拦截器已经解包了data字段
+    return response;
   } catch (error) {
     console.error("创建评论失败:", error);
     throw error;
@@ -270,123 +183,31 @@ export async function createCommentApi(id, data) {
 
 export async function updateCommentApi(surveyId, userId, data) {
   try {
-    // 获取问卷数据
-    const survey = await apiClient.get(`/surveys/${surveyId}`);
-    const answers = survey.answers || [];
-
-    // 查找该用户的答案记录
-    const answerIndex = answers.findIndex((a) => a.userId == userId);
-
-    if (answerIndex === -1) {
-      throw new Error("未找到答案记录");
+    // 使用后端API更新评论
+    if (!data.commentId) {
+      throw new Error("评论ID不能为空");
     }
 
-    // 更新评论
-    const updatedAnswers = [...answers];
-    updatedAnswers[answerIndex] = {
-      ...updatedAnswers[answerIndex],
-      comment: {
-        ...updatedAnswers[answerIndex].comment,
-        content: data.content,
-        rating: data.rating,
-        updatedAt: new Date().toISOString(),
-      },
-    };
-
-    // 更新问卷数据
-    await apiClient.patch(`/surveys/${surveyId}`, {
-      answers: updatedAnswers,
-      updatedAt: new Date().toISOString(),
+    const response = await apiClient.put(`/comments/${data.commentId}`, {
+      content: data.content,
+      rating: data.rating,
     });
 
-    // 重新计算平均评分
-    const allRatings = updatedAnswers
-      .filter((a) => a.comment && a.comment.rating)
-      .map((a) => a.comment.rating);
-
-    if (allRatings.length > 0) {
-      const averageRating = (
-        allRatings.reduce((sum, r) => sum + r, 0) / allRatings.length
-      ).toFixed(1);
-      await apiClient.patch(`/surveys/${surveyId}`, {
-        averageRating: parseFloat(averageRating),
-        ratingCount: allRatings.length,
-      });
-    }
-
-    return updatedAnswers[answerIndex];
+    return response;
   } catch (error) {
     console.error("更新评论失败:", error);
     throw error;
   }
 }
 
-export async function deleteCommentApi(surveyId, userId, commentId = null) {
+export async function deleteCommentApi(surveyId, userId, commentId) {
   try {
-    // 获取问卷数据
-    const survey = await apiClient.get(`/surveys/${surveyId}`);
-    const answers = survey.answers || [];
-
-    // 查找该用户的答案记录
-    const answerIndex = answers.findIndex((a) => a.userId == userId);
-
-    if (answerIndex === -1) {
-      throw new Error("未找到答案记录");
+    // 使用后端评论API删除
+    if (!commentId) {
+      throw new Error("评论ID不能为空");
     }
 
-    const updatedAnswers = [...answers];
-
-    if (commentId) {
-      // 删除指定的评论
-      const comments = updatedAnswers[answerIndex].comments || [];
-      const filteredComments = comments.filter((c) => c.id !== commentId);
-
-      updatedAnswers[answerIndex] = {
-        ...updatedAnswers[answerIndex],
-        comments: filteredComments,
-        // 更新 comment 字段为最新的评论（兼容性）
-        comment:
-          filteredComments.length > 0
-            ? {
-                content: filteredComments[filteredComments.length - 1].content,
-                rating: filteredComments[filteredComments.length - 1].rating,
-                createdAt:
-                  filteredComments[filteredComments.length - 1].createdAt,
-              }
-            : null,
-      };
-    } else {
-      // 删除所有评论（兼容旧API）
-      updatedAnswers[answerIndex] = {
-        ...updatedAnswers[answerIndex],
-        comments: [],
-        comment: null,
-      };
-    }
-
-    // 更新问卷数据
-    await apiClient.patch(`/surveys/${surveyId}`, {
-      answers: updatedAnswers,
-      updatedAt: new Date().toISOString(),
-    });
-
-    // 重新计算平均评分
-    const allRatings = updatedAnswers
-      .filter((a) => a.comment && a.comment.rating)
-      .map((a) => a.comment.rating);
-
-    const averageRating =
-      allRatings.length > 0
-        ? (
-            allRatings.reduce((sum, r) => sum + r, 0) / allRatings.length
-          ).toFixed(1)
-        : 0;
-
-    await apiClient.patch(`/surveys/${surveyId}`, {
-      averageRating: parseFloat(averageRating),
-      ratingCount: allRatings.length,
-    });
-
+    await apiClient.delete(`/comments/${commentId}`);
     return { success: true };
   } catch (error) {
     console.error("删除评论失败:", error);
@@ -396,38 +217,27 @@ export async function deleteCommentApi(surveyId, userId, commentId = null) {
 
 export async function getUserCommentApi(surveyId, userId) {
   try {
-    // 获取问卷数据
-    const survey = await apiClient.get(`/surveys/${surveyId}`);
-    const answers = survey.answers || [];
+    // 使用后端API获取该问卷的所有评论,然后筛选出该用户的评论
+    const response = await apiClient.get(`/comments/survey/${surveyId}`);
+    const allComments = response.comments || [];
 
-    // 查找该用户的答案记录
-    const userAnswer = answers.find((a) => a.userId == userId);
+    // 筛选出该用户的评论
+    const userComments = allComments.filter((c) => c.userId == userId);
 
-    if (!userAnswer) {
-      return [];
-    }
-
-    // 返回评论数组（新结构）
-    if (userAnswer.comments && Array.isArray(userAnswer.comments)) {
-      return userAnswer.comments;
-    }
-
-    // 兼容旧的单个评论结构
-    if (userAnswer.comment) {
-      return [
-        {
-          id: userAnswer.id,
-          userId: userAnswer.userId,
-          username: userAnswer.username,
-          avatar: userAnswer.userAvatar,
-          content: userAnswer.comment.content,
-          rating: userAnswer.comment.rating,
-          createdAt: userAnswer.comment.createdAt,
-        },
-      ];
-    }
-
-    return [];
+    // 处理数据结构
+    return userComments.map((comment) => ({
+      id: comment.id,
+      userId: comment.userId,
+      username:
+        comment.user?.nickname ||
+        comment.user?.username ||
+        comment.username ||
+        "匿名用户",
+      avatar: comment.user?.avatar || comment.avatar || "",
+      content: comment.content,
+      rating: comment.rating || 5,
+      createdAt: comment.createdAt,
+    }));
   } catch (error) {
     console.error("获取用户评论失败:", error);
     return [];
@@ -437,49 +247,24 @@ export async function getUserCommentApi(surveyId, userId) {
 // 获取问卷的所有评论
 export async function getAllCommentsApi(surveyId) {
   try {
-    // 获取问卷数据
-    const survey = await apiClient.get(`/surveys/${surveyId}`);
-    const answers = survey.answers || [];
+    // 使用后端API获取评论
+    const response = await apiClient.get(`/comments/survey/${surveyId}`);
+    const comments = response.comments || [];
 
-    // 收集所有评论
-    const allComments = [];
-
-    answers.forEach((answer) => {
-      // 优先使用新的 comments 数组
-      if (
-        answer.comments &&
-        Array.isArray(answer.comments) &&
-        answer.comments.length > 0
-      ) {
-        answer.comments.forEach((comment) => {
-          allComments.push({
-            ...comment,
-            answerId: answer.id,
-            userId: answer.userId,
-            username: comment.username || answer.username,
-            avatar: comment.avatar || answer.userAvatar,
-          });
-        });
-      }
-      // 兼容旧的单个 comment 结构
-      else if (answer.comment) {
-        allComments.push({
-          id: answer.id + "_comment",
-          answerId: answer.id,
-          userId: answer.userId,
-          username: answer.username,
-          avatar: answer.userAvatar,
-          content: answer.comment.content,
-          rating: answer.comment.rating,
-          createdAt: answer.comment.createdAt,
-        });
-      }
-    });
-
-    // 按时间倒序排序（最新的在前）
-    return allComments.sort(
-      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-    );
+    // 处理数据结构,将user对象展平
+    return comments.map((comment) => ({
+      id: comment.id,
+      userId: comment.userId,
+      username:
+        comment.user?.nickname ||
+        comment.user?.username ||
+        comment.username ||
+        "匿名用户",
+      avatar: comment.user?.avatar || comment.avatar || "",
+      content: comment.content,
+      rating: comment.rating || 5,
+      createdAt: comment.createdAt,
+    }));
   } catch (error) {
     console.error("获取所有评论失败:", error);
     return [];
@@ -549,8 +334,7 @@ export async function createSurveyApi(data) {
     status: "draft", // 新创建的问卷为草稿状态
     tags: data.tags || [],
     thumbnail: data.thumbnail || "/images/default.jpg",
-    rating: 0,
-    participants: 0,
+    averageRating: 0,
     participantCount: 0,
     questionList: data.questionList || [],
     createdAt: new Date().toISOString(),

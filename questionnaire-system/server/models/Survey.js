@@ -55,26 +55,6 @@ const Survey = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    authorId: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      comment: "作者ID",
-    },
-    authorName: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-      comment: "作者名称",
-    },
-    author: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-      comment: "作者",
-    },
-    creatorId: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      comment: "创建者ID",
-    },
     participants: {
       type: DataTypes.INTEGER,
       defaultValue: 0,

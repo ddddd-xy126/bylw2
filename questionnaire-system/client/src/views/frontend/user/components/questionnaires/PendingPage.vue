@@ -291,7 +291,7 @@ const loadPendingSurveys = async () => {
       updatedAt: q.updatedAt,
       questions: q.questions || (q.questionList || []).length,
       duration: q.duration || 10,
-      participants: q.participantCount || q.participants || 0
+      participantCount: q.participantCount || 0
     }));
     
     console.log('Loaded pending surveys:', allSurveys);

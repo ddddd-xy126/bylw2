@@ -43,7 +43,7 @@ export const createQuestionnaire = async (data) => {
     authorId: data.userId || 1,
     author: data.authorName || data.author || '匿名用户',
     status: data.status || "draft",
-    responses: 0,
+    responseCount: 0,
     participants: 0,
     participantCount: 0,
     rating: 0,

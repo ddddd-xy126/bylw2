@@ -292,12 +292,15 @@ exports.updateSurvey = async (req, res, next) => {
 
 // 删除问卷
 exports.deleteSurvey = async (req, res, next) => {
+  const t = await sequelize.transaction();
+
   try {
     const { id } = req.params;
 
     const survey = await Survey.findByPk(id);
 
     if (!survey) {
+      await t.rollback();
       return res.status(404).json({
         success: false,
         message: "问卷不存在",
@@ -306,19 +309,38 @@ exports.deleteSurvey = async (req, res, next) => {
 
     // 检查权限
     if (survey.userId !== req.user.id && req.user.role !== "admin") {
+      await t.rollback();
       return res.status(403).json({
         success: false,
         message: "无权删除此问卷",
       });
     }
 
-    await survey.destroy();
+    // 将问卷移到回收站
+    const RecycleBin = require("../models").RecycleBin;
+    await RecycleBin.create(
+      {
+        id: `rb_${Date.now()}`,
+        userId: survey.userId,
+        itemType: "survey",
+        itemId: survey.id,
+        itemData: survey.toJSON(),
+        deletedAt: new Date(),
+      },
+      { transaction: t }
+    );
+
+    // 删除问卷
+    await survey.destroy({ transaction: t });
+
+    await t.commit();
 
     res.json({
       success: true,
-      message: "问卷删除成功",
+      message: "问卷已移至回收站",
     });
   } catch (error) {
+    await t.rollback();
     next(error);
   }
 };

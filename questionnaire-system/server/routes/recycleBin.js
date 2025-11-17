@@ -11,6 +11,9 @@ router.get("/", authenticate, async (req, res, next) => {
     const where = {};
     if (userId) {
       where.userId = userId;
+    } else if (req.user.role !== "admin") {
+      // 非管理员只能看到自己的回收站
+      where.userId = req.user.id;
     }
 
     const items = await RecycleBin.findAll({
@@ -18,7 +21,10 @@ router.get("/", authenticate, async (req, res, next) => {
       order: [["deletedAt", "DESC"]],
     });
 
-    res.json(items);
+    res.json({
+      success: true,
+      data: items,
+    });
   } catch (error) {
     next(error);
   }

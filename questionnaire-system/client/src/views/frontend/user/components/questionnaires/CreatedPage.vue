@@ -188,7 +188,7 @@
               </span>
               <span class="meta-item" v-if="survey.status === 'published'">
                 <el-icon><User /></el-icon>
-                参与人数：{{ survey.participants }}人
+                参与人数：{{ survey.participantCount }}人
               </span>
               <span class="meta-item" v-if="survey.status === 'published' && survey.averageRating > 0">
                 <el-icon><Star /></el-icon>
@@ -336,10 +336,7 @@ import {
   getUserSurveysApi, 
   updateSurveyApi, 
   createSurveyApi, 
-  deleteSurveyApi,
   getCategoriesApi,
-  addToRecycleBinApi,
-  getSurveyDetail,
   publishSurveyApi
 } from "@/api/survey";
 
@@ -408,7 +405,7 @@ const loadCreatedSurveys = async () => {
       createdAt: q.createdAt,
       updatedAt: q.updatedAt,
       questions: q.questions || (q.questionList || []).length,
-      participants: q.participantCount || q.participants || 0,
+      participantCount: q.participantCount || 0,
       shareCount: q.shareCount || 0,
       rejectedReason: q.rejectedReason || '',
       rejectedAt: q.rejectedAt || null,
@@ -585,29 +582,8 @@ const handleMoreAction = async ({ action, data }) => {
           }
         );
         
-        // 使用 API 获取完整的问卷数据
-        const surveyData = await getSurveyDetail(data.id);
-        
-        // 创建回收站记录
-        const recycleBinItem = {
-          id: Date.now(),
-          surveyId: data.id,
-          title: surveyData.title,
-          description: surveyData.description,
-          category: surveyData.category,
-          originalStatus: surveyData.status,
-          questions: surveyData.questions?.length || (surveyData.questionList || []).length,
-          deletedAt: new Date().toISOString(),
-          userId: surveyData.userId || surveyData.authorId,
-          authorId: surveyData.userId || surveyData.authorId,
-          surveyData: surveyData
-        };
-        
-        // 使用 API 添加到回收站
-        await addToRecycleBinApi(recycleBinItem);
-        
-        // 使用 API 从 surveys 表删除
-        await deleteSurveyApi(data.id);
+        // 使用后端删除接口,后端会自动移到回收站
+        await apiClient.delete(`/surveys/${data.id}`);
         
         ElMessage.success("问卷已移至回收站");
         await loadCreatedSurveys();

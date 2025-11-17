@@ -366,24 +366,13 @@ const loadUserStats = async () => {
     // 获取收藏数量
     userStats.totalCollections = userStore.favorites?.length || 0;
 
-    // 从 surveys 数据获取该用户创建的问卷数量
-    const allSurveys = await apiClient.get("/surveys");
-    const userCreatedSurveys = allSurveys.filter(
-      (s) => s.userId == profile.id || s.authorId == profile.id
-    );
-    userStats.totalQuestionnaires = userCreatedSurveys.length;
+    // 使用后端API获取该用户创建的问卷数量
+    const userSurveys = await apiClient.get(`/surveys?userId=${profile.id}`);
+    userStats.totalQuestionnaires = userSurveys?.length || 0;
 
-    // 从所有 surveys 的 answers 中统计该用户参与的答题数量
-    let answerCount = 0;
-    allSurveys.forEach((survey) => {
-      if (Array.isArray(survey.answers)) {
-        const userAnswers = survey.answers.filter(
-          (answer) => answer.userId == profile.id
-        );
-        answerCount += userAnswers.length;
-      }
-    });
-    userStats.totalAnswers = answerCount;
+    // 使用后端API获取该用户的答题数量(参与问卷)
+    const userAnswers = await apiClient.get(`/answers?userId=${profile.id}`);
+    userStats.totalAnswers = userAnswers?.length || 0;
 
     console.log("用户统计已加载:", userStats);
   } catch (error) {
