@@ -49,7 +49,7 @@ exports.validateSurvey = [
 
 // 提交答案验证
 exports.validateAnswer = [
-  body("surveyId").isInt().withMessage("问卷ID必须是整数"),
+  body("surveyId").notEmpty().withMessage("问卷ID不能为空"),
   body("answers").isArray().withMessage("答案必须是数组"),
   handleValidationErrors,
 ];
@@ -67,9 +67,9 @@ exports.validateComment = [
   handleValidationErrors,
 ];
 
-// ID 参数验证
+// ID 参数验证 - 支持字符串ID
 exports.validateId = [
-  param("id").isInt().withMessage("ID必须是整数"),
+  param("id").notEmpty().withMessage("ID不能为空"),
   handleValidationErrors,
 ];
 

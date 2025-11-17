@@ -15,7 +15,12 @@
     <el-card class="filter-card" shadow="never">
       <el-row :gutter="20">
         <el-col :span="7">
-          <el-input v-model="searchKeyword" placeholder="搜索问卷标题" clearable @input="handleSearch">
+          <el-input
+            v-model="searchKeyword"
+            placeholder="搜索问卷标题"
+            clearable
+            @input="handleSearch"
+          >
             <template #prefix>
               <el-icon>
                 <Search />
@@ -24,22 +29,43 @@
           </el-input>
         </el-col>
         <el-col :span="6">
-          <el-select v-model="filterCategory" placeholder="问卷分类" clearable @change="handleFilter">
+          <el-select
+            v-model="filterCategory"
+            placeholder="问卷分类"
+            clearable
+            @change="handleFilter"
+          >
             <el-option label="全部分类" value="" />
-            <el-option v-for="category in categories" :key="category.id" :label="category.name"
-              :value="category.name" />
+            <el-option
+              v-for="category in categories"
+              :key="category.id"
+              :label="category.name"
+              :value="category.name"
+            />
           </el-select>
         </el-col>
         <el-col :span="4">
-          <el-date-picker v-model="dateRange" type="daterange" range-separator="至" start-placeholder="开始日期"
-            end-placeholder="结束日期" format="YYYY-MM-DD" value-format="YYYY-MM-DD" @change="handleFilter" />
+          <el-date-picker
+            v-model="dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            format="YYYY-MM-DD"
+            value-format="YYYY-MM-DD"
+            @change="handleFilter"
+          />
         </el-col>
       </el-row>
     </el-card>
 
     <!-- 问卷列表 -->
     <div class="survey-list" v-loading="loading">
-      <div v-for="answer in filteredAnswers" :key="answer.id" class="survey-item">
+      <div
+        v-for="answer in filteredAnswers"
+        :key="answer.id"
+        class="survey-item"
+      >
         <div class="survey-main">
           <div class="survey-icon">
             <el-icon size="24" color="#67d474d5">
@@ -51,7 +77,9 @@
             <div class="survey-header">
               <h3 class="survey-title">{{ answer.title }}</h3>
               <div class="survey-badges">
-                <el-tag size="small" type="primary">{{ answer.category }}</el-tag>
+                <el-tag size="small" type="primary">{{
+                  answer.category
+                }}</el-tag>
                 <el-tag size="small" type="success">已完成</el-tag>
               </div>
             </div>
@@ -91,7 +119,7 @@
         </div>
 
         <div class="survey-actions">
-          <el-button type="success"  @click="viewResult(answer)" :disabled="!answer.score">
+          <el-button type="success" @click="viewResult(answer)">
             <el-icon>
               <View />
             </el-icon>
@@ -118,7 +146,7 @@
                   :command="{ action: 'delete', data: answer }"
                   divided
                 >
-                  <span style="color: #F56C6C">删除记录</span>
+                  <span style="color: #f56c6c">删除记录</span>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -127,17 +155,24 @@
       </div>
 
       <!-- 空状态 -->
-      <el-empty v-if="!loading && filteredAnswers.length === 0" description="暂无已填写的问卷" class="empty-state">
-        <el-button type="primary" @click="goToSurveys">
-          去答题
-        </el-button>
+      <el-empty
+        v-if="!loading && filteredAnswers.length === 0"
+        description="暂无已填写的问卷"
+        class="empty-state"
+      >
+        <el-button type="primary" @click="goToSurveys"> 去答题 </el-button>
       </el-empty>
     </div>
 
     <!-- 分页 -->
     <div class="pagination-wrapper" v-if="totalAnswered > pageSize">
-      <el-pagination v-model:current-page="currentPage" :page-size="pageSize" :total="totalAnswered"
-        layout="prev, pager, next, jumper, total" @current-change="handlePageChange" />
+      <el-pagination
+        v-model:current-page="currentPage"
+        :page-size="pageSize"
+        :total="totalAnswered"
+        layout="prev, pager, next, jumper, total"
+        @current-change="handlePageChange"
+      />
     </div>
   </div>
 </template>
@@ -156,10 +191,14 @@ import {
   View,
   RefreshRight,
   Delete,
-  ArrowDown
+  ArrowDown,
 } from "@element-plus/icons-vue";
 
-import { getUserAnsweredSurveysApi, addFavoriteApi, moveAnsweredToRecycleApi } from "@/api/user";
+import {
+  getUserAnsweredSurveysApi,
+  addFavoriteApi,
+  moveAnsweredToRecycleApi,
+} from "@/api/user";
 import { getCategoriesApi } from "@/api/survey";
 import { useUserStore } from "@/store/user";
 import { useListFilter } from "@/hooks/useListFilter";
@@ -191,7 +230,7 @@ const loadCategories = async () => {
   try {
     categories.value = await getCategoriesApi();
   } catch (error) {
-    console.error('加载分类失败:', error);
+    console.error("加载分类失败:", error);
   }
 };
 
@@ -205,8 +244,8 @@ const loadAnsweredSurveys = async () => {
     }
 
     const data = await getUserAnsweredSurveysApi(userId);
-    answeredSurveys.value = data.sort((a, b) =>
-      new Date(b.submittedAt) - new Date(a.submittedAt)
+    answeredSurveys.value = data.sort(
+      (a, b) => new Date(b.submittedAt) - new Date(a.submittedAt)
     );
   } catch (error) {
     ElMessage.error("加载已填写问卷失败：" + error.message);
@@ -214,7 +253,6 @@ const loadAnsweredSurveys = async () => {
     loading.value = false;
   }
 };
-
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString("zh-CN");
@@ -231,14 +269,13 @@ const formatDuration = (duration) => {
   return `${minutes}分${seconds}秒`;
 };
 
-
 const viewResult = (answer) => {
   // 跳转到结果页，带上 surveyId 参数
   router.push({
     path: `/surveys/result/${answer.id}`,
     query: {
-      surveyId: answer.surveyId
-    }
+      surveyId: answer.surveyId,
+    },
   });
 };
 
@@ -252,11 +289,11 @@ const goToSurveys = () => {
 
 // 处理更多操作菜单
 const handleMoreAction = async ({ action, data }) => {
-  if (action === 'retake') {
+  if (action === "retake") {
     retakeSurvey(data.surveyId);
-  } else if (action === 'favorite') {
+  } else if (action === "favorite") {
     await handleFavorite(data);
-  } else if (action === 'delete') {
+  } else if (action === "delete") {
     await handleDelete(data);
   }
 };
@@ -266,12 +303,12 @@ const handleDelete = async (answer) => {
   try {
     // 弹出确认框
     await ElMessageBox.confirm(
-      '确定要删除此答题记录吗？删除后该记录会移入回收站，可在回收站恢复。',
-      '确认删除',
+      "确定要删除此答题记录吗？删除后该记录会移入回收站，可在回收站恢复。",
+      "确认删除",
       {
-        confirmButtonText: '删除',
-        cancelButtonText: '取消',
-        type: 'warning'
+        confirmButtonText: "删除",
+        cancelButtonText: "取消",
+        type: "warning",
       }
     );
 
@@ -279,13 +316,15 @@ const handleDelete = async (answer) => {
     await moveAnsweredToRecycleApi(answer.id, answer);
 
     // 从本地数组移除
-    answeredSurveys.value = answeredSurveys.value.filter(a => a.id !== answer.id);
+    answeredSurveys.value = answeredSurveys.value.filter(
+      (a) => a.id !== answer.id
+    );
 
-    ElMessage.success('已删除并移入回收站');
+    ElMessage.success("已删除并移入回收站");
   } catch (err) {
     // 当取消确认时，Element Plus 会抛出一个对象，我们不显示错误
-    if (err && (err === 'cancel' || err.type === 'cancel')) return;
-    ElMessage.error('删除失败：' + (err.message || err));
+    if (err && (err === "cancel" || err.type === "cancel")) return;
+    ElMessage.error("删除失败：" + (err.message || err));
   }
 };
 
@@ -306,7 +345,6 @@ onMounted(() => {
 });
 </script>
 
-
 <style scoped lang="scss">
 .answered-page {
   padding: var(--spacing-lg);
@@ -321,7 +359,11 @@ onMounted(() => {
     align-items: center;
     margin-bottom: 20px;
     padding: 20px;
-    background: linear-gradient(135deg, var(--color-primary-light-5) 0%, white 100%);
+    background: linear-gradient(
+      135deg,
+      var(--color-primary-light-5) 0%,
+      white 100%
+    );
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(37, 146, 52, 0.1);
     border: 1px solid var(--color-primary-light-5);
@@ -354,7 +396,6 @@ onMounted(() => {
       }
     }
   }
-
 
   // ============ 筛选卡片 ============
   .filter-card {
@@ -398,8 +439,9 @@ onMounted(() => {
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-base);
       padding: var(--spacing-md) var(--spacing-lg);
-      transition: transform var(--transition-base), box-shadow var(--transition-base);
-      border-left: 4px solid #67C23A;
+      transition: transform var(--transition-base),
+        box-shadow var(--transition-base);
+      border-left: 4px solid #67c23a;
       gap: 20px;
 
       &:hover {

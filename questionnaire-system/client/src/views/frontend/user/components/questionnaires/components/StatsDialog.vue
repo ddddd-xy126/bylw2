@@ -37,7 +37,7 @@
           <div class="card-content">
             <div class="card-label">平均评分</div>
             <div class="card-value">
-              {{ (stats.averageRating || 0).toFixed(1) }}
+              {{ Number(stats.averageRating || 0).toFixed(1) }}
             </div>
           </div>
         </div>
@@ -74,10 +74,14 @@
               <div class="option-info">
                 <span class="option-text">{{ option.text }}</span>
                 <div class="option-stats-numbers">
-                  <span class="count">{{ option.selectedCount || 0 }}次</span>
+                  <span class="count"
+                    >{{
+                      getOptionSelectedCount(question.id, option.id)
+                    }}次</span
+                  >
                   <span class="percentage">{{
-                    calculatePercentage(
-                      option.selectedCount,
+                    calculatePercentageText(
+                      getOptionSelectedCount(question.id, option.id),
                       stats.participantCount
                     )
                   }}</span>
@@ -85,21 +89,17 @@
               </div>
               <el-progress
                 :percentage="
-                  parseFloat(
-                    calculatePercentage(
-                      option.selectedCount,
-                      stats.participantCount
-                    )
+                  calculatePercentage(
+                    getOptionSelectedCount(question.id, option.id),
+                    stats.participantCount
                   )
                 "
                 :stroke-width="12"
                 :color="
                   getProgressColor(
-                    parseFloat(
-                      calculatePercentage(
-                        option.selectedCount,
-                        stats.participantCount
-                      )
+                    calculatePercentage(
+                      getOptionSelectedCount(question.id, option.id),
+                      stats.participantCount
                     )
                   )
                 "
@@ -216,9 +216,42 @@ defineEmits(["update:visible"]);
 
 // 辅助函数
 const calculatePercentage = (count, total) => {
-  if (!total || total === 0) return "0%";
-  const percentage = (((count || 0) / total) * 100).toFixed(1);
+  if (!total || total === 0) return 0;
+  const percentage = ((count || 0) / total) * 100;
+  return parseFloat(percentage.toFixed(1));
+};
+
+const calculatePercentageText = (count, total) => {
+  const percentage = calculatePercentage(count, total);
   return `${percentage}%`;
+};
+
+// 获取选项的实际选择次数（从answers数组统计）
+const getOptionSelectedCount = (questionId, optionId) => {
+  if (!props.stats || !props.stats.answers) return 0;
+
+  let count = 0;
+  props.stats.answers.forEach((answer) => {
+    const questionAnswer = answer.answers?.find(
+      (a) => a.questionId == questionId
+    );
+
+    if (questionAnswer) {
+      // 单选题
+      if (questionAnswer.answer === optionId) {
+        count++;
+      }
+      // 多选题
+      else if (
+        Array.isArray(questionAnswer.answer) &&
+        questionAnswer.answer.includes(optionId)
+      ) {
+        count++;
+      }
+    }
+  });
+
+  return count;
 };
 
 const getQuestionTypeLabel = (type) => {

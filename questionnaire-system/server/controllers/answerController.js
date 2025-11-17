@@ -25,21 +25,8 @@ exports.submitAnswer = async (req, res, next) => {
       });
     }
 
-    // 检查是否已经答过
-    const existingAnswer = await Answer.findOne({
-      where: {
-        userId: req.user.id,
-        surveyId,
-      },
-    });
-
-    if (existingAnswer) {
-      await t.rollback();
-      return res.status(400).json({
-        success: false,
-        message: "您已经提交过答案",
-      });
-    }
+    // 允许用户多次填写问卷，只记录即可
+    // 已移除重复检查逻辑
 
     // 创建答案记录
     const answer = await Answer.create(

@@ -38,5 +38,6 @@ router.delete(
 
 // 管理员活动日志
 router.get("/activities", validatePagination, adminController.getActivities);
+router.post("/activities", adminController.createActivity);
 
 module.exports = router;

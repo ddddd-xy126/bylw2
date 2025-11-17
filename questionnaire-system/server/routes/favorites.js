@@ -75,7 +75,11 @@ router.post("/", authenticate, async (req, res, next) => {
     }
 
     // 创建收藏
-    const favorite = await Favorite.create({ userId, surveyId });
+    const favorite = await Favorite.create({
+      id: `fav_${Date.now()}_${userId}`,
+      userId,
+      surveyId,
+    });
 
     // 更新问卷收藏数
     await survey.increment("favoriteCount");

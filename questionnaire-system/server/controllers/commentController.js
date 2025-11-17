@@ -58,6 +58,7 @@ exports.createComment = async (req, res, next) => {
     // 创建评论
     const comment = await Comment.create(
       {
+        id: `cmt_${Date.now()}`,
         userId: req.user.id,
         surveyId,
         username: req.user.nickname || req.user.username,

@@ -407,3 +407,27 @@ exports.getActivities = async (req, res, next) => {
     next(error);
   }
 };
+
+// 创建管理员活动记录
+exports.createActivity = async (req, res, next) => {
+  try {
+    const { id, adminId, adminName, title, description, type } = req.body;
+
+    const activity = await AdminActivity.create({
+      id: id || `act_${Date.now()}`,
+      adminId: adminId || req.user.id,
+      adminName: adminName || req.user.nickname || req.user.username,
+      title,
+      description,
+      type,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "活动记录创建成功",
+      data: activity,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

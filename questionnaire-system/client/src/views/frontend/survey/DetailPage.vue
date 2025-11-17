@@ -476,6 +476,7 @@ import {
   listSurveys,
 } from "@/api/survey";
 import { useUserStore } from "@/store/user";
+import apiClient from "@/api/index";
 
 const route = useRoute();
 const router = useRouter();
@@ -627,12 +628,18 @@ const toggleFavorite = async () => {
 
   favoriteLoading.value = true;
   try {
-    // 模拟收藏/取消收藏
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    detail.value.isFavorite = !detail.value.isFavorite;
+    // 调用后端API切换收藏状态
+    const response = await apiClient.post(
+      `/surveys/${route.params.id}/favorite`
+    );
+
+    // 更新本地状态
+    detail.value.isFavorite = response.isFavorited;
+
     ElMessage.success(detail.value.isFavorite ? "收藏成功" : "取消收藏成功");
   } catch (error) {
-    ElMessage.error("操作失败，请重试");
+    console.error("收藏操作失败:", error);
+    ElMessage.error("操作失败：" + (error.message || "请重试"));
   } finally {
     favoriteLoading.value = false;
   }
@@ -698,10 +705,17 @@ const quickFavorite = async (surveyId) => {
 const loadComments = async () => {
   loadingComments.value = true;
   try {
-    const data = await getSurveyCommentsApi(route.params.id);
-    comments.value = data;
+    // 使用后端API获取评论
+    const response = await apiClient.get(`/comments/survey/${route.params.id}`);
+
+    // 后端返回的是 { comments: [], total: 0, page: 1, totalPages: 1 }
+    comments.value = {
+      list: response.comments || [],
+      total: response.total || 0,
+    };
   } catch (error) {
     console.error("加载评论失败:", error);
+    comments.value = { list: [], total: 0 };
   } finally {
     loadingComments.value = false;
   }

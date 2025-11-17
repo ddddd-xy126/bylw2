@@ -213,13 +213,8 @@ const {
   resetAnswers,
 } = useQuestionnaireLogic();
 
-const {
-  elapsedTime,
-  formatTime,
-  startTimer,
-  resetTimer,
-  stopTimer,
-} = useAnswerTimer();
+const { elapsedTime, formatTime, startTimer, resetTimer, stopTimer } =
+  useAnswerTimer();
 // 当前答案
 const currentAnswer = computed({
   get() {
@@ -423,7 +418,8 @@ const submitSurvey = async () => {
       ElMessage.success("问卷提交成功！");
     }
 
-    const surveyId = route.params.id;
+    // 跳转到结果页面，传递surveyId和userId
+    const surveyId = result.surveyId || route.params.id;
     const userId = userStore.profile?.id;
     router.push(
       `/surveys/result/${result.answerId}?surveyId=${surveyId}&userId=${userId}`

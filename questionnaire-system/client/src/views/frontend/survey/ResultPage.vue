@@ -348,38 +348,39 @@ const submitComment = async () => {
     return;
   }
 
+  if (ratingForm.value.content.trim().length < 10) {
+    ElMessage.warning("评论内容至少需要10个字");
+    return;
+  }
+
   submitting.value = true;
   try {
-    const userId = userStore.profile?.id || userStore.userId;
-    const username =
-      userStore.profile?.nickname ||
-      userStore.profile?.username ||
-      userStore.userName;
-    const surveyId = reportData.value.surveyId;
+    // 优先从reportData获取，其次从URL参数获取
+    let surveyId = reportData.value.surveyId || route.query.surveyId;
 
-    // 创建新评论
-    const newComment = await createCommentApi(surveyId, {
-      userId: userId,
-      username: username,
-      avatar: userStore.profile?.avatar || "",
-      rating: ratingForm.value.rating,
+    if (!surveyId) {
+      console.error("surveyId不存在，reportData:", reportData.value);
+      console.error("route.query:", route.query);
+      throw new Error("问卷ID不存在，请重新进入结果页面");
+    }
+
+    // 确保surveyId是数字类型
+    surveyId = parseInt(surveyId);
+
+    // 使用后端API创建评论
+    const commentData = {
       content: ratingForm.value.content,
-    });
+      rating: ratingForm.value.rating,
+    };
+
+    const newComment = await apiClient.post(
+      `/comments/survey/${surveyId}`,
+      commentData
+    );
 
     myComments.value.push(newComment);
 
-    // 更新用户积分
-    if (newComment.pointsEarned) {
-      const currentProfile = userStore.profile;
-      if (currentProfile) {
-        currentProfile.points =
-          (currentProfile.points || 0) + newComment.pointsEarned;
-        userStore.setProfile(currentProfile);
-      }
-      ElMessage.success(`评论发表成功！获得 ${newComment.pointsEarned} 积分`);
-    } else {
-      ElMessage.success("评论发表成功");
-    }
+    ElMessage.success("评论发表成功");
 
     // 清空表单
     ratingForm.value = {
@@ -407,10 +408,8 @@ const deleteComment = async (commentId) => {
       }
     );
 
-    const userId = userStore.profile?.id || userStore.userId;
-    const surveyId = reportData.value.surveyId;
-
-    await deleteCommentApi(surveyId, userId, commentId);
+    // 使用后端API删除评论
+    await apiClient.delete(`/comments/${commentId}`);
 
     // 从列表中移除
     myComments.value = myComments.value.filter((c) => c.id !== commentId);
@@ -425,17 +424,17 @@ const deleteComment = async (commentId) => {
 const loadReportData = async () => {
   loading.value = true;
   try {
-    const answerId = route.params.id;
-
-    // 尝试从URL参数获取surveyId和userId
-    const surveyId = route.query.surveyId;
-    const userId = userStore.profile?.id || userStore.userId;
+    // 优先从URL参数获取surveyId和userId
+    let surveyId = route.query.surveyId;
+    let userId = userStore.profile?.id || userStore.userId;
 
     if (surveyId && userId) {
       // 从问卷的answers中获取用户的答题记录
       const userAnswer = await getUserAnswerApi(surveyId, userId);
       if (userAnswer) {
         reportData.value = userAnswer;
+        // 确保surveyId被设置
+        reportData.value.surveyId = parseInt(surveyId);
         await loadMyComments();
         loading.value = false;
         return;
@@ -445,9 +444,14 @@ const loadReportData = async () => {
     // 兼容旧的answerId方式（从独立的answers表查询）
     // 注意：新版本已不再使用独立的answers表，数据存储在survey的answers数组中
     // 这里作为降级方案保留
+    const answerId = route.params.id;
     try {
       const data = await apiClient.get(`/answers/${answerId}`);
       reportData.value = data;
+      // 尝试从答案数据中提取surveyId
+      if (data.surveyId) {
+        reportData.value.surveyId = data.surveyId;
+      }
     } catch (error) {
       throw new Error("报告不存在");
     }
@@ -465,13 +469,25 @@ const loadReportData = async () => {
 // 加载我的评论
 const loadMyComments = async () => {
   try {
+    // 优先从reportData获取，其次从URL参数获取
+    let surveyId = reportData.value.surveyId || route.query.surveyId;
+
+    if (!surveyId) {
+      console.warn("loadMyComments: surveyId不存在");
+      return;
+    }
+
+    surveyId = parseInt(surveyId);
+
+    // 使用后端API获取评论
+    const response = await apiClient.get(`/comments/survey/${surveyId}`);
+    const allComments = response.comments || [];
+
+    // 筛选出当前用户的评论
     const userId = userStore.profile?.id || userStore.userId;
-    const surveyId = reportData.value.surveyId;
-
-    if (!surveyId || !userId) return;
-
-    const comments = await getUserCommentApi(surveyId, userId);
-    myComments.value = comments || [];
+    if (userId) {
+      myComments.value = allComments.filter((c) => c.userId == userId);
+    }
   } catch (error) {
     console.error("加载评论失败:", error);
   }

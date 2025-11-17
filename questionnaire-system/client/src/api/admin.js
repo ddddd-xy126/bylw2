@@ -467,8 +467,8 @@ export const recordAdminActivity = async (activityData) => {
 
     console.log("记录管理员操作:", newActivity);
 
-    // 添加到 adminActivities
-    await apiClient.post("/adminActivities", newActivity);
+    // 使用正确的API路径
+    await apiClient.post("/admin/activities", newActivity);
 
     return {
       success: true,

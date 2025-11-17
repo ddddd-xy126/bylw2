@@ -40,6 +40,9 @@ exports.getSurveys = async (req, res, next) => {
       ];
     }
 
+    console.log("[getSurveys] 查询条件:", where);
+    console.log("[getSurveys] isTemplate参数:", isTemplate);
+
     const surveys = await Survey.findAndCountAll({
       where,
       include: [
@@ -107,6 +110,8 @@ exports.getSurveyById = async (req, res, next) => {
 
 // 创建问卷
 exports.createSurvey = async (req, res, next) => {
+  const t = await sequelize.transaction();
+
   try {
     const {
       title,
@@ -121,34 +126,78 @@ exports.createSurvey = async (req, res, next) => {
       status,
     } = req.body;
 
-    const survey = await Survey.create({
-      id: Date.now().toString(),
-      userId: req.user.id,
-      title,
-      description,
-      category,
-      categoryId,
-      questionList,
-      isTemplate: isTemplate || false,
-      duration,
-      tags: tags || [],
-      settings: settings || {},
-      status: status || "draft",
-      questions: questionList?.length || 0,
-    });
+    const survey = await Survey.create(
+      {
+        id: Date.now().toString(),
+        userId: req.user.id,
+        title,
+        description,
+        category,
+        categoryId,
+        questionList,
+        isTemplate: isTemplate || false,
+        duration,
+        tags: tags || [],
+        settings: settings || {},
+        status: status || "draft",
+        questions: questionList?.length || 0,
+      },
+      { transaction: t }
+    );
+
+    // 积分奖励逻辑
+    const PointHistory = require("../models").PointHistory;
+    let pointsEarned = 0;
+    let rewardReason = "";
+
+    if (status === "draft") {
+      // 创建问卷（草稿）: 获得 3 积分
+      pointsEarned = 3;
+      rewardReason = `创建问卷《${title}》`;
+    } else if (status === "pending") {
+      // 提交审核: 获得 5 积分
+      pointsEarned = 5;
+      rewardReason = `提交问卷《${title}》审核`;
+    } else if (status === "published" && req.user.role === "admin") {
+      // 管理员直接发布: 获得 3 积分（创建）
+      pointsEarned = 3;
+      rewardReason = `创建并发布问卷《${title}》`;
+    }
+
+    if (pointsEarned > 0) {
+      await req.user.increment("points", { by: pointsEarned, transaction: t });
+      await PointHistory.create(
+        {
+          id: `ph_${Date.now()}`,
+          userId: req.user.id,
+          points: pointsEarned,
+          reason: rewardReason,
+          type: "earn",
+        },
+        { transaction: t }
+      );
+    }
+
+    await t.commit();
 
     res.status(201).json({
       success: true,
       message: "问卷创建成功",
-      data: survey,
+      data: {
+        ...survey.toJSON(),
+        pointsEarned,
+      },
     });
   } catch (error) {
+    await t.rollback();
     next(error);
   }
 };
 
 // 更新问卷
 exports.updateSurvey = async (req, res, next) => {
+  const t = await sequelize.transaction();
+
   try {
     const { id } = req.params;
     const {
@@ -159,11 +208,13 @@ exports.updateSurvey = async (req, res, next) => {
       questionList,
       status,
       duration,
+      isTemplate,
     } = req.body;
 
     const survey = await Survey.findByPk(id);
 
     if (!survey) {
+      await t.rollback();
       return res.status(404).json({
         success: false,
         message: "问卷不存在",
@@ -172,30 +223,69 @@ exports.updateSurvey = async (req, res, next) => {
 
     // 检查权限（只有创建者或管理员可以修改）
     if (survey.userId !== req.user.id && req.user.role !== "admin") {
+      await t.rollback();
       return res.status(403).json({
         success: false,
         message: "无权修改此问卷",
       });
     }
 
-    await survey.update({
-      title,
-      description,
-      category,
-      categoryId,
-      questionList,
-      status,
-      duration,
-      ...(status === "published" &&
-        !survey.publishedAt && { publishedAt: new Date() }),
-    });
+    const oldStatus = survey.status;
+    const newStatus = status || oldStatus;
+
+    // 积分奖励逻辑
+    const PointHistory = require("../models").PointHistory;
+    let pointsEarned = 0;
+    let rewardReason = "";
+
+    // 如果从草稿状态提交审核，奖励 5 积分
+    if (oldStatus === "draft" && newStatus === "pending") {
+      pointsEarned = 5;
+      rewardReason = `提交问卷《${title || survey.title}》审核`;
+    }
+
+    await survey.update(
+      {
+        title,
+        description,
+        category,
+        categoryId,
+        questionList,
+        status: newStatus,
+        duration,
+        isTemplate: isTemplate !== undefined ? isTemplate : survey.isTemplate,
+        ...(newStatus === "published" &&
+          !survey.publishedAt && { publishedAt: new Date() }),
+      },
+      { transaction: t }
+    );
+
+    if (pointsEarned > 0) {
+      await req.user.increment("points", { by: pointsEarned, transaction: t });
+      await PointHistory.create(
+        {
+          id: `ph_${Date.now()}`,
+          userId: req.user.id,
+          points: pointsEarned,
+          reason: rewardReason,
+          type: "earn",
+        },
+        { transaction: t }
+      );
+    }
+
+    await t.commit();
 
     res.json({
       success: true,
       message: "问卷更新成功",
-      data: survey,
+      data: {
+        ...survey.toJSON(),
+        pointsEarned,
+      },
     });
   } catch (error) {
+    await t.rollback();
     next(error);
   }
 };
@@ -378,6 +468,7 @@ exports.toggleFavorite = async (req, res, next) => {
     } else {
       // 添加收藏
       await Favorite.create({
+        id: `fav_${Date.now()}_${req.user.id}`,
         userId: req.user.id,
         surveyId: id,
         surveyTitle: survey.title,
