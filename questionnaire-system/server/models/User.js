@@ -13,9 +13,7 @@ const User = sequelize.define(
       type: DataTypes.STRING(50),
       unique: true,
       allowNull: false,
-      validate: {
-        len: [3, 50],
-      },
+      comment: "username",
     },
     password: {
       type: DataTypes.STRING(255),
@@ -24,10 +22,8 @@ const User = sequelize.define(
     email: {
       type: DataTypes.STRING(100),
       unique: true,
-      allowNull: false,
-      validate: {
-        isEmail: true,
-      },
+      allowNull: true,
+      comment: "email",
     },
     nickname: {
       type: DataTypes.STRING(50),
@@ -97,6 +93,11 @@ const User = sequelize.define(
       type: DataTypes.INTEGER,
       defaultValue: 0,
       comment: "连续登录天数",
+    },
+    loginCount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      comment: "登录次数",
     },
     unlockedBadges: {
       type: DataTypes.JSON,

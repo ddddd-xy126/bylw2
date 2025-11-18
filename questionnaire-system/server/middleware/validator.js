@@ -13,20 +13,29 @@ const handleValidationErrors = (req, res, next) => {
   next();
 };
 
-// 注册验证
+// 注册验证 - 简化版本，只验证必要字段
 exports.validateRegister = [
   body("username")
     .trim()
-    .isLength({ min: 3, max: 50 })
-    .withMessage("用户名长度必须在 3-50 之间")
-    .matches(/^[a-zA-Z0-9_]+$/)
-    .withMessage("用户名只能包含字母、数字和下划线"),
+    .notEmpty()
+    .withMessage("用户名不能为空")
+    .isLength({ min: 1, max: 50 })
+    .withMessage("用户名长度不能超过 50"),
   body("email")
+    .optional({ checkFalsy: true }) // email 可选，如果提供则验证格式
     .trim()
     .isEmail()
-    .withMessage("请提供有效的邮箱地址")
-    .normalizeEmail(),
-  body("password").isLength({ min: 6 }).withMessage("密码长度至少为 6 位"),
+    .withMessage("请提供有效的邮箱地址"),
+  body("password")
+    .notEmpty()
+    .withMessage("密码不能为空")
+    .isLength({ min: 6 })
+    .withMessage("密码长度至少为 6 位"),
+  body("nickname")
+    .optional()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage("昵称长度不能超过 50"),
   handleValidationErrors,
 ];
 

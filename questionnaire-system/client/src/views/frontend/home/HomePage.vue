@@ -9,7 +9,12 @@
           <el-button type="primary" size="large" @click="scrollToSurveys">
             浏览问卷
           </el-button>
-          <el-button v-if="userStore.isLoggedIn" type="success" size="large" @click="goToProfile">
+          <el-button
+            v-if="userStore.isLoggedIn"
+            type="success"
+            size="large"
+            @click="goToProfile"
+          >
             我的中心
           </el-button>
           <el-button v-else size="large" @click="goToLogin">
@@ -21,21 +26,29 @@
 
     <!-- 统计信息 -->
     <div class="stats-wrapper">
-      <StatsCards 
-        :total-surveys="totalSurveys" 
+      <StatsCards
+        :total-surveys="totalSurveys"
         :total-participants="totalParticipants"
-        :user-favorites="userFavorites" 
-        :user-points="userPoints" 
+        :user-favorites="userFavorites"
+        :user-points="userPoints"
       />
     </div>
 
     <!-- 问卷列表 -->
     <div class="surveys-section" ref="surveysSection">
-      <SurveyList v-model:sort-by="sortBy" :surveys="topSurveys" :loading="loading" :get-category-name="getCategoryName"
-        :is-favorite="isFavorite" :show-favorite="userStore.isLoggedIn" @sort-change="handleSortChange"
-        @survey-click="goToSurvey" @survey-start="goToSurvey" @toggle-favorite="toggleFavorite" />
+      <SurveyList
+        v-model:sort-by="sortBy"
+        :surveys="topSurveys"
+        :loading="loading"
+        :get-category-name="getCategoryName"
+        :is-favorite="isFavorite"
+        :show-favorite="userStore.isLoggedIn"
+        @sort-change="handleSortChange"
+        @survey-click="goToSurvey"
+        @survey-start="goToSurvey"
+        @toggle-favorite="toggleFavorite"
+      />
     </div>
-
   </div>
 </template>
 
@@ -43,7 +56,7 @@
 import { ref, onMounted, watch, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useHomeLogic } from "@/composables/useHomeLogic";
-import { useListFilter } from '@/hooks/useListFilter'
+import { useListFilter } from "@/hooks/useListFilter";
 import StatsCards from "./components/StatsCards.vue";
 import SurveyList from "./components/SurveyList.vue";
 
@@ -69,26 +82,27 @@ const {
 const topSurveys = computed(() => (filteredSurveys.value || []).slice(0, 20));
 
 // 把 surveys 交给 useListFilter 管理客户端搜索/分类/分页
-const sourceList = computed(() => (surveys.value || []).map(s => ({
-  ...s,
-  // 用于全文搜索
-  searchText: `${s.title || ''} ${s.description || ''} ${(s.tags || []).join(' ')}`
-})))
+const sourceList = computed(() =>
+  (surveys.value || []).map((s) => ({
+    ...s,
+    // 用于全文搜索
+    searchText: `${s.title || ""} ${s.description || ""} ${(s.tags || []).join(
+      " "
+    )}`,
+  }))
+);
 
-const {
-  sortBy,
-  filteredList,
-  handleSort,
-} = useListFilter({ sourceList, searchFields: ['searchText'] })
+const { sortBy, filteredList, handleSort } = useListFilter({
+  sourceList,
+  searchFields: ["searchText"],
+});
 
 // 首页默认展示 推荐 排序
-sortBy.value = 'recommended';
+sortBy.value = "recommended";
 handleSort();
 
 // 为模板保持兼容名称（只需要 filteredSurveys；展示上限由 topSurveys 控制）
-const filteredSurveys = filteredList
-
-// 导航栏的全局搜索已移除；首页保持自身筛选逻辑
+const filteredSurveys = filteredList;
 
 // 路由跳转
 const goToSurvey = (surveyId) => {
@@ -96,18 +110,18 @@ const goToSurvey = (surveyId) => {
 };
 
 const goToProfile = () => {
-  router.push('/profile');
+  router.push("/profile");
 };
 
 const goToLogin = () => {
-  router.push('/login');
+  router.push("/login");
 };
 
 const scrollToSurveys = () => {
   if (surveysSection.value) {
     surveysSection.value.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
+      behavior: "smooth",
+      block: "start",
     });
   }
 };
@@ -119,8 +133,10 @@ const handleSortChange = () => {
 };
 
 // 生命周期
-onMounted(() => {
-  loadData();
+onMounted(async () => {
+  await loadData();
+  // 进入首页时触发每日登录检查（非首次登录会在此发放每日登录奖励）
+  await userStore.checkDailyLogin();
 });
 </script>
 
@@ -142,9 +158,11 @@ onMounted(() => {
     position: relative;
     width: 100%;
     height: 70vh;
-    background: radial-gradient(circle at 30% 30%,
+    background: radial-gradient(
+        circle at 30% 30%,
         rgba(85, 214, 145, 0.932),
-        rgba(9, 145, 27, 0.05)),
+        rgba(9, 145, 27, 0.05)
+      ),
       linear-gradient(135deg, #f3fff7, #e0f8ea);
     display: flex;
     flex-direction: column;
@@ -188,9 +206,11 @@ onMounted(() => {
           font-size: 1rem;
           box-shadow: 0 4px 14px rgba(9, 145, 27, 0.25);
           transition: all 0.25s ease;
-          background: linear-gradient(135deg,
-              var(--color-primary-light-2),
-              var(--color-primary-dark-1));
+          background: linear-gradient(
+            135deg,
+            var(--color-primary-light-2),
+            var(--color-primary-dark-1)
+          );
           border: none;
           color: #fff;
 
@@ -201,9 +221,11 @@ onMounted(() => {
         }
 
         .el-button[type="success"] {
-          background: linear-gradient(135deg,
-              var(--color-accent-4),
-              var(--color-primary-dark-2));
+          background: linear-gradient(
+            135deg,
+            var(--color-accent-4),
+            var(--color-primary-dark-2)
+          );
         }
 
         .el-button:not([type]) {
@@ -228,9 +250,11 @@ onMounted(() => {
       left: -50%;
       width: 200%;
       height: 200%;
-      background: radial-gradient(circle,
-          rgba(9, 145, 27, 0.1),
-          transparent 70%);
+      background: radial-gradient(
+        circle,
+        rgba(9, 145, 27, 0.1),
+        transparent 70%
+      );
       animation: rotateLight 10s linear infinite;
       z-index: 1;
     }
@@ -258,7 +282,6 @@ onMounted(() => {
     }
   }
 
-
   /* ======================
      问卷展示区
   ====================== */
@@ -268,7 +291,7 @@ onMounted(() => {
     display: flex;
     justify-content: center;
 
-    >* {
+    > * {
       width: 90%;
       max-width: 1200px;
       animation: fadeInUp 1.5s ease;

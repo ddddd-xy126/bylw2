@@ -3,7 +3,8 @@
     <el-button class="back-home-btn" text @click="goHome">
       <el-icon>
         <ArrowLeft />
-      </el-icon> 返回首页
+      </el-icon>
+      返回首页
     </el-button>
 
     <el-card class="box">
@@ -14,19 +15,37 @@
       <el-tabs v-model="activeTab" class="auth-tabs">
         <el-tab-pane label="登录" name="login">
           <el-form :model="loginForm" @submit.prevent>
-            <el-form-item label="邮箱">
-              <el-input v-model="loginForm.email" placeholder="请输入邮箱"></el-input>
+            <el-form-item label="邮箱/用户名">
+              <el-input
+                v-model="loginForm.email"
+                placeholder="请输入邮箱"
+              ></el-input>
             </el-form-item>
             <el-form-item label="密码">
-              <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password></el-input>
+              <el-input
+                v-model="loginForm.password"
+                type="password"
+                placeholder="请输入密码"
+                show-password
+              ></el-input>
             </el-form-item>
             <div class="form-footer">
-              <el-button type="text" class="forgot-password-btn" @click="goToResetPassword">
+              <el-button
+                type="text"
+                class="forgot-password-btn"
+                @click="goToResetPassword"
+              >
                 忘记密码？
               </el-button>
             </div>
             <el-form-item>
-              <el-button type="primary" @click="submitLogin" :loading="loginLoading" class="login-button">登录</el-button>
+              <el-button
+                type="primary"
+                @click="submitLogin"
+                :loading="loginLoading"
+                class="login-button"
+                >登录</el-button
+              >
             </el-form-item>
           </el-form>
         </el-tab-pane>
@@ -34,19 +53,38 @@
         <el-tab-pane label="注册" name="register">
           <el-form :model="registerForm" @submit.prevent>
             <el-form-item label="邮箱">
-              <el-input v-model="registerForm.email" placeholder="请输入邮箱"></el-input>
+              <el-input
+                v-model="registerForm.email"
+                placeholder="请输入邮箱"
+              ></el-input>
             </el-form-item>
             <el-form-item label="用户名">
-              <el-input v-model="registerForm.username" placeholder="请输入用户名"></el-input>
+              <el-input
+                v-model="registerForm.username"
+                placeholder="请输入用户名"
+              ></el-input>
             </el-form-item>
             <el-form-item label="昵称">
-              <el-input v-model="registerForm.nickname" placeholder="请输入昵称"></el-input>
+              <el-input
+                v-model="registerForm.nickname"
+                placeholder="请输入昵称"
+              ></el-input>
             </el-form-item>
             <el-form-item label="密码">
-              <el-input v-model="registerForm.password" type="password" placeholder="请输入密码" show-password></el-input>
+              <el-input
+                v-model="registerForm.password"
+                type="password"
+                placeholder="请输入密码"
+                show-password
+              ></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="submitRegister" :loading="registerLoading">注册</el-button>
+              <el-button
+                type="primary"
+                @click="submitRegister"
+                :loading="registerLoading"
+                >注册</el-button
+              >
             </el-form-item>
           </el-form>
         </el-tab-pane>
@@ -61,13 +99,13 @@ import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/user";
 import { login as loginAuth, register as registerAuth } from "@/api/auth";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { ArrowLeft } from '@element-plus/icons-vue'
-import apiClient from '@/api/index.js';
+import { ArrowLeft } from "@element-plus/icons-vue";
+import apiClient from "@/api/index.js";
 
 const router = useRouter();
 const userStore = useUserStore();
 
-const activeTab = ref('login');
+const activeTab = ref("login");
 const loginLoading = ref(false);
 const registerLoading = ref(false);
 
@@ -76,7 +114,7 @@ const registerForm = reactive({
   email: "",
   username: "",
   nickname: "",
-  password: ""
+  password: "",
 });
 
 const submitLogin = async () => {
@@ -89,14 +127,13 @@ const submitLogin = async () => {
     userStore.setToken(token);
     userStore.setProfile(user);
 
-    ElMessage.success('登录成功！');
+    ElMessage.success("登录成功！");
 
-    // 检查每日登录奖励
-    await userStore.checkDailyLogin();
+    // 处理登录后的首次/非首次逻辑（首次登录在此弹首次登录奖励；非首次登录由首页触发每日登录奖励）
+    await userStore.handlePostLogin();
 
     // 检查是否有被退回的问卷
     await checkRejectedSurveys(user);
-
 
     if (user?.role === "admin") {
       router.push("/admin/dashboard");
@@ -104,8 +141,8 @@ const submitLogin = async () => {
       router.push("/home");
     }
   } catch (error) {
-    console.error('登录失败:', error);
-    ElMessage.error(error.message || '登录失败，请重试');
+    console.error("登录失败:", error);
+    ElMessage.error(error.message || "登录失败，请重试");
   } finally {
     loginLoading.value = false;
   }
@@ -113,84 +150,90 @@ const submitLogin = async () => {
 
 // 检查被退回的问卷
 const checkRejectedSurveys = async (user) => {
-  if (!user || user.role === 'admin') return;
+  if (!user || user.role === "admin") return;
 
   try {
     // 使用统一的 API 调用
-    const allSurveys = await apiClient.get('/surveys');
+    const allSurveys = await apiClient.get("/surveys");
     const userId = user.id;
 
     // 筛选当前用户被退回的问卷
-    const rejectedSurveys = allSurveys.filter(s =>
-      (s.userId === userId || s.authorId === userId) &&
-      s.status === 'rejected'
+    const rejectedSurveys = allSurveys.filter(
+      (s) =>
+        (s.userId === userId || s.authorId === userId) &&
+        s.status === "rejected"
     );
 
     // 如果有被退回的问卷，显示提醒
     if (rejectedSurveys.length > 0) {
-      const messageContent = rejectedSurveys.map((survey, index) => {
-        return `<div style="margin-bottom: 12px; padding: 10px; border-left: 3px solid #f56c6c; background: #fef0f0; border-radius: 4px;">
+      const messageContent = rejectedSurveys
+        .map((survey, index) => {
+          return `<div style="margin-bottom: 12px; padding: 10px; border-left: 3px solid #f56c6c; background: #fef0f0; border-radius: 4px;">
           <div style="font-weight: 600; margin-bottom: 6px; color: #f56c6c;">
             ${index + 1}. ${survey.title}
           </div>
           <div style="font-size: 14px; color: #606266;">
-            退回原因: ${survey.rejectedReason || '未提供原因'}
+            退回原因: ${survey.rejectedReason || "未提供原因"}
           </div>
           <div style="font-size: 12px; color: #909399; margin-top: 4px;">
-            退回时间: ${new Date(survey.rejectedAt || survey.updatedAt).toLocaleString('zh-CN')}
+            退回时间: ${new Date(
+              survey.rejectedAt || survey.updatedAt
+            ).toLocaleString("zh-CN")}
           </div>
         </div>`;
-      }).join('');
+        })
+        .join("");
 
       setTimeout(() => {
         ElMessageBox({
           title: `您有 ${rejectedSurveys.length} 个问卷被退回`,
           message: messageContent,
           dangerouslyUseHTMLString: true,
-          confirmButtonText: '前往查看',
-          cancelButtonText: '稍后处理',
+          confirmButtonText: "前往查看",
+          cancelButtonText: "稍后处理",
           showCancelButton: true,
-          type: 'warning',
+          type: "warning",
           customStyle: {
-            width: '550px'
-          }
-        }).then(() => {
-          router.push('/profile/questionnaires/created');
-        }).catch(() => {
-          // 用户点击稍后处理
-        });
+            width: "550px",
+          },
+        })
+          .then(() => {
+            router.push("/profile/questionnaires/created");
+          })
+          .catch(() => {
+            // 用户点击稍后处理
+          });
       }, 500);
     }
   } catch (error) {
-    console.error('检查被退回问卷失败:', error);
+    console.error("检查被退回问卷失败:", error);
   }
 };
 
 const submitRegister = async () => {
   if (!registerForm.email || !registerForm.username || !registerForm.password) {
-    ElMessage.error('请填写完整信息');
+    ElMessage.error("请填写完整信息");
     return;
   }
 
   registerLoading.value = true;
   try {
     await registerAuth(registerForm);
-    ElMessage.success('注册成功！请登录');
+    ElMessage.success("注册成功！请登录");
 
     // 切换到登录标签页
-    activeTab.value = 'login';
+    activeTab.value = "login";
 
     // 清空注册表单
     Object.assign(registerForm, {
       email: "",
       username: "",
       nickname: "",
-      password: ""
+      password: "",
     });
-
   } catch (error) {
-    console.error('注册失败:', error);
-    ElMessage.error(error.message || '注册失败，请重试');
+    console.error("注册失败:", error);
+    ElMessage.error(error.message || "注册失败，请重试");
   } finally {
     registerLoading.value = false;
   }
@@ -199,7 +242,7 @@ const submitRegister = async () => {
 const goHome = () => router.push("/home");
 
 const goToResetPassword = () => {
-  router.push('/reset-password');
+  router.push("/reset-password");
 };
 </script>
 
@@ -207,9 +250,11 @@ const goToResetPassword = () => {
 .login-page {
   width: 100%;
   height: 100vh;
-  background: linear-gradient(145deg,
-      var(--theme-background-color),
-      var(--bg-primary-light));
+  background: linear-gradient(
+    145deg,
+    var(--theme-background-color),
+    var(--bg-primary-light)
+  );
   display: flex;
   justify-content: center;
   align-items: center;
@@ -236,7 +281,6 @@ const goToResetPassword = () => {
       background-color: transparent;
       transform: translateX(-2px);
     }
-
   }
 
   .logo-title {
@@ -252,9 +296,14 @@ const goToResetPassword = () => {
 
   .box {
     width: 420px;
-    background: linear-gradient(145deg, var(--text-inverse)ff 0%, #f8fff9 100%);
+    background: linear-gradient(
+      145deg,
+      var(--text-inverse) ff 0%,
+      #f8fff9 100%
+    );
     border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(37, 146, 52, 0.15), 0 8px 32px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 60px rgba(37, 146, 52, 0.15),
+      0 8px 32px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);
     overflow: hidden;
@@ -279,7 +328,7 @@ const goToResetPassword = () => {
         padding: 0;
         height: auto;
         color: var(--color-primary);
-        
+
         &:hover {
           color: var(--color-primary-dark-2);
           background: transparent;
@@ -333,7 +382,11 @@ const goToResetPassword = () => {
   }
 
   :deep(.el-tabs__active-bar) {
-    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light-2) 100%);
+    background: linear-gradient(
+      90deg,
+      var(--color-primary) 0%,
+      var(--color-primary-light-2) 100%
+    );
     height: 3px;
     border-radius: 2px;
     bottom: 0;
@@ -362,7 +415,6 @@ const goToResetPassword = () => {
     box-shadow: 0 4px 20px rgba(37, 146, 52, 0.3);
   }
 
-
   // 移除 autocomplete 自动填充的背景色
   :deep(.el-input__wrapper) {
     border-radius: 10px;
@@ -388,7 +440,11 @@ const goToResetPassword = () => {
   }
 
   :deep(.el-button--primary) {
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light-2) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--color-primary) 0%,
+      var(--color-primary-light-2) 100%
+    );
     border: none;
     border-radius: 25px;
     padding: 12px 30px;

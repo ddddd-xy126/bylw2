@@ -80,6 +80,18 @@
               </ul>
             </div>
             <div class="guide-section">
+              <h4>🎁 注册奖励</h4>
+              <ul>
+                <li>
+                  <strong>注册成功:</strong> 注册新账号获得
+                  <el-tag type="danger" size="small">100积分</el-tag>
+                </li>
+                <li class="info-note">
+                  注册即送100积分，快速开启你的问卷之旅！
+                </li>
+              </ul>
+            </div>
+            <div class="guide-section">
               <h4>👤 完善资料</h4>
               <ul>
                 <li>

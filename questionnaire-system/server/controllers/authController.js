@@ -8,26 +8,37 @@ exports.register = async (req, res, next) => {
   try {
     const { username, email, password, nickname } = req.body;
 
-    // 检查用户是否已存在
-    const existingUser = await User.findOne({
-      where: {
-        [Op.or]: [{ username }, { email }],
-      },
+    // 检查用户名是否已存在（主要检查）
+    const existingUsername = await User.findOne({
+      where: { username },
     });
 
-    if (existingUser) {
+    if (existingUsername) {
       return res.status(400).json({
         success: false,
-        message:
-          existingUser.username === username ? "用户名已存在" : "邮箱已存在",
+        message: "用户名已存在，请重新输入",
       });
+    }
+
+    // 如果提供了邮箱，检查邮箱是否已存在
+    if (email) {
+      const existingEmail = await User.findOne({
+        where: { email },
+      });
+
+      if (existingEmail) {
+        return res.status(400).json({
+          success: false,
+          message: "邮箱已存在",
+        });
+      }
     }
 
     // 创建用户
     const user = await User.create({
       id: Date.now().toString(), // 使用时间戳生成 ID
       username,
-      email,
+      email: email || `${username}@example.com`, // 如果没有邮箱，生成默认邮箱
       password,
       nickname: nickname || username,
       points: 100, // 注册赠送 100 积分
