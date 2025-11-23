@@ -137,7 +137,7 @@
         </div>
         <el-divider />
         <div class="report-detail-content">
-          <pre>{{ currentReport.content }}</pre>
+          <div class="content-text" v-html="formatContent(currentReport.content)"></div>
         </div>
       </div>
       <template #footer>
@@ -185,6 +185,23 @@ const currentReport = ref(null);
 const formatDateTime = (date) => {
   if (!date) return "未知时间";
   return new Date(date).toLocaleString("zh-CN");
+};
+
+// 格式化内容：将\n转换为<br>，处理Markdown样式
+const formatContent = (content) => {
+  if (!content) return "";
+  
+  return String(content)
+    // 先转义HTML特殊字符
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    // 处理Markdown加粗 **text**
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // 处理换行
+    .replace(/\n/g, '<br>')
+    // 处理多个空格
+    .replace(/  /g, '&nbsp;&nbsp;');
 };
 
 // 获取状态类型
@@ -418,30 +435,28 @@ onMounted(() => {
     .report-detail-content {
       max-height: 60vh;
       overflow-y: auto;
-      padding: 16px;
+      padding: 20px;
       background: #f5f7fa;
       border-radius: 8px;
-
-      /* 关键点：禁止横向撑出页面 */
       overflow-x: hidden !important;
       max-width: 100%;
       box-sizing: border-box;
 
-      pre {
+      .content-text {
         margin: 0;
-        font-family: "Microsoft YaHei", sans-serif;
-        font-size: 14px;
+        font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", sans-serif;
+        font-size: 15px;
         line-height: 1.8;
         color: #303133;
-
-        /* 保证内容自动换行 */
-        white-space: pre-wrap !important;
-        word-wrap: break-word !important;
-        word-break: break-word !important;
-        overflow-wrap: break-word !important;
-
+        word-wrap: break-word;
+        word-break: break-all;
         max-width: 100%;
-        box-sizing: border-box;
+        
+        // 加粗样式
+        strong {
+          font-weight: 600;
+          color: #409eff;
+        }
       }
     }
   }
