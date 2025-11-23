@@ -137,7 +137,10 @@
         </div>
         <el-divider />
         <div class="report-detail-content">
-          <div class="content-text" v-html="formatContent(currentReport.content)"></div>
+          <div
+            class="content-text"
+            v-html="formatContent(currentReport.content)"
+          ></div>
         </div>
       </div>
       <template #footer>
@@ -190,18 +193,20 @@ const formatDateTime = (date) => {
 // 格式化内容：将\n转换为<br>，处理Markdown样式
 const formatContent = (content) => {
   if (!content) return "";
-  
-  return String(content)
-    // 先转义HTML特殊字符
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    // 处理Markdown加粗 **text**
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    // 处理换行
-    .replace(/\n/g, '<br>')
-    // 处理多个空格
-    .replace(/  /g, '&nbsp;&nbsp;');
+
+  return (
+    String(content)
+      // 先转义HTML特殊字符
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      // 处理Markdown加粗 **text**
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      // 处理换行
+      .replace(/\n/g, "<br>")
+      // 处理多个空格
+      .replace(/  /g, "&nbsp;&nbsp;")
+  );
 };
 
 // 获取状态类型
@@ -444,14 +449,15 @@ onMounted(() => {
 
       .content-text {
         margin: 0;
-        font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", sans-serif;
+        font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue",
+          sans-serif;
         font-size: 15px;
         line-height: 1.8;
         color: #303133;
         word-wrap: break-word;
         word-break: break-all;
         max-width: 100%;
-        
+
         // 加粗样式
         strong {
           font-weight: 600;

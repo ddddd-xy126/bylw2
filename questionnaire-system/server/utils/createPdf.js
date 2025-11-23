@@ -23,22 +23,24 @@ function drawCard(doc, x, y, w, h, radius = 8, fill = THEME.cardBg) {
  */
 function removeMarkdown(text) {
   if (!text) return "";
-  return String(text)
-    // 移除加粗 **text**
-    .replace(/\*\*(.+?)\*\*/g, "$1")
-    // 移除斜体 *text*
-    .replace(/\*(.+?)\*/g, "$1")
-    // 移除链接 [text](url)
-    .replace(/\[(.+?)\]\(.+?\)/g, "$1")
-    // 移除代码块 ```
-    .replace(/```[\s\S]*?```/g, "")
-    // 移除行内代码 `code`
-    .replace(/`(.+?)`/g, "$1")
-    // 移除标题 #
-    .replace(/^#+\s+/gm, "")
-    // 移除列表符号
-    .replace(/^[-*+]\s+/gm, "")
-    .trim();
+  return (
+    String(text)
+      // 移除加粗 **text**
+      .replace(/\*\*(.+?)\*\*/g, "$1")
+      // 移除斜体 *text*
+      .replace(/\*(.+?)\*/g, "$1")
+      // 移除链接 [text](url)
+      .replace(/\[(.+?)\]\(.+?\)/g, "$1")
+      // 移除代码块 ```
+      .replace(/```[\s\S]*?```/g, "")
+      // 移除行内代码 `code`
+      .replace(/`(.+?)`/g, "$1")
+      // 移除标题 #
+      .replace(/^#+\s+/gm, "")
+      // 移除列表符号
+      .replace(/^[-*+]\s+/gm, "")
+      .trim()
+  );
 }
 
 /**
@@ -120,8 +122,10 @@ function createPdf(report = {}) {
 
       // 简单的页眉
       const author = report.author || report.nickname || "用户";
-      const dateStr = report.generatedAt || new Date().toLocaleString("zh-CN", { hour12: false });
-      
+      const dateStr =
+        report.generatedAt ||
+        new Date().toLocaleString("zh-CN", { hour12: false });
+
       doc.fontSize(10).fillColor("#666");
       doc.text(`${report.surveyTitle || "问卷分析报告"}`, { align: "center" });
       doc.text(`用户：${author}  生成时间：${dateStr}`, { align: "center" });
@@ -129,12 +133,12 @@ function createPdf(report = {}) {
 
       // 移除Markdown标记
       const cleanContent = removeMarkdown(report.content || "");
-      
+
       // 直接输出纯文本，无任何样式
       doc.fontSize(12).fillColor("#303133");
       doc.text(cleanContent, {
         align: "left",
-        lineGap: 4
+        lineGap: 4,
       });
 
       // 结束文档
