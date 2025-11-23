@@ -12,6 +12,7 @@ const Badge = require("./Badge");
 const RecycleBin = require("./RecycleBin");
 const UserBadge = require("./UserBadge");
 const ActivityData = require("./ActivityData");
+const Report = require("./Report");
 
 // 定义关联关系
 
@@ -75,6 +76,14 @@ UserBadge.belongsTo(User, { foreignKey: "userId", as: "user" });
 Badge.hasMany(UserBadge, { foreignKey: "badgeId", as: "userBadges" });
 UserBadge.belongsTo(Badge, { foreignKey: "badgeId", as: "badge" });
 
+// User - Report (一对多)
+User.hasMany(Report, { foreignKey: "userId", as: "reports" });
+Report.belongsTo(User, { foreignKey: "userId", as: "user" });
+
+// Survey - Report (一对多)
+Survey.hasMany(Report, { foreignKey: "surveyId", as: "reports" });
+Report.belongsTo(Survey, { foreignKey: "surveyId", as: "survey" });
+
 module.exports = {
   sequelize,
   User,
@@ -90,4 +99,5 @@ module.exports = {
   RecycleBin,
   UserBadge,
   ActivityData,
+  Report,
 };

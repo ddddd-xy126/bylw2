@@ -5,7 +5,7 @@ import router from "@/router";
 // Express 后端 API
 const instance = axios.create({
   baseURL: "http://localhost:3000/api",
-  timeout: 10000,
+  timeout: 120000, // 120秒超时,用于 AI 报告生成等耗时操作
 });
 
 instance.interceptors.request.use((config) => {

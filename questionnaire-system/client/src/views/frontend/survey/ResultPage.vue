@@ -28,7 +28,25 @@
             </div>
             <div class="header-actions">
               <el-button
+                type="success"
+                :icon="Document"
+                @click="generateReport"
+                :loading="generatingReport"
+                :disabled="reportStatus === 'generating'"
+              >
+                {{ reportButtonText }}
+              </el-button>
+              <el-button
+                v-if="reportId && reportStatus === 'completed'"
                 type="primary"
+                :icon="View"
+                @click="viewReportInProfile"
+              >
+                查看报告
+              </el-button>
+              <el-button
+                v-if="reportId && reportStatus === 'completed'"
+                type="success"
                 :icon="Download"
                 @click="downloadReport"
               >
@@ -242,7 +260,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
@@ -258,6 +276,7 @@ import {
   Edit,
   Delete,
   ChatLineRound,
+  View,
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user";
 import {
@@ -267,6 +286,11 @@ import {
   getUserCommentApi,
   getUserAnswerApi,
 } from "@/api/survey";
+import {
+  generateReportApi,
+  getReportStatusApi,
+  downloadReportApi,
+} from "@/api/report";
 import apiClient from "@/api/index";
 
 const route = useRoute();
@@ -278,6 +302,10 @@ const loading = ref(true);
 const reportData = ref({});
 const myComments = ref([]); // 改为数组
 const submitting = ref(false);
+const generatingReport = ref(false);
+const reportId = ref(null);
+const reportStatus = ref(null); // 'generating', 'completed', 'failed'
+const reportCheckInterval = ref(null);
 
 const ratingForm = ref({
   rating: 5,
@@ -287,6 +315,17 @@ const ratingForm = ref({
 // 计算属性
 const canSubmit = computed(() => {
   return ratingForm.value.content.trim().length > 0;
+});
+
+const reportButtonText = computed(() => {
+  if (reportStatus.value === "generating") {
+    return "报告生成中...";
+  } else if (reportStatus.value === "completed") {
+    return "报告已生成";
+  } else if (reportStatus.value === "failed") {
+    return "重新生成报告";
+  }
+  return "生成AI分析报告";
 });
 
 // 方法
@@ -330,8 +369,114 @@ const formatAnswer = (answerObj) => {
   return String(answer);
 };
 
-const downloadReport = () => {
-  ElMessage.info("报告下载功能开发中...");
+const downloadReport = async () => {
+  if (!reportId.value) {
+    ElMessage.warning("暂无可下载的报告");
+    return;
+  }
+
+  try {
+    await downloadReportApi(reportId.value);
+    ElMessage.success("报告下载成功");
+  } catch (error) {
+    console.error("下载报告失败:", error);
+    ElMessage.error("下载报告失败：" + error.message);
+  }
+};
+
+// 跳转到个人中心查看报告
+const viewReportInProfile = () => {
+  router.push("/user/profile/reports");
+};
+
+// 生成报告
+const generateReport = async () => {
+  if (!userStore.isLoggedIn) {
+    ElMessage.warning("请先登录后再生成报告");
+    router.push(`/login?redirect=/survey/result/${route.params.id}`);
+    return;
+  }
+
+  if (!reportData.value.surveyId || !reportData.value.answers) {
+    ElMessage.error("缺少问卷数据");
+    return;
+  }
+
+  generatingReport.value = true;
+  try {
+    console.log("🔄 开始生成报告");
+    console.log("📋 问卷信息:", {
+      surveyId: reportData.value.surveyId,
+      surveyTitle: reportData.value.surveyTitle,
+      category: reportData.value.category,
+    });
+    console.log("📝 答案数据:", reportData.value.answers);
+
+    const response = await generateReportApi(
+      reportData.value.surveyId,
+      reportData.value.surveyTitle,
+      reportData.value.answers,
+      reportData.value.category
+    );
+
+    console.log("📥 报告生成响应:", response);
+
+    if (response.success) {
+      reportId.value = response.data.reportId;
+      reportStatus.value = response.data.status;
+
+      if (response.data.status === "completed") {
+        ElMessage({
+          type: "success",
+          message: "报告生成成功！可在个人中心-分析报告页面查看",
+          duration: 5000,
+          showClose: true,
+        });
+        console.log("✅ 报告内容长度:", response.data.content?.length);
+        console.log(
+          "📄 报告内容预览:",
+          response.data.content?.substring(0, 200)
+        );
+      } else if (response.data.status === "generating") {
+        ElMessage.info("报告正在生成中，请稍候...");
+        // 开始轮询检查报告状态
+        startReportStatusCheck();
+      }
+    }
+  } catch (error) {
+    console.error("❌ 生成报告失败:", error);
+    ElMessage.error("生成报告失败：" + error.message);
+  } finally {
+    generatingReport.value = false;
+  }
+};
+
+// 开始检查报告状态
+const startReportStatusCheck = () => {
+  if (reportCheckInterval.value) {
+    clearInterval(reportCheckInterval.value);
+  }
+
+  reportCheckInterval.value = setInterval(async () => {
+    try {
+      const response = await getReportStatusApi(reportId.value);
+      if (response.success) {
+        reportStatus.value = response.data.status;
+
+        if (response.data.status === "completed") {
+          clearInterval(reportCheckInterval.value);
+          reportCheckInterval.value = null;
+          ElMessage.success("报告生成完成！您可以下载查看了");
+        } else if (response.data.status === "failed") {
+          clearInterval(reportCheckInterval.value);
+          reportCheckInterval.value = null;
+          ElMessage.error("报告生成失败，请重试");
+        }
+      }
+    } catch (error) {
+      console.error("检查报告状态失败:", error);
+    }
+  }, 3000); // 每3秒检查一次
 };
 
 // 提交评论
@@ -496,6 +641,13 @@ const loadMyComments = async () => {
 // 生命周期
 onMounted(() => {
   loadReportData();
+});
+
+// 组件卸载时清理定时器
+onBeforeUnmount(() => {
+  if (reportCheckInterval.value) {
+    clearInterval(reportCheckInterval.value);
+  }
 });
 </script>
 

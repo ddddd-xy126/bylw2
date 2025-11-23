@@ -45,6 +45,7 @@ app.use("/api/favorites", require("./routes/favorites"));
 app.use("/api/badges", require("./routes/badges"));
 app.use("/api/recycleBin", require("./routes/recycleBin"));
 app.use("/api/admin", require("./routes/admin"));
+app.use("/api/reports", require("./routes/reports"));
 
 // 404 处理
 app.use((req, res) => {
