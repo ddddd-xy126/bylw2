@@ -100,7 +100,7 @@
             <div class="question-actions">
               <el-button
                 @click="prevQuestion"
-                :disabled="currentQuestionIndex === 0"
+                :disabled="currentQuestionIndex === 0 || isQuizMode"
                 size="large"
               >
                 <el-icon><ArrowLeft /></el-icon>
@@ -166,6 +166,13 @@
         ></ProgressCard>
       </div>
     </div>
+
+    <!-- 答题反馈组件 -->
+    <QuizFeedback
+      :visible="showFeedback"
+      :feedback-type="feedbackType"
+      @finish="handleFeedbackFinish"
+    />
   </div>
 </template>
 
@@ -179,8 +186,10 @@ import { getSurveyDetail, submitSurveyApi } from "@/api/survey";
 import { useUserStore } from "@/store/user";
 import ProgressCard from "./components/ProgressCard.vue";
 import AnimatedQuestion from "./components/AnimatedQuestion.vue";
+import QuizFeedback from "@/components/QuizFeedbackEnhanced.vue";
 import { useQuestionnaireLogic } from "@/composables/useQuestionnaireLogic";
 import { useAnswerTimer } from "@/composables/useAnswerTimer";
+import { checkQuizAnswer } from "@/utils/quiz";
 
 const route = useRoute();
 const router = useRouter();
@@ -215,6 +224,19 @@ const {
 
 const { elapsedTime, formatTime, startTimer, resetTimer, stopTimer } =
   useAnswerTimer();
+
+// 答题模式相关状态
+const showFeedback = ref(false);
+const feedbackType = ref("correct"); // 'correct' | 'incorrect'
+
+// 是否为答题模式问卷
+const isQuizMode = computed(() => {
+  return (
+    questionnaire.isQuizMode === true ||
+    questionnaire.questions?.some((q) => q.quizMode === true)
+  );
+});
+
 // 当前答案
 const currentAnswer = computed({
   get() {
@@ -306,7 +328,17 @@ const answeredCount = computed(() => {
 // 当用户通过点击选项（单选/多选/评分）确认答案时调用
 const handleAnswerChange = (value) => {
   if (!currentQuestion.value) return;
-  commitAnswer(currentQuestion.value.id);
+
+  // 只在单选题和非答题模式下提交答案
+  // 多选题和答题模式需要等用户点击"下一题"
+  if (
+    currentQuestion.value.type === "single" &&
+    !currentQuestion.value.quizMode
+  ) {
+    commitAnswer(currentQuestion.value.id);
+  }
+
+  // 答题模式下不在这里触发反馈，改为在点击"下一题"时触发
 };
 
 // 文本题失焦时才提交为已确认答案
@@ -316,6 +348,26 @@ const handleTextCommit = () => {
   const val = answers.value[qid];
   if (val !== undefined && val !== null && String(val).trim() !== "") {
     commitAnswer(qid);
+  }
+};
+
+// 答题反馈动画结束后自动跳转下一题
+const handleFeedbackFinish = async () => {
+  showFeedback.value = false;
+  // 等待动画完全消失后再跳转
+  setTimeout(async () => {
+    await proceedToNextQuestion();
+  }, 100);
+};
+
+// 跳转到下一题的核心逻辑（不包含答题模式检查）
+const proceedToNextQuestion = async () => {
+  // 使用 composable 的 nextQuestion 逻辑（包含跳转逻辑）
+  const result = nextQuestionLogic(questionnaire.questions);
+
+  // 如果已经是最后一题，提交问卷
+  if (result === "complete") {
+    await submitSurvey();
   }
 };
 
@@ -331,13 +383,30 @@ const nextQuestion = async () => {
     return;
   }
 
-  // 使用 composable 的 nextQuestion 逻辑（包含跳转逻辑）
-  const result = nextQuestionLogic(questionnaire.questions);
-
-  // 如果已经是最后一题，提交问卷
-  if (result === "complete") {
-    await submitSurvey();
+  // 提交当前答案
+  if (currentQuestion.value) {
+    commitAnswer(currentQuestion.value.id);
   }
+
+  // 检查是否启用了答题模式
+  if (currentQuestion.value?.quizMode) {
+    const currentAnswerValue = currentAnswer.value;
+    const isCorrect = checkQuizAnswer(
+      currentQuestion.value,
+      currentAnswerValue
+    );
+
+    if (isCorrect !== null) {
+      // 显示反馈动画
+      feedbackType.value = isCorrect ? "correct" : "incorrect";
+      showFeedback.value = true;
+      // handleFeedbackFinish 会自动跳转下一题
+      return;
+    }
+  }
+
+  // 非答题模式直接跳转
+  await proceedToNextQuestion();
 };
 
 const prevQuestion = () => {

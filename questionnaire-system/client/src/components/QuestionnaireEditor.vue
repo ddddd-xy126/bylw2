@@ -439,6 +439,115 @@
                     </el-button>
                   </div>
                 </div>
+
+                <!-- 答题模式配置 -->
+                <div
+                  v-if="
+                    question.type === 'single' || question.type === 'multiple'
+                  "
+                  class="quiz-mode-config"
+                  style="margin-top: 12px"
+                >
+                  <div class="quiz-mode-header">
+                    <el-checkbox
+                      :model-value="question.quizMode"
+                      @change="toggleQuizMode(question.id)"
+                      size="small"
+                    >
+                      启用答题模式
+                    </el-checkbox>
+                    <el-tooltip placement="top">
+                      <template #content>
+                        <div style="max-width: 300px">
+                          <p>
+                            答题模式下，用户选择答案后会实时判断对错并给出反馈。
+                          </p>
+                          <p style="color: #f56c6c; margin-top: 8px">
+                            ⚠️ 注意：<br />
+                            1. 启用答题模式必须设置正确答案<br />
+                            2. 答题后会自动显示对错动画<br />
+                            3. 答题模式问卷不支持生成AI分析报告
+                          </p>
+                        </div>
+                      </template>
+                      <el-icon
+                        style="margin-left: 4px; color: #909399; cursor: help"
+                      >
+                        <QuestionFilled />
+                      </el-icon>
+                    </el-tooltip>
+                  </div>
+
+                  <!-- 设置正确答案 -->
+                  <div
+                    v-if="question.quizMode"
+                    class="correct-answer-section"
+                    style="
+                      margin-top: 12px;
+                      padding: 12px;
+                      background: #f0f9ff;
+                      border: 1px solid #bfdbfe;
+                      border-radius: 4px;
+                    "
+                  >
+                    <div
+                      style="
+                        margin-bottom: 8px;
+                        font-weight: 600;
+                        color: #1e40af;
+                      "
+                    >
+                      <el-icon style="margin-right: 4px"><Select /></el-icon>
+                      设置正确答案
+                    </div>
+
+                    <!-- 单选题正确答案 -->
+                    <el-radio-group
+                      v-if="question.type === 'single'"
+                      :model-value="question.correctAnswer"
+                      @change="updateCorrectAnswer(question.id, $event)"
+                      style="display: flex; flex-direction: column; gap: 8px"
+                    >
+                      <el-radio
+                        v-for="(opt, optIdx) in question.options"
+                        :key="opt.id"
+                        :label="opt.id"
+                        style="margin: 0"
+                      >
+                        {{ String.fromCharCode(65 + optIdx) }}. {{ opt.text }}
+                      </el-radio>
+                    </el-radio-group>
+
+                    <!-- 多选题正确答案 -->
+                    <el-checkbox-group
+                      v-else-if="question.type === 'multiple'"
+                      :model-value="question.correctAnswer || []"
+                      @change="updateCorrectAnswer(question.id, $event)"
+                      style="display: flex; flex-direction: column; gap: 8px"
+                    >
+                      <el-checkbox
+                        v-for="(opt, optIdx) in question.options"
+                        :key="opt.id"
+                        :label="opt.id"
+                        style="margin: 0"
+                      >
+                        {{ String.fromCharCode(65 + optIdx) }}. {{ opt.text }}
+                      </el-checkbox>
+                    </el-checkbox-group>
+
+                    <el-alert
+                      v-if="
+                        !question.correctAnswer ||
+                        (Array.isArray(question.correctAnswer) &&
+                          question.correctAnswer.length === 0)
+                      "
+                      title="请设置正确答案"
+                      type="warning"
+                      :closable="false"
+                      style="margin-top: 12px; font-size: 12px"
+                    />
+                  </div>
+                </div>
               </div>
 
               <!-- 文本题设置 -->
@@ -580,6 +689,8 @@ const {
   removeOption,
   updateOptionText,
   toggleQuestionLogic,
+  toggleQuizMode,
+  updateCorrectAnswer,
   addLogicRule,
   removeLogicRule,
   updateLogicRuleOption,

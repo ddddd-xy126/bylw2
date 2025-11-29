@@ -104,6 +104,7 @@
         <el-empty v-else description="暂无分析报告">
           <template #description>
             <p>完成问卷后，在结果页面生成AI分析报告，报告将保存在这里</p>
+            <p class="tip">注：答题模式问卷不支持生成AI分析报告</p>
           </template>
           <el-button type="primary" @click="$router.push('/home')">
             去答题
@@ -332,6 +333,12 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .reports-page {
+  .tip {
+    font-size: 12px;
+    color: #909399;
+    margin-top: 8px;
+  }
+
   .header {
     display: flex;
     justify-content: space-between;

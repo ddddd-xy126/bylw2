@@ -334,6 +334,8 @@ export function useQuestionnaireEditor() {
           { id: "opt2", text: "选项2" },
         ],
         allowOther: false,
+        quizMode: false,
+        correctAnswer: null,
       },
       multiple: {
         type: "multiple",
@@ -347,6 +349,8 @@ export function useQuestionnaireEditor() {
         ],
         allowOther: false,
         randomOrder: false,
+        quizMode: false,
+        correctAnswer: [],
       },
       text: {
         type: "text",
@@ -446,6 +450,31 @@ export function useQuestionnaireEditor() {
       if (question.enableLogic && !question.logicRules) {
         question.logicRules = [];
       }
+    }
+  };
+
+  // 答题模式相关函数
+  const toggleQuizMode = (questionId) => {
+    const question = questions.value.find((q) => q.id === questionId);
+    if (question) {
+      question.quizMode = !question.quizMode;
+      // 初始化正确答案
+      if (question.quizMode) {
+        if (question.type === "single") {
+          question.correctAnswer = null;
+        } else if (question.type === "multiple") {
+          question.correctAnswer = [];
+        }
+      } else {
+        question.correctAnswer = null;
+      }
+    }
+  };
+
+  const updateCorrectAnswer = (questionId, answer) => {
+    const question = questions.value.find((q) => q.id === questionId);
+    if (question) {
+      question.correctAnswer = answer;
     }
   };
 
@@ -733,6 +762,9 @@ export function useQuestionnaireEditor() {
       order: index + 1,
     }));
 
+    // 检查是否有题目启用了答题模式
+    const hasQuizMode = formattedQuestions.some((q) => q.quizMode === true);
+
     const baseData = {
       title: questionnaireForm.title,
       description: questionnaireForm.description,
@@ -741,6 +773,7 @@ export function useQuestionnaireEditor() {
       tags: questionnaireForm.tags,
       questions: formattedQuestions.length,
       questionList: formattedQuestions,
+      isQuizMode: hasQuizMode, // 添加问卷级别的答题模式标记
       settings: {
         ...settingsForm,
       },
@@ -845,6 +878,29 @@ export function useQuestionnaireEditor() {
           return false;
         }
       }
+
+      // 验证答题模式
+      if (question.quizMode) {
+        if (question.type === "single") {
+          if (!question.correctAnswer) {
+            ElMessage.error(
+              `第${i + 1}个问题"${
+                question.title
+              }"启用了答题模式但未设置正确答案`
+            );
+            return false;
+          }
+        } else if (question.type === "multiple") {
+          if (!question.correctAnswer || question.correctAnswer.length === 0) {
+            ElMessage.error(
+              `第${i + 1}个问题"${
+                question.title
+              }"启用了答题模式但未设置正确答案`
+            );
+            return false;
+          }
+        }
+      }
     }
 
     return true;
@@ -905,6 +961,8 @@ export function useQuestionnaireEditor() {
     removeOption,
     updateOptionText,
     toggleQuestionLogic,
+    toggleQuizMode,
+    updateCorrectAnswer,
     addLogicRule,
     removeLogicRule,
     updateLogicRuleOption,

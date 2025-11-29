@@ -27,7 +27,20 @@
               <p>{{ reportData.category || "问卷分类" }}</p>
             </div>
             <div class="header-actions">
+              <!-- 答题模式问卷禁用AI报告 -->
+              <el-tooltip
+                v-if="isQuizModeSurvey"
+                content="答题模式问卷不支持生成AI分析报告"
+                placement="top"
+              >
+                <el-button type="success" :icon="Document" disabled>
+                  生成AI分析报告（不可用）
+                </el-button>
+              </el-tooltip>
+
+              <!-- 普通问卷可生成AI报告 -->
               <el-button
+                v-else
                 type="success"
                 :icon="Document"
                 @click="generateReport"
@@ -36,6 +49,7 @@
               >
                 {{ reportButtonText }}
               </el-button>
+
               <el-button
                 v-if="reportId && reportStatus === 'completed'"
                 type="primary"
@@ -55,6 +69,18 @@
             </div>
           </div>
         </template>
+
+        <!-- 答题模式提示 -->
+        <el-alert
+          v-if="isQuizModeSurvey"
+          title="提示"
+          type="info"
+          :closable="false"
+          show-icon
+          class="quiz-mode-alert"
+        >
+          此问卷为答题模式问卷，不支持AI分析报告功能。答题模式专注于检验答题正确性，无需生成个性化分析报告。
+        </el-alert>
 
         <!-- 报告概览 -->
         <div class="report-overview">
@@ -148,6 +174,7 @@
               v-for="(answer, index) in reportData.answers"
               :key="index"
               class="answer-card"
+              :class="{ 'quiz-mode': isAnswerInQuizMode(answer) }"
             >
               <div class="answer-header">
                 <span class="question-num">Q{{ index + 1 }}</span>
@@ -156,7 +183,21 @@
                 }}</span>
               </div>
               <div class="answer-body">
-                <el-icon><Check /></el-icon>
+                <!-- 答题模式：显示对错图标 -->
+                <template v-if="isAnswerInQuizMode(answer)">
+                  <el-icon
+                    v-if="checkAnswerCorrect(answer)"
+                    class="correct-icon"
+                    color="#67c23a"
+                  >
+                    <CircleCheck />
+                  </el-icon>
+                  <el-icon v-else class="incorrect-icon" color="#f56c6c">
+                    <CircleClose />
+                  </el-icon>
+                </template>
+                <!-- 普通模式：显示对勾 -->
+                <el-icon v-else><Check /></el-icon>
                 <span>{{ formatAnswer(answer) }}</span>
               </div>
             </div>
@@ -266,6 +307,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import {
   Download,
   CircleCheck,
+  CircleClose,
   Timer,
   TrophyBase,
   Document,
@@ -291,6 +333,10 @@ import {
   getReportStatusApi,
   downloadReportApi,
 } from "@/api/report";
+import {
+  isQuizModeSurvey as checkIsQuizMode,
+  checkQuizAnswer,
+} from "@/utils/quiz";
 import apiClient from "@/api/index";
 
 const route = useRoute();
@@ -300,6 +346,7 @@ const userStore = useUserStore();
 // 响应式数据
 const loading = ref(true);
 const reportData = ref({});
+const surveyData = ref({}); // 问卷数据
 const myComments = ref([]); // 改为数组
 const submitting = ref(false);
 const generatingReport = ref(false);
@@ -313,6 +360,11 @@ const ratingForm = ref({
 });
 
 // 计算属性
+const isQuizModeSurvey = computed(() => {
+  // 检查问卷是否为答题模式
+  return checkIsQuizMode(surveyData.value);
+});
+
 const canSubmit = computed(() => {
   return ratingForm.value.content.trim().length > 0;
 });
@@ -369,6 +421,59 @@ const formatAnswer = (answerObj) => {
   return String(answer);
 };
 
+// 检查答案是否在答题模式中
+const isAnswerInQuizMode = (answerObj) => {
+  // 从问卷数据中找到对应的题目
+  if (!surveyData.value || !surveyData.value.questionList) {
+    return false;
+  }
+
+  const question = surveyData.value.questionList.find(
+    (q) => q.title === answerObj.question || q.id === answerObj.questionId
+  );
+
+  return question?.quizMode === true;
+};
+
+// 检查答案是否正确
+const checkAnswerCorrect = (answerObj) => {
+  if (!surveyData.value || !surveyData.value.questionList) {
+    return false;
+  }
+
+  // 找到对应的题目
+  const question = surveyData.value.questionList.find(
+    (q) => q.title === answerObj.question || q.id === answerObj.questionId
+  );
+
+  if (!question || !question.quizMode) {
+    return false;
+  }
+
+  // 获取用户的答案
+  let userAnswer = answerObj.answer;
+
+  // 如果answer是选项文本，需要转换为选项ID
+  // 这里简化处理：如果question有options，尝试匹配
+  if (question.options && typeof userAnswer === "string") {
+    const option = question.options.find((opt) => opt.text === userAnswer);
+    if (option) {
+      userAnswer = option.id;
+    }
+  }
+
+  // 多选题：如果answer是数组，转换每个元素
+  if (Array.isArray(userAnswer) && question.options) {
+    userAnswer = userAnswer.map((ans) => {
+      const option = question.options.find((opt) => opt.text === ans);
+      return option ? option.id : ans;
+    });
+  }
+
+  // 使用工具函数检查答案
+  return checkQuizAnswer(question, userAnswer) === true;
+};
+
 const downloadReport = async () => {
   if (!reportId.value) {
     ElMessage.warning("暂无可下载的报告");
@@ -391,6 +496,12 @@ const viewReportInProfile = () => {
 
 // 生成报告
 const generateReport = async () => {
+  // 检查是否为答题模式问卷
+  if (isQuizModeSurvey.value) {
+    ElMessage.warning("答题模式问卷不支持生成AI分析报告");
+    return;
+  }
+
   if (!userStore.isLoggedIn) {
     ElMessage.warning("请先登录后再生成报告");
     router.push(`/login?redirect=/survey/result/${route.params.id}`);
@@ -574,6 +685,14 @@ const loadReportData = async () => {
     let userId = userStore.profile?.id || userStore.userId;
 
     if (surveyId && userId) {
+      // 获取问卷数据（用于检查是否为答题模式）
+      try {
+        const survey = await apiClient.get(`/surveys/${surveyId}`);
+        surveyData.value = survey;
+      } catch (err) {
+        console.warn("获取问卷数据失败:", err);
+      }
+
       // 从问卷的answers中获取用户的答题记录
       const userAnswer = await getUserAnswerApi(surveyId, userId);
       if (userAnswer) {
@@ -751,6 +870,10 @@ onBeforeUnmount(() => {
     .report-card {
       border-radius: 12px;
 
+      .quiz-mode-alert {
+        margin-bottom: 20px;
+      }
+
       .report-overview {
         margin-bottom: 24px;
 
@@ -886,10 +1009,27 @@ onBeforeUnmount(() => {
                 margin-top: 2px;
               }
 
+              .correct-icon {
+                color: #67c23a !important;
+                font-size: 18px;
+              }
+
+              .incorrect-icon {
+                color: #f56c6c !important;
+                font-size: 18px;
+              }
+
               span {
                 flex: 1;
                 word-break: break-word;
               }
+            }
+          }
+
+          // 答题模式卡片样式
+          .answer-card.quiz-mode {
+            .answer-body {
+              background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
             }
           }
         }
