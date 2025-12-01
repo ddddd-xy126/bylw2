@@ -356,7 +356,7 @@ let refreshTimer = null;
 const loadDashboardData = async () => {
   loading.value = true;
   try {
-    // 从db.json加载数据
+    // 
     const [usersResult, surveysResult] = await Promise.all([
       getAllUsersApi(),
       getSurveysApi({}),
@@ -429,7 +429,7 @@ const calculateGrowthTrends = (users, surveys) => {
 
 const loadAdminActions = async () => {
   try {
-    // 从 db.json 获取全量管理员操作记录
+    //  获取全量管理员操作记录
     const result = await getAdminActivitiesApi(20, null); // null 表示不过滤管理员ID，获取全量
     adminActions.value = result.list;
   } catch (error) {

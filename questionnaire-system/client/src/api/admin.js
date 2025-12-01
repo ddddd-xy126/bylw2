@@ -360,7 +360,7 @@ export const changeAdminPasswordApi = async (passwordData) => {
     throw new Error("当前密码不正确");
   }
 
-  // 更新密码到 db.json
+  // 更新密码 
   await apiClient.put(`/users/${user.id}`, {
     ...user,
     password: passwordData.newPassword,
@@ -382,7 +382,7 @@ export const updateAdminAvatarApi = async (avatarData, userId) => {
     // 先获取数据库中的完整用户信息
     const existingUser = await apiClient.get(`/users/${userId}`);
 
-    // 更新头像到 db.json
+    // 更新头像 
     const updatedUser = await apiClient.put(`/users/${userId}`, {
       ...existingUser,
       avatar: avatarData.avatar,
