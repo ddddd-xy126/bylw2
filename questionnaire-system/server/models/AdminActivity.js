@@ -23,4 +23,11 @@ const AdminActivity = sequelize.define(
   }
 );
 
+// 添加虚拟字段 timestamp，映射到 createdAt
+AdminActivity.prototype.toJSON = function () {
+  const values = Object.assign({}, this.get());
+  values.timestamp = values.createdAt;
+  return values;
+};
+
 module.exports = AdminActivity;

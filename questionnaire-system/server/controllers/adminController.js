@@ -118,8 +118,9 @@ exports.updateUserRole = async (req, res, next) => {
     // 记录管理员活动
     await AdminActivity.create(
       {
-        adminId: req.user.id,
-        adminName: req.user.username,
+        id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        adminId: String(req.user.id),
+        adminName: req.user.nickname || req.user.username,
         title: "更新用户角色",
         description: `将用户 ${user.username} 的角色更新为 ${role}`,
         type: "user_role_update",
@@ -133,6 +134,152 @@ exports.updateUserRole = async (req, res, next) => {
       success: true,
       message: "用户角色更新成功",
       data: user.toSafeObject(),
+    });
+  } catch (error) {
+    await t.rollback();
+    next(error);
+  }
+};
+
+// 封禁用户
+exports.banUser = async (req, res, next) => {
+  const t = await sequelize.transaction();
+
+  try {
+    const { id } = req.params;
+
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      await t.rollback();
+      return res.status(404).json({
+        success: false,
+        message: "用户不存在",
+      });
+    }
+
+    if (user.id === req.user.id) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        message: "不能封禁自己",
+      });
+    }
+
+    await user.update({ banned: true }, { transaction: t });
+
+    // 记录管理员活动
+    await AdminActivity.create(
+      {
+        id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        adminId: String(req.user.id),
+        adminName: req.user.nickname || req.user.username,
+        title: "封禁用户",
+        description: `封禁用户 ${user.username}`,
+        type: "user_ban",
+      },
+      { transaction: t }
+    );
+
+    await t.commit();
+
+    res.json({
+      success: true,
+      message: "用户已封禁",
+      data: user.toSafeObject(),
+    });
+  } catch (error) {
+    await t.rollback();
+    next(error);
+  }
+};
+
+// 解封用户
+exports.unbanUser = async (req, res, next) => {
+  const t = await sequelize.transaction();
+
+  try {
+    const { id } = req.params;
+
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      await t.rollback();
+      return res.status(404).json({
+        success: false,
+        message: "用户不存在",
+      });
+    }
+
+    await user.update({ banned: false }, { transaction: t });
+
+    // 记录管理员活动
+    await AdminActivity.create(
+      {
+        id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        adminId: String(req.user.id),
+        adminName: req.user.nickname || req.user.username,
+        title: "解封用户",
+        description: `解封用户 ${user.username}`,
+        type: "user_unban",
+      },
+      { transaction: t }
+    );
+
+    await t.commit();
+
+    res.json({
+      success: true,
+      message: "用户已解封",
+      data: user.toSafeObject(),
+    });
+  } catch (error) {
+    await t.rollback();
+    next(error);
+  }
+};
+
+// 重置用户密码
+exports.resetPassword = async (req, res, next) => {
+  const t = await sequelize.transaction();
+
+  try {
+    const { id } = req.params;
+
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      await t.rollback();
+      return res.status(404).json({
+        success: false,
+        message: "用户不存在",
+      });
+    }
+
+    // 设置默认密码
+    const newPassword = "admin123";
+    user.password = newPassword;
+    await user.save({ transaction: t });
+
+    // 记录管理员活动
+    await AdminActivity.create(
+      {
+        id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        adminId: String(req.user.id),
+        adminName: req.user.nickname || req.user.username,
+        title: "重置密码",
+        description: `重置用户 ${user.username} 的密码`,
+        type: "user_password_reset",
+      },
+      { transaction: t }
+    );
+
+    await t.commit();
+
+    res.json({
+      success: true,
+      message: "密码重置成功",
+      newPassword: newPassword,
     });
   } catch (error) {
     await t.rollback();
@@ -170,8 +317,9 @@ exports.deleteUser = async (req, res, next) => {
     // 记录管理员活动
     await AdminActivity.create(
       {
-        adminId: req.user.id,
-        adminName: req.user.username,
+        id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        adminId: String(req.user.id),
+        adminName: req.user.nickname || req.user.username,
         title: "删除用户",
         description: `删除用户 ${user.username}`,
         type: "user_delete",
@@ -221,8 +369,9 @@ exports.reviewSurvey = async (req, res, next) => {
     // 记录管理员活动
     await AdminActivity.create(
       {
-        adminId: req.user.id,
-        adminName: req.user.username,
+        id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        adminId: String(req.user.id),
+        adminName: req.user.nickname || req.user.username,
         title: "审核问卷",
         description: `将问卷《${survey.title}》状态更新为 ${status}${
           reason ? `，原因：${reason}` : ""
@@ -279,16 +428,26 @@ exports.createAnnouncement = async (req, res, next) => {
   const t = await sequelize.transaction();
 
   try {
-    const { title, content, type, status, priority } = req.body;
+    const { title, content, type, priority, isActive } = req.body;
 
     const announcement = await Announcement.create(
       {
         title,
         content,
-        type,
-        status,
-        priority,
-        createdBy: req.user.id,
+        type: type || "info",
+        priority: priority
+          ? typeof priority === "string"
+            ? priority === "high"
+              ? 2
+              : priority === "low"
+              ? 0
+              : 1
+            : priority
+          : 1,
+        isActive: isActive !== undefined ? isActive : true,
+        publishedAt: new Date(),
+        status: "published",
+        createdBy: String(req.user.id),
       },
       { transaction: t }
     );
@@ -296,8 +455,9 @@ exports.createAnnouncement = async (req, res, next) => {
     // 记录管理员活动
     await AdminActivity.create(
       {
-        adminId: req.user.id,
-        adminName: req.user.username,
+        id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        adminId: String(req.user.id),
+        adminName: req.user.nickname || req.user.username,
         title: "创建公告",
         description: `创建公告《${title}》`,
         type: "announcement_create",
@@ -320,26 +480,38 @@ exports.createAnnouncement = async (req, res, next) => {
 
 // 更新公告
 exports.updateAnnouncement = async (req, res, next) => {
+  const t = await sequelize.transaction();
+
   try {
     const { id } = req.params;
-    const { title, content, type, status, priority } = req.body;
+    const updates = req.body;
 
     const announcement = await Announcement.findByPk(id);
 
     if (!announcement) {
+      await t.rollback();
       return res.status(404).json({
         success: false,
         message: "公告不存在",
       });
     }
 
-    await announcement.update({
-      title,
-      content,
-      type,
-      status,
-      priority,
-    });
+    await announcement.update(updates, { transaction: t });
+
+    // 记录管理员活动
+    await AdminActivity.create(
+      {
+        id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        adminId: String(req.user.id),
+        adminName: req.user.nickname || req.user.username,
+        title: "更新公告",
+        description: `更新公告《${announcement.title}》`,
+        type: "announcement_update",
+      },
+      { transaction: t }
+    );
+
+    await t.commit();
 
     res.json({
       success: true,
@@ -347,6 +519,7 @@ exports.updateAnnouncement = async (req, res, next) => {
       data: announcement,
     });
   } catch (error) {
+    await t.rollback();
     next(error);
   }
 };

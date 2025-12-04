@@ -13,6 +13,13 @@ router.get("/dashboard/stats", adminController.getDashboardStats);
 // 用户管理
 router.get("/users", validatePagination, adminController.getAllUsers);
 router.put("/users/:id/role", validateId, adminController.updateUserRole);
+router.put("/users/:id/ban", validateId, adminController.banUser);
+router.put("/users/:id/unban", validateId, adminController.unbanUser);
+router.put(
+  "/users/:id/reset-password",
+  validateId,
+  adminController.resetPassword
+);
 router.delete("/users/:id", validateId, adminController.deleteUser);
 
 // 问卷审核

@@ -60,15 +60,13 @@ export const deleteUserApi = async (id) => {
 };
 
 export const banUserApi = async (id) => {
-  // 通过更新用户角色来禁用 - 可以设为 banned 或其他状态
-  await apiClient.put(`/admin/users/${id}/role`, { role: "user" });
-  return { success: true, message: "用户已被禁用" };
+  const response = await apiClient.put(`/admin/users/${id}/ban`);
+  return response;
 };
 
 export const unbanUserApi = async (id) => {
-  // 通过更新用户角色来启用
-  await apiClient.put(`/admin/users/${id}/role`, { role: "user" });
-  return { success: true, message: "用户已被启用" };
+  const response = await apiClient.put(`/admin/users/${id}/unban`);
+  return response;
 };
 
 // 问卷管理
@@ -208,18 +206,8 @@ export const updateUserApi = async (id, data) => {
 };
 
 export const resetPasswordApi = async (id) => {
-  const user = await apiClient.get(`/users/${id}`);
-  await apiClient.put(`/users/${id}`, {
-    ...user,
-    password: "admin123",
-    updatedAt: new Date().toISOString(),
-  });
-
-  return {
-    success: true,
-    message: "密码重置成功",
-    newPassword: "admin123",
-  };
+  const response = await apiClient.put(`/admin/users/${id}/reset-password`);
+  return response;
 };
 
 // 问卷管理扩展
@@ -360,7 +348,7 @@ export const changeAdminPasswordApi = async (passwordData) => {
     throw new Error("当前密码不正确");
   }
 
-  // 更新密码 
+  // 更新密码
   await apiClient.put(`/users/${user.id}`, {
     ...user,
     password: passwordData.newPassword,
@@ -382,7 +370,7 @@ export const updateAdminAvatarApi = async (avatarData, userId) => {
     // 先获取数据库中的完整用户信息
     const existingUser = await apiClient.get(`/users/${userId}`);
 
-    // 更新头像 
+    // 更新头像
     const updatedUser = await apiClient.put(`/users/${userId}`, {
       ...existingUser,
       avatar: avatarData.avatar,
@@ -515,7 +503,10 @@ export const createAnnouncementApi = async (data) => {
     updatedAt: new Date().toISOString(),
   };
 
-  const announcement = await apiClient.post("/announcements", newAnnouncement);
+  const announcement = await apiClient.post(
+    "/admin/announcements",
+    newAnnouncement
+  );
   return announcement;
 };
 
@@ -525,14 +516,14 @@ export const updateAnnouncementApi = async (id, data) => {
     updatedAt: new Date().toISOString(),
   };
 
-  const announcement = await apiClient.patch(
-    `/announcements/${id}`,
+  const announcement = await apiClient.put(
+    `/admin/announcements/${id}`,
     updatedData
   );
   return announcement;
 };
 
 export const deleteAnnouncementApi = async (id) => {
-  await apiClient.delete(`/announcements/${id}`);
+  await apiClient.delete(`/admin/announcements/${id}`);
   return { success: true, message: "公告删除成功" };
 };

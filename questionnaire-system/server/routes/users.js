@@ -10,8 +10,9 @@ router.get("/", userController.getAllUsers);
 // 获取单个用户
 router.get("/:id", userController.getUserById);
 
-// 更新用户（支持 PATCH）
+// 更新用户（支持 PATCH 和 PUT）
 router.patch("/:id", authenticate, userController.updateUser);
+router.put("/:id", authenticate, userController.updateUser);
 
 // 获取用户资料
 router.get("/profile/:id?", authenticate, userController.getProfile);

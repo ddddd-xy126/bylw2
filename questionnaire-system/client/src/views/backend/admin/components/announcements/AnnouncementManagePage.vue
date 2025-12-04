@@ -274,16 +274,6 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="过期时间">
-          <el-date-picker
-            v-model="announcementForm.expiresAt"
-            type="datetime"
-            placeholder="选择过期时间(可选)"
-            format="YYYY-MM-DD HH:mm:ss"
-            value-format="YYYY-MM-DDTHH:mm:ss[Z]"
-          />
-        </el-form-item>
-
         <el-form-item label="是否启用">
           <el-switch v-model="announcementForm.isActive" />
         </el-form-item>
@@ -344,7 +334,6 @@ const announcementForm = reactive({
   type: "info",
   priority: "medium",
   isActive: true,
-  expiresAt: null,
 });
 
 // 表单验证规则
@@ -420,9 +409,7 @@ const handleSizeChange = (val) => {
 };
 
 const isAnnouncementActive = (announcement) => {
-  if (!announcement.isActive) return false;
-  if (!announcement.expiresAt) return true;
-  return new Date(announcement.expiresAt) > new Date();
+  return announcement.isActive;
 };
 
 const getTypeColor = (type) => {
@@ -511,7 +498,6 @@ const showCreateDialog = () => {
     type: "info",
     priority: "medium",
     isActive: true,
-    expiresAt: null,
   });
   dialogVisible.value = true;
 };
@@ -525,7 +511,6 @@ const editAnnouncement = (announcement) => {
     type: announcement.type,
     priority: announcement.priority,
     isActive: announcement.isActive,
-    expiresAt: announcement.expiresAt,
   });
   dialogVisible.value = true;
 };
@@ -543,27 +528,15 @@ const submitAnnouncement = async () => {
         type: announcementForm.type,
         priority: announcementForm.priority,
         isActive: announcementForm.isActive,
-        expiresAt: announcementForm.expiresAt,
-        publishedBy: userStore.profile?.id || "3",
-        publishedByName: userStore.profile?.nickname || "系统管理员",
-        views: 0,
       };
 
       if (isEditing.value) {
         // 编辑公告
-        await updateAnnouncementApi(announcementForm.id, {
-          ...data,
-          id: announcementForm.id,
-          publishedAt:
-            announcements.value.find((a) => a.id === announcementForm.id)
-              ?.publishedAt || new Date().toISOString(),
-        });
+        await updateAnnouncementApi(announcementForm.id, data);
 
         ElMessage.success("公告已更新");
       } else {
         // 创建新公告
-        data.publishedAt = new Date().toISOString();
-
         await createAnnouncementApi(data);
 
         ElMessage.success("公告已发布");

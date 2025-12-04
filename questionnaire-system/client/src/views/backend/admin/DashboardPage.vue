@@ -356,7 +356,7 @@ let refreshTimer = null;
 const loadDashboardData = async () => {
   loading.value = true;
   try {
-    // 
+    //
     const [usersResult, surveysResult] = await Promise.all([
       getAllUsersApi(),
       getSurveysApi({}),
@@ -508,7 +508,16 @@ const formatTrend = (trend) => {
 };
 
 const formatDateTime = (dateString) => {
+  if (!dateString) return "未知时间";
+
   const date = new Date(dateString);
+
+  // 检查日期是否有效
+  if (isNaN(date.getTime())) {
+    console.warn("Invalid date:", dateString);
+    return "无效时间";
+  }
+
   const now = new Date();
   const diff = now - date;
   const minutes = Math.floor(diff / 60000);
