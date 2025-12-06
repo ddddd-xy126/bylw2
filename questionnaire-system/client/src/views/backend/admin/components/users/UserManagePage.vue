@@ -1,6 +1,9 @@
 <template>
   <div class="admin-users">
-    <el-page-header content="用户管理" @back="$router.push('/admin/dashboard')" />
+    <el-page-header
+      content="用户管理"
+      @back="$router.push('/admin/dashboard')"
+    />
 
     <div class="users-content">
       <!-- 筛选和操作栏 -->
@@ -9,7 +12,12 @@
           <el-col :span="12">
             <el-row :gutter="12">
               <el-col :span="8">
-                <el-input v-model="searchKeyword" placeholder="搜索用户名或邮箱" clearable @input="handleSearch">
+                <el-input
+                  v-model="searchKeyword"
+                  placeholder="搜索用户名或邮箱"
+                  clearable
+                  @input="handleSearch"
+                >
                   <template #prefix>
                     <el-icon>
                       <Search />
@@ -19,7 +27,12 @@
               </el-col>
 
               <el-col :span="6">
-                <el-select v-model="roleFilter" placeholder="角色筛选" clearable @change="handleFilter">
+                <el-select
+                  v-model="roleFilter"
+                  placeholder="角色筛选"
+                  clearable
+                  @change="handleFilter"
+                >
                   <el-option label="全部角色" value="" />
                   <el-option label="管理员" value="admin" />
                   <el-option label="普通用户" value="user" />
@@ -27,7 +40,12 @@
               </el-col>
 
               <el-col :span="6">
-                <el-select v-model="statusFilter" placeholder="状态筛选" clearable @change="handleFilter">
+                <el-select
+                  v-model="statusFilter"
+                  placeholder="状态筛选"
+                  clearable
+                  @change="handleFilter"
+                >
                   <el-option label="全部状态" value="" />
                   <el-option label="正常" value="active" />
                   <el-option label="已封禁" value="banned" />
@@ -121,7 +139,12 @@
 
       <!-- 用户列表 -->
       <el-card class="users-table-card">
-        <el-table :data="filteredList" v-loading="loading" stripe @selection-change="handleSelectionChange">
+        <el-table
+          :data="filteredList"
+          v-loading="loading"
+          stripe
+          @selection-change="handleSelectionChange"
+        >
           <el-table-column type="selection" width="55" />
 
           <el-table-column prop="id" label="ID" width="80" />
@@ -146,15 +169,18 @@
           <el-table-column label="地区/职业" width="150">
             <template #default="{ row }">
               <div class="location-info">
-                <div class="city">{{ row.city || '未知' }}</div>
-                <div class="profession">{{ row.profession || '未填写' }}</div>
+                <div class="city">{{ row.city || "未知" }}</div>
+                <div class="profession">{{ row.profession || "未填写" }}</div>
               </div>
             </template>
           </el-table-column>
 
           <el-table-column prop="role" label="角色" width="100">
             <template #default="{ row }">
-              <el-tag :type="row.role === 'admin' ? 'danger' : 'primary'" size="small">
+              <el-tag
+                :type="row.role === 'admin' ? 'danger' : 'primary'"
+                size="small"
+              >
                 {{ row.role === "admin" ? "管理员" : "普通用户" }}
               </el-tag>
             </template>
@@ -200,13 +226,18 @@
           <el-table-column label="操作" width="200" fixed="right">
             <template #default="{ row }">
               <div class="action-buttons">
-                <el-button type="primary" size="small" @click="viewUserDetail(row)">
+                <el-button
+                  type="primary"
+                  size="small"
+                  @click="viewUserDetail(row)"
+                >
                   查看
                 </el-button>
 
                 <el-dropdown @command="(cmd) => handleAction(cmd, row)">
                   <el-button type="other" size="small">
-                    更多 <el-icon>
+                    更多
+                    <el-icon>
                       <ArrowDown />
                     </el-icon>
                   </el-button>
@@ -215,14 +246,19 @@
                       <el-dropdown-item command="edit">
                         编辑信息
                       </el-dropdown-item>
-                      <el-dropdown-item :command="row.role === 'admin' ? 'demote' : 'promote'">
+                      <el-dropdown-item
+                        :command="row.role === 'admin' ? 'demote' : 'promote'"
+                      >
                         {{ row.role === "admin" ? "降为用户" : "提升管理员" }}
                       </el-dropdown-item>
                       <el-dropdown-item command="resetPassword">
                         重置密码
                       </el-dropdown-item>
-                      <el-dropdown-item :command="row.banned ? 'unban' : 'ban'" :class="row.banned ? '' : 'danger-item'"
-                        divided>
+                      <el-dropdown-item
+                        :command="row.banned ? 'unban' : 'ban'"
+                        :class="row.banned ? '' : 'danger-item'"
+                        divided
+                      >
                         {{ row.banned ? "解除封禁" : "封禁用户" }}
                       </el-dropdown-item>
                       <el-dropdown-item command="delete" class="danger-item">
@@ -246,7 +282,10 @@
 
           <el-button type="success" @click="batchUnban"> 批量解封 </el-button>
 
-          <el-popconfirm title="确定要删除选中的用户吗？" @confirm="batchDelete">
+          <el-popconfirm
+            title="确定要删除选中的用户吗？"
+            @confirm="batchDelete"
+          >
             <template #reference>
               <el-button type="danger">批量删除</el-button>
             </template>
@@ -256,17 +295,23 @@
 
       <!-- 分页 -->
       <div class="pagination-wrapper" v-if="filteredTotal > pageSize">
-        <el-pagination v-model:current-page="currentPage" :page-size="pageSize" :total="filteredTotal"
-          layout="prev, pager, next, jumper, total, sizes" :page-sizes="[10, 20, 50, 100]"
-          @current-change="handlePageChange" @size-change="handleSizeChange" />
+        <el-pagination
+          v-model:current-page="currentPage"
+          :page-size="pageSize"
+          :total="filteredTotal"
+          layout="prev, pager, next, jumper, total, sizes"
+          :page-sizes="[10, 20, 50, 100]"
+          @current-change="handlePageChange"
+          @size-change="handleSizeChange"
+        />
       </div>
     </div>
 
     <!-- 用户详情对话框 -->
-    <el-dialog 
-      v-model="detailDialogVisible" 
-      title="用户详情" 
-      width="60%" 
+    <el-dialog
+      v-model="detailDialogVisible"
+      title="用户详情"
+      width="60%"
       :append-to-body="true"
       :destroy-on-close="true"
       :z-index="3000"
@@ -286,7 +331,9 @@
             {{ selectedUser.phone || "未绑定" }}
           </el-descriptions-item>
           <el-descriptions-item label="角色">
-            <el-tag :type="selectedUser.role === 'admin' ? 'danger' : 'primary'">
+            <el-tag
+              :type="selectedUser.role === 'admin' ? 'danger' : 'primary'"
+            >
               {{ selectedUser.role === "admin" ? "管理员" : "普通用户" }}
             </el-tag>
           </el-descriptions-item>
@@ -302,10 +349,16 @@
             {{ selectedUser.profession || "未填写" }}
           </el-descriptions-item>
           <el-descriptions-item label="年龄">
-            {{ selectedUser.age ? selectedUser.age + '岁' : "未填写" }}
+            {{ selectedUser.age ? selectedUser.age + "岁" : "未填写" }}
           </el-descriptions-item>
           <el-descriptions-item label="性别">
-            {{ selectedUser.gender === 'male' ? '男' : selectedUser.gender === 'female' ? '女' : '未填写' }}
+            {{
+              selectedUser.gender === "male"
+                ? "男"
+                : selectedUser.gender === "female"
+                ? "女"
+                : "未填写"
+            }}
           </el-descriptions-item>
           <el-descriptions-item label="积分等级">
             {{ selectedUser.points }}分 / 等级{{ selectedUser.level }}
@@ -361,15 +414,20 @@
     </el-dialog>
 
     <!-- 编辑用户对话框 -->
-    <el-dialog 
-      v-model="editDialogVisible" 
-      title="编辑用户" 
-      width="50%" 
+    <el-dialog
+      v-model="editDialogVisible"
+      title="编辑用户"
+      width="50%"
       :append-to-body="true"
       :destroy-on-close="true"
       :z-index="3000"
     >
-      <el-form ref="editFormRef" :model="editForm" :rules="editFormRules" label-width="100px">
+      <el-form
+        ref="editFormRef"
+        :model="editForm"
+        :rules="editFormRules"
+        label-width="100px"
+      >
         <el-form-item label="用户名" prop="username">
           <el-input v-model="editForm.username" />
         </el-form-item>
@@ -390,7 +448,11 @@
         </el-form-item>
 
         <el-form-item label="状态" prop="banned">
-          <el-switch v-model="editForm.banned" active-text="已封禁" inactive-text="正常" />
+          <el-switch
+            v-model="editForm.banned"
+            active-text="已封禁"
+            inactive-text="正常"
+          />
         </el-form-item>
       </el-form>
 
@@ -406,7 +468,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from "vue";
-import { useListFilter } from '@/hooks/useListFilter'
+import { useListFilter } from "@/hooks/useListFilter";
 import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
@@ -431,7 +493,7 @@ import {
   resetPasswordApi,
   recordAdminActivity,
 } from "@/api/admin";
-import { useUserStore } from '@/store/user';
+import { useUserStore } from "@/store/user";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -477,7 +539,7 @@ const sourceList = computed(() => {
     }
   }
   return list;
-})
+});
 
 // 使用 hook 管理搜索/分页（客户端过滤）
 const {
@@ -490,12 +552,15 @@ const {
   handleFilter,
   handleSort,
   handlePageChange,
-} = useListFilter({ sourceList, searchFields: ['username', 'email', 'nickname'] })
+} = useListFilter({
+  sourceList,
+  searchFields: ["username", "email", "nickname"],
+});
 
 const handleSizeChange = (size) => {
-  pageSize.value = size
-  currentPage.value = 1
-}
+  pageSize.value = size;
+  currentPage.value = 1;
+};
 
 const totalUsers = computed(() => users.value.length);
 const activeUsers = computed(
@@ -511,7 +576,7 @@ const loadUsers = async () => {
   loading.value = true;
   try {
     // 从 json-server 加载用户数据（一次性拉取以便在客户端使用 hook 做筛选/分页）
-    const { getUsersApi } = await import('@/api/admin.js');
+    const { getUsersApi } = await import("@/api/admin.js");
     // 请求更大的 pageSize 以获得完整列表（简单实现，若后端支持可改为专门的列表接口）
     const response = await getUsersApi({ page: 1, pageSize: 10000 });
     users.value = response.list || response;
@@ -603,27 +668,27 @@ const saveUser = async () => {
       // 更新用户
       await updateUserApi(editForm.id, editForm);
       ElMessage.success("用户信息更新成功");
-      
+
       // 记录管理员操作
       await recordAdminActivity({
         adminId: userStore.profile.id,
         adminName: userStore.profile.nickname || userStore.profile.username,
-        title: '编辑用户',
+        title: "编辑用户",
         description: `修改了用户"${userName}"的信息`,
-        type: 'user_edit'
+        type: "user_edit",
       });
     } else {
       // 创建用户
       await createUserApi(editForm);
       ElMessage.success("用户创建成功");
-      
+
       // 记录管理员操作
       await recordAdminActivity({
         adminId: userStore.profile.id,
         adminName: userStore.profile.nickname || userStore.profile.username,
-        title: '创建用户',
+        title: "创建用户",
         description: `创建了新用户"${userName}"`,
-        type: 'user_create'
+        type: "user_create",
       });
     }
 
@@ -675,14 +740,14 @@ const handleAction = async (command, user) => {
         await banUserApi(user.id);
         user.banned = true;
         ElMessage.success("用户已封禁");
-        
+
         // 记录管理员操作
         await recordAdminActivity({
           adminId: userStore.profile.id,
           adminName: userStore.profile.nickname || userStore.profile.username,
-          title: '封禁用户',
+          title: "封禁用户",
           description: `封禁了用户"${user.nickname || user.username}"`,
-          type: 'user_ban'
+          type: "user_ban",
         });
       } catch (error) {
         ElMessage.error("封禁失败：" + error.message);
@@ -694,14 +759,14 @@ const handleAction = async (command, user) => {
         await unbanUserApi(user.id);
         user.banned = false;
         ElMessage.success("用户已解封");
-        
+
         // 记录管理员操作
         await recordAdminActivity({
           adminId: userStore.profile.id,
           adminName: userStore.profile.nickname || userStore.profile.username,
-          title: '解封用户',
+          title: "解封用户",
           description: `解封了用户"${user.nickname || user.username}"`,
-          type: 'user_unban'
+          type: "user_unban",
         });
       } catch (error) {
         ElMessage.error("解封失败：" + error.message);
@@ -720,16 +785,16 @@ const handleAction = async (command, user) => {
         const userName = user.nickname || user.username;
         await deleteUserApi(user.id);
         ElMessage.success("删除成功");
-        
+
         // 记录管理员操作
         await recordAdminActivity({
           adminId: userStore.profile.id,
           adminName: userStore.profile.nickname || userStore.profile.username,
-          title: '删除用户',
+          title: "删除用户",
           description: `删除了用户"${userName}"`,
-          type: 'user_delete'
+          type: "user_delete",
         });
-        
+
         refreshData();
       } catch (error) {
         if (error !== "cancel") {
