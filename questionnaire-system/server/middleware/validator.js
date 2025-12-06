@@ -90,7 +90,7 @@ exports.validatePagination = [
     .withMessage("页码必须是大于0的整数"),
   query("limit")
     .optional()
-    .isInt({ min: 1, max: 100 })
-    .withMessage("每页数量必须在 1-100 之间"),
+    .isInt({ min: 1, max: 5000 })
+    .withMessage("每页数量必须在 1-5000 之间"),
   handleValidationErrors,
 ];

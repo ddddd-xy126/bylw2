@@ -27,18 +27,14 @@
     </div>
 
     <div class="survey-actions">
-      <el-button
-        type="primary"
-        size="small"
-        @click.stop="$emit('start', survey.id)"
-      >
+      <el-button type="primary" size="small" @click.stop="handleStart">
         开始答题
       </el-button>
       <el-button
         :icon="isFavorite ? Star : StarFilled"
         :type="isFavorite ? 'warning' : 'default'"
         size="small"
-        @click.stop="$emit('toggleFavorite', survey.id)"
+        @click.stop.prevent="handleToggleFavorite"
         v-if="showFavorite"
       >
         {{ isFavorite ? "已收藏" : "收藏" }}
@@ -53,23 +49,35 @@ import { User, Star, StarFilled } from "@element-plus/icons-vue";
 defineProps({
   survey: {
     type: Object,
-    required: true
+    required: true,
   },
   categoryName: {
     type: String,
-    default: "未分类"
+    default: "未分类",
   },
   isFavorite: {
     type: Boolean,
-    default: false
+    default: false,
   },
   showFavorite: {
     type: Boolean,
-    default: true
-  }
+    default: true,
+  },
 });
 
-defineEmits(['click', 'start', 'toggleFavorite']);
+const emit = defineEmits(["click", "start", "toggleFavorite"]);
+
+const handleStart = (e) => {
+  e.stopPropagation();
+  e.preventDefault();
+  emit("start", props.survey.id);
+};
+
+const handleToggleFavorite = (e) => {
+  e.stopPropagation();
+  e.preventDefault();
+  emit("toggleFavorite", props.survey.id);
+};
 </script>
 
 <style lang="scss" scoped>
@@ -80,7 +88,7 @@ defineEmits(['click', 'start', 'toggleFavorite']);
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   .survey-header {
@@ -130,6 +138,9 @@ defineEmits(['click', 'start', 'toggleFavorite']);
     font-size: 12px;
   }
 
-  .survey-actions { display: flex; gap: 8px; }
+  .survey-actions {
+    display: flex;
+    gap: 8px;
+  }
 }
 </style>

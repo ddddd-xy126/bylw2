@@ -107,11 +107,6 @@ const Survey = sequelize.define(
       allowNull: true,
       comment: "预估时间(分钟)",
     },
-    thumbnail: {
-      type: DataTypes.STRING(500),
-      allowNull: true,
-      comment: "缩略图",
-    },
     answerCount: {
       type: DataTypes.INTEGER,
       defaultValue: 0,

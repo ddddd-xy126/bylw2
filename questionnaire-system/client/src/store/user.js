@@ -90,8 +90,9 @@ export const useUserStore = defineStore("user", {
       const favoritesArray = Array.isArray(this.favorites)
         ? this.favorites
         : [];
+      // 兼容两种字段名：questionnaireId 和 surveyId
       this.favorites = favoritesArray.filter(
-        (fav) => fav.questionnaireId !== surveyId
+        (fav) => fav.questionnaireId != surveyId && fav.surveyId != surveyId
       );
     },
 

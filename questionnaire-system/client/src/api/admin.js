@@ -94,7 +94,7 @@ export const deleteAdminSurveyApi = async (id) => {
 // Dashboard 相关API
 export const getDashboardStatsApi = async () => {
   const response = await apiClient.get("/admin/dashboard/stats");
-  return response.data || {};
+  return response || {};
 };
 
 export const getRecentSurveysApi = async (limit = 5) => {
@@ -225,7 +225,10 @@ export const getSurveysApi = async (params = {}) => {
     queryParams.push(`q=${params.search}`);
   }
   if (params.page && params.pageSize) {
-    queryParams.push(`_page=${params.page}&_limit=${params.pageSize}`);
+    queryParams.push(`page=${params.page}&limit=${params.pageSize}`);
+  } else {
+    // 后台管理需要获取所有问卷,设置较大的limit
+    queryParams.push(`limit=5000`);
   }
 
   if (queryParams.length > 0) {
@@ -238,7 +241,7 @@ export const getSurveysApi = async (params = {}) => {
     list: surveys,
     total: surveys.length,
     page: params.page || 1,
-    pageSize: params.pageSize || 10,
+    pageSize: params.pageSize || surveys.length,
   };
 };
 

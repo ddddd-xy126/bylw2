@@ -2,7 +2,8 @@ import apiClient from "./index.js";
 
 // 问卷列表和详情
 export async function listSurveys() {
-  const surveys = await apiClient.get("/surveys");
+  // 设置较大的limit以获取所有问卷,前端自行分页
+  const surveys = await apiClient.get("/surveys?limit=5000");
   return surveys;
 }
 

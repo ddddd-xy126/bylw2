@@ -10,8 +10,6 @@ const PointHistory = require("./PointHistory");
 const AdminActivity = require("./AdminActivity");
 const Badge = require("./Badge");
 const RecycleBin = require("./RecycleBin");
-const UserBadge = require("./UserBadge");
-const ActivityData = require("./ActivityData");
 const Report = require("./Report");
 
 // 定义关联关系
@@ -56,26 +54,6 @@ PointHistory.belongsTo(User, { foreignKey: "userId", as: "user" });
 User.hasMany(AdminActivity, { foreignKey: "adminId", as: "activities" });
 AdminActivity.belongsTo(User, { foreignKey: "adminId", as: "admin" });
 
-// User - Badge (多对多 - 通过 UserBadge)
-User.belongsToMany(Badge, {
-  through: UserBadge,
-  foreignKey: "userId",
-  as: "badges",
-});
-Badge.belongsToMany(User, {
-  through: UserBadge,
-  foreignKey: "badgeId",
-  as: "users",
-});
-
-// User - UserBadge (一对多)
-User.hasMany(UserBadge, { foreignKey: "userId", as: "userBadges" });
-UserBadge.belongsTo(User, { foreignKey: "userId", as: "user" });
-
-// Badge - UserBadge (一对多)
-Badge.hasMany(UserBadge, { foreignKey: "badgeId", as: "userBadges" });
-UserBadge.belongsTo(Badge, { foreignKey: "badgeId", as: "badge" });
-
 // User - Report (一对多)
 User.hasMany(Report, { foreignKey: "userId", as: "reports" });
 Report.belongsTo(User, { foreignKey: "userId", as: "user" });
@@ -97,7 +75,5 @@ module.exports = {
   AdminActivity,
   Badge,
   RecycleBin,
-  UserBadge,
-  ActivityData,
   Report,
 };

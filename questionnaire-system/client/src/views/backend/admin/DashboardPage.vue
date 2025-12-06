@@ -136,18 +136,16 @@
             <div class="stats-item">
               <div class="stats-icon">
                 <el-icon size="40" color="#F56C6C">
-                  <TrendCharts />
+                  <Clock />
                 </el-icon>
               </div>
               <div class="stats-content">
                 <div class="stats-number">
-                  {{ (dashboardData.completionRate || 0).toFixed(1) }}%
+                  {{ dashboardData.pendingSurveys || 0 }}
                 </div>
-                <div class="stats-label">完成率</div>
+                <div class="stats-label">待审核问卷</div>
                 <div class="stats-trend">
-                  <span :class="getTrendClass(dashboardData.completionTrend)">
-                    {{ formatTrend(dashboardData.completionTrend) }}
-                  </span>
+                  <span class="trend-info"> 需要处理 </span>
                 </div>
               </div>
             </div>
@@ -320,6 +318,7 @@ import {
   getAdminActivitiesApi,
   getAllUsersApi,
   getSurveysApi,
+  getDashboardStatsApi,
 } from "@/api/admin";
 
 const router = useRouter();
@@ -331,6 +330,8 @@ const dashboardData = reactive({
   totalSurveys: 0,
   totalUsers: 0,
   totalAnswers: 0,
+  pendingSurveys: 0,
+  totalAnnouncements: 0,
   completionRate: 0,
   surveyTrend: 0,
   userTrend: 0,
@@ -356,7 +357,27 @@ let refreshTimer = null;
 const loadDashboardData = async () => {
   loading.value = true;
   try {
-    //
+    // 使用后端统计API获取总体数据
+    const statsData = await getDashboardStatsApi();
+
+    console.log("Dashboard stats data:", statsData);
+
+    // 更新总体统计
+    dashboardData.totalUsers = statsData.total?.users || 0;
+    dashboardData.totalSurveys = statsData.total?.surveys || 0;
+    dashboardData.totalAnswers = statsData.total?.answers || 0;
+    dashboardData.pendingSurveys = statsData.total?.pendingSurveys || 0;
+    dashboardData.totalAnnouncements = statsData.total?.comments || 0; // 暂时用评论数，后续可以添加公告统计
+
+    // 计算完成率(已发布的问卷/总问卷)
+    dashboardData.completionRate =
+      dashboardData.totalSurveys > 0
+        ? ((dashboardData.totalSurveys - dashboardData.pendingSurveys) /
+            dashboardData.totalSurveys) *
+          100
+        : 0;
+
+    // 获取用户和问卷列表用于计算增长趋势
     const [usersResult, surveysResult] = await Promise.all([
       getAllUsersApi(),
       getSurveysApi({}),
@@ -364,21 +385,6 @@ const loadDashboardData = async () => {
 
     const users = usersResult.list;
     const surveys = surveysResult.list;
-
-    // 统计数据
-    dashboardData.totalUsers = users.length;
-    dashboardData.totalSurveys = surveys.length;
-    dashboardData.totalAnswers = surveys.reduce(
-      (sum, s) => sum + (s.participants || 0),
-      0
-    );
-
-    // 计算完成率(已发布的问卷/总问卷)
-    const publishedCount = surveys.filter(
-      (s) => s.status === "published"
-    ).length;
-    dashboardData.completionRate =
-      surveys.length > 0 ? (publishedCount / surveys.length) * 100 : 0;
 
     // 计算7天增长趋势
     calculateGrowthTrends(users, surveys);
@@ -629,6 +635,10 @@ onUnmounted(() => {
   }
 
   .trend-stable {
+    color: #909399;
+  }
+
+  .trend-info {
     color: #909399;
   }
 

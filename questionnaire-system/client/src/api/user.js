@@ -90,23 +90,35 @@ export const profileApi = async (userId) => {
 
 // 收藏相关
 export const getFavoritesApi = async (userId) => {
-  const favorites = await apiClient.get(`/favorites?userId=${userId}`);
-  const surveys = await apiClient.get("/surveys");
+  const response = await apiClient.get(`/favorites?userId=${userId}`);
+  
+  // 处理后端返回的数据结构
+  let favorites = response;
+  if (response && typeof response === 'object' && response.success) {
+    favorites = response.data || [];
+  }
+  
+  if (!Array.isArray(favorites)) {
+    favorites = [];
+  }
 
+  // 将后端返回的数据格式化，确保包含questionnaireId字段以兼容前端代码
   const favoriteSurveys = favorites
-    .filter((fav) => fav.surveyId) // 过滤掉surveyId为null的记录
+    .filter((fav) => fav.surveyId || (fav.survey && fav.survey.id))
     .map((fav) => {
-      const survey = surveys.find((s) => s.id == fav.surveyId);
-      if (!survey) return null;
+      // 后端返回的数据已经包含了survey对象（通过include关联查询）
+      const surveyData = fav.survey || {};
+      const surveyId = fav.surveyId || surveyData.id;
+      
       return {
         id: fav.id, // 收藏记录的ID
-        surveyId: survey.id,
-        questionnaireId: survey.id,
+        surveyId: surveyId,
+        questionnaireId: surveyId, // 添加questionnaireId以兼容前端代码
         createdAt: fav.createdAt, // 收藏时间
-        ...survey,
+        ...surveyData, // 包含问卷的详细信息
       };
     })
-    .filter((item) => item !== null); // 过滤掉找不到的问卷
+    .filter((item) => item.surveyId); // 过滤掉没有surveyId的记录
 
   return favoriteSurveys;
 };
@@ -118,32 +130,8 @@ export const addFavoriteApi = async (userId, surveyId) => {
     createdAt: new Date().toISOString(),
   };
 
+  // 调用收藏接口 - 后端会自动处理收藏数增加和积分奖励
   const favorite = await apiClient.post("/favorites", newFavorite);
-
-  // 更新问卷的收藏数
-  try {
-    const survey = await apiClient.get(`/surveys/${surveyId}`);
-    if (survey) {
-      await apiClient.patch(`/surveys/${surveyId}`, {
-        favoriteCount: (survey.favoriteCount || 0) + 1,
-      });
-    }
-  } catch (error) {
-    console.error("更新收藏数失败:", error);
-  }
-
-  // 增加用户积分
-  try {
-    const user = await apiClient.get(`/users/${userId}`);
-    if (user) {
-      await apiClient.patch(`/users/${userId}`, {
-        points: (user.points || 0) + 3, // 收藏问卷 +3 积分
-      });
-    }
-  } catch (error) {
-    console.error("增加收藏积分失败:", error);
-  }
-
   return { success: true, message: "收藏成功", pointsEarned: 3 };
 };
 

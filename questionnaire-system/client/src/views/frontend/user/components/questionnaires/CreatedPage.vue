@@ -573,7 +573,6 @@ const handleMoreAction = async ({ action, data }) => {
           estimatedTime: surveyData.duration,
           difficulty: surveyData.difficulty,
           tags: surveyData.tags || [],
-          thumbnail: surveyData.thumbnail,
           questionList:
             surveyData.questionList?.map((question) => ({
               ...question,

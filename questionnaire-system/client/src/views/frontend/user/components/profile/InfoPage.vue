@@ -367,7 +367,9 @@ const loadUserStats = async () => {
     userStats.totalCollections = userStore.favorites?.length || 0;
 
     // 使用后端API获取该用户创建的问卷数量
-    const userSurveys = await apiClient.get(`/surveys?userId=${profile.id}`);
+    const userSurveys = await apiClient.get(
+      `/surveys?userId=${profile.id}&limit=5000`
+    );
     userStats.totalQuestionnaires = userSurveys?.length || 0;
 
     // 使用后端API获取该用户的答题数量(参与问卷)

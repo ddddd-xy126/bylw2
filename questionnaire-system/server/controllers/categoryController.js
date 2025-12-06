@@ -68,14 +68,12 @@ exports.getCategoryBySlug = async (req, res, next) => {
 // 创建分类（管理员）
 exports.createCategory = async (req, res, next) => {
   try {
-    const { name, slug, description, color, icon } = req.body;
+    const { name, slug, description } = req.body;
 
     const category = await Category.create({
       name,
       slug,
       description,
-      color,
-      icon,
     });
 
     res.status(201).json({
@@ -92,7 +90,7 @@ exports.createCategory = async (req, res, next) => {
 exports.updateCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, slug, description, color, icon } = req.body;
+    const { name, slug, description } = req.body;
 
     const category = await Category.findByPk(id);
 
@@ -107,8 +105,6 @@ exports.updateCategory = async (req, res, next) => {
       name,
       slug,
       description,
-      color,
-      icon,
     });
 
     res.json({

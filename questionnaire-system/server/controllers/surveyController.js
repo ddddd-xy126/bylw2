@@ -18,6 +18,7 @@ exports.getSurveys = async (req, res, next) => {
       categoryId,
       isTemplate,
       authorId,
+      userId, // 兼容前端使用 userId 参数
       search,
       sortBy = "createdAt",
       order = "DESC",
@@ -31,7 +32,9 @@ exports.getSurveys = async (req, res, next) => {
     if (status) where.status = status;
     if (category) where.category = category;
     if (categoryId) where.categoryId = categoryId;
+    // 支持 authorId 和 userId 两种参数名
     if (authorId) where.userId = authorId;
+    if (userId) where.userId = userId;
     if (isTemplate !== undefined) where.isTemplate = isTemplate === "true";
     if (search) {
       where[Op.or] = [
@@ -42,6 +45,7 @@ exports.getSurveys = async (req, res, next) => {
 
     console.log("[getSurveys] 查询条件:", where);
     console.log("[getSurveys] isTemplate参数:", isTemplate);
+    console.log("[getSurveys] limit参数:", limit, "类型:", typeof limit);
 
     const surveys = await Survey.findAndCountAll({
       where,
@@ -54,13 +58,20 @@ exports.getSurveys = async (req, res, next) => {
         {
           model: Category,
           as: "categoryInfo",
-          attributes: ["id", "name", "slug", "color"],
+          attributes: ["id", "name", "slug"],
         },
       ],
       limit: parseInt(limit),
       offset: (page - 1) * limit,
       order: [[sortBy, order.toUpperCase()]],
     });
+
+    console.log(
+      "[getSurveys] 查询结果数量:",
+      surveys.rows.length,
+      "总数:",
+      surveys.count
+    );
 
     // 前端期望直接返回数组,axios拦截器会解包data字段
     res.json({
@@ -87,7 +98,7 @@ exports.getSurveyById = async (req, res, next) => {
         {
           model: Category,
           as: "categoryInfo",
-          attributes: ["id", "name", "slug", "color"],
+          attributes: ["id", "name", "slug"],
         },
       ],
     });

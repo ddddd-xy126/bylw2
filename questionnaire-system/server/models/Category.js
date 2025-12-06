@@ -18,8 +18,6 @@ const Category = sequelize.define(
       allowNull: false,
     },
     description: DataTypes.TEXT,
-    color: DataTypes.STRING(50),
-    icon: DataTypes.STRING(100),
     displayOrder: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
