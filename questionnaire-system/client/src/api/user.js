@@ -91,13 +91,13 @@ export const profileApi = async (userId) => {
 // 收藏相关
 export const getFavoritesApi = async (userId) => {
   const response = await apiClient.get(`/favorites?userId=${userId}`);
-  
+
   // 处理后端返回的数据结构
   let favorites = response;
-  if (response && typeof response === 'object' && response.success) {
+  if (response && typeof response === "object" && response.success) {
     favorites = response.data || [];
   }
-  
+
   if (!Array.isArray(favorites)) {
     favorites = [];
   }
@@ -109,7 +109,7 @@ export const getFavoritesApi = async (userId) => {
       // 后端返回的数据已经包含了survey对象（通过include关联查询）
       const surveyData = fav.survey || {};
       const surveyId = fav.surveyId || surveyData.id;
-      
+
       return {
         id: fav.id, // 收藏记录的ID
         surveyId: surveyId,
