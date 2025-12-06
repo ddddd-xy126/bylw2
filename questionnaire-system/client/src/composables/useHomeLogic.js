@@ -60,16 +60,21 @@ export function useHomeLogic() {
         // 智能推荐：根据用户标签进行相关性推荐
         const userTags = userStore.profile?.tags || [];
         console.log("[推荐系统] 用户标签:", userTags);
+        console.log("[推荐系统] 用户完整资料:", userStore.profile);
 
         if (userTags && userTags.length > 0) {
           // 有标签时：计算相关性得分
           filtered.forEach((survey) => {
             const surveyTags = survey.tags || [];
+            console.log(`[推荐系统] 问卷"${survey.title}"的标签:`, surveyTags, "类型:", typeof surveyTags, "是否数组:", Array.isArray(surveyTags));
+            
             // 计算标签匹配度
             const matchCount = surveyTags.filter((tag) =>
               userTags.includes(tag)
             ).length;
             const tagScore = matchCount / Math.max(userTags.length, 1);
+            
+            console.log(`[推荐系统] 问卷"${survey.title}" - 匹配标签数:${matchCount}, 标签得分:${tagScore}`);
 
             // 综合评分：标签匹配(50%) + 评分(30%) + 参与人数(20%)
             survey.recommendScore =

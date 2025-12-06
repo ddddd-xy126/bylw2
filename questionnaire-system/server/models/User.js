@@ -74,11 +74,6 @@ const User = sequelize.define(
       allowNull: true,
       comment: "最后登录时间",
     },
-    lastLoginIp: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      comment: "最后登录IP",
-    },
     tags: {
       type: DataTypes.JSON,
       allowNull: true,

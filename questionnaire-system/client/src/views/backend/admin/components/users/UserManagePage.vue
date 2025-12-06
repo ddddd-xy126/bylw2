@@ -319,9 +319,6 @@
           <el-descriptions-item label="最后登录">
             {{ formatDateTime(selectedUser.lastLoginAt) || "从未登录" }}
           </el-descriptions-item>
-          <el-descriptions-item label="登录IP">
-            {{ selectedUser.lastLoginIp || "未知" }}
-          </el-descriptions-item>
         </el-descriptions>
 
         <div class="activity-stats" v-if="selectedUser.stats">

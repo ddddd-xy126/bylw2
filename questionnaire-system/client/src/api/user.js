@@ -60,7 +60,6 @@ export const registerApi = async (data) => {
     joinedDate: new Date().toISOString().split("T")[0],
     createdAt: new Date().toISOString(),
     lastLoginAt: new Date().toISOString(),
-    lastLoginIp: "",
     password: data.password,
     completedSurveys: [], // 已完成的问卷ID数组
     tags: [], // 用户兴趣标签
