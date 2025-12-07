@@ -16,7 +16,6 @@ const Answer = sequelize.define(
       type: DataTypes.STRING(50),
       allowNull: false,
     },
-    surveyTitle: DataTypes.STRING(200),
     answers: {
       type: DataTypes.JSON,
       allowNull: false,

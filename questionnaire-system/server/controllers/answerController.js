@@ -34,7 +34,6 @@ exports.submitAnswer = async (req, res, next) => {
         id: Date.now().toString(),
         userId: req.user.id,
         surveyId,
-        surveyTitle: survey.title,
         answers,
         score,
         result,

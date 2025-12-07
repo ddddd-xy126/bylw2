@@ -131,10 +131,7 @@
             </el-button>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item
-                  :command="{ action: 'retake', data: answer }"
-                  :disabled="!answer.survey"
-                >
+                <el-dropdown-item :command="{ action: 'retake', data: answer }">
                   重新答题
                 </el-dropdown-item>
                 <el-dropdown-item

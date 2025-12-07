@@ -16,16 +16,10 @@ const Comment = sequelize.define(
       type: DataTypes.STRING(50),
       allowNull: false,
     },
-    username: DataTypes.STRING(50),
-    avatar: DataTypes.STRING(255),
     rating: DataTypes.DECIMAL(2, 1),
     content: {
       type: DataTypes.TEXT,
       allowNull: false,
-    },
-    isDeleted: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
     },
   },
   {

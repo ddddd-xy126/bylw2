@@ -22,7 +22,7 @@ exports.getDashboardStats = async (req, res, next) => {
       User.count(),
       Survey.count(),
       Answer.count(),
-      Comment.count({ where: { isDeleted: false } }),
+      Comment.count(),
       Survey.count({ where: { status: "pending" } }),
     ]);
 

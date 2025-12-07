@@ -9,7 +9,6 @@ exports.getComments = async (req, res, next) => {
     const comments = await Comment.findAndCountAll({
       where: {
         surveyId,
-        isDeleted: false,
       },
       include: [
         {
@@ -61,8 +60,6 @@ exports.createComment = async (req, res, next) => {
         id: `cmt_${Date.now()}`,
         userId: req.user.id,
         surveyId,
-        username: req.user.nickname || req.user.username,
-        avatar: req.user.avatar,
         content,
         rating,
       },
@@ -147,7 +144,7 @@ exports.updateComment = async (req, res, next) => {
   }
 };
 
-// 删除评论（软删除）
+// 删除评论（真删除）
 exports.deleteComment = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -169,7 +166,7 @@ exports.deleteComment = async (req, res, next) => {
       });
     }
 
-    await comment.update({ isDeleted: true });
+    await comment.destroy();
 
     res.json({
       success: true,
