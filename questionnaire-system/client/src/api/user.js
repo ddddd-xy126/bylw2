@@ -113,8 +113,8 @@ export const getFavoritesApi = async (userId) => {
         id: fav.id, // 收藏记录的ID
         surveyId: surveyId,
         questionnaireId: surveyId, // 添加questionnaireId以兼容前端代码
-        createdAt: fav.createdAt, // 收藏时间
         ...surveyData, // 包含问卷的详细信息
+        createdAt: fav.createdAt, // 收藏时间（放在最后以覆盖surveyData中的createdAt）
       };
     })
     .filter((item) => item.surveyId); // 过滤掉没有surveyId的记录
@@ -139,19 +139,8 @@ export const removeFavoriteApi = async (userId, surveyId) => {
     `/favorites?userId=${userId}&surveyId=${surveyId}`
   );
   if (favorites.length > 0) {
+    // 后端会自动处理收藏数的减少，前端不需要再更新
     await apiClient.delete(`/favorites/${favorites[0].id}`);
-
-    // 更新问卷的收藏数
-    try {
-      const survey = await apiClient.get(`/surveys/${surveyId}`);
-      if (survey && survey.favoriteCount > 0) {
-        await apiClient.patch(`/surveys/${surveyId}`, {
-          favoriteCount: survey.favoriteCount - 1,
-        });
-      }
-    } catch (error) {
-      console.error("更新收藏数失败:", error);
-    }
   }
   return { success: true, message: "取消收藏成功" };
 };
