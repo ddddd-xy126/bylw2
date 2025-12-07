@@ -14,9 +14,7 @@
           <el-icon>
             <User />
           </el-icon>
-          <span>{{
-            formatParticipants(survey.participants || survey.participantCount)
-          }}</span>
+          <span>{{ formatParticipants(survey.participantCount) }}</span>
         </div>
         <div class="meta-item">
           <el-icon>
@@ -103,8 +101,7 @@ defineEmits(["click", "start", "toggle-favorite"]);
 
 // 判断是否显示热门徽章
 const showHotBadge = computed(() => {
-  const participants =
-    props.survey.participants || props.survey.participantCount || 0;
+  const participants = props.survey.participantCount || 0;
   return participants > props.hotThreshold;
 });
 

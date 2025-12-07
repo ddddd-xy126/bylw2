@@ -47,7 +47,6 @@ export const createQuestionnaire = async (data) => {
     author: data.authorName || data.author || "匿名用户",
     status: data.status || "draft",
     responseCount: 0,
-    participants: 0,
     participantCount: 0,
     rating: 0,
     thumbnail: data.thumbnail || "/images/default.jpg",

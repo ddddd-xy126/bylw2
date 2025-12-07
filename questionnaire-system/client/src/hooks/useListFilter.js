@@ -116,11 +116,7 @@ export function useListFilter(options = {}) {
             survey.recommendScore =
               tagScore * 0.5 +
               ((survey.rating || 0) / 5) * 0.3 +
-              Math.min(
-                (survey.participantCount || survey.participants || 0) / 1000,
-                1
-              ) *
-                0.2;
+              Math.min((survey.participantCount || 0) / 1000, 1) * 0.2;
 
             // 存储匹配信息用于排序
             survey.matchCount = matchCount;

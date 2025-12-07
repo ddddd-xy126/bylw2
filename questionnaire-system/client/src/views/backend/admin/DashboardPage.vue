@@ -452,8 +452,8 @@ const loadHotSurveys = async () => {
     hotSurveys.value = surveys
       .filter((s) => s.status === "published")
       .sort((a, b) => {
-        const scoreA = (a.participants || 0) * 0.6 + (a.rating || 0) * 0.4;
-        const scoreB = (b.participants || 0) * 0.6 + (b.rating || 0) * 0.4;
+        const scoreA = (a.participantCount || 0) * 0.6 + (a.rating || 0) * 0.4;
+        const scoreB = (b.participantCount || 0) * 0.6 + (b.rating || 0) * 0.4;
         return scoreB - scoreA;
       })
       .slice(0, 10);

@@ -233,7 +233,7 @@
 
           <el-table-column prop="participants" label="参与人数" width="100">
             <template #default="{ row }">
-              {{ row.participants || row.participantCount || 0 }}
+              {{ row.participantCount || 0 }}
             </template>
           </el-table-column>
 

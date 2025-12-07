@@ -803,14 +803,8 @@ export function useQuestionnaireEditor() {
           originalQuestionnaireData.value.authorName ||
           userName,
         createdAt: originalQuestionnaireData.value.createdAt,
-        participants:
-          originalQuestionnaireData.value.participants ||
-          originalQuestionnaireData.value.participantCount ||
-          0,
-        participantCount:
-          originalQuestionnaireData.value.participantCount ||
-          originalQuestionnaireData.value.participants ||
-          0,
+        participants: originalQuestionnaireData.value.participantCount || 0,
+        participantCount: originalQuestionnaireData.value.participantCount || 0,
       };
     }
 
@@ -822,7 +816,6 @@ export function useQuestionnaireEditor() {
       authorId: userId,
       authorName: userName,
       author: userName,
-      participants: 0,
       participantCount: 0,
     };
   };

@@ -89,11 +89,7 @@ export function useHomeLogic() {
             survey.recommendScore =
               tagScore * 0.5 +
               ((survey.rating || 0) / 5) * 0.3 +
-              Math.min(
-                (survey.participantCount || survey.participants || 0) / 1000,
-                1
-              ) *
-                0.2;
+              Math.min((survey.participantCount || 0) / 1000, 1) * 0.2;
           });
 
           // 按推荐得分排序（得分高的在前）
@@ -153,11 +149,7 @@ export function useHomeLogic() {
     const surveysArray = Array.isArray(surveys.value) ? surveys.value : [];
     return surveysArray
       .filter((survey) => survey.status === "published")
-      .reduce(
-        (sum, survey) =>
-          sum + (survey.participantCount || survey.participants || 0),
-        0
-      );
+      .reduce((sum, survey) => sum + (survey.participantCount || 0), 0);
   });
 
   // 用户收藏数量

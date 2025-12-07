@@ -75,7 +75,7 @@ export const createAdminSurveyApi = async (data) => {
     ...data,
     author: "管理员",
     authorId: 3,
-    participants: 0,
+    participantCount: 0,
     rating: 0,
     status: "draft",
     createdAt: new Date().toISOString(),
@@ -279,7 +279,7 @@ export const copySurveyApi = async (id) => {
     id: undefined, // 让json-server自动生成ID
     title: `${originalSurvey.title} - 副本`,
     status: "draft",
-    participants: 0,
+    participantCount: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };

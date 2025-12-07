@@ -66,23 +66,15 @@ const Survey = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    participants: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
-      comment: "参与者数量",
-    },
     participantCount: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
-    },
-    responses: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
-      comment: "回复数量",
+      comment: "参与人数",
     },
     responseCount: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
+      comment: "回复数量",
     },
     averageRating: {
       type: DataTypes.DECIMAL(3, 2),
