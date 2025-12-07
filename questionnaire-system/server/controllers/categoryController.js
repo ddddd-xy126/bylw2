@@ -4,7 +4,7 @@ const { Category } = require("../models");
 exports.getCategories = async (req, res, next) => {
   try {
     const categories = await Category.findAll({
-      order: [["displayOrder", "ASC"]],
+      order: [["name", "ASC"]],
     });
 
     // 前端期望直接数组,axios拦截器会解包data

@@ -24,7 +24,7 @@ const PointHistory = sequelize.define(
   },
   {
     tableName: "point_histories",
-    updatedAt: false,
+    timestamps: false,
   }
 );
 

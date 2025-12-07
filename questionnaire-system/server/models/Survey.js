@@ -84,14 +84,10 @@ const Survey = sequelize.define(
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
-    rating: {
-      type: DataTypes.DECIMAL(3, 2),
-      defaultValue: 0,
-      comment: "评分",
-    },
     averageRating: {
       type: DataTypes.DECIMAL(3, 2),
       defaultValue: 0,
+      comment: "平均评分",
     },
     ratingCount: {
       type: DataTypes.INTEGER,

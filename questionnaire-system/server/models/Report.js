@@ -19,11 +19,6 @@ const Report = sequelize.define(
       allowNull: true,
       comment: "问卷ID",
     },
-    answerId: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      comment: "答案ID",
-    },
     title: {
       type: DataTypes.STRING,
       allowNull: false,

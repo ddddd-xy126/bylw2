@@ -17,15 +17,10 @@ const Category = sequelize.define(
       unique: true,
       allowNull: false,
     },
-    description: DataTypes.TEXT,
-    displayOrder: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
-      allowNull: false,
-    },
   },
   {
     tableName: "categories",
+    timestamps: false,
   }
 );
 
