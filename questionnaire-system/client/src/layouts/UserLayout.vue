@@ -2,7 +2,7 @@
   <div class="user-layout">
     <header class="header">
       <div class="header-left">
-        <router-link to="/home" class="logo">智能问卷分析系统</router-link>
+        <router-link to="/home" class="logo">问卷系统</router-link>
       </div>
       <div class="header-center">
         <nav class="nav-center">
@@ -15,9 +15,18 @@
       </div>
       <div class="header-right">
         <!-- 公告通知图标 -->
-        <el-badge v-if="isAuthed" :value="unreadAnnouncementCount" :hidden="!unreadAnnouncementCount"
-          class="notification-badge">
-          <el-button circle @click="showAnnouncements" type="info" size="default">
+        <el-badge
+          v-if="isAuthed"
+          :value="unreadAnnouncementCount"
+          :hidden="!unreadAnnouncementCount"
+          class="notification-badge"
+        >
+          <el-button
+            circle
+            @click="showAnnouncements"
+            type="info"
+            size="default"
+          >
             <el-icon>
               <Bell />
             </el-icon>
@@ -26,7 +35,11 @@
 
         <router-link v-if="!isAuthed" to="/login">登录</router-link>
 
-        <el-dropdown v-if="isAuthed" @command="handleCommand" class="user-dropdown">
+        <el-dropdown
+          v-if="isAuthed"
+          @command="handleCommand"
+          class="user-dropdown"
+        >
           <div class="user-info">
             <el-avatar :size="36" :src="userAvatar" class="user-avatar">
               <el-icon>
@@ -50,7 +63,11 @@
           </template>
         </el-dropdown>
 
-        <router-link v-if="isAuthed && profile?.role === 'admin'" to="/admin/dashboard">后台管理</router-link>
+        <router-link
+          v-if="isAuthed && profile?.role === 'admin'"
+          to="/admin/dashboard"
+          >后台管理</router-link
+        >
       </div>
     </header>
     <main class="main">
@@ -65,10 +82,10 @@ import { ref, computed, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/store/user";
 import { useDataStore } from "@/store/data";
-import {useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import { User, ArrowDown, SwitchButton, Bell } from "@element-plus/icons-vue";
 import { ElNotification, ElMessageBox } from "element-plus";
-import { getAnnouncementsApi } from '@/api/admin';
+import { getAnnouncementsApi } from "@/api/admin";
 
 const userStore = useUserStore();
 const dataStore = useDataStore();
@@ -92,9 +109,11 @@ const userAvatar = computed(() => {
 
 // 生成基于用户名的头像URL（使用在线头像服务）
 const generateAvatarUrl = (name) => {
-  if (!name) return '';
+  if (!name) return "";
   // 使用DiceBear API生成头像，或者可以使用其他头像服务
-  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=667eea,764ba2&fontSize=40`;
+  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(
+    name
+  )}&backgroundColor=667eea,764ba2&fontSize=40`;
 };
 
 // 加载公告列表
@@ -104,20 +123,23 @@ const loadAnnouncements = async () => {
   try {
     const data = await getAnnouncementsApi({
       isActive: true,
-      sort: 'publishedAt',
-      order: 'desc'
+      sort: "publishedAt",
+      order: "desc",
     });
     announcements.value = data;
 
     // 从localStorage获取已读公告ID列表
-    const readAnnouncementsStr = localStorage.getItem('readAnnouncements') || '[]';
+    const readAnnouncementsStr =
+      localStorage.getItem("readAnnouncements") || "[]";
     const readAnnouncements = JSON.parse(readAnnouncementsStr);
 
     // 计算未读公告数量
-    const unreadCount = data.filter(a => !readAnnouncements.includes(a.id)).length;
+    const unreadCount = data.filter(
+      (a) => !readAnnouncements.includes(a.id)
+    ).length;
     unreadAnnouncementCount.value = unreadCount;
   } catch (error) {
-    console.error('加载公告失败:', error);
+    console.error("加载公告失败:", error);
   }
 };
 
@@ -125,25 +147,29 @@ const loadAnnouncements = async () => {
 const showAnnouncements = () => {
   if (announcements.value.length === 0) {
     ElNotification({
-      title: '暂无公告',
-      message: '当前没有新的系统公告',
-      type: 'info',
-      duration: 3000
+      title: "暂无公告",
+      message: "当前没有新的系统公告",
+      type: "info",
+      duration: 3000,
     });
     return;
   }
 
   // 构建公告HTML内容
-  const announcementHtml = announcements.value.map((announcement, index) => {
-    const typeIcon = {
-      info: 'ℹ️',
-      success: '✅',
-      warning: '⚠️',
-      error: '❌'
-    }[announcement.type] || 'ℹ️';
+  const announcementHtml = announcements.value
+    .map((announcement, index) => {
+      const typeIcon =
+        {
+          info: "ℹ️",
+          success: "✅",
+          warning: "⚠️",
+          error: "❌",
+        }[announcement.type] || "ℹ️";
 
-    return `
-      <div style="margin-bottom: 16px; padding: 12px; border-left: 3px solid ${getAnnouncementColor(announcement.type)}; background: #f5f7fa; border-radius: 4px;">
+      return `
+      <div style="margin-bottom: 16px; padding: 12px; border-left: 3px solid ${getAnnouncementColor(
+        announcement.type
+      )}; background: #f5f7fa; border-radius: 4px;">
         <div style="font-weight: 600; margin-bottom: 8px; color: #303133;">
           ${typeIcon} ${announcement.title}
         </div>
@@ -151,43 +177,49 @@ const showAnnouncements = () => {
           ${announcement.content}
         </div>
         <div style="font-size: 12px; color: #909399;">
-          发布时间: ${new Date(announcement.publishedAt).toLocaleString('zh-CN')}
+          发布时间: ${new Date(announcement.publishedAt).toLocaleString(
+            "zh-CN"
+          )}
         </div>
       </div>
     `;
-  }).join('');
+    })
+    .join("");
 
   ElMessageBox({
-    title: '系统公告',
+    title: "系统公告",
     message: announcementHtml,
     dangerouslyUseHTMLString: true,
-    confirmButtonText: '知道了',
+    confirmButtonText: "知道了",
     customStyle: {
-      width: '600px'
+      width: "600px",
     },
     callback: () => {
       // 标记所有公告为已读
-      const readAnnouncements = announcements.value.map(a => a.id);
-      localStorage.setItem('readAnnouncements', JSON.stringify(readAnnouncements));
+      const readAnnouncements = announcements.value.map((a) => a.id);
+      localStorage.setItem(
+        "readAnnouncements",
+        JSON.stringify(readAnnouncements)
+      );
       unreadAnnouncementCount.value = 0;
-    }
+    },
   });
 };
 
 // 获取公告类型对应的颜色
 const getAnnouncementColor = (type) => {
   const colorMap = {
-    info: '#67d474d5',
-    success: '#67C23A',
-    warning: '#E6A23C',
-    error: '#F56C6C'
+    info: "#67d474d5",
+    success: "#67C23A",
+    warning: "#E6A23C",
+    error: "#F56C6C",
   };
-  return colorMap[type] || '#67d474d5';
+  return colorMap[type] || "#67d474d5";
 };
 
 function logout() {
   // 判断当前用户是否是管理员
-  const isAdmin = profile.value?.role === 'admin';
+  const isAdmin = profile.value?.role === "admin";
 
   userStore.logout();
 
@@ -230,7 +262,11 @@ onMounted(() => {
   align-items: center;
   padding: 0 32px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  background: linear-gradient(135deg, var(--text-inverse) 0%, var(--color-primary-light-5) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--text-inverse) 0%,
+    var(--color-primary-light-5) 100%
+  );
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
   position: sticky;
@@ -254,7 +290,11 @@ onMounted(() => {
       color: var(--color-primary-light-3);
       text-decoration: none;
       font-size: 20px;
-      background: linear-gradient(135deg, var(--color-primary-light-3) 0%, var(--color-primary-dark-1) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--color-primary-light-3) 0%,
+        var(--color-primary-dark-1) 100%
+      );
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -328,13 +368,18 @@ onMounted(() => {
         }
 
         &::before {
-          content: '';
+          content: "";
           position: absolute;
           top: 0;
           left: -100%;
           width: 100%;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(102, 234, 109, 0.301), transparent);
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(102, 234, 109, 0.301),
+            transparent
+          );
           transition: left 0.6s;
         }
 
@@ -350,21 +395,30 @@ onMounted(() => {
 
         &.router-link-active {
           color: var(--text-link-hover);
-          background: linear-gradient(135deg, rgba(102, 234, 113, 0.15) 0%, rgba(32, 168, 77, 0.356) 100%);
-          box-shadow: 0 4px 12px rgba(102, 234, 113, 0.2), inset 0 1px 0 rgba(25, 216, 73, 0.2);
+          background: linear-gradient(
+            135deg,
+            rgba(102, 234, 113, 0.15) 0%,
+            rgba(32, 168, 77, 0.356) 100%
+          );
+          box-shadow: 0 4px 12px rgba(102, 234, 113, 0.2),
+            inset 0 1px 0 rgba(25, 216, 73, 0.2);
           border: 1px solid rgba(86, 177, 64, 0.11);
           font-weight: 600;
         }
 
         &.router-link-active::after {
-          content: '';
+          content: "";
           position: absolute;
           bottom: 0;
           left: 50%;
           transform: translateX(-50%);
           width: 20px;
           height: 2px;
-          background: linear-gradient(135deg, var(--color-primary-light-3) 0%, var(--color-primary-dark-1) 100%);
+          background: linear-gradient(
+            135deg,
+            var(--color-primary-light-3) 0%,
+            var(--color-primary-dark-1) 100%
+          );
           border-radius: 1px;
         }
       }
@@ -426,7 +480,11 @@ onMounted(() => {
         padding: 6px 12px;
         border-radius: 24px;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.08) 0%,
+          rgba(118, 75, 162, 0.08) 100%
+        );
         border: 1px solid rgba(102, 126, 234, 0.15);
         backdrop-filter: blur(10px);
 
@@ -441,7 +499,11 @@ onMounted(() => {
         }
 
         &:hover {
-          background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+          background: linear-gradient(
+            135deg,
+            rgba(102, 126, 234, 0.15) 0%,
+            rgba(118, 75, 162, 0.15) 100%
+          );
           transform: translateY(-2px);
           box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
           border-color: rgba(102, 126, 234, 0.25);
@@ -508,7 +570,7 @@ onMounted(() => {
 
 /* 下拉菜单样式 */
 :deep(.el-dropdown-menu) {
-  background: linear-gradient(145deg, var(--text-inverse)ff 0%, #f8f9ff 100%);
+  background: linear-gradient(145deg, var(--text-inverse) ff 0%, #f8f9ff 100%);
   border: 1px solid rgba(37, 146, 52, 0.1);
   border-radius: 12px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
@@ -525,7 +587,11 @@ onMounted(() => {
     font-weight: 500;
 
     &:hover {
-      background: linear-gradient(135deg, var(--color-primary-light-5) 0%, var(--color-primary-light-4) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--color-primary-light-5) 0%,
+        var(--color-primary-light-4) 100%
+      );
       color: var(--color-primary-dark-2);
     }
 

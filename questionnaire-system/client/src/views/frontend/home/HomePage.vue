@@ -3,7 +3,7 @@
     <!-- 欢迎横幅 -->
     <div class="welcome-banner">
       <div class="banner-content">
-        <h1 class="banner-title">智能问卷分析系统</h1>
+        <h1 class="banner-title">问卷系统</h1>
         <p class="banner-subtitle">发现洞察，创造价值 - 让每个问卷都充满意义</p>
         <div class="banner-actions">
           <el-button type="primary" size="large" @click="scrollToSurveys">

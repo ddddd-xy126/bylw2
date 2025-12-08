@@ -9,7 +9,7 @@
 
     <el-card class="box">
       <div class="logo-title">
-        <h2>智能问卷分析系统</h2>
+        <h2>问卷系统</h2>
       </div>
 
       <el-tabs v-model="activeTab" class="auth-tabs">
