@@ -1,120 +1,74 @@
 问卷状态与模板管理
 1、简要描述
-（1）功能描述：问卷状态与模板管理功能允许管理员和问卷创建者对问卷的发布状态和模板属性进行灵活控制。问卷状态包括草稿(draft)、待审核(pending)、已发布(published)、已停止(stopped)、已拒绝(rejected)等，管理员可通过状态变更接口实现问卷的发布、下架、重新上架等操作。模板管理功能允许管理员将优质问卷设置为系统模板(isTemplate=true)，供其他用户复制使用。
+（1）功能描述：管理员在后台管理问卷状态和模板属性，包括问卷上架(published)、下架(stopped)、设置为模板(isTemplate=true)、取消模板状态等操作。
 
-（2）代码逻辑：前端调用 PUT /api/surveys/:id 接口更新问卷信息，传入status和isTemplate等字段。后端控制器开启数据库事务，查询目标问卷并验证权限（创建者或管理员），检查问卷状态变更的合法性，例如从draft到pending需触发"提交审核"积分奖励（5积分），从pending到published需记录首次发布时间。对于模板设置，管理员可在请求体中传入isTemplate=true，后端直接更新该字段。状态更新完成后，在同一事务中处理积分奖励（若适用），创建PointHistory记录，提交事务后返回更新后的问卷数据。前端接收响应后更新界面状态并显示操作成功提示（如"问卷已发布"、"问卷已设为模板"等）。
+（2）代码逻辑：管理员在后台问卷管理页面查看所有问卷，通过筛选器选择"模板"状态可查看当前所有模板问卷。管理员点击"下架"按钮时，前端调用 updateSurveyStatusApi 接口并传入 status="stopped"，后端更新数据库中的 status 字段为 stopped。管理员点击"上架"按钮时，调用同样接口传入 status="published"，后端更新 status 字段为 published。管理员点击"设为模板"按钮时，前端调用问卷接口更新 isTemplate=true，后端更新 isTemplate 字段，同时调用 recordAdminActivity 接口记录操作日志（包含管理员 ID、操作类型、问卷标题等信息）。管理员点击"取消模板"按钮时，调用同样接口更新 isTemplate=false。
 
 时序图描述
-管理员/用户 → 问卷管理页面: 点击"发布"/"下架"/"设为模板"按钮
-问卷管理页面 → surveyController: PUT /api/surveys/:id (status, isTemplate)
-surveyController → MySQL: 开启数据库事务并查询目标问卷
-MySQL → surveyController: 返回问卷数据
-surveyController → surveyController: 检查状态变更逻辑(积分奖励、发布时间)
-surveyController → MySQL: 更新问卷状态和模板属性
-
-alt 符合积分奖励条件(draft→pending)
-    surveyController → MySQL: 增加用户积分并创建PointHistory记录
-end
-
-surveyController → MySQL: 提交事务
-surveyController → 问卷管理页面: 返回更新成功响应
-问卷管理页面 → 管理员/用户: 显示操作成功提示
-
-***时序图描述***
-用户/管理员 → 前端界面: 触发状态/模板变更操作
-前端界面 → 后端API: 调用更新接口
-后端API → MySQL: 在事务中更新问卷并处理积分奖励
-MySQL → 后端API: 返回操作结果
-后端API → 前端界面: 返回更新后的问卷数据
-前端界面 → 用户/管理员: 显示操作成功提示
-***end***
-
+管理员 → 后台问卷列表: 点击"上架"/"下架"/"设为模板"/"取消模板"按钮
+后台问卷列表 → 后端 API: PUT /surveys/:id（status 或 isTemplate 字段）
+后端 API → MySQL: 更新 status 或 isTemplate 字段
+MySQL → 后端 API: 返回更新结果
+后端 API → 后台问卷列表: 返回操作成功
+后台问卷列表 → 后台问卷列表: 刷新问卷列表并显示操作成功提示
 
 2、接口定义
 表 5-22 问卷状态与模板管理接口表
 
-接口名称 更新问卷状态与属性接口
-接口描述 用户或管理员更新问卷状态、模板属性等信息时调用
+接口名称 更新问卷状态接口
+接口描述 管理员更新问卷状态（上架/下架/是否为模板）
 URL {{baseurl}}/surveys/:id
 method PUT
-请求参数 {"status": "published", "isTemplate": true, "title": "更新后的标题", "category": "健康", "questionList": [...]} (status和isTemplate为可选)
-返回参数 {"success": true, "message": "问卷更新成功", "data": {"id": "SV123", "title": "...", "status": "published", "isTemplate": true, "publishedAt": "2024-03-15T10:30:00Z", "pointsEarned": 5}}
+请求参数 {"status": "published"} 或 {"isTemplate": true}
+返回参数 {"success": true, "message": "更新成功", "data": {"id": "SV123", "title": "用户满意度调查", "status": "published"}}
 
 3、关键代码
 代码 5-22 问卷状态与模板管理核心代码
 
-// 更新问卷状态与模板属性 (surveyController.js)
-exports.updateSurvey = async (req, res, next) => {
-  const t = await sequelize.transaction();
+// 更新问卷状态或模板属性（QuestionnaireListPage.vue）
+const offlineQuestionnaire = async (id) => {
+await updateSurveyStatusApi(id, "stopped");
+ElMessage.success("下架成功");
+await loadQuestionnaires();
+};
 
-  try {
-    const { id } = req.params;
-    const { title, description, category, questionList, status, isTemplate } = req.body;
+const onlineQuestionnaire = async (id) => {
+await updateSurveyStatusApi(id, "published");
+ElMessage.success("上架成功");
+await loadQuestionnaires();
+};
+
+const setAsTemplate = async (id) => {
+await apiClient.put(`/surveys/${id}`, { isTemplate: true });
+ElMessage.success("已设为模板");
+await loadQuestionnaires();
+};
+
+const removeTemplate = async (id) => {
+await apiClient.put(`/surveys/${id}`, { isTemplate: false });
+ElMessage.success("已取消模板状态");
+await loadQuestionnaires();
+};
+
+// 后端更新问卷（surveyController.js）
+exports.updateSurvey = async (req, res, next) => {
+try {
+const { id } = req.params;
+const { status, isTemplate } = req.body;
 
     const survey = await Survey.findByPk(id);
-
     if (!survey) {
-      await t.rollback();
       return res.status(404).json({ success: false, message: "问卷不存在" });
     }
 
-    // 检查权限(只有创建者或管理员可以修改)
-    if (survey.userId !== req.user.id && req.user.role !== "admin") {
-      await t.rollback();
-      return res.status(403).json({ success: false, message: "无权修改此问卷" });
-    }
-
-    const oldStatus = survey.status;
-    const newStatus = status || oldStatus;
-
-    // 积分奖励逻辑:从草稿提交审核奖励5积分
-    const PointHistory = require("../models").PointHistory;
-    let pointsEarned = 0;
-    let rewardReason = "";
-
-    if (oldStatus === "draft" && newStatus === "pending") {
-      pointsEarned = 5;
-      rewardReason = `提交问卷《${title || survey.title}》审核`;
-    }
-
-    // 更新问卷信息
-    await survey.update(
-      {
-        title,
-        description,
-        category,
-        questionList,
-        status: newStatus,
-        isTemplate: isTemplate !== undefined ? isTemplate : survey.isTemplate,
-        ...(newStatus === "published" && !survey.publishedAt && { publishedAt: new Date() }),
-      },
-      { transaction: t }
-    );
-
-    // 发放积分
-    if (pointsEarned > 0) {
-      await req.user.increment("points", { by: pointsEarned, transaction: t });
-      await PointHistory.create(
-        {
-          id: `ph_${Date.now()}`,
-          userId: req.user.id,
-          points: pointsEarned,
-          reason: rewardReason,
-          type: "earn",
-        },
-        { transaction: t }
-      );
-    }
-
-    await t.commit();
-
-    res.json({
-      success: true,
-      message: "问卷更新成功",
-      data: { ...survey.toJSON(), pointsEarned },
+    await survey.update({
+      status: status || survey.status,
+      isTemplate: isTemplate !== undefined ? isTemplate : survey.isTemplate,
     });
-  } catch (error) {
-    await t.rollback();
-    next(error);
-  }
+
+    res.json({ success: true, message: "问卷更新成功", data: survey });
+
+} catch (error) {
+next(error);
+}
 };
