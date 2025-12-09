@@ -2,7 +2,7 @@
 1、简要描述
 （1）功能描述：积分与成就徽章系统是问卷平台的激励机制，通过给予用户积分奖励和解锁成就徽章，鼓励用户积极参与问卷填写、创建问卷、完善资料等行为。系统包含积分获取、积分历史记录、等级计算、成就徽章解锁等功能模块。
 
-（2）代码逻辑：用户执行操作（如注册、完成问卷、创建问卷）时，后端在数据库事务中调用 user.increment('points', {by: pointsEarned}) 增加用户积分，同时创建 PointHistory 记录保存积分数量、原因描述、类型(earn/spend)和创建时间，提交事务确保一致性。等级根据积分自动计算：等级 = Math.floor(积分 / 500) + 1。成就徽章系统通过检测用户行为统计数据，判断是否满足徽章的 requirement 要求，若满足且未解锁则创建用户徽章关联记录、奖励对应积分、创建积分历史并显示解锁提示。前端查询积分历史时调用 getPointHistory 接口，后端按用户ID筛选并分页返回历史记录列表（按创建时间倒序）。成就页面展示积分总数、已完成问卷数、已解锁徽章数等统计卡片，徽章列表支持筛选已解锁/未解锁，未解锁徽章显示当前进度（如"5/10"）。
+（2）代码逻辑：用户在系统中执行各类操作（如注册、完成问卷、创建问卷、提交审核等）时，后端对应的控制器方法会调用User.increment('points', {by: pointsEarned})增加用户积分，同时创建PointHistory记录保存积分数量、原因描述、类型和创建时间，提交事务确保积分增加和历史记录的一致性。用户等级根据当前积分总数自动计算，公式为：等级 = Math.floor(积分 / 500) + 1，前端在个人成就页面通过computed计算实时显示用户等级，无需后端存储。系统预定义多个成就徽章，每个徽章有类型和requirement要求。对于徽章解锁，当用户完成特定操作后，后端调用checkAndUnlockBadge函数检查该操作对应的徽章类型，查询用户当前统计数据（如已完成问卷数），判断是否达到徽章要求。若满足要求且用户未解锁该徽章，则在UserBadge表创建关联记录标记解锁，同时奖励徽章对应的积分（如20积分），创建积分历史记录原，并向前端返回解锁提示。前端访问成就页面时，调用接口获取所有徽章定义和用户已解锁徽章列表，对比后显示徽章解锁状态和进度（如"5/10"）。
 
 时序图描述
 用户 → 注册页面: 填写注册信息并提交
@@ -56,93 +56,59 @@ method GET
 请求参数 无
 返回参数 [{"id": "badge_survey_10", "name": "问卷达人", "description": "完成10份问卷", "type": "survey_count", "requirement": 10, "points": 20}, ...]
 
-接口名称 获取用户已解锁徽章接口
-接口描述 查询用户已解锁的徽章ID列表
-URL {{baseurl}}/users/:id/badges
-method GET
-请求参数 无
-返回参数 {"success": true, "data": ["badge_survey_10", "badge_continuous_7", ...]}
-
 3、关键代码
 代码 5-16 积分与成就徽章系统核心代码
 
-// 注册赠送积分 (authController.js)
-exports.register = async (req, res, next) => {
-  try {
-    const user = await User.create({
-      id: Date.now().toString(),
-      username, email, password: hashedPassword,
-      points: 100, // 初始积分
-    });
-
-    // 记录积分历史
-    await PointHistory.create({
-      id: `ph_${Date.now()}`,
-      userId: user.id,
-      points: 100,
-      reason: "注册奖励",
-      type: "earn",
-    });
-
-    const token = jwt.sign({ id: user.id, role: user.role }, jwtConfig.secret);
-    res.json({ success: true, data: { token, user } });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// 完成问卷奖励积分 (answerController.js)
-exports.submitAnswer = async (req, res, next) => {
-  const t = await sequelize.transaction();
-  try {
-    const answer = await Answer.create({ surveyId, userId: req.user.id, answers }, { transaction: t });
-
-    // 增加用户积分
-    await User.increment('points', { by: 10, where: { id: req.user.id }, transaction: t });
-
-    // 记录积分历史
-    await PointHistory.create({
-      id: `ph_${Date.now()}`,
-      userId: req.user.id,
-      points: 10,
-      reason: `完成问卷《${survey.title}》`,
-      type: "earn",
-    }, { transaction: t });
-
-    await t.commit();
-    res.json({ success: true, data: { answer, pointsEarned: 10 } });
-  } catch (error) {
-    await t.rollback();
-    next(error);
-  }
-};
-
 // 获取积分历史 (userController.js)
 exports.getPointHistory = async (req, res, next) => {
-  try {
-    const { page = 1, limit = 20 } = req.query;
-    const history = await PointHistory.findAndCountAll({
-      where: { userId: req.params.id },
-      limit: parseInt(limit),
-      offset: (page - 1) * limit,
-      order: [["createdAt", "DESC"]],
-    });
+  const { page = 1, limit = 20 } = req.query;
+  const history = await PointHistory.findAndCountAll({
+    where: { userId: req.params.id },
+    limit: parseInt(limit),
+    offset: (page - 1) * limit,
+    order: [["createdAt", "DESC"]],
+  });
 
-    res.json({
-      success: true,
-      data: {
-        history: history.rows,
-        total: history.count,
-        page: parseInt(page),
-        totalPages: Math.ceil(history.count / limit),
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
+  res.json({
+    success: true,
+    data: {
+      history: history.rows,
+      total: history.count,
+      page: parseInt(page),
+    },
+  });
 };
 
-// 前端等级计算 (AchievementsPage.vue)
+// 等级计算 (AchievementsPage.vue)
 const getUserLevel = computed(() => {
   return Math.floor((userStats.value.points || 0) / 500) + 1;
 });
+
+// 检查并解锁徽章 (badgeService.js)
+const checkAndUnlockBadge = async (userId, badgeType, currentValue) => {
+  const badge = await Badge.findOne({ where: { type: badgeType } });
+  if (!badge) return;
+
+  // 检查是否满足要求
+  if (currentValue >= badge.requirement) {
+    const userBadge = await UserBadge.findOne({ where: { userId, badgeId: badge.id } });
+    
+    // 如果未解锁则解锁
+    if (!userBadge) {
+      await UserBadge.create({ userId, badgeId: badge.id, unlockedAt: new Date() });
+      
+      // 奖励积分
+      await User.increment('points', { by: badge.points, where: { id: userId } });
+      await PointHistory.create({
+        id: `ph_${Date.now()}`,
+        userId,
+        points: badge.points,
+        reason: `解锁徽章《${badge.name}》`,
+        type: "earn",
+      });
+      
+      return { unlocked: true, badge, pointsEarned: badge.points };
+    }
+  }
+  return { unlocked: false };
+};

@@ -57,38 +57,18 @@ router.post("/generate", authenticate, async (req, res, next) => {
       answers: answers,
     });
 
-    // 检查是否已存在报告
-    let report = await Report.findOne({
-      where: { userId, surveyId },
+    // 每次都创建新报告，不检查是否已存在
+    const report = await Report.create({
+      userId,
+      surveyId,
+      title: `${surveyTitle} - 个人分析报告`,
+      surveyTitle: surveyTitle,
+      category: category || "",
+      content: "",
+      status: "generating",
     });
 
-    if (report && report.status === "completed") {
-      console.log("✅ 报告已存在，直接返回");
-      return res.json({
-        success: true,
-        message: "报告已存在",
-        data: report,
-      });
-    }
-
-    // 创建或更新报告记录为"生成中"状态
-    if (!report) {
-      report = await Report.create({
-        userId,
-        surveyId,
-        title: `${surveyTitle} - 个人分析报告`,
-        surveyTitle: surveyTitle,
-        category: category || "",
-        content: "",
-        status: "generating",
-      });
-    } else {
-      report.status = "generating";
-      report.content = "";
-      await report.save();
-    }
-
-    console.log("🔄 报告记录已创建/更新，开始生成报告...");
+    console.log("🔄 报告记录已创建，开始生成报告...");
 
     // 准备 Coze API 输入数据
     const cozeInputData = {
