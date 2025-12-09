@@ -1,0 +1,232 @@
+用户权限与状态管理
+1、简要描述
+（1）功能描述：用户权限与状态管理功能为管理员提供对系统用户的全面管理能力，包括用户列表查询、角色权限设置、账号封禁/解封、用户删除等操作。管理员可通过后台用户管理页面查看所有注册用户的详细信息，支持按角色（普通用户/管理员）、用户名、邮箱等条件筛选查询，并可对用户执行权限变更和状态控制操作。
+
+（2）代码逻辑：管理员访问后台用户管理页面时，前端调用 GET /api/admin/users 接口获取用户列表，支持传入role、search、page、limit等查询参数。后端构建查询条件，若指定role则筛选对应角色用户，若提供search关键词则使用OR条件在username、email、nickname字段中模糊查询，查询结果排除password字段，按创建时间倒序排列，支持分页返回。角色权限设置通过 PUT /api/admin/users/:id/role 接口实现，请求体包含新角色值（user或admin），后端开启事务查询目标用户，验证用户存在性后更新role字段，同时创建AdminActivity日志记录操作详情。账号封禁/解封分别调用 PUT /api/admin/users/:id/ban 和 PUT /api/admin/users/:id/unban 接口，后端验证操作者不能封禁自己，更新banned字段为true或false并记录日志。用户删除调用 DELETE /api/admin/users/:id 接口，后端验证不能删除自己，执行destroy方法物理删除用户记录并记录删除日志。所有操作完成后提交事务，返回成功响应。
+
+时序图描述
+管理员 → 用户管理页面: 访问用户管理页面
+用户管理页面 → adminController: GET /api/admin/users (role, search, page, limit)
+adminController → MySQL: 查询User表(筛选条件、分页、排序)
+MySQL → adminController: 返回用户列表及总数
+adminController → 用户管理页面: 返回分页用户数据
+用户管理页面 → 管理员: 显示用户列表
+
+管理员 → 操作对话框: 点击"设为管理员"/"封禁"/"删除"按钮
+操作对话框 → adminController: PUT/DELETE /api/admin/users/:id/*
+adminController → MySQL: 开启数据库事务并查询目标用户
+MySQL → adminController: 返回用户数据
+adminController → MySQL: 更新用户信息(role/banned)或删除记录
+adminController → MySQL: 创建AdminActivity日志记录
+adminController → MySQL: 提交事务
+adminController → 操作对话框: 返回操作成功响应
+操作对话框 → 管理员: 显示操作成功提示
+
+***时序图描述***
+管理员 → 前端界面: 触发用户管理操作
+前端界面 → 后端API: 调用对应接口
+后端API → MySQL: 在事务中更新用户并记录日志
+MySQL → 后端API: 返回操作结果
+后端API → 前端界面: 返回操作结果
+前端界面 → 管理员: 显示操作提示
+***end***
+
+
+2、接口定义
+表 5-23 用户权限与状态管理接口表
+
+接口名称 获取用户列表接口
+接口描述 管理员查询系统用户列表时调用，支持角色筛选、关键词搜索和分页
+URL {{baseurl}}/admin/users?role=user&search=zhang&page=1&limit=10
+method GET
+请求参数 {"role": "user", "search": "zhang", "page": 1, "limit": 10} (role和search为可选)
+返回参数 {"success": true, "data": {"users": [{"id": "USR001", "username": "zhangsan", "role": "user", "banned": false, "points": 150}], "total": 1523, "page": 1, "totalPages": 153}}
+
+接口名称 更新用户角色接口
+接口描述 管理员设置用户角色（普通用户/管理员）时调用
+URL {{baseurl}}/admin/users/:id/role
+method PUT
+请求参数 {"role": "admin"} (role值为user或admin)
+返回参数 {"success": true, "message": "用户角色更新成功", "data": {"id": "USR001", "username": "zhangsan", "role": "admin"}}
+
+接口名称 封禁/解封用户接口
+接口描述 管理员封禁或解封用户账号时调用
+URL {{baseurl}}/admin/users/:id/ban 或 /admin/users/:id/unban
+method PUT
+请求参数 无
+返回参数 {"success": true, "message": "用户已封禁/已解封", "data": {"id": "USR001", "banned": true/false}}
+
+接口名称 删除用户接口
+接口描述 管理员删除用户账号时调用（物理删除）
+URL {{baseurl}}/admin/users/:id
+method DELETE
+请求参数 无
+返回参数 {"success": true, "message": "用户删除成功"}
+
+3、关键代码
+代码 5-23 用户权限与状态管理核心代码
+
+// 获取所有用户(管理员) (adminController.js)
+exports.getAllUsers = async (req, res, next) => {
+  try {
+    const { role, search, page = 1, limit = 10 } = req.query;
+
+    const where = {};
+    if (role) where.role = role;
+    if (search) {
+      where[Op.or] = [
+        { username: { [Op.like]: `%${search}%` } },
+        { email: { [Op.like]: `%${search}%` } },
+        { nickname: { [Op.like]: `%${search}%` } },
+      ];
+    }
+
+    const users = await User.findAndCountAll({
+      where,
+      attributes: { exclude: ["password"] },
+      limit: parseInt(limit),
+      offset: (page - 1) * limit,
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.json({
+      success: true,
+      data: {
+        users: users.rows,
+        total: users.count,
+        page: parseInt(page),
+        totalPages: Math.ceil(users.count / limit),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 更新用户角色 (adminController.js)
+exports.updateUserRole = async (req, res, next) => {
+  const t = await sequelize.transaction();
+
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    const user = await User.findByPk(id);
+    if (!user) {
+      await t.rollback();
+      return res.status(404).json({ success: false, message: "用户不存在" });
+    }
+
+    await user.update({ role }, { transaction: t });
+
+    // 记录管理员活动
+    await AdminActivity.create(
+      {
+        id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        adminId: String(req.user.id),
+        adminName: req.user.nickname || req.user.username,
+        title: "更新用户角色",
+        description: `将用户 ${user.username} 的角色更新为 ${role}`,
+        type: "user_role_update",
+      },
+      { transaction: t }
+    );
+
+    await t.commit();
+
+    res.json({
+      success: true,
+      message: "用户角色更新成功",
+      data: user.toSafeObject(),
+    });
+  } catch (error) {
+    await t.rollback();
+    next(error);
+  }
+};
+
+// 封禁用户 (adminController.js)
+exports.banUser = async (req, res, next) => {
+  const t = await sequelize.transaction();
+
+  try {
+    const { id } = req.params;
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      await t.rollback();
+      return res.status(404).json({ success: false, message: "用户不存在" });
+    }
+
+    if (user.id === req.user.id) {
+      await t.rollback();
+      return res.status(400).json({ success: false, message: "不能封禁自己" });
+    }
+
+    await user.update({ banned: true }, { transaction: t });
+
+    await AdminActivity.create(
+      {
+        id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        adminId: String(req.user.id),
+        adminName: req.user.nickname || req.user.username,
+        title: "封禁用户",
+        description: `封禁用户 ${user.username}`,
+        type: "user_ban",
+      },
+      { transaction: t }
+    );
+
+    await t.commit();
+
+    res.json({
+      success: true,
+      message: "用户已封禁",
+      data: user.toSafeObject(),
+    });
+  } catch (error) {
+    await t.rollback();
+    next(error);
+  }
+};
+
+// 删除用户 (adminController.js)
+exports.deleteUser = async (req, res, next) => {
+  const t = await sequelize.transaction();
+
+  try {
+    const { id } = req.params;
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      await t.rollback();
+      return res.status(404).json({ success: false, message: "用户不存在" });
+    }
+
+    if (user.id === req.user.id) {
+      await t.rollback();
+      return res.status(400).json({ success: false, message: "不能删除自己" });
+    }
+
+    await user.destroy({ transaction: t });
+
+    await AdminActivity.create(
+      {
+        id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        adminId: String(req.user.id),
+        adminName: req.user.nickname || req.user.username,
+        title: "删除用户",
+        description: `删除用户 ${user.username}`,
+        type: "user_delete",
+      },
+      { transaction: t }
+    );
+
+    await t.commit();
+
+    res.json({ success: true, "message": "用户删除成功" });
+  } catch (error) {
+    await t.rollback();
+    next(error);
+  }
+};
