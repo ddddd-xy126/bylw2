@@ -63,122 +63,51 @@ method DELETE
 
 // PDF导出接口 (reports.js)
 router.get("/:id/download", authenticate, async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const userId = req.user.id;
+  const { id } = req.params;
+  const report = await Report.findOne({ where: { id, userId: req.user.id } });
 
-    const report = await Report.findOne({
-      where: { id, userId },
-      include: [{ model: User, as: "user", attributes: ["username", "nickname"] }],
-    });
+  if (!report) return res.status(404).json({ success: false, message: "报告不存在" });
 
-    if (!report) return res.status(404).json({ success: false, message: "报告不存在" });
-    if (report.status !== "completed") {
-      return res.status(400).json({ success: false, message: "报告尚未生成完成" });
-    }
+  const pdfPath = await createPdf({
+    title: report.title,
+    content: report.content,
+    generatedAt: new Date(report.generatedAt).toLocaleString("zh-CN"),
+  });
 
-    // 解析报告内容
-    let contentText = report.content;
-    try {
-      const contentObj = JSON.parse(report.content);
-      contentText = contentObj.output || report.content;
-    } catch (e) {}
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `attachment; filename="${report.title}.pdf"`);
 
-    // 生成PDF文件
-    const pdfPath = await createPdf({
-      title: report.title || "个人分析报告",
-      subtitle: report.surveyTitle || "",
-      nickname: report.user?.nickname || report.user?.username || "用户",
-      generatedAt: new Date(report.generatedAt).toLocaleString("zh-CN", { hour12: false }),
-      content: contentText,
-    });
-
-    // 设置响应头并传输文件
-    const filename = `${report.title.replace(/[^\w\u4e00-\u9fa5]/g, "_")}_${Date.now()}.pdf`;
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(filename)}"`);
-
-    const stream = fs.createReadStream(pdfPath);
-    stream.pipe(res);
-
-    stream.on("end", () => {
-      try {
-        fs.unlinkSync(pdfPath);
-      } catch (e) {
-        console.warn("删除临时PDF文件失败:", e.message);
-      }
-    });
-  } catch (error) {
-    next(error);
-  }
+  const stream = fs.createReadStream(pdfPath);
+  stream.pipe(res);
+  stream.on("end", () => fs.unlinkSync(pdfPath));
 });
 
 // 报告删除接口 (reports.js)
 router.delete("/:id", authenticate, async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const userId = req.user.id;
+  const report = await Report.findOne({ where: { id: req.params.id, userId: req.user.id } });
+  if (!report) return res.status(404).json({ success: false, message: "报告不存在" });
 
-    const report = await Report.findOne({ where: { id, userId } });
-    if (!report) {
-      return res.status(404).json({ success: false, message: "报告不存在" });
-    }
-
-    await report.destroy();
-    res.json({ success: true, message: "报告已删除" });
-  } catch (error) {
-    next(error);
-  }
+  await report.destroy();
+  res.json({ success: true, message: "报告已删除" });
 });
 
-// PDF生成工具 (createPdf.js 核心片段)
-function createPdf(report = {}) {
+// PDF生成工具 (createPdf.js)
+function createPdf(report) {
   return new Promise((resolve, reject) => {
-    try {
-      const fileName = `report_${Date.now()}.pdf`;
-      const tmpDir = path.join(__dirname, "../tmp");
-      if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
-      const filePath = path.join(tmpDir, fileName);
+    const filePath = path.join(__dirname, "../tmp", `report_${Date.now()}.pdf`);
+    const doc = new PDFDocument({ size: "A4", margin: 48 });
+    const writeStream = fs.createWriteStream(filePath);
+    
+    doc.pipe(writeStream);
+    doc.registerFont("ChineseFont", "C:\\Windows\\Fonts\\msyh.ttc");
+    doc.font("ChineseFont");
+    
+    doc.fontSize(24).text(report.title, { align: "center" });
+    doc.moveDown(1);
+    doc.fontSize(12).text(report.content, { align: "left" });
+    doc.end();
 
-      const doc = new PDFDocument({
-        size: "A4", margin: 48,
-        info: { Title: report.title || "个人分析报告", Author: "系统生成" },
-      });
-
-      // 注册中文字体
-      const fontPath = "C:\\Windows\\Fonts\\msyh.ttc";
-      if (fs.existsSync(fontPath)) {
-        doc.registerFont("ChineseFont", fontPath);
-        doc.font("ChineseFont");
-      }
-
-      const writeStream = fs.createWriteStream(filePath);
-      doc.pipe(writeStream);
-
-      // 绘制标题
-      doc.fontSize(24).fillColor("#303133")
-         .text(report.title || "个人分析报告", { align: "center" });
-      doc.moveDown(0.5);
-
-      // 绘制副标题和元信息
-      doc.fontSize(14).fillColor("#606266")
-         .text(report.subtitle || "", { align: "center" });
-      doc.moveDown(1.5);
-      doc.fontSize(10).fillColor("#909399")
-         .text(`生成时间: ${report.generatedAt}`, { align: "left" });
-
-      // 渲染报告内容
-      const cleanContent = removeMarkdown(report.content || "");
-      doc.moveDown(1);
-      doc.fontSize(12).fillColor("#303133")
-         .text(cleanContent, { align: "left", lineGap: 4 });
-
-      doc.end();
-
-      writeStream.on("finish", () => resolve(filePath));
-      writeStream.on("error", reject);
-    } catch (error) {
-      reject(error);
-    }
+    writeStream.on("finish", () => resolve(filePath));
+    writeStream.on("error", reject);
   });
 }

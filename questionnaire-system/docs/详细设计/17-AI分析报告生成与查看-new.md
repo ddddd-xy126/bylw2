@@ -66,100 +66,57 @@ method GET
 
 // 报告生成核心逻辑 (reports.js)
 router.post("/generate", authenticate, async (req, res, next) => {
+  const userId = req.user.id;
+  const { surveyId, surveyTitle, answers } = req.body;
+
+  const user = await User.findByPk(userId);
+  let report = await Report.findOne({ where: { userId, surveyId } });
+  
+  if (report && report.status === "completed") {
+    return res.json({ success: true, message: "报告已存在", data: report });
+  }
+
+  if (!report) {
+    report = await Report.create({
+      userId, surveyId, title: `${surveyTitle} - 个人分析报告`,
+      status: "generating",
+    });
+  }
+
   try {
-    const userId = req.user.id;
-    const { surveyId, surveyTitle, answers, category } = req.body;
+    const reportContent = await generatePersonalReport(
+      { username: user.username, age: user.age, tags: user.tags },
+      { title: surveyTitle },
+      answers
+    );
 
-    const user = await User.findByPk(userId);
-    if (!user) return res.status(404).json({ success: false, message: "用户不存在" });
+    report.content = reportContent;
+    report.status = "completed";
+    report.generatedAt = new Date();
+    await report.save();
 
-    // 检查是否已存在已完成的报告
-    let report = await Report.findOne({ where: { userId, surveyId } });
-    if (report && report.status === "completed") {
-      return res.json({ success: true, message: "报告已存在", data: report });
-    }
-
-    // 创建或更新报告记录为"生成中"
-    if (!report) {
-      report = await Report.create({
-        userId, surveyId, title: `${surveyTitle} - 个人分析报告`,
-        surveyTitle, category: category || "", content: "", status: "generating",
-      });
-    } else {
-      report.status = "generating";
-      await report.save();
-    }
-
-    // 调用 Coze API 生成报告
-    try {
-      const reportContent = await generatePersonalReport(
-        { username: user.username, nickname: user.nickname, bio: user.bio, 
-          city: user.city, gender: user.gender, age: user.age, 
-          profession: user.profession, tags: user.tags || [] },
-        { title: surveyTitle, category: category || "" },
-        answers
-      );
-
-      report.content = reportContent;
-      report.status = "completed";
-      report.generatedAt = new Date();
-      await report.save();
-
-      res.json({ success: true, message: "报告生成成功",
-        data: { reportId: report.id, status: "completed", 
-                content: reportContent, generatedAt: report.generatedAt }
-      });
-    } catch (error) {
-      report.status = "failed";
-      report.content = `报告生成失败: ${error.message}`;
-      await report.save();
-      return res.status(500).json({ success: false, message: "报告生成失败：" + error.message });
-    }
+    res.json({ success: true, data: { reportId: report.id, content: reportContent } });
   } catch (error) {
-    next(error);
+    report.status = "failed";
+    await report.save();
+    res.status(500).json({ success: false, message: "报告生成失败" });
   }
 });
 
 // Coze AI流式调用 (cozeService.js)
 async function generatePersonalReport(userData, surveyData, answers) {
-  try {
-    const inputData = {
-      nickname: userData.nickname || userData.username || "用户",
-      bio: userData.bio || "暂无简介",
-      city: userData.city || "未知",
-      gender: userData.gender || "unknown",
-      age: parseInt(userData.age) || 0,
-      profession: userData.profession || "未知",
-      tags: Array.isArray(userData.tags) ? userData.tags : [],
-      surveyTitle: surveyData.title || "问卷",
-      answers: answers.map((answer) => ({
-        text: answer.text !== undefined ? answer.text : answer.answer,
-        question: answer.question || "",
-      })),
-    };
+  const stream = await apiClient.workflows.runs.stream({
+    workflow_id: COZE_CONFIG.workflowId,
+    parameters: { input: JSON.stringify({ ...userData, ...surveyData, answers }) },
+  });
 
-    const stream = await apiClient.workflows.runs.stream({
-      workflow_id: COZE_CONFIG.workflowId,
-      parameters: { input: JSON.stringify(inputData) },
-    });
-
-    let reportContent = "";
-    for await (const chunk of stream) {
-      const event = chunk.event;
-      if (event === "Message") {
-        const content = chunk.data?.content;
-        if (content) reportContent += content;
-      } else if (event === "Error") {
-        throw new Error(chunk.data?.error_message || "Coze API 调用失败");
-      } else if (event === "Done") {
-        break;
-      }
+  let reportContent = "";
+  for await (const chunk of stream) {
+    if (chunk.event === "Message") {
+      reportContent += chunk.data?.content || "";
+    } else if (chunk.event === "Error") {
+      throw new Error("Coze API 调用失败");
     }
-
-    if (!reportContent) throw new Error("未能生成报告内容");
-    return reportContent;
-  } catch (error) {
-    console.error("Coze API 调用失败:", error);
-    throw error;
   }
+  return reportContent;
 }
