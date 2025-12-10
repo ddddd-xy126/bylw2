@@ -12,6 +12,35 @@ MySQL → adminController: 返回操作结果
 adminController → 前端界面: 返回成功响应
 前端界面 → 管理员: 显示操作提示
 
+***时序图最新描述***
+    管理员->>前端用户管理页面: ① 点击"封禁"按钮
+    前端用户管理页面->>API层(admin.js): ② 调用封禁用户接口
+    API层(admin.js)->>后端路由(admin.js): ③ PUT /admin/users/:id/ban
+    后端路由(admin.js)->>控制器(adminController.js): ④ 调用banUser方法
+    控制器(adminController.js)->>数据库: ⑤ 开启数据库事务
+    控制器(adminController.js)->>数据库: ⑥ 查询User记录并验证非自身
+    控制器(adminController.js)->>数据库: ⑦ 更新User.banned=true
+    控制器(adminController.js)->>数据库: ⑧ 创建AdminActivity日志记录
+    控制器(adminController.js)->>数据库: ⑨ 提交事务
+    数据库-->>控制器(adminController.js): ⑩ 返回操作结果
+    控制器(adminController.js)-->>前端用户管理页面: ⑪ 返回封禁成功响应
+    前端用户管理页面->>管理员: ⑫ 显示"用户已封禁"提示
+    管理员->>前端用户管理页面: ⑬ 点击"删除"按钮
+    前端用户管理页面->>管理员: ⑭ 弹出确认对话框
+    管理员->>前端用户管理页面: ⑮ 确认删除
+    前端用户管理页面->>API层(admin.js): ⑯ 调用删除用户接口
+    API层(admin.js)->>后端路由(admin.js): ⑰ DELETE /admin/users/:id
+    后端路由(admin.js)->>控制器(adminController.js): ⑱ 调用deleteUser方法
+    控制器(adminController.js)->>数据库: ⑲ 开启数据库事务
+    控制器(adminController.js)->>数据库: ⑳ 查询User记录并验证非自身
+    控制器(adminController.js)->>数据库: ㉑ 执行destroy()删除用户
+    控制器(adminController.js)->>数据库: ㉒ 创建AdminActivity日志记录
+    控制器(adminController.js)->>数据库: ㉓ 提交事务
+    数据库-->>控制器(adminController.js): ㉔ 返回删除结果
+    控制器(adminController.js)-->>前端用户管理页面: ㉕ 返回删除成功响应
+    前端用户管理页面->>管理员: ㉖ 显示"用户删除成功"提示
+***end***
+
 2、接口定义
 表 5-23 用户权限与状态管理接口表
 

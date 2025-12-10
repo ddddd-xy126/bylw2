@@ -32,6 +32,28 @@ MySQL/CozeAPI → 后端API: 返回操作结果
 前端界面 → 用户: 显示报告内容
 ***end***
 
+***时序图最新描述***
+    用户->>前端答题结果页: ① 点击"生成分析报告"按钮
+    前端答题结果页->>API层(report.js): ② 发送生成报告请求
+    API层(report.js)->>后端路由(reports.js): ③ POST /reports/generate
+    后端路由(reports.js)->>数据库: ④ 查询用户信息(User表)
+    数据库-->>后端路由(reports.js): ⑤ 返回用户数据
+    后端路由(reports.js)->>数据库: ⑥ 创建Report记录(status=generating)
+    后端路由(reports.js)->>CozeAPI(cozeService.js): ⑦ 调用AI工作流API
+    CozeAPI(cozeService.js)-->>后端路由(reports.js): ⑧ 流式返回分析内容
+    后端路由(reports.js)->>数据库: ⑨ 更新Report(status=completed,content=报告)
+    数据库-->>后端路由(reports.js): ⑩ 返回更新结果
+    后端路由(reports.js)-->>前端答题结果页: ⑪ 返回报告ID及内容
+    前端答题结果页->>用户: ⑫ 显示生成成功并展示报告
+    用户->>前端报告列表页: ⑬ 点击查看报告详情
+    前端报告列表页->>API层(report.js): ⑭ 发送查询报告请求
+    API层(report.js)->>后端路由(reports.js): ⑮ GET /reports/:id
+    后端路由(reports.js)->>数据库: ⑯ 查询Report记录(含Survey关联)
+    数据库-->>后端路由(reports.js): ⑰ 返回报告数据及关联问卷
+    后端路由(reports.js)-->>前端报告列表页: ⑱ 返回报告详情
+    前端报告列表页->>用户: ⑲ 渲染报告内容
+***end***
+
 
 2、接口定义
 表 5-17 AI分析报告接口表

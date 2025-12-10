@@ -31,6 +31,22 @@ MySQL → 后端 API: 返回操作结果
 前端界面 → 管理员: 显示审核提示
 **_end_**
 
+***时序图最新描述***
+    管理员->>前端审核对话框: ① 点击"通过"或"拒绝"按钮
+    前端审核对话框->>API层(admin.js): ② 调用审核问卷接口
+    API层(admin.js)->>后端路由(admin.js): ③ PUT /admin/surveys/:id/review
+    后端路由(admin.js)->>控制器(adminController.js): ④ 调用reviewSurvey方法
+    控制器(adminController.js)->>数据库: ⑤ 开启数据库事务
+    控制器(adminController.js)->>数据库: ⑥ 查询Survey记录
+    数据库-->>控制器(adminController.js): ⑦ 返回问卷数据
+    控制器(adminController.js)->>数据库: ⑧ 更新status字段(published/rejected)
+    控制器(adminController.js)->>数据库: ⑨ 创建AdminActivity日志记录
+    控制器(adminController.js)->>数据库: ⑩ 提交事务
+    数据库-->>控制器(adminController.js): ⑪ 返回操作结果
+    控制器(adminController.js)-->>前端审核对话框: ⑫ 返回审核成功响应
+    前端审核对话框->>管理员: ⑬ 显示审核成功提示
+***end***
+
 2、接口定义
 表 5-21 问卷审核接口表
 

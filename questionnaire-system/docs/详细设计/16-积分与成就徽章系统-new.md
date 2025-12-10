@@ -38,6 +38,28 @@ MySQL → 后端API: 返回操作结果
 前端界面 → 用户: 显示积分提示和统计信息
 ***end***
 
+***时序图最新描述***
+    用户->>前端答题页面: ① 提交问卷答案
+    前端答题页面->>API层(survey.js): ② 调用提交答案接口
+    API层(survey.js)->>后端路由(answers.js): ③ POST /answers
+    后端路由(answers.js)->>控制器(answerController.js): ④ 调用submitAnswer方法
+    控制器(answerController.js)->>数据库: ⑤ 开启事务:创建Answer记录
+    控制器(answerController.js)->>数据库: ⑥ 更新User.points字段(+10)
+    控制器(answerController.js)->>数据库: ⑦ 创建PointHistory记录
+    控制器(answerController.js)->>数据库: ⑧ 提交事务
+    数据库-->>控制器(answerController.js): ⑨ 返回操作结果
+    控制器(answerController.js)-->>前端答题页面: ⑩ 返回{pointsEarned: 10}
+    前端答题页面->>用户: ⑪ 显示"问卷提交成功!获得10积分"
+    用户->>前端个人成就页面: ⑫ 访问积分历史页面
+    前端个人成就页面->>API层(user.js): ⑬ 调用获取积分历史接口
+    API层(user.js)->>后端路由(users.js): ⑭ GET /users/:id/point-history
+    后端路由(users.js)->>控制器(userController.js): ⑮ 调用getPointHistory方法
+    控制器(userController.js)->>数据库: ⑯ 查询PointHistory表(分页+排序)
+    数据库-->>控制器(userController.js): ⑰ 返回历史记录列表
+    控制器(userController.js)-->>前端个人成就页面: ⑱ 返回{history, total, page}
+    前端个人成就页面->>用户: ⑲ 渲染时间轴展示积分变动
+***end***
+
 
 2、接口定义
 表 5-16 积分与成就徽章系统接口表

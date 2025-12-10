@@ -12,6 +12,27 @@ MySQL → 后端 API: 返回更新结果
 后端 API → 后台问卷列表: 返回操作成功
 后台问卷列表 → 后台问卷列表: 刷新问卷列表并显示操作成功提示
 
+***时序图最新描述***
+    管理员->>前端后台问卷列表: ① 点击"下架"按钮
+    前端后台问卷列表->>API层(survey.js): ② 调用updateSurveyStatusApi接口
+    API层(survey.js)->>后端路由(surveys.js): ③ PUT /surveys/:id (status="stopped")
+    后端路由(surveys.js)->>控制器(surveyController.js): ④ 调用updateSurvey方法
+    控制器(surveyController.js)->>数据库: ⑤ 更新Survey.status字段
+    数据库-->>控制器(surveyController.js): ⑥ 返回更新结果
+    控制器(surveyController.js)-->>前端后台问卷列表: ⑦ 返回操作成功
+    前端后台问卷列表->>前端后台问卷列表: ⑧ 刷新问卷列表
+    前端后台问卷列表->>管理员: ⑨ 显示"下架成功"提示
+    管理员->>前端后台问卷列表: ⑩ 点击"设为模板"按钮
+    前端后台问卷列表->>API层(survey.js): ⑪ 调用问卷更新接口
+    API层(survey.js)->>后端路由(surveys.js): ⑫ PUT /surveys/:id (isTemplate=true)
+    后端路由(surveys.js)->>控制器(surveyController.js): ⑬ 调用updateSurvey方法
+    控制器(surveyController.js)->>数据库: ⑭ 更新Survey.isTemplate字段
+    数据库-->>控制器(surveyController.js): ⑮ 返回更新结果
+    控制器(surveyController.js)-->>前端后台问卷列表: ⑯ 返回操作成功
+    前端后台问卷列表->>前端后台问卷列表: ⑰ 刷新问卷列表
+    前端后台问卷列表->>管理员: ⑱ 显示"已设为模板"提示
+***end***
+
 2、接口定义
 表 5-22 问卷状态与模板管理接口表
 

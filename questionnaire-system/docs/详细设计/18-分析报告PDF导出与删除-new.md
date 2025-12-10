@@ -41,6 +41,31 @@ MySQL/PDFKit → 后端API: 返回操作结果
 前端界面 → 用户: 下载PDF或显示删除提示
 ***end***
 
+***时序图最新描述***
+    用户->>前端报告详情页: ① 点击"导出PDF"按钮
+    前端报告详情页->>API层(report.js): ② 调用PDF导出接口
+    API层(report.js)->>后端路由(reports.js): ③ GET /reports/:id/download
+    后端路由(reports.js)->>数据库: ④ 查询Report记录并验证所属权
+    数据库-->>后端路由(reports.js): ⑤ 返回报告数据
+    后端路由(reports.js)->>工具层(createPdf.js): ⑥ 调用PDF生成函数
+    工具层(createPdf.js)->>临时目录: ⑦ 使用PDFKit创建PDF文件
+    工具层(createPdf.js)-->>后端路由(reports.js): ⑧ 返回文件路径
+    后端路由(reports.js)-->>前端报告详情页: ⑨ 发送PDF文件流(application/pdf)
+    前端报告详情页->>浏览器: ⑩ 创建blob URL并触发下载
+    后端路由(reports.js)->>临时目录: ⑪ 删除临时PDF文件
+    用户->>前端报告列表页: ⑫ 点击"删除报告"按钮
+    前端报告列表页->>用户: ⑬ 弹出确认对话框
+    用户->>前端报告列表页: ⑭ 确认删除
+    前端报告列表页->>API层(report.js): ⑮ 调用删除报告接口
+    API层(report.js)->>后端路由(reports.js): ⑯ DELETE /reports/:id
+    后端路由(reports.js)->>数据库: ⑰ 查询Report记录并验证所属权
+    数据库-->>后端路由(reports.js): ⑱ 返回报告信息
+    后端路由(reports.js)->>数据库: ⑲ 执行物理删除
+    数据库-->>后端路由(reports.js): ⑳ 返回删除结果
+    后端路由(reports.js)-->>前端报告列表页: ㉑ 返回删除成功
+    前端报告列表页->>用户: ㉒ 显示提示并更新列表
+***end***
+
 
 2、接口定义
 表 5-18 分析报告PDF导出与删除接口表
