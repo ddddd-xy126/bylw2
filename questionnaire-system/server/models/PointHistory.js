@@ -21,6 +21,11 @@ const PointHistory = sequelize.define(
       type: DataTypes.ENUM("earn", "spend"),
       defaultValue: "earn",
     },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
   },
   {
     tableName: "point_histories",

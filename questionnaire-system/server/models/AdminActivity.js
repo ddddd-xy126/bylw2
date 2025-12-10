@@ -16,10 +16,15 @@ const AdminActivity = sequelize.define(
     title: DataTypes.STRING(200),
     description: DataTypes.TEXT,
     type: DataTypes.STRING(50),
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
   },
   {
     tableName: "admin_activities",
-    updatedAt: false,
+    timestamps: false,
   }
 );
 

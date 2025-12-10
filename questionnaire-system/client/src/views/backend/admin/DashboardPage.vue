@@ -407,6 +407,9 @@ const calculateGrowthTrends = (users, surveys) => {
   const userCounts = [0, 0, 0, 0, 0, 0, 0];
   const surveyCounts = [0, 0, 0, 0, 0, 0, 0];
 
+  console.log("计算增长趋势 - 用户总数:", users.length);
+  console.log("用户数据示例:", users.slice(0, 3));
+
   // 统计最近7天的数据
   for (let i = 0; i < 7; i++) {
     const targetDate = new Date(today);
@@ -428,6 +431,9 @@ const calculateGrowthTrends = (users, surveys) => {
       return createdAt >= targetDate && createdAt < nextDate;
     }).length;
   }
+
+  console.log("用户增长数据:", userCounts);
+  console.log("问卷增长数据:", surveyCounts);
 
   userGrowthData.value = userCounts;
   surveyGrowthData.value = surveyCounts;

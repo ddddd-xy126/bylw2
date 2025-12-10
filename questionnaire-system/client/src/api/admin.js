@@ -36,10 +36,11 @@ export const seedAdminApi = async (data) => {
 
 // 用户管理
 export const getAllUsersApi = async () => {
-  const response = await apiClient.get("/admin/users");
+  const response = await apiClient.get("/admin/users?limit=1000");
+  console.log("getAllUsersApi 原始响应:", response);
   return {
-    list: response.data || [],
-    total: response.pagination?.total || 0,
+    list: response.users || response.data?.users || [],
+    total: response.total || response.data?.total || 0,
   };
 };
 

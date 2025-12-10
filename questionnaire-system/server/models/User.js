@@ -99,9 +99,22 @@ const User = sequelize.define(
       allowNull: true,
       comment: "已解锁的徽章ID列表",
     },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+      comment: "创建时间",
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+      comment: "更新时间",
+    },
   },
   {
     tableName: "users",
+    timestamps: true,
     hooks: {
       beforeCreate: async (user) => {
         if (user.password) {
