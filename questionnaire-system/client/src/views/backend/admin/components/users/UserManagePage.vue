@@ -194,7 +194,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="统计数据" width="140">
+          <!-- <el-table-column label="统计数据" width="140">
             <template #default="{ row }">
               <div class="user-stats">
                 <div class="stat-item">
@@ -209,7 +209,7 @@
                 </div>
               </div>
             </template>
-          </el-table-column>
+          </el-table-column> -->
 
           <el-table-column prop="createdAt" label="注册时间" width="120">
             <template #default="{ row }">
