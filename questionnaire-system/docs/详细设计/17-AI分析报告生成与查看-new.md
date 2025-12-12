@@ -37,7 +37,19 @@ AI分析报告生成与查看
 接口描述 用户完成问卷后调用，生成新的个性化AI分析报告
 URL {{baseurl}}/reports/generate
 method POST
-请求参数 {"surveyId": "SV123", "surveyTitle": "心理健康测评", "category": "心理健康", "answers": [{"question": "您最近的睡眠质量如何?", "text": "经常失眠"}]}
+请求参数{
+  "nickname": "张三",
+  "bio": "热爱科技与创新，喜欢尝试新鲜事物",
+  "city": "北京",
+  "gender": "male",
+  "age": 25,
+  "profession": "软件工程师",
+  "tags": ["科技爱好者", "阅读", "运动", "音乐"],
+  "surveyTitle": "职场压力与心理健康调查",
+  "answers": [
+    {"text": "工作压力较大，经常需要加班","question": "您目前的工作压力状况如何？"},{ ...}
+  ]
+}
 返回参数 {"success": true, "message": "报告生成成功", "data": {"reportId": 42, "status": "completed", "content": "## 个人心理健康分析报告...", "generatedAt": "2024-01-15T10:30:00.000Z"}}
 
 接口名称 查询报告详情接口

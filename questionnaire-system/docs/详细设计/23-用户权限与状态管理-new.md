@@ -2,7 +2,7 @@
 1、简要描述
 （1）功能描述：用户权限与状态管理功能为管理员提供账号封禁/解封和用户删除操作。管理员可在后台用户管理页面对指定用户执行封禁、解封或删除操作。
 
-（2）代码逻辑：管理员在后台用户管理页面，点击封禁/解封，前端分别调用PUT /api/admin/users/:id/ban和PUT /api/admin/users/:id/unban 接口，后端中查询目标用户验证操作者不能封禁自己后更新banne为true或false。在删除用户时，在前端点击删除用户后，后端调用DELETE /api/admin/users/:id接口，验证不能删除自己后执行destroy方法删除用户记录，返回成功响应。
+（2）代码逻辑：管理员在后台用户管理页面点击“更多”下拉菜单，选择“封禁用户”或“解除封禁”，前端调用 `banUserApi` 或 `unbanUserApi`，分别请求 PUT /api/admin/users/:id/ban 和 PUT /api/admin/users/:id/unban 接口。后端在 `adminController` 的 `banUser` / `unbanUser` 方法中先查询目标用户并验证操作者不能对自己执行该操作（通过比对 `user.id` 和 `req.user.id`），随后更新用户记录的 `banned` 字段为 `true` 或 `false`，记录管理员操作（写入 `AdminActivity` 日志），并返回操作结果。删除用户时，前端先弹出确认对话框，确认后调用 `deleteUserApi` 请求 DELETE /api/admin/users/:id 接口，后端在 `deleteUser` 方法中查询目标用户并验证不能删除自己，执行删除用户记录的操作、记录管理员操作后返回成功响应，前端刷新列表并显示提示。
 
 时序图描述
 管理员 → 前端界面: 点击封禁/删除按钮
@@ -12,20 +12,18 @@ MySQL → adminController: 返回操作结果
 adminController → 前端界面: 返回成功响应
 前端界面 → 管理员: 显示操作提示
 
-***时序图最新描述***
-    管理员->>前端用户管理页面UserManagePage.vue: ① 点击"封禁"按钮
-    前端用户管理页面->>API层(admin.js): ② 调用封禁用户接口
-    API层(admin.js)->>后端路由(admin.js): ③ PUT /admin/users/:id/ban
-    后端路由(admin.js)->>控制器(adminController.js): ④ 调用banUser方法
-    控制器(adminController.js)->>数据库: ⑤ 开启数据库事务
-    控制器(adminController.js)->>数据库: ⑥ 查询User记录并验证非自身
-    控制器(adminController.js)->>数据库: ⑦ 更新User.banned=true
-    控制器(adminController.js)->>数据库: ⑧ 创建AdminActivity日志记录
-    控制器(adminController.js)->>数据库: ⑨ 提交事务
-    数据库-->>控制器(adminController.js): ⑩ 返回操作结果
-    控制器(adminController.js)-->>前端用户管理页面: ⑪ 返回封禁成功响应
-    前端用户管理页面->>管理员: ⑫ 显示"用户已封禁"提示
-    
+**_时序图最新描述_**
+管理员->>前端用户管理页面 UserManagePage.vue: ① 点击"封禁"按钮
+前端用户管理页面->>API 层(admin.js): ② 调用封禁用户接口
+API 层(admin.js)->>后端路由(admin.js): ③ PUT /admin/users/:id/ban
+后端路由(admin.js)->>控制器(adminController.js): ④ 调用 banUser 方法
+控制器(adminController.js)->>数据库: ⑤ 开启数据库事务
+控制器(adminController.js)->>数据库: ⑥ 查询 User 记录并验证非自身
+控制器(adminController.js)->>数据库: ⑦ 更新 User.banned=true
+数据库-->>控制器(adminController.js): ⑩ 返回操作结果
+控制器(adminController.js)-->>前端用户管理页面: ⑪ 返回封禁成功响应
+前端用户管理页面->>管理员: ⑫ 显示"用户已封禁"提示
+
     管理员->>前端用户管理页面: ⑬ 点击"删除"按钮
     前端用户管理页面->>管理员: ⑭ 弹出确认对话框
     管理员->>前端用户管理页面: ⑮ 确认删除
@@ -35,12 +33,11 @@ adminController → 前端界面: 返回成功响应
     控制器(adminController.js)->>数据库: ⑲ 开启数据库事务
     控制器(adminController.js)->>数据库: ⑳ 查询User记录并验证非自身
     控制器(adminController.js)->>数据库: ㉑ 执行destroy()删除用户
-    控制器(adminController.js)->>数据库: ㉒ 创建AdminActivity日志记录
-    控制器(adminController.js)->>数据库: ㉓ 提交事务
     数据库-->>控制器(adminController.js): ㉔ 返回删除结果
     控制器(adminController.js)-->>前端用户管理页面: ㉕ 返回删除成功响应
     前端用户管理页面->>管理员: ㉖ 显示"用户删除成功"提示
-***end***
+
+**_end_**
 
 2、接口定义
 表 5-23 用户权限与状态管理接口表
