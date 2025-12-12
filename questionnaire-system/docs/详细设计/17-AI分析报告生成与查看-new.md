@@ -5,36 +5,10 @@ AI分析报告生成与查看
 （2）代码逻辑：
 用户完成问卷后点击"生成分析报告"按钮，前端把问卷ID、标题、分类和答案发送到后端。后端先验证参数完整性，然后查询用户的基本信息（昵称、年龄、性别、职业、城市、个人简介、兴趣标签等）。后端直接在数据库创建一条新的报告记录，状态标记为"生成中"。然后后端将用户信息和问卷信息、用户答案一起打包，调用Coze AI工作流API生成个性化报告。Coze API采用流式返回，后端将返回的内容完整拼接。生成完成后，更新数据库中的报告记录，将状态改为"已完成"，保存报告内容和生成时间，然后返回给前端显示。如果AI调用出错，将状态标记为"失败"并记录错误信息。查看报告时，前端发送报告ID到后端，后端验证该报告是否属于当前用户，然后从数据库读取报告内容及关联的问卷信息返回。获取报告列表时，支持分页和按状态筛选，按创建时间倒序返回，用户可以看到自己不同问卷的不同分析报告。
 
-时序图描述
-用户 → 前端: 点击"生成分析报告"
-前端 → 后端: POST /api/reports/generate (surveyId, surveyTitle, category, answers)
-后端 → MySQL: 查询用户信息
-MySQL → 后端: 返回用户数据
-后端 → MySQL: 创建新报告记录 (status=generating)
-后端 → CozeAPI: 调用工作流API (传入用户信息+问卷+答案)
-CozeAPI → 后端: 流式返回分析内容
-后端 → MySQL: 更新报告 (status=completed, content=报告文本)
-后端 → 前端: 返回报告ID及内容
-
-用户 → 前端: 点击查看报告详情
-前端 → 后端: GET /api/reports/:id
-后端 → MySQL: 查询报告记录 (where id and userId, include survey)
-MySQL → 后端: 返回报告数据及关联问卷
-后端 → 前端: 返回报告详情
-前端 → 用户: 渲染报告内容
-
-***时序图描述***
-用户 → 前端界面: 触发生成/查看报告操作
-前端界面 → 后端API: 调用对应接口
-后端API → MySQL/CozeAPI: 查询/生成报告内容
-MySQL/CozeAPI → 后端API: 返回操作结果
-后端API → 前端界面: 返回报告数据
-前端界面 → 用户: 显示报告内容
-***end***
 
 ***时序图最新描述***
-    用户->>前端答题结果页: ① 点击"生成分析报告"按钮
-    前端答题结果页->>API层(report.js): ② 发送生成报告请求
+    用户->>前端答题结果页ResultPage.vue: ① 点击"生成分析报告"按钮
+    前端答题结果页ResultPage.vue->>API层(report.js): ② 发送生成报告请求
     API层(report.js)->>后端路由(reports.js): ③ POST /reports/generate
     后端路由(reports.js)->>数据库: ④ 查询用户信息(User表)
     数据库-->>后端路由(reports.js): ⑤ 返回用户数据
@@ -43,15 +17,16 @@ MySQL/CozeAPI → 后端API: 返回操作结果
     CozeAPI(cozeService.js)-->>后端路由(reports.js): ⑧ 流式返回分析内容
     后端路由(reports.js)->>数据库: ⑨ 更新Report(status=completed,content=报告)
     数据库-->>后端路由(reports.js): ⑩ 返回更新结果
-    后端路由(reports.js)-->>前端答题结果页: ⑪ 返回报告ID及内容
-    前端答题结果页->>用户: ⑫ 显示生成成功并展示报告
-    用户->>前端报告列表页: ⑬ 点击查看报告详情
-    前端报告列表页->>API层(report.js): ⑭ 发送查询报告请求
+    后端路由(reports.js)-->>前端答题结果页ResultPage.vue: ⑪ 返回报告ID及内容
+    前端答题结果页ResultPage.vue->>用户: ⑫ 显示生成成功并展示报告
+    
+    用户->>前端报告列表页ReportsPage.vue: ⑬ 点击查看报告详情
+    前端报告列表页ReportsPage.vue->>API层(report.js): ⑭ 发送查询报告请求
     API层(report.js)->>后端路由(reports.js): ⑮ GET /reports/:id
     后端路由(reports.js)->>数据库: ⑯ 查询Report记录(含Survey关联)
     数据库-->>后端路由(reports.js): ⑰ 返回报告数据及关联问卷
-    后端路由(reports.js)-->>前端报告列表页: ⑱ 返回报告详情
-    前端报告列表页->>用户: ⑲ 渲染报告内容
+    后端路由(reports.js)-->>前端报告列表页ReportsPage.vue: ⑱ 返回报告详情
+    前端报告列表页ReportsPage.vue->>用户: ⑲ 渲染报告内容
 ***end***
 
 

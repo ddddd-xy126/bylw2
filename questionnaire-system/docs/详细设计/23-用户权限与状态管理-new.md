@@ -13,7 +13,7 @@ adminController → 前端界面: 返回成功响应
 前端界面 → 管理员: 显示操作提示
 
 ***时序图最新描述***
-    管理员->>前端用户管理页面: ① 点击"封禁"按钮
+    管理员->>前端用户管理页面UserManagePage.vue: ① 点击"封禁"按钮
     前端用户管理页面->>API层(admin.js): ② 调用封禁用户接口
     API层(admin.js)->>后端路由(admin.js): ③ PUT /admin/users/:id/ban
     后端路由(admin.js)->>控制器(adminController.js): ④ 调用banUser方法
@@ -25,6 +25,7 @@ adminController → 前端界面: 返回成功响应
     数据库-->>控制器(adminController.js): ⑩ 返回操作结果
     控制器(adminController.js)-->>前端用户管理页面: ⑪ 返回封禁成功响应
     前端用户管理页面->>管理员: ⑫ 显示"用户已封禁"提示
+    
     管理员->>前端用户管理页面: ⑬ 点击"删除"按钮
     前端用户管理页面->>管理员: ⑭ 弹出确认对话框
     管理员->>前端用户管理页面: ⑮ 确认删除

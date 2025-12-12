@@ -2,7 +2,6 @@ import AdminLayout from "@/layouts/AdminLayout.vue";
 import LoginPage from "@/views/frontend/auth/LoginPage.vue";
 import DashboardPage from "@/views/backend/admin/DashboardPage.vue";
 import UserManagePage from "@/views/backend/admin/components/users/UserManagePage.vue";
-import AdminManagePage from "@/views/backend/admin/components/users/AdminManagePage.vue";
 import CreateUserPage from "@/views/backend/admin/components/users/CreateUserPage.vue";
 import QuestionnaireListPage from "@/views/backend/admin/components/questionnaires/QuestionnaireListPage.vue";
 import PendingQuestionnairesPage from "@/views/backend/admin/components/questionnaires/PendingQuestionnairesPage.vue";
@@ -20,7 +19,6 @@ export default [
     children: [
       { path: "", redirect: "/admin/dashboard" },
       { path: "dashboard", component: DashboardPage },
-      { path: "admins", component: AdminManagePage },
       { path: "admins/create", component: CreateUserPage },
       { path: "users", component: UserManagePage },
       { path: "questionnaires/list", component: QuestionnaireListPage },

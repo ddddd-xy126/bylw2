@@ -6,64 +6,26 @@
 
 删除报告时，前端通过确认后调用 DELETE /api/reports/:id。后端先校验用户身份并确认报告归属，再执行 report.destroy() 进行物理删除并返回成功提示。前端同步移除列表项并更新视图。
 
-时序图描述
-用户 → 前端界面：点击“导出 PDF”
-前端界面 → 后端 API：GET /api/reports/:id/download
-后端 API → MySQL：查询报告并验证所属权
-MySQL → 后端 API：返回报告数据
-
-alt 报告不存在或未完成
-  后端 API → 前端界面：返回 404
-else 报告可导出
-  后端 API → PDFKit：调用 createPdf() 生成 PDF 文件
-  PDFKit → 临时目录：写入 PDF
-  后端 API → 前端界面：发送文件流 (application/pdf)
-  前端界面 → 浏览器：创建 blob URL 并触发下载
-  后端 API → 临时目录：删除 PDF
-end
-
-用户 → 前端界面：点击“删除报告”
-前端界面 → 用户：确认弹窗
-用户 → 前端界面：确认删除
-前端界面 → 后端 API：DELETE /api/reports/:id
-后端 API → MySQL：查询报告并验证所属权
-MySQL → 后端 API：返回报告信息
-后端 API → MySQL：执行物理删除
-后端 API → 前端界面：返回删除成功
-前端界面 → 用户：显示提示并更新列表
-
-***时序图描述***
-用户 → 前端界面: 触发PDF导出/删除操作
-前端界面 → 后端API: 调用对应接口
-后端API → MySQL/PDFKit: 查询报告并生成PDF或执行删除
-MySQL/PDFKit → 后端API: 返回操作结果
-后端API → 前端界面: 返回文件流或删除结果
-前端界面 → 用户: 下载PDF或显示删除提示
-***end***
-
 ***时序图最新描述***
-    用户->>前端报告详情页: ① 点击"导出PDF"按钮
-    前端报告详情页->>API层(report.js): ② 调用PDF导出接口
+    用户->>前端报告详情页ReportsPage.vue: ① 点击"导出PDF"按钮
+    前端报告详情页ReportsPage.vue->>API层(report.js): ② 调用PDF导出接口
     API层(report.js)->>后端路由(reports.js): ③ GET /reports/:id/download
     后端路由(reports.js)->>数据库: ④ 查询Report记录并验证所属权
     数据库-->>后端路由(reports.js): ⑤ 返回报告数据
-    后端路由(reports.js)->>工具层(createPdf.js): ⑥ 调用PDF生成函数
-    工具层(createPdf.js)->>临时目录: ⑦ 使用PDFKit创建PDF文件
+    后端路由(reports.js)->>工具层(createPdf.js): ⑥ 调用PDF生成函数、创建PDF文件
     工具层(createPdf.js)-->>后端路由(reports.js): ⑧ 返回文件路径
-    后端路由(reports.js)-->>前端报告详情页: ⑨ 发送PDF文件流(application/pdf)
-    前端报告详情页->>浏览器: ⑩ 创建blob URL并触发下载
-    后端路由(reports.js)->>临时目录: ⑪ 删除临时PDF文件
-    用户->>前端报告列表页: ⑫ 点击"删除报告"按钮
-    前端报告列表页->>用户: ⑬ 弹出确认对话框
-    用户->>前端报告列表页: ⑭ 确认删除
-    前端报告列表页->>API层(report.js): ⑮ 调用删除报告接口
+    后端路由(reports.js)-->>前端报告详情页ReportsPage.vue: ⑨ 发送PDF文件流(application/pdf)
+    前端报告详情页ReportsPage.vue->>用户: ⑩ 创建blob URL并触发下载
+
+    用户->>前端报告列表页ReportsPage.vue: ⑫ 点击"删除报告"按钮
+    前端报告列表页ReportsPage.vue->>API层(report.js): ⑮ 调用删除报告接口
     API层(report.js)->>后端路由(reports.js): ⑯ DELETE /reports/:id
     后端路由(reports.js)->>数据库: ⑰ 查询Report记录并验证所属权
     数据库-->>后端路由(reports.js): ⑱ 返回报告信息
     后端路由(reports.js)->>数据库: ⑲ 执行物理删除
     数据库-->>后端路由(reports.js): ⑳ 返回删除结果
-    后端路由(reports.js)-->>前端报告列表页: ㉑ 返回删除成功
-    前端报告列表页->>用户: ㉒ 显示提示并更新列表
+    后端路由(reports.js)-->>前端报告列表页ReportsPage.vue: ㉑ 返回删除成功
+    前端报告列表页ReportsPage.vue->>用户: ㉒ 显示提示并更新列表
 ***end***
 
 
