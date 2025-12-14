@@ -9,7 +9,7 @@
           v-model="searchQuery"
           placeholder="搜索问卷标题或描述或标签"
           clearable
-          @input="handleSearch"
+          @input="handleSearchLocal"
           size="small"
         >
           <template #prefix>
@@ -101,6 +101,12 @@ const selectCategory = (catId) => {
   handleCategoryChange();
 };
 
+// 本地搜索处理：重置本地分页并调用组合式函数的处理（保留组合式的副作用）
+const handleSearchLocal = () => {
+  currentPage.value = 1;
+  handleSearch();
+};
+
 //将问卷的 categoryId 统一成字符串形式返回；如果缺失则尝试通过 survey.category 名称或 slug 在 categories 中查找
 const getSurveyCategoryId = (s) => {
   if (s == null) return undefined;
@@ -133,8 +139,20 @@ const surveysToShow = computed(() => {
         (s) => s.status === "published" && s.isCollecting !== false
       )
     : [];
-  // 如果选择了分类,通过统一的 categoryId 字符串进行匹配(兼容数字/字符串以及缺失 categoryId 的问卷)
+  // 搜索过滤（使用组合式中的 `searchQuery`）
   let filtered = list;
+  if (searchQuery.value && searchQuery.value.trim()) {
+    const q = searchQuery.value.toLowerCase();
+    filtered = filtered.filter((s) => {
+      const title = (s.title || "").toString().toLowerCase();
+      const desc = (s.description || "").toString().toLowerCase();
+      const tags = Array.isArray(s.tags) ? s.tags : [];
+      const tagMatch = tags.some((t) =>
+        (t || "").toString().toLowerCase().includes(q)
+      );
+      return title.includes(q) || desc.includes(q) || tagMatch;
+    });
+  }
   if (selectedCategory.value) {
     filtered = list.filter((s) => {
       const sid = getSurveyCategoryId(s);
