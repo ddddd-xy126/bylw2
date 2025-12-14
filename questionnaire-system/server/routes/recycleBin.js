@@ -30,6 +30,58 @@ router.get("/", authenticate, async (req, res, next) => {
   }
 });
 
+// 添加到回收站（创建回收项）
+router.post("/", authenticate, async (req, res, next) => {
+  try {
+    const itemData = req.body;
+
+    // 基本校验
+    if (!itemData || !itemData.originalId) {
+      return res.status(400).json({
+        success: false,
+        message: "回收项数据不完整，缺少 originalId",
+      });
+    }
+
+    // 判断是答题记录还是问卷
+    const isAnswer = itemData.type === "answer";
+
+    // 创建回收站记录
+    const newItem = await RecycleBin.create({
+      id: itemData.originalId, // 使用 originalId 作为主键
+      surveyId: itemData.surveyId,
+      title: isAnswer
+        ? itemData.survey?.title || itemData.title || "未知问卷"
+        : itemData.title || "未知问卷",
+      description: isAnswer
+        ? `答题记录 - ${itemData.survey?.title || "未知问卷"}`
+        : itemData.description || "",
+      category: isAnswer
+        ? itemData.survey?.category || itemData.category || "未分类"
+        : itemData.category || "未分类",
+      originalStatus: isAnswer
+        ? "answered"
+        : itemData.status || itemData.originalStatus || "draft",
+      questions: isAnswer
+        ? itemData.answers?.length || 0
+        : itemData.questions || 0,
+      userId: itemData.userId,
+      authorId: itemData.authorId || itemData.userId,
+      deletedBy: req.user.id,
+      deletedAt: itemData.deletedAt || new Date(),
+      surveyData: itemData, // 保存完整数据以便恢复
+    });
+
+    res.json({
+      success: true,
+      data: newItem,
+      message: "已移至回收站",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // 恢复问卷
 router.post("/:id/restore", authenticate, async (req, res, next) => {
   try {

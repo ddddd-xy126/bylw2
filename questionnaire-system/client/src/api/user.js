@@ -148,27 +148,29 @@ export const removeFavoriteApi = async (userId, surveyId) => {
 // 获取用户答题记录
 export const getUserAnsweredSurveysApi = async (userId) => {
   try {
-    // 使用后端API获取用户的答题记录
+    // 使用后端API获取用户的答题记录（后端已通过 include 关联返回 survey 对象）
     const answers = await apiClient.get(`/answers?userId=${userId}`);
 
     if (!answers || answers.length === 0) {
       return [];
     }
 
-    // 获取所有问卷信息以补充数据
+    // 获取所有问卷信息作为备用（如果后端没有返回 survey 对象）
     const surveys = await apiClient.get("/surveys");
 
     // 合并答题记录和问卷信息
     const answeredSurveys = answers.map((answer) => {
-      const survey = surveys.find((s) => s.id == answer.surveyId);
+      // 优先从 surveys 列表查找（有完整信息），然后才用后端返回的 survey 对象
+      const surveyFromList = surveys.find((s) => s.id == answer.surveyId);
+      const survey = surveyFromList || answer.survey;
 
       return {
         id: answer.id,
         userId: answer.userId,
         surveyId: answer.surveyId,
-        surveyTitle: answer.surveyTitle || (survey ? survey.title : "未知问卷"),
-        title: answer.surveyTitle || (survey ? survey.title : "未知问卷"),
-        category: survey ? survey.category : "未知分类",
+        surveyTitle: survey ? survey.title : "未知问卷",
+        title: survey ? survey.title : "未知问卷",
+        category: survey && survey.category ? survey.category : "未分类",
         estimatedTime: survey
           ? survey.estimatedTime || survey.duration || 5
           : 5,

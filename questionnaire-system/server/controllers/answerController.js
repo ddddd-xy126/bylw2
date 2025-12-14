@@ -200,7 +200,7 @@ exports.getAnswers = async (req, res, next) => {
         {
           model: Survey,
           as: "survey",
-          attributes: ["id", "title"],
+          attributes: ["id", "title", "category", "duration", "estimatedTime"],
         },
         {
           model: User,

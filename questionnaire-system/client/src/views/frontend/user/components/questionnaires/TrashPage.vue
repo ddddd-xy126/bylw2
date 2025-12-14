@@ -342,6 +342,7 @@ import {
   deleteFromRecycleBinApi,
   getCategoriesApi,
 } from "@/api/survey";
+import apiClient from "@/api/index";
 
 import { useUserStore } from "@/store/user";
 import { useListFilter } from "@/hooks/useListFilter";
@@ -411,13 +412,16 @@ const loadTrashedSurveys = async () => {
     trashedSurveys.value = userTrashed.map((item) => ({
       id: item.id,
       surveyId: item.surveyId,
-      title: item.title,
-      description: item.description,
-      category: item.category,
-      originalStatus: item.originalStatus,
+      title: item.title || "未知问卷",
+      description: item.description || "",
+      category: item.category || "未分类",
+      originalStatus: item.originalStatus || "draft",
       deletedAt: item.deletedAt,
       questions: item.questions || 0,
-      surveyData: item.surveyData,
+      surveyData: item.surveyData || {},
+      type:
+        item.surveyData?.type ||
+        (item.originalStatus === "answered" ? "answer" : "survey"), // 区分类型
     }));
 
     console.log("Loaded trashed surveys:", trashedSurveys.value);
@@ -467,6 +471,7 @@ const getOriginalStatus = (status) => {
     draft: "草稿",
     pending: "待审核",
     published: "已发布",
+    answered: "已填写", // 答题记录的状态
   };
   return statusMap[status] || "未知";
 };
@@ -497,10 +502,12 @@ const updateSelectAll = () => {
 
 const restoreSurvey = async (survey) => {
   try {
+    const isAnswer =
+      survey.type === "answer" || survey.originalStatus === "answered";
+    const itemType = isAnswer ? "答题记录" : "问卷";
+
     await ElMessageBox.confirm(
-      `确定要恢复问卷"${survey.title}"吗？恢复后问卷将回到${getOriginalStatus(
-        survey.originalStatus
-      )}状态。`,
+      `确定要恢复${itemType}"${survey.title}"吗？`,
       "确认恢复",
       {
         confirmButtonText: "确定恢复",
@@ -509,34 +516,73 @@ const restoreSurvey = async (survey) => {
       }
     );
 
-    // 恢复问卷到 surveys 表
-    const restoreData = {
-      title: survey.surveyData.title || survey.title,
-      description: survey.surveyData.description || survey.description,
-      category: survey.surveyData.category || survey.category,
-      categoryId: survey.surveyData.categoryId,
-      author: survey.surveyData.author,
-      authorId: survey.surveyData.authorId || survey.authorId,
-      questions: survey.surveyData.questions || survey.questions,
-      duration: survey.surveyData.duration,
-      difficulty: survey.surveyData.difficulty,
-      status: survey.originalStatus,
-      tags: survey.surveyData.tags || [],
-      questionList: survey.surveyData.questionList || [],
-      averageRating: survey.surveyData.averageRating || 0,
-      participantCount: survey.surveyData.participantCount || 0,
-    };
+    if (isAnswer) {
+      // 恢复答题记录到 answers 表
+      const surveyData = survey.surveyData || {};
+      const answerData = {
+        id: survey.id,
+        userId: surveyData.userId || survey.userId,
+        surveyId: surveyData.surveyId || survey.surveyId,
+        answers: surveyData.answers || [],
+        score: surveyData.score || 0,
+        result: surveyData.result || "",
+        duration: surveyData.duration || 0,
+        submittedAt: surveyData.submittedAt || new Date().toISOString(),
+      };
 
-    await createSurveyApi(restoreData);
+      // 直接调用 answers API 恢复
+      await apiClient.post("/answers", answerData);
+
+      // 更新用户的 completedSurveys
+      if (answerData.userId && answerData.surveyId) {
+        try {
+          const user = await apiClient.get(`/users/${answerData.userId}`);
+          if (user.completedSurveys && Array.isArray(user.completedSurveys)) {
+            if (!user.completedSurveys.includes(answerData.surveyId)) {
+              user.completedSurveys.push(answerData.surveyId);
+              await apiClient.patch(`/users/${answerData.userId}`, {
+                completedSurveys: user.completedSurveys,
+              });
+            }
+          }
+        } catch (error) {
+          console.error("更新用户 completedSurveys 失败:", error);
+        }
+      }
+    } else {
+      // 恢复问卷到 surveys 表
+      const surveyData = survey.surveyData || {};
+      const restoreData = {
+        title: surveyData.title || survey.title || "未知问卷",
+        description: surveyData.description || survey.description || "",
+        category: surveyData.category || survey.category || "未分类",
+        categoryId: surveyData.categoryId,
+        author: surveyData.author,
+        authorId: surveyData.authorId || survey.authorId,
+        questions: surveyData.questions || survey.questions || 0,
+        duration: surveyData.duration,
+        difficulty: surveyData.difficulty,
+        status:
+          survey.originalStatus === "answered"
+            ? "draft"
+            : survey.originalStatus,
+        tags: surveyData.tags || [],
+        questionList: surveyData.questionList || [],
+        averageRating: surveyData.averageRating || 0,
+        participantCount: surveyData.participantCount || 0,
+      };
+
+      await createSurveyApi(restoreData);
+    }
 
     // 从回收站删除
     await deleteFromRecycleBinApi(survey.id);
 
-    ElMessage.success("问卷恢复成功");
+    ElMessage.success(`${itemType}恢复成功`);
     await loadTrashedSurveys();
   } catch (error) {
     if (error !== "cancel") {
-      console.error("恢复问卷失败:", error);
+      console.error("恢复失败:", error);
       ElMessage.error("恢复失败：" + error.message);
     }
   }
