@@ -2,7 +2,8 @@ const { CozeAPI } = require("@coze/api");
 
 // Coze API 配置
 const COZE_CONFIG = {
-  token: "pat_m7jRFZhTeYnuqaTMXybSrwYSFyESKsddPY6rt1eMJ1C2bUGIFEtwlRTqrwAa1J3v",
+  token:
+    "cztei_hmoBllmFcYIKstJ7n7MdT5KA7Gkmt3eSzFJk92v7xd9a70fxYKzsZfHU7WkdH1cY7",
   baseURL: "https://api.coze.cn",
   workflowId: "7553193807606693928",
 };
@@ -79,7 +80,7 @@ async function generatePersonalReport(userData, surveyData, answers) {
           msg: chunk.msg,
         });
         throw new Error(
-          chunk.data?.error_message || chunk.msg || "Coze API 调用失败"
+          chunk.data?.error_message || chunk.msg || "Coze API 调用失败",
         );
       } else if (event === "Interrupt") {
         // Interrupt 事件 - 工作流中断
@@ -128,7 +129,7 @@ async function generatePersonalReportSync(userData, surveyData, answers) {
 
     console.log(
       "调用 Coze API (非流式)，输入数据:",
-      JSON.stringify(inputData, null, 2)
+      JSON.stringify(inputData, null, 2),
     );
 
     // 调用 Coze 工作流 API (非流式)
