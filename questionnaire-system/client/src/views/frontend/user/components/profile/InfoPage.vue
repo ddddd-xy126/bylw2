@@ -178,10 +178,10 @@
             <div class="stat-value">{{ userStats.totalPoints }}</div>
             <div class="stat-label">获得积分</div>
           </div>
-          <div class="stat-item">
+          <!-- <div class="stat-item">
             <div class="stat-value">{{ userStats.totalCollections }}</div>
             <div class="stat-label">收藏问卷</div>
-          </div>
+          </div> -->
         </div>
       </el-card>
     </div>
@@ -282,7 +282,7 @@ const loadTagOptions = async () => {
     // 如果没有收集到任何标签，提供少量默认项作为兜底
     if (set.size === 0) {
       ["音乐", "电影", "阅读", "旅行", "摄影", "运动", "美食", "游戏"].forEach(
-        (t) => set.add(t)
+        (t) => set.add(t),
       );
     }
 
@@ -368,7 +368,7 @@ const loadUserStats = async () => {
 
     // 使用后端API获取该用户创建的问卷数量
     const userSurveys = await apiClient.get(
-      `/surveys?userId=${profile.id}&limit=5000`
+      `/surveys?userId=${profile.id}&limit=5000`,
     );
     userStats.totalQuestionnaires = userSurveys?.length || 0;
 
@@ -446,7 +446,7 @@ const saveUserInfo = async () => {
 
     if (profileCompleteBonus > 0) {
       ElMessage.success(
-        `个人信息更新成功！资料完整度达到100%，获得 ${profileCompleteBonus} 积分`
+        `个人信息更新成功！资料完整度达到100%，获得 ${profileCompleteBonus} 积分`,
       );
     } else {
       ElMessage.success("个人信息更新成功");
