@@ -4,7 +4,7 @@
       <!-- 系统标题 -->
       <div class="sidebar-header">
         <div class="logo">
-          <el-icon size="24" color="#3498db"><Platform /></el-icon>
+          <img src="/logo.jpg" alt="logo" class="logo-img" />
           <span>问卷系统</span>
         </div>
         <div class="admin-info">
@@ -241,6 +241,13 @@ const onLogout = () => {
     font-size: 18px;
     font-weight: 700;
     color: #3498db;
+
+    .logo-img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
 
     @media (max-width: 480px) {
       span {

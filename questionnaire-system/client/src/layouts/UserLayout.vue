@@ -2,7 +2,10 @@
   <div class="user-layout">
     <header class="header">
       <div class="header-left">
-        <router-link to="/home" class="logo">问卷系统</router-link>
+        <router-link to="/home" class="logo">
+          <img src="/logo.jpg" alt="logo" class="logo-img" />
+          问卷系统
+        </router-link>
       </div>
       <div class="header-center">
         <nav class="nav-center">
@@ -286,6 +289,9 @@ onMounted(() => {
     align-items: center;
 
     .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-weight: 700;
       color: var(--color-primary-light-3);
       text-decoration: none;
@@ -298,6 +304,13 @@ onMounted(() => {
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+
+      .logo-img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
       transition: all 0.3s ease;
 
       @media (max-width: 768px) {
