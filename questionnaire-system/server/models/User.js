@@ -29,7 +29,8 @@ const User = sequelize.define(
       type: DataTypes.STRING(50),
     },
     avatar: {
-      type: DataTypes.STRING(255),
+      // MEDIUMTEXT：支持存储 base64 图片（最大 16MB）
+      type: DataTypes.TEXT("medium"),
     },
     phone: {
       type: DataTypes.STRING(20),
