@@ -46,8 +46,8 @@ export const getUserReportsApi = async (params = {}) => {
  * 下载报告
  */
 export const downloadReportApi = async (reportId) => {
-  // 直接使用完整 URL,避免 baseURL 未定义问题
-  const baseURL = "http://localhost:3000/api";
+  // 生产环境通过 VITE_API_BASE 环境变量注入
+  const baseURL = import.meta.env.VITE_API_BASE || "http://localhost:3000/api";
   const response = await fetch(`${baseURL}/reports/${reportId}/download`, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,

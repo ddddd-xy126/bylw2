@@ -1,11 +1,11 @@
 const { CozeAPI } = require("@coze/api");
+require("dotenv").config();
 
-// Coze API 配置
+// Coze API 配置（token 通过环境变量 COZE_API_TOKEN 注入）
 const COZE_CONFIG = {
-  token:
-    "cztei_hmoBllmFcYIKstJ7n7MdT5KA7Gkmt3eSzFJk92v7xd9a70fxYKzsZfHU7WkdH1cY7",
-  baseURL: "https://api.coze.cn",
-  workflowId: "7553193807606693928",
+  token: process.env.COZE_API_TOKEN,
+  baseURL: process.env.COZE_BASE_URL || "https://api.coze.cn",
+  workflowId: process.env.COZE_WORKFLOW_ID || "7553193807606693928",
 };
 
 // 创建 Coze API 客户端

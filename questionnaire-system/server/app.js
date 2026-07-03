@@ -7,9 +7,13 @@ const app = express();
 
 // 中间件
 app.use(helmet());
+// CORS_ORIGIN 支持逗号分隔多个域名，例如: https://bylw2.vercel.app,http://localhost:5173
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
+  .split(",")
+  .map((s) => s.trim());
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true,
   })
 );

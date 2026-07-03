@@ -2,9 +2,9 @@ import axios from "axios";
 import { useUserStore } from "@/store/user";
 import router from "@/router";
 
-// Express 后端 API
+// Express 后端 API（生产环境通过 VITE_API_BASE 环境变量注入）
 const instance = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL: import.meta.env.VITE_API_BASE || "http://localhost:3000/api",
   timeout: 120000, // 120秒超时,用于 AI 报告生成等耗时操作
 });
 

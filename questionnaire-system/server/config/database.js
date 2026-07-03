@@ -9,6 +9,11 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     dialect: "mysql",
+    // 云数据库（TiDB Cloud / Aiven 等）通常强制 SSL，设置 DB_SSL=true 开启
+    dialectOptions:
+      process.env.DB_SSL === "true"
+        ? { ssl: { rejectUnauthorized: true, minVersion: "TLSv1.2" } }
+        : {},
     logging: process.env.NODE_ENV === "development" ? console.log : false,
     pool: {
       max: 5,
