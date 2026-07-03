@@ -11,9 +11,18 @@ app.use(helmet());
 const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
   .split(",")
   .map((s) => s.trim());
+// 放行本项目在 Vercel 上的所有部署域名（生产/预览/分支域名各不相同）
+const vercelPattern = /^https:\/\/bylw2[\w-]*(-ddddd-xy126s-projects)?\.vercel\.app$/;
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin(origin, callback) {
+      // 允许无 Origin 的请求（如 curl、健康检查）
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin) || vercelPattern.test(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS 不允许的来源: ${origin}`));
+    },
     credentials: true,
   })
 );
